@@ -4,21 +4,22 @@ import scala.annotation.compileTimeOnly
 
 abstract class Signal[T] private[signals]() {
   @compileTimeOnly("apply can only be called within the concext of signals")
-  def apply(): T
+  def apply(): T = ???
   @compileTimeOnly("apply can only be called within the concext of signals")
-  def :=(t: T): Unit
+  def :=(t: T): Unit = ???
 }
 
 class SignalSwitchboard {
   import SignalSwitchboard._
   
   private[this] val signalStates = collection.mutable.Map.empty[SignalImpl[_], Any]
-  private[this] val signalDeps = collection.mutable.Map.empty[SignalImpl[_], Array[SignalImpl[_]]]
+  private[this] val signalDeps = collection.mutable.Map.empty[SignalImpl[_], Array[SignalImpl[_]]].withDefaultValue(Array.empty)
   private[this] val signalEvaluator = collection.mutable.Map.empty[SignalImpl[_], Eval]
 
   def signal[T](descr: String, initialValue: T): Signal[T] = {
     val res = SignalImpl[T](descr)
     signalStates(res) = initialValue
+    signalEvaluator(res) = GetState
     res
   }
   /**
@@ -58,9 +59,9 @@ class SignalSwitchboard {
     signalEvaluator(s) match {
       case Compute(deps, f) =>
         signalStates(s) = f(deps.map(signalStates))
-        signalDeps(s) foreach propagateSignal
       case _ =>
     }
+    signalDeps(s) foreach propagateSignal
   }
 
   private def unbindPrev(s: SignalImpl[_]): Unit = {
@@ -72,7 +73,9 @@ class SignalSwitchboard {
   }
 }
 object SignalSwitchboard {
-  private[SignalSwitchboard] case class SignalImpl[T](name: String) extends Signal[T]
+  private[SignalSwitchboard] case class SignalImpl[T](name: String) extends Signal[T] {
+    override def toString = s"Signal($name)"
+  }
 
   private[SignalSwitchboard] sealed trait Eval
   private[SignalSwitchboard] case object GetState extends Eval
