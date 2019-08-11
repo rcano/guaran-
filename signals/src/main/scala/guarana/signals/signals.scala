@@ -3,9 +3,9 @@ package guarana.signals
 import scala.annotation.compileTimeOnly
 
 abstract class Signal[T] private[signals]() {
-  @compileTimeOnly("apply can only be called within the concext of signals")
+  @compileTimeOnly("apply can only be called within the context of signals")
   def apply(): T = ???
-  @compileTimeOnly("apply can only be called within the concext of signals")
+  @compileTimeOnly("apply can only be called within the context of signals")
   def :=(t: T): Unit = ???
 }
 
