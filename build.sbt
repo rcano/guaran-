@@ -13,8 +13,9 @@ inThisBuild(Seq(
   libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.8" % "test",
 ))
 
-lazy val signals = Project(id = "signals", base = file("signals")).settings(
-  libraryDependencies += "org.scala-lang" % "scala-reflect" % scalaVersion.value,
+lazy val core = Project(id ="guaraná-core", base = file("core")).settings(
+  libraryDependencies += "org.scala-lang" % "scala-reflect" % scalaVersion.value % "provided",
 )
 
-dependsOn(signals)
+lazy val guaraná = Project(id = "guaraná", base = file(".")).dependsOn(core).settings(
+)
