@@ -43,7 +43,7 @@ class SignalSwitchboard {
     val key = s.asInstanceOf[Signal[T]]
     unbindPrev(key)
     val depImpls = deps.map(_.asInstanceOf[Signal[_]]).to(Array)
-    depImpls foreach (si => signalDeps(si) = signalDeps(si) :+ key)
+    for (si <- depImpls if si != s) signalDeps(si) = signalDeps(si) :+ key
     signalEvaluator(key) = Compute(depImpls, compute)
     propagateSignal(key)
   }
