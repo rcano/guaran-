@@ -10,6 +10,7 @@ trait VarContext {
 }
 
 trait Var[T] {
+  def name: String
   type ForInstance <: Singleton
   def :=(b: => Var.Binding[T])(implicit context: VarContext, instance: ValueOf[ForInstance]): Unit = context(this) = b
 
@@ -17,6 +18,8 @@ trait Var[T] {
   def apply(): T = ???
 
   def forInstance[S <: Singleton](s: S) = this.asInstanceOf[Var[T] { type ForInstance = S }]
+
+  override def toString = s"Var($name)"
 }
 object Var {
   sealed trait Binding[T]
@@ -29,7 +32,12 @@ object Var {
   final case class Dep[T](variable: Var[T], instance: Any)
   implicit def var2Dep[T](v: Var[T])(implicit instance: ValueOf[v.ForInstance]): Dep[T] = Dep(v, instance.value)
 
-  def apply[T]() = new Var[T] {
+  def apply[T](varName: => String) = new Var[T] {
+    lazy val name = varName
+    type ForInstance = this.type
+  }
+  def autoName[T](implicit fullname: => sourcecode.FullName) = new Var[T] {
+    lazy val name = fullname.value
     type ForInstance = this.type
   }
 

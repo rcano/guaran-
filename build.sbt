@@ -14,7 +14,10 @@ inThisBuild(Seq(
 ))
 
 lazy val core = Project(id ="guaraná-core", base = file("core")).settings(
-  libraryDependencies += "org.scala-lang" % "scala-reflect" % scalaVersion.value % "provided",
+  libraryDependencies ++= Seq(
+    "org.scala-lang" % "scala-reflect" % scalaVersion.value % "provided",
+    "com.lihaoyi" %% "sourcecode" % "0.1.7",
+  )
 )
 
 lazy val guaraná = Project(id = "guaraná", base = file(".")).dependsOn(core).settings(

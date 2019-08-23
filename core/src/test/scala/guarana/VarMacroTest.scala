@@ -5,8 +5,8 @@ import Var.Binding
 
 class VarMacroTest extends FunSuite {
 
-  val myVar = Var[Int]()
-  val myVar2 = Var[Int]()
+  val myVar = Var.autoName[Int]
+  val myVar2 = Var.autoName[Int]
   var varBinding: Var.Binding[Int] = null
 
   test("var constants compile") {
@@ -39,7 +39,7 @@ class VarMacroTest extends FunSuite {
     assertCompiles("""
       implicit val ctx: VarContext = null
       myVar := Binding {
-        val subVar = Var[String]()
+        val subVar = Var.autoName[String]
         myVar2() + subVar().length
       }
     """)
