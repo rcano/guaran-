@@ -20,7 +20,7 @@ object SmallSceneExample {
 
       ctx.rootNode := pane
 
-      pane.layout := dyn { pane.layout() :+ ((10, 10) -> Text("hello world", Color.BLACK)) }
+      pane.layout += ((10, 10) -> Text("hello world", Color.BLACK))
     }
   }
 }
