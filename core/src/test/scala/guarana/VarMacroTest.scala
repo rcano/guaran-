@@ -1,20 +1,20 @@
 package guarana
 
 import org.scalatest.FunSuite
-import Var.Binding
+import Binding.dyn
 
 class VarMacroTest extends FunSuite {
 
-  val myVar = Var.autoName[Int]
-  val myVar2 = Var.autoName[Int]
-  var varBinding: Var.Binding[Int] = null
+  val myVar = Var.autoName[Int](0)
+  val myVar2 = Var.autoName[Int](0)
+  var varBinding: Binding[Int] = null
 
   test("var constants compile") {
-    assertCompiles("varBinding = Binding(3)")
+    assertCompiles("varBinding = dyn(3)")
   }
   test("delimited continuation vars compile") {
     assertCompiles("""
-      varBinding = Binding {
+      varBinding = dyn {
         myVar() + myVar2().toInt + someInt + 23
       }
     """)
@@ -22,15 +22,15 @@ class VarMacroTest extends FunSuite {
   test("self reference compiles") {
     assertCompiles("""
       implicit val ctx: VarContext = null
-      myVar := Binding { myVar() + 1 }
+      myVar := dyn { myVar() + 1 }
     """)
   }
 
   test("can't create dependent variable with no dependencies") {
     assertDoesNotCompile("""
       implicit val ctx: VarContext = null
-      myVar := Binding {
-        val subVar = Var[String]()
+      myVar := dyn {
+        val subVar = Var[String]("subVar", "init")
         subVar().length
       }
     """)
@@ -38,8 +38,8 @@ class VarMacroTest extends FunSuite {
   test("dependent variabels compile") {
     assertCompiles("""
       implicit val ctx: VarContext = null
-      myVar := Binding {
-        val subVar = Var.autoName[String]
+      myVar := dyn {
+        val subVar = Var.autoName[String]("init")
         myVar2() + subVar().length
       }
     """)

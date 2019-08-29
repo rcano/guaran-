@@ -1,4 +1,6 @@
-object guarana {
+package guarana
+
+object `package` extends VarOps {
 
 }
 

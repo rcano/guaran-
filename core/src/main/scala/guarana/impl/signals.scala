@@ -1,4 +1,4 @@
-package guarana.signals
+package guarana.impl
 
 trait Signal[+T]
 

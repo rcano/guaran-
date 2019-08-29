@@ -5,41 +5,57 @@ import language.implicitConversions
 import scala.annotation.compileTimeOnly
 
 trait VarContext {
-  def update[T](v: Var[T], binding: Var.Binding[T])(implicit instance: ValueOf[v.ForInstance]): Unit
-  def apply[T](v: Var[T])(implicit instance: ValueOf[v.ForInstance]): T
+  def update[T](v: Var[T], binding: Binding[T])(implicit instance: ValueOf[v.ForInstance]): Unit
+  def apply[T](v: ObsVal[T])(implicit instance: ValueOf[v.ForInstance]): T
+}
+object VarContext {
+  @compileTimeOnly("No VarContext available")
+  implicit def noContextAvailable: VarContext = ???
 }
 
-trait Var[T] {
+trait ObsVal[+T] {
   def name: String
   type ForInstance <: Singleton
-  def :=(b: => Var.Binding[T])(implicit context: VarContext, instance: ValueOf[ForInstance]): Unit = context(this) = b
 
-  @compileTimeOnly("can't apply this Var out of scope")
-  def apply(): T = ???
+  def initialValue: T
+
+  def apply()(implicit instance: ValueOf[ForInstance], context: VarContext): T = context(this)
+
+  override def toString = s"ObsVal($name)"
+}
+
+trait Var[T] extends ObsVal[T] {
+  def :=(b: => Binding[T])(implicit context: VarContext, instance: ValueOf[ForInstance]): Unit = context(this) = b
 
   def forInstance[S <: Singleton](s: S) = this.asInstanceOf[Var[T] { type ForInstance = S }]
+  def asObsVal: ObsVal[T] { type ForInstance = Var.this.ForInstance } = this
 
   override def toString = s"Var($name)"
 }
 object Var {
-  sealed trait Binding[T]
-  case class Const[T](value: () => T) extends Binding[T]
-  case class Compute[T](dependencies: () => Seq[Dep[_]], dependents: () => Seq[Dep[_]], compute: VarContext => T) extends Binding[T]
-
-  def const[T](t: => T): Binding[T] = new Const(() => t)
-  def bind[T](dependencies: => Seq[Dep[_]], dependents: => Seq[Dep[_]])(compute: VarContext => T): Binding[T] = new Compute(() => dependencies, () => dependents, compute)
-  
-  final case class Dep[T](variable: Var[T], instance: Any)
-  implicit def var2Dep[T](v: Var[T])(implicit instance: ValueOf[v.ForInstance]): Dep[T] = Dep(v, instance.value)
-
-  def apply[T](varName: => String) = new Var[T] {
+  def apply[T](varName: => String, initValue: => T) = new Var[T] {
+    def initialValue = initValue
     lazy val name = varName
     type ForInstance = this.type
   }
-  def autoName[T](implicit fullname: => sourcecode.FullName) = new Var[T] {
+  def autoName[T](initValue: => T)(implicit fullname: => sourcecode.FullName) = new Var[T] {
+    def initialValue = initValue
     lazy val name = fullname.value
     type ForInstance = this.type
   }
+}
 
-  def Binding[T](f: => T): Var.Binding[T] = macro VarMacros.thunk2Binding[T]
+sealed trait Binding[T]
+object Binding {
+  case class Const[T](value: () => T) extends Binding[T]
+  case class Compute[T](dependencies: () => Seq[Dep[_]], dependents: () => Seq[Dep[_]], compute: VarContext => T) extends Binding[T]
+
+  implicit def const[T](t: => T): Binding[T] = new Const(() => t)
+  def bind[T](dependencies: => Seq[Dep[_]], dependents: => Seq[Dep[_]])(compute: VarContext => T): Binding[T] =
+    new Compute(() => dependencies, () => dependents, compute)
+
+  final case class Dep[T](variable: ObsVal[T], instance: Any)
+  implicit def var2Dep[T](v: ObsVal[T])(implicit instance: ValueOf[v.ForInstance]): Dep[T] = Dep(v, instance.value)
+  
+  def dyn[T](f: => T): Binding[T] = macro VarMacros.thunk2Binding[T]
 }
