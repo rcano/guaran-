@@ -13,7 +13,7 @@ object VarContext {
   implicit def noContextAvailable: VarContext = ???
 }
 
-trait ObsVal[+T] {
+sealed trait ObsVal[+T] {
   def name: String
   type ForInstance <: Singleton
 
@@ -23,16 +23,20 @@ trait ObsVal[+T] {
 
   override def toString = s"ObsVal($name)"
 }
+object ObsVal {
+  type Aux[T, Instance <: Singleton] = ObsVal[T] { type ForInstance = Instance }
+}
 
-trait Var[T] extends ObsVal[T] {
+sealed trait Var[T] extends ObsVal[T] {
   def :=(b: => Binding[T])(implicit context: VarContext, instance: ValueOf[ForInstance]): Unit = context(this) = b
 
   def forInstance[S <: Singleton](s: S) = this.asInstanceOf[Var[T] { type ForInstance = S }]
-  def asObsVal: ObsVal[T] { type ForInstance = Var.this.ForInstance } = this
+  def asObsValIn[S <: Singleton](s: S): ObsVal.Aux[T, S] = this.asInstanceOf[ObsVal.Aux[T, S]]
 
   override def toString = s"Var($name)"
 }
 object Var {
+  type Aux[T, Instance <: Singleton] = Var[T] { type ForInstance = Instance }
   def apply[T](varName: => String, initValue: => T) = new Var[T] {
     def initialValue = initValue
     lazy val name = varName

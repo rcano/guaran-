@@ -11,7 +11,6 @@ class Scenegraph {
   private[this] val rootNode = Var.autoName[Node](null).forInstance(this)
   private[this] val mouseLocation = Var.autoName[(Int, Int)]((0, 0)).forInstance(this)
 
-
   private[this] val threadLocalVarContext = new ThreadLocal[ContextImpl]()
 
   def update[R](f: Context => R): R = {
@@ -57,7 +56,7 @@ class Scenegraph {
 
   trait Context extends VarContext {
     def rootNode = Scenegraph.this.rootNode
-    def mouseLocation = Scenegraph.this.mouseLocation.asInstanceOf[ObsVal[(Int, Int)] { type ForInstance = Scenegraph.this.type }]
+    def mouseLocation = Scenegraph.this.mouseLocation.asObsValIn(Scenegraph.this)
   }
 
   /**
