@@ -1,56 +1,86 @@
 package guarana
 
-import language.existentials
-
-import Emitter._
-sealed trait Emitter[T] {
+sealed trait Emitter[A] {
   type ForInstance <: Singleton
 
-  def init(source: ForInstance, ctx: Context): Unit
-
-  def zip[U](emitter2: Emitter[U], zipStrategy: ZipStrategy = new ZipStrategy.ClosestEvents())(
-      implicit instance2: ValueOf[emitter2.ForInstance]): Emitter.Aux[(T, U), ForInstance] = {
-      
-    val outer: this.type = this
-    new Emitter[(T, U)] {
-      type ForInstance = outer.ForInstance
-      def init(source: outer.ForInstance, ctx: Context) = {
-        val info = ZipStrategy.ZippingInfo(ctx, this, source)
-        ctx.listen(outer) { case evt => zipStrategy.handleEvent(Left(evt), info) }(new ValueOf(source))
-        ctx.listen(emitter2) { case evt => zipStrategy.handleEvent(Right(evt), info) }
-      }
-    }
-  }
 }
 object Emitter {
-  type Aux[T, Instance <: Singleton] = Emitter[T] { type ForInstance = Instance }
+  type Aux[A, Instance <: Singleton] = Emitter[A] { type ForInstance = Instance }
 
   private[guarana] trait Context {
-    def listen[T](emitter: Emitter[T])(f: PartialFunction[T, Any])(implicit instance: ValueOf[emitter.ForInstance]): Unit
-    def emit[T](emitter: Emitter[T], evt: T)(implicit instance: ValueOf[emitter.ForInstance]): Unit
+    def listen[A](emitter: Emitter[A])(f: PartialFunction[A, Any])(implicit instance: ValueOf[emitter.ForInstance]): Unit
+    def emit[A](emitter: Emitter[A], evt: A)(implicit instance: ValueOf[emitter.ForInstance]): Unit
     def dispose(emitter: Emitter[_])(implicit instance: ValueOf[emitter.ForInstance]): Unit
   }
+}
 
-  trait ZipStrategy {
-    def handleEvent[T, U](evt: T Either U, info: ZipStrategy.ZippingInfo[T, U, _]): Unit
-  }
-  object ZipStrategy {
-    final case class ZippingInfo[T, U, Instance <: Singleton](context: Context, emitter: Emitter.Aux[(T, U), Instance], emitterKey: Instance)
+sealed trait EventIterator[-T] {
+  def step(t: T): Option[EventIterator[T]]
 
-    class ClosestEvents extends ZipStrategy {
-      private val events = new Array[Any](2)
-      def handleEvent[T, U](evt: T Either U, info: ZipStrategy.ZippingInfo[T, U, I forSome { type I }]): Unit = {
-        evt match {
-          case Left(t) => events(0) = t
-          case Right(u) => events(1) = u
-        }
-        if (events(0) != null && events(1) != null) {
-          info.context.emit(info.emitter, (events(0).asInstanceOf[T], events(1).asInstanceOf[U]))(new ValueOf(info.emitterKey))
-          events(0) = null
-          events(1) = null
+  def foreach[U <: T](f: U => Any): EventIterator[U]
+  def filter[U <: T](pred: U => Boolean): EventIterator[U]
+  def take(size: Int): EventIterator[T]
+  def takeWhile[U <: T](pred: U => Boolean): EventIterator[U]
+  def drop(size: Int): EventIterator[T]
+  def dropWhile[U <: T](pred: U => Boolean): EventIterator[U]
+}
+object EventIterator extends EventIterator[Any] {
+  def step(t: Any) = Some(this)
+
+  private val step0 = EventIteratorImpl[Any](Seq.empty)
+  def foreach[U <: Any](f: U => Any) = step0.foreach(f)
+  def filter[U <: Any](pred: U => Boolean) = step0.filter(pred)
+  def take(size: Int) = step0.take(size)
+  def takeWhile[U <: Any](pred: U => Boolean) = step0.takeWhile(pred)
+  def drop(size: Int) = step0.drop(size)
+  def dropWhile[U <: Any](pred: U => Boolean) = step0.dropWhile(pred)
+
+  private type Step[-T] = T => StepResult[T]
+  private case class StepResult[-T](stepNewState: Option[Step[T]], abortIteartor: Boolean, passThroughElem: Boolean)
+
+  private case class EventIteratorImpl[T](opsChain: collection.Seq[Step[T]]) extends EventIterator[T] {
+    def step(t: T): Option[EventIterator[T]] = {
+      def it(remSteps: collection.Seq[Step[T]], resChain: collection.mutable.Buffer[Step[T]]): Option[EventIterator[T]] = {
+        remSteps.headOption flatMap { step =>
+          val stepRes = step(t)
+            stepRes.stepNewState.foreach(step => resChain += step)
+            
+          val resIt = if (stepRes.passThroughElem) {
+              val t = remSteps.tail
+              if (t.nonEmpty) it(t, resChain) else Some(EventIteratorImpl(resChain))
+            } else Some(EventIteratorImpl(resChain ++ remSteps.tail))
+
+          resIt.filter(_ => !stepRes.abortIteartor)
         }
       }
+      it(opsChain, collection.mutable.Buffer.empty)
     }
 
+    def foreach[U <: T](f: U => Any): EventIterator[U] = {
+      lazy val step: Step[U] = u => { f(u); StepResult(Some(step), false, true) }
+      EventIteratorImpl[U](opsChain :+ step)
+    }
+    def filter[U <: T](pred: U => Boolean): EventIterator[U] = {
+      lazy val step: Step[U] = u => StepResult(Some(step), false, pred(u))
+      EventIteratorImpl[U](opsChain :+ step)
+    }
+    def take(size: Int): EventIterator[T] = {
+      def step(size: Int): Step[T] = t => {if (size > 1) StepResult(Some(step(size - 1)), false, true) else StepResult[Any](None, true, true)}
+      EventIteratorImpl(opsChain :+ step(size))
+    }
+    def takeWhile[U <: T](pred: U => Boolean): EventIterator[U] = {
+      lazy val step: Step[U] = t => if (pred(t)) StepResult(Some(step), false, true) else StepResult[Any](None, true, false)
+      EventIteratorImpl(opsChain :+ step)
+    }
+    def drop(size: Int): EventIterator[T] = {
+      def step(size: Int): Step[T] = t => if (size > 0) StepResult(Some(step(size - 1)), false, false) else StepResult[Any](None, false, true)
+      EventIteratorImpl(opsChain :+ step(size))
+    }
+    def dropWhile[U <: T](pred: U => Boolean): EventIterator[U] = {
+      lazy val step: Step[U] = t => if (pred(t)) StepResult(Some(step), false, false) else StepResult[Any](None, false, true)
+      EventIteratorImpl(opsChain :+ step)
+    }
+
+    override def toString = f"${getClass.getName}@${System.identityHashCode(this)}%h"
   }
 }
