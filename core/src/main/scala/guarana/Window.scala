@@ -23,6 +23,8 @@ trait Window {
   }
 
   def fireEvent(evt: Window.Event): Unit = listeners foreach (l => if (l.isDefinedAt(evt)) l(evt))
+
+  def bind(scene: Scenegraph): Unit
 }
 
 object Window {

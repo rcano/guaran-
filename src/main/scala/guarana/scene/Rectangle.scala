@@ -8,11 +8,6 @@ class Rectangle extends Node {
   def width = Rectangle.width.forInstance(this)
   def height = Rectangle.height.forInstance(this)
   def fill = Rectangle.fill.forInstance(this)
-
-  def render(surface: Surface)(implicit ctx: Scenegraph#Context) = surface.update { g2d =>
-    g2d.setPaint(ctx(fill))
-    g2d.fillRect(0, 0, ctx(width).toInt, ctx(height).toInt)
-  }
 }
 object Rectangle {
   val width = Var.autoName[Double](0)
@@ -28,6 +23,10 @@ object Rectangle {
     res.width := width
     res.height := height
     res.fill := fill
+    res.render := Binding.dyn { _.update { g2d =>
+        g2d.setPaint(res.fill())
+        g2d.fillRect(0, 0, res.width().toInt, res.height().toInt)
+      }}
     res
   }
 }

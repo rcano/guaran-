@@ -11,6 +11,8 @@ inThisBuild(Seq(
   scalacOptions in (Compile, console) --= Seq("-opt:_", "-Xlint"),
 
   libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.8" % "test",
+
+  addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
 ))
 
 lazy val core = Project(id ="guaraná-core", base = file("core")).settings(

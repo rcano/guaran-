@@ -89,7 +89,9 @@ class VarMacros(val c: Context) {
               case apply@Apply(method, params) =>
                 if (VarContextType.members.exists(_ == method.symbol)) q"$ctxName.${method.symbol}(..$params)"
                 else checkForVarContextBeingPassedAsArgument(apply).getOrElse(super.transform(tree))
-                
+
+              case t if t.tpe != null && t.tpe <:< VarContextType => c.abort(t.pos, "Leaking a reference to a context defined outside the lambda. This will introduce memory leaks and is forbidden.")
+
               case _ => super.transform(tree)
             }
           }
@@ -104,7 +106,7 @@ class VarMacros(val c: Context) {
          $BindingObjSym.bind($SeqApply(..$dependencies), $SeqApply(..${callsToVarContrs.values.map(_._1)}))($implicitCtx => $rewrittenThunk)
          """
       }
-//    println("Result\n" + result + "\n--------------------\n" + showRaw(result) + "\n")
+    println("Result\n" + result + "\n--------------------\n" + showRaw(result) + "\n")
 
     result
   }

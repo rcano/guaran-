@@ -28,9 +28,9 @@ object ObsVal {
 }
 
 sealed trait Var[T] extends ObsVal[T] {
-  def :=(b: => Binding[T])(implicit context: VarContext, instance: ValueOf[ForInstance]): Unit = context(this) = b
+  def :=(b: Binding[T])(implicit context: VarContext, instance: ValueOf[ForInstance]): Unit = context(this) = b
 
-  def forInstance[S <: Singleton](s: S) = this.asInstanceOf[Var[T] { type ForInstance = S }]
+  def forInstance[S <: Singleton](s: S): Var.Aux[T, S] = this.asInstanceOf[Var.Aux[T, S]]
   def asObsValIn[S <: Singleton](s: S): ObsVal.Aux[T, S] = this.asInstanceOf[ObsVal.Aux[T, S]]
 
   override def toString = s"Var($name)"

@@ -8,7 +8,8 @@ object Emitter {
   type Aux[A, Instance <: Singleton] = Emitter[A] { type ForInstance = Instance }
 
   private[guarana] trait Context {
-    def listen[A](emitter: Emitter[A])(f: PartialFunction[A, Any])(implicit instance: ValueOf[emitter.ForInstance]): Unit
+    def register(emitter: Emitter[_])(implicit instance: ValueOf[emitter.ForInstance]): Unit
+    def listen[A](emitter: Emitter[A])(f: EventIterator[A])(implicit instance: ValueOf[emitter.ForInstance]): Unit
     def emit[A](emitter: Emitter[A], evt: A)(implicit instance: ValueOf[emitter.ForInstance]): Unit
     def dispose(emitter: Emitter[_])(implicit instance: ValueOf[emitter.ForInstance]): Unit
   }

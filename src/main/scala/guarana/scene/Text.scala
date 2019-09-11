@@ -8,7 +8,7 @@ class Text extends Node {
   def text = Text.text.forInstance(this)
   def paint = Text.paint.forInstance(this)
 
-  def render(surface: guarana.Surface)(implicit ctx: guarana.Scenegraph#Context) = surface.update(_.drawString(ctx(text), 0, 0))
+//  def render(surface: guarana.Surface)(implicit ctx: VarContext with Emitter.Context) = surface.update(_.drawString(ctx(text), 0, 0))
 }
 object Text {
   val text = Var.autoName[String]("")
@@ -16,6 +16,11 @@ object Text {
   def apply(text: Binding[String], paint: Binding[Paint])(implicit ctx: VarContext): Text = {
     val res = new Text
     res.text := text
+    res.paint := paint
+    res.render := Binding.dyn(_.update { g2d =>
+        g2d.setPaint(res.paint())
+        g2d.drawString(res.text(), 0, 0)
+      })
     res
   }
 }
