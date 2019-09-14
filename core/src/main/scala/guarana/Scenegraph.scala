@@ -21,7 +21,9 @@ class Scenegraph {
 //  private[this] var needRerender = false
   def update[R](f: VarContext with Emitter.Context => R): R = {
 //    needRerender = false
-    val res = f(new ContextImpl(switchboard.snapshot, emittersData))
+    val ctx = new ContextImpl(switchboard.snapshot, emittersData)
+    val res = f(ctx)
+    switchboard = ctx.switchboard
 //    if (needRerender) requestRenderPass()
     res
   }
