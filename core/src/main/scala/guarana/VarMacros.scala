@@ -11,7 +11,6 @@ class VarMacros(val c: Context) {
     val VarObjSym = symbolOf[Var.type].asClass.module
     val BindingObjSym = symbolOf[Binding.type].asClass.module
     val VarContextType = typeOf[VarContext]
-    val SeqApply = q"_root_.scala.Seq.apply"
 
 //    println("Input\n" + f)
 
@@ -66,44 +65,39 @@ class VarMacros(val c: Context) {
 
         val ctxName = TermName(c.freshName("ctx"))
         val rewriter = new Transformer {
-          override def transform(tree: Tree): Tree = (
-            callsToVarApply.get(tree).map(vari => q"$ctxName.apply($vari)") orElse
-            callsToVarContrs.get(tree).map { case (newName, _) => q"$newName" }
-          ).getOrElse {
+          override def transform(tree: Tree): Tree = callsToVarApply.get(tree).map(vari => q"$ctxName.apply($vari)")
+            .getOrElse {
 
-            def checkForVarContextBeingPassedAsArgument(apply: Apply): Option[Tree] = {
-              if (apply.args.exists(_.symbol == implCtx.symbol)) {
-//                println("A VarContext is being passed to " + apply.symbol.asMethod)
-                val varContextArgs = apply.symbol.asMethod.paramLists.flatten.filter(_.info =:= VarContextType)
-//                println("  varContext args " + varContextArgs)
-                if (varContextArgs.sizeIs > 1) c.abort(apply.pos, "Can't process calling a method that take more than one VarContext as arguments, because the macro is not smart enough to process it")
-                else if (varContextArgs.nonEmpty)
-                  Some(Apply(apply.fun, apply.args.map(arg => if (arg.symbol == implCtx.symbol) q"$ctxName" else arg))) //.tap(tree => println("  replacing context as " + tree))
-                else None
-              } else None
+              def checkForVarContextBeingPassedAsArgument(apply: Apply): Option[Tree] = {
+                if (apply.args.exists(_.symbol == implCtx.symbol)) {
+  //                println("A VarContext is being passed to " + apply.symbol.asMethod)
+                  val varContextArgs = apply.symbol.asMethod.paramLists.flatten.filter(_.info =:= VarContextType)
+  //                println("  varContext args " + varContextArgs)
+                  if (varContextArgs.sizeIs > 1) c.abort(apply.pos, "Can't process calling a method that take more than one VarContext as arguments, because the macro is not smart enough to process it")
+                  else if (varContextArgs.nonEmpty)
+                    Some(Apply(apply.fun, apply.args.map(arg => if (arg.symbol == implCtx.symbol) q"$ctxName" else arg))) //.tap(tree => println("  replacing context as " + tree))
+                  else None
+                } else None
+              }
+
+              tree match {
+                case apply@Apply(Apply(_, _), params) => checkForVarContextBeingPassedAsArgument(apply).getOrElse(super.transform(tree))
+
+                case apply@Apply(method, params) =>
+                  if (VarContextType.members.exists(_ == method.symbol)) q"$ctxName.${method.symbol}(..$params)"
+                  else checkForVarContextBeingPassedAsArgument(apply).getOrElse(super.transform(tree))
+
+                case t if t.tpe != null && t.tpe <:< VarContextType => c.abort(t.pos, "Leaking a reference to a context defined outside the lambda. This would introduce memory leaks and is forbidden.")
+
+                case _ => super.transform(tree)
+              }
             }
-
-            tree match {
-              case apply@Apply(Apply(_, _), params) => checkForVarContextBeingPassedAsArgument(apply).getOrElse(super.transform(tree))
-
-              case apply@Apply(method, params) =>
-                if (VarContextType.members.exists(_ == method.symbol)) q"$ctxName.${method.symbol}(..$params)"
-                else checkForVarContextBeingPassedAsArgument(apply).getOrElse(super.transform(tree))
-
-              case t if t.tpe != null && t.tpe <:< VarContextType => c.abort(t.pos, "Leaking a reference to a context defined outside the lambda. This will introduce memory leaks and is forbidden.")
-
-              case _ => super.transform(tree)
-            }
-          }
         }
         val rewrittenThunk = c untypecheck rewriter.transform(f) //need to untypecheck here so that the nodes are properly retyped and re parented
 
-        val dependentsDecls = callsToVarContrs.toSeq.map { case (_, (name, app)) => q"val $name = $app" }
-//        println("Dependents " + q"..$dependentsDecls")
         val implicitCtx = q"implicit val $ctxName: ${tq""}"
         q"""
-         ..$dependentsDecls
-         $BindingObjSym.bind($SeqApply(..$dependencies), $SeqApply(..${callsToVarContrs.values.map(_._1)}))($implicitCtx => $rewrittenThunk)
+         $BindingObjSym.bind($implicitCtx => $rewrittenThunk)
          """
       }
     println("Result\n" + result + "\n--------------------\n" + showRaw(result) + "\n")

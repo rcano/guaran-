@@ -4,6 +4,8 @@ import language.experimental.macros
 import language.implicitConversions
 import scala.annotation.compileTimeOnly
 
+case class Keyed[+T](keyed: T, instance: Any)
+
 trait VarContext {
   def update[T](v: Var[T], binding: Binding[T])(implicit instance: ValueOf[v.ForInstance]): Unit
   def apply[T](v: ObsVal[T])(implicit instance: ValueOf[v.ForInstance]): T
@@ -25,6 +27,8 @@ sealed trait ObsVal[+T] {
 }
 object ObsVal {
   type Aux[T, Instance <: Singleton] = ObsVal[T] { type ForInstance = Instance }
+
+  implicit def obs2Keyed[T](v: ObsVal[T])(implicit instance: ValueOf[v.ForInstance]): Keyed[v.type] = Keyed(v, instance.value)
 }
 
 sealed trait Var[T] extends ObsVal[T] {
@@ -47,19 +51,16 @@ object Var {
     lazy val name = fullname.value
     type ForInstance = this.type
   }
+
 }
 
 sealed trait Binding[T]
 object Binding {
   case class Const[T](value: () => T) extends Binding[T]
-  case class Compute[T](dependencies: () => Seq[Dep[_]], dependents: () => Seq[Dep[_]], compute: VarContext => T) extends Binding[T]
+  case class Compute[T](compute: VarContext => T) extends Binding[T]
 
   implicit def const[T](t: => T): Binding[T] = new Const(() => t)
-  def bind[T](dependencies: => Seq[Dep[_]], dependents: => Seq[Dep[_]])(compute: VarContext => T): Binding[T] =
-    new Compute(() => dependencies, () => dependents, compute)
+  def bind[T](compute: VarContext => T): Binding[T] = new Compute(compute)
 
-  final case class Dep[T](variable: ObsVal[T], instance: Any)
-  implicit def var2Dep[T](v: ObsVal[T])(implicit instance: ValueOf[v.ForInstance]): Dep[T] = Dep(v, instance.value)
-  
   def dyn[T](f: => T): Binding[T] = macro VarMacros.thunk2Binding[T]
 }

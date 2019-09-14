@@ -35,7 +35,7 @@ class VarExample {
   val bp = BorderPane(north = Some("blah"))
 
   val lengthOfAll = Var.autoName[Int](0)
-  lengthOfAll := Binding.bind(Seq(bp.north, bp.south, bp.east, bp.west, bp.center), Seq()) { implicit ctx =>
+  lengthOfAll := Binding.bind { implicit ctx =>
     val otherBp = BorderPane(center = Some("center"))
     println("secondary bp built " + otherBp)
 
