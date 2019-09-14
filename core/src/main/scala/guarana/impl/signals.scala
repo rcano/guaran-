@@ -52,7 +52,7 @@ private[impl] class SignalSwitchboardImpl[Signal[+T]](val reporter: Reporter[Sig
   private val signalEvaluator = collection.mutable.Map.empty[Signal[_], Eval]
 
   def apply[T](s: Signal[T]): T = signalStates.get(s.asInstanceOf[Signal[T]]).
-    getOrElse(throw new IllegalArgumentException(s"$s is not defined")).asInstanceOf[T]
+  getOrElse(throw new IllegalArgumentException(s"$s is not defined")).asInstanceOf[T]
 
   def remove(s: Signal[_]): Unit = {
     signalStates.remove(s)
@@ -65,30 +65,43 @@ private[impl] class SignalSwitchboardImpl[Signal[+T]](val reporter: Reporter[Sig
     unbindPrev(s)
     signalStates(s) = value
     signalEvaluator(s) = GetState
-    propagateSignal(s)
+    propagateSignal(None)(s)
     reporter.signalUpdated(s, oldv, value, Set.empty, Set.empty)
   }
   
   def bind[T](s: Signal[T])(compute: SignalSwitchboard[Signal] => T): Unit = {
-    val oldv = signalStates.get(s)
     unbindPrev(s)
     signalEvaluator(s) = Compute[Signal](compute)
-    propagateSignal(s)
-    val rels = signalRels(s)
-    reporter.signalUpdated(s, oldv, signalStates(s), rels.dependencies, rels.dependents)
+    propagateSignal(None)(s)
   }
 
-  private def propagateSignal(s: Signal[_]): Unit = {
-    signalEvaluator(s) match {
-      case compute: Compute[Signal] =>
-        val tracker = new TrackingContext(s)
-        signalStates(s) = compute.f(tracker)
-        signalRels(s) = Relationships[Signal](tracker.dependencies, tracker.dependents)
-        for (dep <- tracker.dependencies) signalDeps(dep) = signalDeps(dep) + s
+  private def propagateSignal(parent: Option[Signal[_]])(s: Signal[_]): Unit = {
+    signalEvaluator.get(s) match { //due to how propagating signal works, where the set of dependencies is iterated, it is entirely possible to find during the iteration a signal that was removed, hence why we use get here
+      case Some(binding) =>
+        val oldv = signalStates.get(s)
+        var computedRels: Relationships[Signal] = null
+        binding match {
+          case compute: Compute[Signal] =>
+
+            signalRels.get(s) foreach (_.dependents foreach remove) //when recomputing the value, we gotta undo all the dependents
+
+            val tracker = new TrackingContext(s)
+            signalStates(s) = compute.f(tracker)
+
+            computedRels = Relationships[Signal](tracker.dependencies, tracker.dependents)
+            signalRels(s) = computedRels
+
+            for (dep <- tracker.dependencies) signalDeps(dep) = signalDeps(dep) + s
+
+          case _ =>
+            computedRels = Relationships[Signal](Set.empty, Set.empty)
+        }
+        signalDeps(s) foreach propagateSignal(Some(s))
+
+        reporter.signalUpdated(s, oldv, signalStates(s), computedRels.dependencies, computedRels.dependents)
+
       case _ =>
     }
-    signalDeps(s) foreach propagateSignal
-//    reporter.signalUpdated(s,)
   }
 
   def relationships(s: Signal[_]) = signalRels.get(s)
