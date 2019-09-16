@@ -5,11 +5,15 @@ import SignalSwitchboard._
 
 trait SignalSwitchboard[Signal[+T]] {
   /**
-   * obtains the current value of the signal
+   * Obtains the current value of the signal
    */
   def apply[T](s: Signal[T]): T
   /**
-   * change the value of the signal, propagating changes as needed
+   * Obtains the current value of the signal if the signal is found, otherwise register it with initialValue and return it.
+   */
+  def getOrElseUpdate[T](s: Signal[T], initValue: => T): T
+  /**
+   * Change the value of the signal, propagating changes as needed
    */
   def update[T](s: Signal[T], value: T): Unit
   /**
@@ -51,8 +55,10 @@ private[impl] class SignalSwitchboardImpl[Signal[+T]](val reporter: Reporter[Sig
   
   private val signalEvaluator = collection.mutable.Map.empty[Signal[_], Eval]
 
-  def apply[T](s: Signal[T]): T = signalStates.get(s.asInstanceOf[Signal[T]]).
-  getOrElse(throw new IllegalArgumentException(s"$s is not defined")).asInstanceOf[T]
+  def apply[T](s: Signal[T]): T = signalStates.get(s).
+    getOrElse(throw new IllegalArgumentException(s"$s is not defined")).asInstanceOf[T]
+
+  def getOrElseUpdate[T](s: Signal[T], initValue: => T): T = signalStates.getOrElseUpdate(s, initValue).asInstanceOf[T]
 
   def remove(s: Signal[_]): Unit = {
     signalStates.remove(s)
@@ -62,11 +68,13 @@ private[impl] class SignalSwitchboardImpl[Signal[+T]](val reporter: Reporter[Sig
     
   def update[T](s: Signal[T], value: T): Unit = {
     val oldv = signalStates.get(s)
-    unbindPrev(s)
-    signalStates(s) = value
-    signalEvaluator(s) = GetState
-    propagateSignal(None)(s)
-    reporter.signalUpdated(s, oldv, value, Set.empty, Set.empty)
+    if (oldv != value) {
+      unbindPrev(s)
+      signalStates(s) = value
+      signalEvaluator(s) = GetState
+      propagateSignal(None)(s)
+      reporter.signalUpdated(s, oldv, value, Set.empty, Set.empty)
+    }
   }
   
   def bind[T](s: Signal[T])(compute: SignalSwitchboard[Signal] => T): Unit = {
@@ -135,6 +143,10 @@ private[impl] class SignalSwitchboardImpl[Signal[+T]](val reporter: Reporter[Sig
     def apply[T](s: Signal[T]) = {
       if (forSignal != s) dependencies += s
       outerSb.apply(s)
+    }
+    def getOrElseUpdate[T](s: Signal[T], initValue: => T): T = {
+      if (forSignal != s) dependencies += s
+      outerSb.getOrElseUpdate(s, initValue)
     }
     def update[T](s: Signal[T], value: T) = {
       if (forSignal != s) dependents += s
