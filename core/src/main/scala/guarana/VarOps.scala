@@ -5,6 +5,7 @@ import language.implicitConversions
 trait VarOps {
   import VarOps._
   implicit def IntVarOps[Instance <: Singleton](v: Var.Aux[Int, Instance]) = new IntVarOps[Instance](v)
+  implicit def FloatVarOps[Instance <: Singleton](v: Var.Aux[Float, Instance]) = new FloatVarOps[Instance](v)
   implicit def ImmutableSeqVarOps[T, Instance <: Singleton](v: Var.Aux[collection.immutable.Seq[T], Instance]) = new ImmutableSeqVarOps[T, Instance](v)
   implicit def GrowableSeqVarOps[T, Instance <: Singleton](v: Var.Aux[collection.mutable.Growable[T], Instance]) = new GrowableSeqVarOps[T, Instance](v)
   implicit def ShrinkableSeqVarOps[T, Instance <: Singleton](v: Var.Aux[collection.mutable.Shrinkable[T], Instance]) = new ShrinkableSeqVarOps[T, Instance](v)
@@ -16,6 +17,16 @@ object VarOps {
       case Binding.Compute(compute) => Binding.Compute(ctx => v()(instance, ctx) + compute(ctx))
     }
     def -=(b: Binding[Int])(implicit context: VarContext, instance: ValueOf[Instance]): Unit = b match {
+      case Binding.Const(prev) => v := v() - prev()
+      case Binding.Compute(compute) => Binding.Compute(ctx => v()(instance, ctx) - compute(ctx))
+    }
+  }
+  class FloatVarOps[Instance <: Singleton](private val v: Var.Aux[Float, Instance]) extends AnyVal {
+    def +=(b: Binding[Float])(implicit context: VarContext, instance: ValueOf[Instance]): Unit = b match {
+      case Binding.Const(prev) => v := v() + prev()
+      case Binding.Compute(compute) => Binding.Compute(ctx => v()(instance, ctx) + compute(ctx))
+    }
+    def -=(b: Binding[Float])(implicit context: VarContext, instance: ValueOf[Instance]): Unit = b match {
       case Binding.Const(prev) => v := v() - prev()
       case Binding.Compute(compute) => Binding.Compute(ctx => v()(instance, ctx) - compute(ctx))
     }
