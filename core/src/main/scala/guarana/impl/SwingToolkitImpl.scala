@@ -59,21 +59,21 @@ object SwingToolkitImpl extends Toolkit {
       def update(f: Graphics2D => Any): Unit = image.synchronized {
         try {
           image.update(f)
-          RenderThread.tasks.add(())
+          RenderThread.tasks.add(runtime.BoxedUnit.UNIT)
         } catch {
           case NonFatal(e) => e.printStackTrace()
         }
       }
 
       object RenderThread extends Thread("Guaraná Render Thread") {
-        val tasks = new LinkedBlockingDeque[Unit]()
+        val tasks = new LinkedBlockingDeque[runtime.BoxedUnit]()
         override def run() = {
           var lastRender = System.nanoTime
           while (true) {
             tasks.takeFirst()
             LockSupport.parkNanos(5_000_000) //wait 5 millis to see if there are more updates
             val now = System.nanoTime
-            if (tasks.peekFirst == null || (now - lastRender > 15_000_000)) { //nothing new was added
+            if (tasks.peekFirst.eq(null) || (now - lastRender > 15_000_000)) { //nothing new was added
               def doRender() = Option(peer.getRootPane.getGraphics.asInstanceOf[Graphics2D]) foreach (_.drawImage(image.image, 0, 0, null))
               if (SwingUtilities.isEventDispatchThread) doRender()
               else SwingUtilities.invokeAndWait(() => doRender())
@@ -104,9 +104,11 @@ object SwingToolkitImpl extends Toolkit {
     def bind(scene: Scenegraph): Unit = {
       def renderScene(): Unit = scene.update { implicit ctx =>
         val rn = scene.rootNode()
-        surface.image.g2d.clearRect(0, 0, width, height)
-        val renderFunction = rn.render()
-        renderFunction(surface)
+        if (rn != null) {
+          surface.image.g2d.clearRect(0, 0, width, height)
+          val renderFunction = rn.render()
+          renderFunction(surface)
+        }
       }
 
       scene.requestRenderPass = renderScene _
@@ -114,6 +116,15 @@ object SwingToolkitImpl extends Toolkit {
       registerListener {
         case Window.MouseMoved(x, y) => 
           scene.update { implicit ctx => scene.mutableMouseLocation := ((x,y)) }
+
+        case Window.WindowSizeChanged(_, _, neww, newh) =>
+          scene.update { implicit ctx =>
+            scene.width := neww
+            scene.height := newh
+
+            renderScene()
+          }
+
       }
 
       renderScene()
