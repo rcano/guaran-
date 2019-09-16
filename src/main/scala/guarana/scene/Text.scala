@@ -17,10 +17,14 @@ object Text {
     val res = new Text
     res.text := text
     res.paint := paint
-    res.render := Binding.dyn(_.update { g2d =>
-        g2d.setPaint(res.paint())
-        g2d.drawString(res.text(), 0, 0)
-      })
+    res.render := Binding.dyn{
+      val p = res.paint()
+      val t = res.text()
+      _.update { g2d =>
+        g2d.setPaint(p)
+        g2d.drawString(t, 0, 0)
+      }
+    }
     res
   }
 }
