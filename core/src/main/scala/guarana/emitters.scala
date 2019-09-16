@@ -1,11 +1,20 @@
 package guarana
 
+import language.implicitConversions
+
 sealed trait Emitter[A] {
   type ForInstance <: Singleton
 
+  final def forInstance[S <: Singleton](s: S): Emitter.Aux[A, S] = this.asInstanceOf[Emitter.Aux[A, S]]
+
+  final def :=(listener: EventIterator[A])(implicit ctx: Emitter.Context, instance: ValueOf[ForInstance]): Unit = ctx.listen(this)(listener)
 }
 object Emitter {
   type Aux[A, Instance <: Singleton] = Emitter[A] { type ForInstance = Instance }
+
+  def apply[T]() = new Emitter[T] {
+    type ForInstance = this.type
+  }
 
   private[guarana] trait Context {
     def register(emitter: Emitter[_])(implicit instance: ValueOf[emitter.ForInstance]): Unit
@@ -13,6 +22,8 @@ object Emitter {
     def emit[A](emitter: Emitter[A], evt: A)(implicit instance: ValueOf[emitter.ForInstance]): Unit
     def dispose(emitter: Emitter[_])(implicit instance: ValueOf[emitter.ForInstance]): Unit
   }
+
+  implicit def emitter2Keyed[T](e: Emitter[T])(implicit instance: ValueOf[e.ForInstance]): Keyed[e.type] = Keyed(e, instance.value)
 }
 
 sealed trait EventIterator[-T] {
@@ -58,30 +69,48 @@ object EventIterator extends EventIterator[Any] {
     }
 
     def foreach[U <: T](f: U => Any): EventIterator[U] = {
-      lazy val step: Step[U] = u => { f(u); StepResult(Some(step), false, true) }
+      lazy val step: Step[U] = new Step[U] {
+        def apply(u: U) = { f(u); StepResult(Some(step), false, true) }
+        override def toString = "foreach"
+      }
       EventIteratorImpl[U](opsChain :+ step)
     }
     def filter[U <: T](pred: U => Boolean): EventIterator[U] = {
-      lazy val step: Step[U] = u => StepResult(Some(step), false, pred(u))
+      lazy val step: Step[U] = new Step[U] {
+        def apply(u: U) = StepResult(Some(step), false, pred(u))
+        override def toString = s"filter($pred)"
+      }
       EventIteratorImpl[U](opsChain :+ step)
     }
     def take(size: Int): EventIterator[T] = {
-      def step(size: Int): Step[T] = t => {if (size > 1) StepResult(Some(step(size - 1)), false, true) else StepResult[Any](None, true, true)}
+      def step(size: Int): Step[T] = new Step[T] {
+        def apply(t: T) = {if (size > 1) StepResult(Some(step(size - 1)), false, true) else StepResult[Any](None, true, true)}
+        override def toString = s"take($size)"
+      }
       EventIteratorImpl(opsChain :+ step(size))
     }
     def takeWhile[U <: T](pred: U => Boolean): EventIterator[U] = {
-      lazy val step: Step[U] = t => if (pred(t)) StepResult(Some(step), false, true) else StepResult[Any](None, true, false)
+      lazy val step: Step[U] = new Step[U] {
+        def apply(t: U) = if (pred(t)) StepResult(Some(step), false, true) else StepResult[Any](None, true, false)
+        override def toString = s"takeWhile($pred)"
+      }
       EventIteratorImpl(opsChain :+ step)
     }
     def drop(size: Int): EventIterator[T] = {
-      def step(size: Int): Step[T] = t => if (size > 0) StepResult(Some(step(size - 1)), false, false) else StepResult[Any](None, false, true)
+      def step(size: Int): Step[T] = new Step[T] {
+        def apply(t: T) = if (size > 0) StepResult(Some(step(size - 1)), false, false) else StepResult[Any](None, false, true)
+        override def toString = s"drop($size)"
+      }
       EventIteratorImpl(opsChain :+ step(size))
     }
     def dropWhile[U <: T](pred: U => Boolean): EventIterator[U] = {
-      lazy val step: Step[U] = t => if (pred(t)) StepResult(Some(step), false, false) else StepResult[Any](None, false, true)
+      lazy val step: Step[U] = new Step[U] {
+        def apply(t: U) = if (pred(t)) StepResult(Some(step), false, false) else StepResult[Any](None, false, true)
+        override def toString = s"dropWhile($pred)"
+      }
       EventIteratorImpl(opsChain :+ step)
     }
 
-    override def toString = f"${getClass.getName}@${System.identityHashCode(this)}%h"
+    override def toString = s"EventIterator(${opsChain.mkString(" → ")})"
   }
 }
