@@ -32,10 +32,10 @@ object ObsVal {
 }
 
 sealed trait Var[T] extends ObsVal[T] {
-  def :=(b: Binding[T])(implicit context: VarContext, instance: ValueOf[ForInstance]): Unit = context(this) = b
+  def :=(b: Binding[T])(implicit context: VarContext, instance: ValueOf[ForInstance]): this.type = { context(this) = b; this }
 
-  def forInstance[S <: Singleton](s: S): Var.Aux[T, S] = this.asInstanceOf[Var.Aux[T, S]]
-  def asObsValIn[S <: Singleton](s: S): ObsVal.Aux[T, S] = this.asInstanceOf[ObsVal.Aux[T, S]]
+  final def forInstance[S <: Singleton](s: S): Var.Aux[T, S] = this.asInstanceOf[Var.Aux[T, S]]
+  final def asObsValIn[S <: Singleton](s: S): ObsVal.Aux[T, S] = this.asInstanceOf[ObsVal.Aux[T, S]]
 
   override def toString = s"Var($name)"
 }
@@ -46,7 +46,7 @@ object Var {
     lazy val name = varName
     type ForInstance = this.type
   }
-  def autoName[T](initValue: => T)(implicit fullname: => sourcecode.FullName) = new Var[T] {
+  def autoName[T](initValue: => T)(implicit fullname: => sourcecode.Name) = new Var[T] {
     def initialValue = initValue
     lazy val name = fullname.value
     type ForInstance = this.type
