@@ -58,9 +58,8 @@ class Scenegraph {
   private object reporter extends SignalSwitchboard.Reporter[Signal] {
 
     def signalRemoved(s: Signal[_]): Unit = ()
+    def signalInvalidated(s: Signal[_]) = if (s.keyed == Node.render && s.instance.isInstanceOf[Node]) requestRenderPass()
     def signalUpdated[T](s: Signal[T], oldValue: Option[T], newValue: T, dependencies: collection.Set[Signal[_]], dependents: collection.Set[Signal[_]]): Unit = {
-      if (s.keyed == Node.render && s.instance.isInstanceOf[Node]) requestRenderPass()
-
       val ctx = threadLocalContext.get()
       if (ctx != null) //during scenegraph bootstrapping, context is null
         ctx.emit(varUpdates, (s, oldValue, newValue))
