@@ -1,10 +1,13 @@
-package guarana.impl
+package guarana
+package impl
 
+import language.implicitConversions
 import org.scalatest.FunSuite
 import scala.util.chaining._
 
 class SignalsTest extends FunSuite {
   trait Signal[+T] {}
+  implicit def keyedSignal(s: Signal[_]): Keyed[s.type] = Keyed(s, s)
   def signal[T](initValue: T)(implicit sb: SignalSwitchboard[Signal], name: => sourcecode.Name) = {
     new Signal[T] {
       override def toString = name.value
@@ -12,9 +15,9 @@ class SignalsTest extends FunSuite {
   }
 
   val noopReporter = new SignalSwitchboard.Reporter[Signal] {
-    def signalRemoved(s: Signal[_]): Unit = ()
-    def signalInvalidated(s: Signal[_]): Unit = ()
-    def signalUpdated[T](s: Signal[T], oldValue: Option[T], newValue: T, dependencies: collection.Set[Signal[_]], dependents: collection.Set[Signal[_]]): Unit = ()
+    def signalRemoved(s: Keyed[Signal[_]]): Unit = ()
+    def signalInvalidated(s: Keyed[Signal[_]]): Unit = ()
+    def signalUpdated[T](s: Keyed[Signal[T]], oldValue: Option[T], newValue: T, dependencies: collection.Set[Keyed[Signal[_]]], dependents: collection.Set[Keyed[Signal[_]]]): Unit = ()
   }
 
   test("simple signal propagation") {

@@ -13,10 +13,10 @@ object AbsolutePositioningPane {
     res.children := Binding.dyn { res.layout().map(_._2) }
     res.render := Binding.dyn {
       val currLayout = res.layout()
+      val toRender = currLayout.map(e => e._1 -> ctx(e._2.render))
       surface => surface.update { g2d =>
-        for (((x, y), node) <- currLayout) {
+        for (((x, y), renderFunction) <- toRender) {
           g2d.translate(x, y)
-          val renderFunction = ctx(node.render)
           renderFunction(surface)
           g2d.translate(-x, -y)
         }

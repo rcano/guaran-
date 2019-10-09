@@ -4,7 +4,7 @@ import language.existentials
 import impl._
 
 class Scenegraph {
-  type Signal[+T] = Keyed[ObsVal[T]]
+  type Signal[+T] = ObsVal[T]
   private[this] var switchboard = SignalSwitchboard[Signal](reporter)
   private[this] var emittersData = Map.empty[Keyed[Emitter[_]], EmitterData[_]]
 
@@ -28,7 +28,7 @@ class Scenegraph {
 
 
   //emitters
-  val varUpdates = Emitter[(Signal[T], Option[T], T) forSome { type T}]().forInstance(this)
+  val varUpdates = Emitter[(Keyed[Signal[T]], Option[T], T) forSome { type T}]().forInstance(this)
 
   {
     emittersData = emitterRegister(emittersData, varUpdates)
@@ -57,9 +57,9 @@ class Scenegraph {
   
   private object reporter extends SignalSwitchboard.Reporter[Signal] {
 
-    def signalRemoved(s: Signal[_]): Unit = ()
-    def signalInvalidated(s: Signal[_]) = if (s.keyed == Node.render && s.instance.isInstanceOf[Node]) requestRenderPass()
-    def signalUpdated[T](s: Signal[T], oldValue: Option[T], newValue: T, dependencies: collection.Set[Signal[_]], dependents: collection.Set[Signal[_]]): Unit = {
+    def signalRemoved(s: Keyed[Signal[_]]): Unit = ()
+    def signalInvalidated(s: Keyed[Signal[_]]) = if (s.keyed == Node.render && s.instance.isInstanceOf[Node]) requestRenderPass()
+    def signalUpdated[T](s: Keyed[Signal[T]], oldValue: Option[T], newValue: T, dependencies: collection.Set[Keyed[Signal[_]]], dependents: collection.Set[Keyed[Signal[_]]]): Unit = {
       val ctx = threadLocalContext.get()
       if (ctx != null) //during scenegraph bootstrapping, context is null
         ctx.emit(varUpdates, (s, oldValue, newValue))
