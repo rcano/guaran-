@@ -49,7 +49,7 @@ trait SignalSwitchboard[Signal[+T]] {
   /**
    * Returns a new SignalSwitchboard which is a copy of this one.
    */
-  def snapshot: SignalSwitchboard[Signal]
+  def snapshot(newReporter: Reporter[Signal]): SignalSwitchboard[Signal]
 
   def relationships(s: Keyed[Signal[_]]): Option[Relationships[Signal]]
 }
@@ -89,7 +89,8 @@ private[impl] class SignalSwitchboardImpl[Signal[+T]](val reporter: Reporter[Sig
 
         for (dep <- tracker.dependencies) signalDeps(dep) = signalDeps(dep) + s
 
-        reporter.signalUpdated(s, Option(oldv), result, computedRels.dependencies, computedRels.dependents)
+        if (result != oldv)
+          reporter.signalUpdated(this, s, Option(oldv), result, computedRels.dependencies, computedRels.dependents)
 
         result.asInstanceOf[T]
     }
@@ -98,7 +99,7 @@ private[impl] class SignalSwitchboardImpl[Signal[+T]](val reporter: Reporter[Sig
   def remove(s: Keyed[Signal[_]]): Unit = {
     signalStates.remove(s)
     unbindPrev(s)
-    reporter.signalRemoved(s)
+    reporter.signalRemoved(this, s)
   }
     
   def update[T](s: Keyed[Signal[T]], value: T): Unit = {
@@ -108,7 +109,7 @@ private[impl] class SignalSwitchboardImpl[Signal[+T]](val reporter: Reporter[Sig
       signalStates(s) = Value(value)
       signalEvaluator(s) = GetState
       propagateSignal(None)(s)
-      reporter.signalUpdated(s, oldv, value, Set.empty, Set.empty)
+      reporter.signalUpdated(this, s, oldv, value, Set.empty, Set.empty)
     }
   }
   
@@ -132,7 +133,7 @@ private[impl] class SignalSwitchboardImpl[Signal[+T]](val reporter: Reporter[Sig
         }
         signalDeps(s) foreach propagateSignal(Some(s))
 
-        reporter.signalInvalidated(s)
+        reporter.signalInvalidated(this, s)
 
       case _ =>
     }
@@ -153,8 +154,8 @@ private[impl] class SignalSwitchboardImpl[Signal[+T]](val reporter: Reporter[Sig
     }
   }
 
-  def snapshot: SignalSwitchboard[Signal] = {
-    val res = new SignalSwitchboardImpl[Signal](reporter)
+  def snapshot(newReporter: Reporter[Signal]): SignalSwitchboard[Signal] = {
+    val res = new SignalSwitchboardImpl[Signal](newReporter)
     res.signalStates ++= signalStates
     res.signalDeps ++= signalDeps
     res.signalEvaluator ++= signalEvaluator
@@ -180,7 +181,7 @@ private[impl] class SignalSwitchboardImpl[Signal[+T]](val reporter: Reporter[Sig
     }
     def relationships(s: Keyed[Signal[_]]) = outerSb.relationships(s)
     def remove(s: Keyed[Signal[_]]) = outerSb.remove(s)
-    def snapshot = outerSb.snapshot
+    def snapshot(newReporter: Reporter[Signal]) = outerSb.snapshot(newReporter)
   }
 }
 object SignalSwitchboard {
@@ -195,9 +196,9 @@ object SignalSwitchboard {
   private[impl] case class Relationships[Signal[T]](dependencies: collection.Set[Keyed[Signal[_]]], dependents: collection.Set[Keyed[Signal[_]]])
 
   trait Reporter[Signal[+T]] {
-    def signalRemoved(s: Keyed[Signal[_]]): Unit
-    def signalUpdated[T](s: Keyed[Signal[T]], oldValue: Option[T], newValue: T, dependencies: collection.Set[Keyed[Signal[_]]], dependents: collection.Set[Keyed[Signal[_]]]): Unit
-    def signalInvalidated(s: Keyed[Signal[_]]): Unit
+    def signalRemoved(sb: SignalSwitchboard[Signal], s: Keyed[Signal[_]]): Unit
+    def signalUpdated[T](sb: SignalSwitchboard[Signal], s: Keyed[Signal[T]], oldValue: Option[T], newValue: T, dependencies: collection.Set[Keyed[Signal[_]]], dependents: collection.Set[Keyed[Signal[_]]]): Unit
+    def signalInvalidated(sb: SignalSwitchboard[Signal], s: Keyed[Signal[_]]): Unit
   }
 
   def apply[Signal[+T]](reporter: Reporter[Signal]): SignalSwitchboard[Signal] = new SignalSwitchboardImpl[Signal](reporter)

@@ -7,6 +7,7 @@ class Scenegraph {
   type Signal[+T] = ObsVal[T]
   private[this] var switchboard = SignalSwitchboard[Signal](reporter)
   private[this] var emittersData = Map.empty[Keyed[Emitter[_]], EmitterData[_]]
+  private[this] var stylist: Stylist = Stylist.NoOp
 
   private[this] val threadLocalContext = new ThreadLocal[ContextImpl] {
     override def initialValue = null
@@ -35,13 +36,11 @@ class Scenegraph {
   }
 
   private[guarana] var requestRenderPass: () => Unit = () => ()
-//  private[this] var needRerender = false
   def update[R](f: VarContext with Emitter.Context => R): R = {
-//    needRerender = false
     var locallyCreatedContext = false
     var ctx = threadLocalContext.get()
     if (ctx == null) {
-      ctx = new ContextImpl(switchboard.snapshot, emittersData)
+      ctx = new ContextImpl(switchboard.snapshot(reporter), emittersData)
       threadLocalContext.set(ctx)
       locallyCreatedContext = true
     }
@@ -51,18 +50,43 @@ class Scenegraph {
       emittersData = ctx.emittersData
       threadLocalContext.set(null)
     }
-//    if (needRerender) requestRenderPass()
     res
   }
   
   private object reporter extends SignalSwitchboard.Reporter[Signal] {
 
-    def signalRemoved(s: Keyed[Signal[_]]): Unit = ()
-    def signalInvalidated(s: Keyed[Signal[_]]) = if (s.keyed == Node.render && s.instance.isInstanceOf[Node]) requestRenderPass()
-    def signalUpdated[T](s: Keyed[Signal[T]], oldValue: Option[T], newValue: T, dependencies: collection.Set[Keyed[Signal[_]]], dependents: collection.Set[Keyed[Signal[_]]]): Unit = {
+    @inline private def withContext(f: ContextImpl => Any): Unit = {
       val ctx = threadLocalContext.get()
       if (ctx != null) //during scenegraph bootstrapping, context is null
+        f(ctx)
+    }
+
+    def signalRemoved(sb: SignalSwitchboard[Signal], s: Keyed[Signal[_]]): Unit = ()
+    def signalInvalidated(sb: SignalSwitchboard[Signal], s: Keyed[Signal[_]]) = {
+      withContext { ctx =>
+        if (s.keyed == Node.render && s.instance.isInstanceOf[Node]) requestRenderPass()
+
+        // for the children var, we force computation eagerly, so that we may compute parents.
+        if (s.keyed == Node.children && s.instance.isInstanceOf[Node]) ctx.switchboard(s)
+      }
+    }
+
+    def signalUpdated[T](sb: SignalSwitchboard[Signal], s: Keyed[Signal[T]], oldValue: Option[T], newValue: T, dependencies: collection.Set[Keyed[Signal[_]]], dependents: collection.Set[Keyed[Signal[_]]]): Unit = {
+      withContext { implicit ctx =>
         ctx.emit(varUpdates, (s, oldValue, newValue))
+
+        s match {
+          // check for children var changing and compute parents
+          case Keyed(Node.children, node: Node) =>
+            for {
+              nodes <- oldValue.asInstanceOf[Option[Seq[Node]]].iterator
+              n <- nodes
+            } n.parentsMut := n.parentsMut() - node
+            
+            for (n <- newValue.asInstanceOf[Seq[Node]]) n.parentsMut := n.parentsMut() + node
+          case _ => 
+        }
+      }
     }
   }
 
@@ -90,8 +114,14 @@ class Scenegraph {
   }
 
 
+  private val scenegraphInfo = new Stylist.ScenegraphInfo {
+    def get[T](property: Keyed[ObsVal[T]]): Option[T] = switchboard.get(property)
+  }
+
   private class SwitchboardAsVarContext(switchboard: SignalSwitchboard[Signal]) extends VarContext {
-    def apply[T](v: ObsVal[T])(implicit instance: ValueOf[v.ForInstance]): T = switchboard.getOrElseUpdate(v, v.initialValue)
+    def apply[T](v: ObsVal[T])(implicit instance: ValueOf[v.ForInstance]): T = {
+      switchboard.get(v) orElse stylist(scenegraphInfo)(v) getOrElse v.initialValue
+    }
     def update[T](v: Var[T], binding: Binding[T])(implicit instance: ValueOf[v.ForInstance]): Unit = {
       binding match {
         case Binding.Const(c) => switchboard(v) = c()
