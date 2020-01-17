@@ -12,7 +12,7 @@ import Binding.dyn
       bounds = Rect(1300, 300, 300, 300),
       visible = true,
     )
-    val label = Label()
+    val label = Label(toolTipText = "Report the location of the mouse")
     label.text := dyn {
       val (x, y) = label.mouseLocation()
       s"Mouse location: $x, $y"

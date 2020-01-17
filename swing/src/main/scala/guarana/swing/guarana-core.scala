@@ -93,6 +93,7 @@ class Scenegraph {
 
     def signalRemoved(sb: SignalSwitchboard[Signal], s: Keyed[Signal[_]]): Unit = ()
     def signalInvalidated(sb: SignalSwitchboard[Signal], s: Keyed[Signal[_]]) = {
+      //swing keys need to be eagerly computed
       if (s.keyed.isInstanceOf[SwingObsVal[_]]) withContext { ctx =>
         ctx.switchboard(s)  
       }

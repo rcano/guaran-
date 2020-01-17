@@ -2,7 +2,7 @@ package guarana.swing
 
 import language.implicitConversions
 import better.files._
-import java.beans.IndexedPropertyDescriptor
+import java.beans.{IndexedPropertyDescriptor, PropertyDescriptor}
 // import java.nio.file.{Path, Paths, Files}
 import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
@@ -62,6 +62,12 @@ import scala.util.control.NonFatal
       tpe.getName + bounds
   }
 
+  def toNodeName(n: String) = n match {
+    case "Container" => "Node"
+    case other if other startsWith "J" => other.drop(1)
+    case other => other
+  }
+
   def generate(destFile: File, classpath: Array[File], patterns: Seq[String]): File = {
     // destFile.parent.createDirectory()
 
@@ -97,42 +103,53 @@ import scala.util.control.NonFatal
         c = Class.forName(entry.replace("/", ".").replace(".class", ""), false, classpathClassLoader)
         beanInfo = java.beans.Introspector.getBeanInfo(c)
         beanProperties = beanInfo.getPropertyDescriptors().filterNot(_.getName == "class").
-            filterNot(_.isInstanceOf[IndexedPropertyDescriptor]).filter(prop =>
-              Option(prop.getWriteMethod).getOrElse(prop.getReadMethod).getDeclaringClass == c)
+            filterNot(_.isInstanceOf[IndexedPropertyDescriptor])
+            // .filter(prop =>
+            //   Option(prop.getWriteMethod).getOrElse(prop.getReadMethod).getDeclaringClass == c)
         if beanProperties.nonEmpty
       } yield {
 
-        val nodeName = beanInfo.getBeanDescriptor.getName
+        val parentMethods = Iterator.unfold(c.getSuperclass: Class[_])(Option(_).map(c => c.getDeclaredMethods -> c.getSuperclass))
+          .flatMap(_.map(m => m.getName -> m.getGenericParameterTypes.toSeq)).toSet
+        def inParents(m: (String, String, PropertyDescriptor, java.lang.reflect.Method)): Boolean =
+          parentMethods(m._4.getName -> m._4.getGenericParameterTypes.toSeq)
+
+        println("Parent properties:\n == " + parentMethods.mkString("\n == "))
+
+        val nodeName = toNodeName(beanInfo.getBeanDescriptor.getName)
 
         // methods, Left indicates rw property, Right indicates r only
         val properties = beanProperties.flatMap { descriptor =>
           Option(descriptor.getWriteMethod) -> Option(descriptor.getReadMethod) match {
-            case (Some(w), Some(r)) => Seq(Left( (descriptor.getName, adaptType(w.getGenericParameterTypes()(0)), descriptor) ))
-            case (_, Some(r)) => Seq(Right( (descriptor.getName, adaptType(r.getGenericReturnType), descriptor) ))
+            case (Some(w), Some(r)) => Seq(Left( (descriptor.getName, adaptType(w.getGenericParameterTypes()(0)), descriptor, w) ))
+            case (_, Some(r)) => Seq(Right( (descriptor.getName, adaptType(r.getGenericReturnType), descriptor, r) ))
             case _ => Nil
           }  
         }
 
-        val readOnlyProps = properties.collect { case Right(t) => t }.map((prop, tpe, descr) => s"def $prop = v.${descr.getReadMethod.getName}")
+        val readOnlyProps = properties.collect { case Right(t) => t }.filterNot(inParents).map((prop, tpe, descr, m) => s"def $prop = v.${m.getName}")
         val varDescrs = properties.collect { case Left(t) => t }
-        val varProps = varDescrs.map{ (prop, tpe, descr) => 
-          s"""val ${prop.capitalize} = SwingVar[${beanInfo.getBeanDescriptor.getName}, $tpe]("${prop}", _.${descr.getReadMethod.getName}, _.${descr.getWriteMethod.getName}(_))"""
+        val varProps = varDescrs.filterNot(inParents).map { (prop, tpe, descr, m) => 
+          s"""val ${prop.capitalize} = SwingVar[$nodeName, $tpe]("${prop}", _.${descr.getReadMethod.getName}, _.${descr.getWriteMethod.getName}(_))"""
         }
-        val varExtMethods = varDescrs.map{ (prop, tpe, descr) => 
+        val varExtMethods = varDescrs.filterNot(inParents).map{ (prop, tpe, descr, m) => 
           s"""def $prop = $nodeName.${prop.capitalize}.forInstance(v)"""
         }
 
-        val ctrParams = varDescrs.map((prop, tpe, descr) => s"$prop: Opt[Binding[$tpe]] = UnsetParam")
-        val ctrInitializers = varDescrs.map((prop, tpe, descr) => s"ifSet($prop, $nodeName.ops.$prop(res) := _)")
+        val ctrParams = varDescrs.map((prop, tpe, descr, m) => s"$prop: Opt[Binding[$tpe]] = UnsetParam")
+        val ctrInitializers = varDescrs.map { (prop, tpe, descr, m) => 
+          val opsClass = toNodeName(m.getDeclaringClass.getSimpleName)
+          s"ifSet($prop, res.$prop := _)"
+        }
 
-        val genericDecls = c.getTypeParameters() match {
-          case arr if arr.isEmpty => ""
-          case arr => arr.map(adaptType).mkString("[", ", ", "]")
-        }
-        val generics = c.getTypeParameters() match {
-          case arr if arr.isEmpty => ""
-          case arr => arr.map(_.getName).mkString("[", ", ", "]")
-        }
+        // val genericDecls = c.getTypeParameters() match {
+        //   case arr if arr.isEmpty => ""
+        //   case arr => arr.map(adaptType).mkString("[", ", ", "]")
+        // }
+        // val generics = c.getTypeParameters() match {
+        //   case arr if arr.isEmpty => ""
+        //   case arr => arr.map(_.getName).mkString("[", ", ", "]")
+        // }
 
 
         c.getPackage -> s"""
