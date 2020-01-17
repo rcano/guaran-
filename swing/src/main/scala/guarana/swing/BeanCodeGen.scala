@@ -68,6 +68,17 @@ import scala.util.control.NonFatal
     case other => other
   }
 
+  //special property mappings that cause issues with scalac thinking we are trying to access protected internal variables and hence not inferencing the extension methods
+  val specialNodeProperties = Map(
+    "res.background" -> "Node.ops.background(res)",
+    "res.enabled" -> "Node.ops.enabled(res)",
+    "res.font" -> "Node.ops.font(res)",
+    "res.foreground" -> "Node.ops.foreground(res)",
+    "res.minimumSize" -> "Node.ops.minimumSize(res)",
+    "res.preferredSize" -> "Node.ops.prefSize(res)",
+    "res.visible" -> "Node.ops.visible(res)",
+  ).withDefault(identity)
+
   def generate(destFile: File, classpath: Array[File], patterns: Seq[String]): File = {
     // destFile.parent.createDirectory()
 
@@ -139,7 +150,7 @@ import scala.util.control.NonFatal
         val ctrParams = varDescrs.map((prop, tpe, descr, m) => s"$prop: Opt[Binding[$tpe]] = UnsetParam")
         val ctrInitializers = varDescrs.map { (prop, tpe, descr, m) => 
           val opsClass = toNodeName(m.getDeclaringClass.getSimpleName)
-          s"ifSet($prop, res.$prop := _)"
+          s"ifSet($prop, ${specialNodeProperties(s"res.$prop")} := _)"
         }
 
         // val genericDecls = c.getTypeParameters() match {
@@ -165,7 +176,7 @@ import scala.util.control.NonFatal
 
           |  def apply(
           |    ${ctrParams.mkString(",\n    ")}
-          |  ): VarContextAction[$nodeName] = {
+          |  ): (given Scenegraph) => VarContextAction[$nodeName] = {
           |    val res = uninitialized()
           |    ${ctrInitializers.mkString("\n    ")}
           |    res

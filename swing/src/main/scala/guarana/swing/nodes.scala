@@ -48,6 +48,8 @@ object Node {
 
     def location(x: Int, y: Int) = v.setLocation(x, y)
     def size(x: Int, y: Int) = v.setSize(x, y)
+
+    def children: Seq[Node] = (0 until v.getComponentCount).map(i => v.getComponent(i).asInstanceOf[Container])
   }
 
   def uninitialized(): Node = Container()

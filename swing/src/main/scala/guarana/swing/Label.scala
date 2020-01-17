@@ -47,6 +47,7 @@ object Label {
     autoscrolls: Opt[Binding[Boolean]] = UnsetParam,
     background: Opt[Binding[java.awt.Color]] = UnsetParam,
     border: Opt[Binding[javax.swing.border.Border]] = UnsetParam,
+    bounds: Opt[Binding[Rectangle]] = UnsetParam,
     componentPopupMenu: Opt[Binding[javax.swing.JPopupMenu]] = UnsetParam,
     debugGraphicsOptions: Opt[Binding[Int]] = UnsetParam,
     disabledIcon: Opt[Binding[javax.swing.Icon]] = UnsetParam,
@@ -91,6 +92,7 @@ object Label {
     ifSet(autoscrolls, res.autoscrolls := _)
     ifSet(background, Node.ops.background(res) := _)
     ifSet(border, res.border := _)
+    ifSet(bounds, Node.ops.bounds(res) := _)
     ifSet(componentPopupMenu, res.componentPopupMenu := _)
     ifSet(debugGraphicsOptions, res.debugGraphicsOptions := _)
     ifSet(disabledIcon, res.disabledIcon := _)
