@@ -27,31 +27,32 @@ object Emitter {
 }
 
 sealed trait EventIterator[-T] {
-  def step(t: T): Option[EventIterator[T]]
+  def step(t: T): Scenegraph.ContextAction[Option[EventIterator[T]]]
 
-  def foreach[U <: T](f: U => Any): EventIterator[U]
-  def filter[U <: T](pred: U => Boolean): EventIterator[U]
+  def foreach[U <: T](f: Scenegraph.ContextAction[U => Any]): EventIterator[U]
+  def filter[U <: T](pred: Scenegraph.ContextAction[U => Boolean]): EventIterator[U]
   def take(size: Int): EventIterator[T]
-  def takeWhile[U <: T](pred: U => Boolean): EventIterator[U]
+  def takeWhile[U <: T](pred: Scenegraph.ContextAction[U => Boolean]): EventIterator[U]
   def drop(size: Int): EventIterator[T]
-  def dropWhile[U <: T](pred: U => Boolean): EventIterator[U]
+  def dropWhile[U <: T](pred: Scenegraph.ContextAction[U => Boolean]): EventIterator[U]
 }
 object EventIterator extends EventIterator[Any] {
   def step(t: Any) = Some(this)
 
   private val step0 = EventIteratorImpl[Any](Seq.empty)
-  def foreach[U <: Any](f: U => Any) = step0.foreach(f)
-  def filter[U <: Any](pred: U => Boolean) = step0.filter(pred)
+  def foreach[U <: Any](f: Scenegraph.ContextAction[U => Any]) = step0.foreach(f)
+  def filter[U <: Any](pred: Scenegraph.ContextAction[U => Boolean]) = step0.filter(pred)
   def take(size: Int) = step0.take(size)
-  def takeWhile[U <: Any](pred: U => Boolean) = step0.takeWhile(pred)
+  def takeWhile[U <: Any](pred: Scenegraph.ContextAction[U => Boolean]) = step0.takeWhile(pred)
   def drop(size: Int) = step0.drop(size)
-  def dropWhile[U <: Any](pred: U => Boolean) = step0.dropWhile(pred)
+  def dropWhile[U <: Any](pred: Scenegraph.ContextAction[U => Boolean]) = step0.dropWhile(pred)
 
-  private type Step[-T] = T => StepResult[T]
+  private type Step[-T] = Scenegraph.ContextAction[T => StepResult[T]]
+  private type StepFunction[-T] = T => StepResult[T]
   private case class StepResult[-T](stepNewState: Option[Step[T]], abortIteartor: Boolean, passThroughElem: Boolean)
 
   private case class EventIteratorImpl[T](opsChain: collection.Seq[Step[T]]) extends EventIterator[T] {
-    def step(t: T): Option[EventIterator[T]] = {
+    def step(t: T): Scenegraph.ContextAction[Option[EventIterator[T]]] = {
       def it(remSteps: collection.Seq[Step[T]], resChain: collection.mutable.Buffer[Step[T]]): Option[EventIterator[T]] = {
         remSteps.headOption flatMap { step =>
           val stepRes = step(t)
@@ -68,43 +69,43 @@ object EventIterator extends EventIterator[Any] {
       it(opsChain, collection.mutable.Buffer.empty)
     }
 
-    def foreach[U <: T](f: U => Any): EventIterator[U] = {
-      lazy val step: Step[U] = new Step[U] {
+    def foreach[U <: T](f: Scenegraph.ContextAction[U => Any]): EventIterator[U] = {
+      lazy val step: Step[U] = new StepFunction[U] {
         def apply(u: U) = { f(u); StepResult(Some(step), false, true) }
         override def toString = "foreach"
       }
       EventIteratorImpl[U](opsChain :+ step)
     }
-    def filter[U <: T](pred: U => Boolean): EventIterator[U] = {
-      lazy val step: Step[U] = new Step[U] {
+    def filter[U <: T](pred: Scenegraph.ContextAction[U => Boolean]): EventIterator[U] = {
+      lazy val step: Step[U] = new StepFunction[U] {
         def apply(u: U) = StepResult(Some(step), false, pred(u))
         override def toString = s"filter($pred)"
       }
       EventIteratorImpl[U](opsChain :+ step)
     }
     def take(size: Int): EventIterator[T] = {
-      def step(size: Int): Step[T] = new Step[T] {
+      def step(size: Int): Step[T] = new StepFunction[T] {
         def apply(t: T) = {if (size > 1) StepResult(Some(step(size - 1)), false, true) else StepResult[Any](None, true, true)}
         override def toString = s"take($size)"
       }
       EventIteratorImpl(opsChain :+ step(size))
     }
-    def takeWhile[U <: T](pred: U => Boolean): EventIterator[U] = {
-      lazy val step: Step[U] = new Step[U] {
+    def takeWhile[U <: T](pred: Scenegraph.ContextAction[U => Boolean]): EventIterator[U] = {
+      lazy val step: Step[U] = new StepFunction[U] {
         def apply(t: U) = if (pred(t)) StepResult(Some(step), false, true) else StepResult[Any](None, true, false)
         override def toString = s"takeWhile($pred)"
       }
       EventIteratorImpl(opsChain :+ step)
     }
     def drop(size: Int): EventIterator[T] = {
-      def step(size: Int): Step[T] = new Step[T] {
+      def step(size: Int): Step[T] = new StepFunction[T] {
         def apply(t: T) = if (size > 0) StepResult(Some(step(size - 1)), false, false) else StepResult[Any](None, false, true)
         override def toString = s"drop($size)"
       }
       EventIteratorImpl(opsChain :+ step(size))
     }
-    def dropWhile[U <: T](pred: U => Boolean): EventIterator[U] = {
-      lazy val step: Step[U] = new Step[U] {
+    def dropWhile[U <: T](pred: Scenegraph.ContextAction[U => Boolean]): EventIterator[U] = {
+      lazy val step: Step[U] = new StepFunction[U] {
         def apply(t: U) = if (pred(t)) StepResult(Some(step), false, false) else StepResult[Any](None, false, true)
         override def toString = s"dropWhile($pred)"
       }

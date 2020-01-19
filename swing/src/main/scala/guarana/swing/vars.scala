@@ -9,8 +9,10 @@ case class Keyed[+T](keyed: T, instance: Any)
 type VarContextAction[+T] = (given VarContext) => T
 
 trait VarContext {
-  def update[T](v: Var[T], binding: Binding[T])(implicit instance: ValueOf[v.ForInstance]): Unit
+  def update[T](v: Var[T], binding: Binding[T])(given instance: ValueOf[v.ForInstance]): Unit
   def apply[T](v: ObsVal[T])(given instance: ValueOf[v.ForInstance]): T
+
+  private[guarana] def swingPropertyUpdated[T](v: Var[T], value: T)(given instance: ValueOf[v.ForInstance]): Unit
 }
 object VarContext {
   @compileTimeOnly("No VarContext available")
@@ -20,6 +22,8 @@ object VarContext {
 sealed trait ObsVal[+T] {
   def name: String
   type ForInstance <: Singleton
+
+  def initialValue(v: ForInstance): T
 
   def apply()(given instance: ValueOf[ForInstance]): VarContextAction[T] = (given c) => c(this)
 
@@ -42,7 +46,8 @@ sealed trait Var[T] extends ObsVal[T] {
 }
 object Var {
   type Aux[T, Instance <: Singleton] = Var[T] { type ForInstance = Instance }
-  def apply[T](varName: => String) = new Var[T] {
+  def apply[T](varName: => String, initValue: => T) = new Var[T] {
+    def initialValue(v: ForInstance): T = initValue
     lazy val name = varName
     type ForInstance = this.type
   }
@@ -76,7 +81,7 @@ object Binding {
 trait SwingObsVal[+T] extends ObsVal[T] {
   type ForInstance <: Node with Singleton
   private[swing] def get(n: ForInstance): T
-  override def apply()(given instance: ValueOf[ForInstance]): VarContextAction[T] = get(instance.value)
+  def initialValue(v: ForInstance) = get(v)
 }
 
 trait SwingVar[T] extends Var[T] with SwingObsVal[T] {

@@ -3,6 +3,10 @@ version := "0.1.0"
 
 scalaVersion := "0.21.0-RC1"
 
+scalacOptions ++= Seq(
+  "-Yexplicit-nulls",
+   "-deprecation", "-unchecked")
+
 fork := true
 
 //scalacOptions ++= Seq("-Yinfer-argument-types")

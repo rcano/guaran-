@@ -8,21 +8,38 @@ import guarana.swing.util._
 
 opaque type Node = Container
 
-object Node {
-  val Background = SwingVar[Node, Color]("background", _.getBackground, _.setBackground(_))
-  val Bounds = SwingVar[Node, Rectangle]("bounds", _.getBounds, _.setBounds(_))
-  val ComponentOrientation = SwingVar[Node, ComponentOrientation]("componentOrientation", _.getComponentOrientation, _.setComponentOrientation(_))
-  val Cursor = SwingVar[Node, Cursor]("cursor", _.getCursor, _.setCursor(_))
+/** Calculates the map of name→var for this node by using reflection
+  */
+trait VarsMap {
+  protected lazy val VarsMap = getClass.getDeclaredMethods.asInstanceOf[Array[java.lang.reflect.Method]].iterator
+    .filter(f => classOf[Var[_]].isAssignableFrom(f.getReturnType) && f.getParameterCount == 0)
+    .map(_.invoke(this).asInstanceOf[Var[_]])
+    .map(v => v.name.toLowerCase -> v).toMap
+  protected def varsPropertyListener(instance: Any)(given sg: Scenegraph): java.beans.PropertyChangeListener = { evt =>
+    VarsMap.get(evt.getPropertyName) foreach {
+      case sv: SwingVar[t] =>
+        sg.update(summon[VarContext].swingPropertyUpdated(sv, evt.getNewValue.asInstanceOf[t])(given ValueOf(instance.asInstanceOf[sv.ForInstance])))
+      case v: Var[t] =>
+        sg.update(v.forInstance(instance) := evt.getNewValue.asInstanceOf[t])
+    }
+  }: java.beans.PropertyChangeListener
+}
+
+object Node extends VarsMap {
+  val Background = SwingVar[Node, Color | Null]("background", _.getBackground, _.setBackground(_))
+  val Bounds = SwingVar[Node, Rectangle]("bounds", _.getBounds.nn, _.setBounds(_))
+  val ComponentOrientation = SwingVar[Node, ComponentOrientation]("componentOrientation", _.getComponentOrientation.nn, _.setComponentOrientation(_))
+  val Cursor = SwingVar[Node, Cursor | Null]("cursor", _.getCursor, _.setCursor(_))
   val Enabled = SwingVar[Node, Boolean]("enabled", _.isEnabled, _.setEnabled(_))
   val Focusable = SwingVar[Node, Boolean]("focusable", _.isFocusable, _.setFocusable(_))
-  val Font = SwingVar[Node, java.awt.Font]("font", _.getFont, _.setFont(_))
-  val Foreground = SwingVar[Node, java.awt.Color]("foreground", _.getForeground, _.setForeground(_))
+  val Font = SwingVar[Node, java.awt.Font | Null]("font", _.getFont, _.setFont(_))
+  val Foreground = SwingVar[Node, java.awt.Color | Null]("foreground", _.getForeground, _.setForeground(_))
 
-  val MaximumSize = SwingVar[Node, Dimension]("maximumSize", _.getMaximumSize, _.setMaximumSize(_))
-  val MinimumSize = SwingVar[Node, Dimension]("minimumSize", _.getMinimumSize, _.setMinimumSize(_))
-  val PreferredSize = SwingVar[Node, Dimension]("prefSize", _.getPreferredSize, _.setPreferredSize(_))
+  val MaximumSize = SwingVar[Node, Dimension | Null]("maximumSize", _.getMaximumSize, _.setMaximumSize(_))
+  val MinimumSize = SwingVar[Node, Dimension | Null]("minimumSize", _.getMinimumSize, _.setMinimumSize(_))
+  val PreferredSize = SwingVar[Node, Dimension | Null]("prefSize", _.getPreferredSize, _.setPreferredSize(_))
   val Visible = SwingVar[Node, Boolean]("visible", _.isVisible, _.setVisible(_))
-  val MouseLocation = Var[(Int, Int)]("mouseLocation")
+  val MouseLocation = Var[(Int, Int)]("mouseLocation", (0, 0))
 
   given ops: (v: Node) extended with {
     def alignmentX = v.getAlignmentX
@@ -58,29 +75,30 @@ object Node {
     * so this initialization step is mandatory for things to work properly
     */
   def init(n: Node) = (given sc: Scenegraph) => {
-    sc.update(Node.MouseLocation.forInstance(n) := (0, 0))
     n addMouseMotionListener new MouseMotionListener {
-      def mouseDragged(evt: MouseEvent) = ()
-      def mouseMoved(evt: MouseEvent) = sc.update {
-        Node.MouseLocation.forInstance(n) := (evt.getX, evt.getY)
+      def mouseDragged(evt: MouseEvent | Null) = ()
+      def mouseMoved(evt: MouseEvent | Null) = sc.update {
+        val nnEvt = evt.nn
+        Node.MouseLocation.forInstance(n) := (nnEvt.getX, nnEvt.getY)
       }
     }
+    n.addPropertyChangeListener(varsPropertyListener(n))
   }
 
   def apply(c: Container): Node = c
 
   def apply(
-    background: Opt[Binding[Color]] = UnsetParam,
+    background: Opt[Binding[Color | Null]] = UnsetParam,
     bounds: Opt[Binding[Rectangle]] = UnsetParam,
     componentOrientation: Opt[Binding[ComponentOrientation]] = UnsetParam,
-    cursor: Opt[Binding[Cursor]] = UnsetParam,
+    cursor: Opt[Binding[Cursor | Null]] = UnsetParam,
     enabled: Opt[Binding[Boolean]] = UnsetParam,
     focusable: Opt[Binding[Boolean]] = UnsetParam,
-    font: Opt[Binding[java.awt.Font]] = UnsetParam,
-    foreground: Opt[Binding[java.awt.Color]] = UnsetParam,
-    maximumSize: Opt[Binding[Dimension]] = UnsetParam,
-    minimumSize: Opt[Binding[Dimension]] = UnsetParam,
-    prefSize: Opt[Binding[Dimension]] = UnsetParam,
+    font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
+    foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
+    maximumSize: Opt[Binding[Dimension | Null]] = UnsetParam,
+    minimumSize: Opt[Binding[Dimension | Null]] = UnsetParam,
+    prefSize: Opt[Binding[Dimension | Null]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): (given Scenegraph) => VarContextAction[Node] = {
     val res = uninitialized()
@@ -102,26 +120,27 @@ object Node {
 }
 
 opaque type Component <: Node = javax.swing.JComponent
-object Component {
-  val ActionMap = SwingVar[Component, javax.swing.ActionMap]("actionMap", _.getActionMap, _.setActionMap(_))
+object Component extends VarsMap {
+  val ActionMap = SwingVar[Component, javax.swing.ActionMap]("actionMap", _.getActionMap.nn, _.setActionMap(_))
   val AlignmentX = SwingVar[Component, Float]("alignmentX", _.getAlignmentX, _.setAlignmentX(_))
   val AlignmentY = SwingVar[Component, Float]("alignmentY", _.getAlignmentY, _.setAlignmentY(_))
   val Autoscrolls = SwingVar[Component, Boolean]("autoscrolls", _.getAutoscrolls, _.setAutoscrolls(_))
-  val Border = SwingVar[Component, javax.swing.border.Border]("border", _.getBorder, _.setBorder(_))
-  val ComponentPopupMenu = SwingVar[Component, javax.swing.JPopupMenu]("componentPopupMenu", _.getComponentPopupMenu, _.setComponentPopupMenu(_))
+  val Border = SwingVar[Component, javax.swing.border.Border | Null]("border", _.getBorder, _.setBorder(_))
+  val ComponentPopupMenu = SwingVar[Component, javax.swing.JPopupMenu | Null]("componentPopupMenu", _.getComponentPopupMenu, _.setComponentPopupMenu(_))
   val DebugGraphicsOptions = SwingVar[Component, Int]("debugGraphicsOptions", _.getDebugGraphicsOptions, _.setDebugGraphicsOptions(_))
   val DoubleBuffered = SwingVar[Component, Boolean]("doubleBuffered", _.isDoubleBuffered, _.setDoubleBuffered(_))
   val InheritsPopupMenu = SwingVar[Component, Boolean]("inheritsPopupMenu", _.getInheritsPopupMenu, _.setInheritsPopupMenu(_))
-  val InputVerifier = SwingVar[Component, javax.swing.InputVerifier]("inputVerifier", _.getInputVerifier, _.setInputVerifier(_))
+  val InputVerifier = SwingVar[Component, javax.swing.InputVerifier | Null]("inputVerifier", _.getInputVerifier, _.setInputVerifier(_))
   // val NextFocusableComponent = SwingVar[Component, java.awt.Component]("nextFocusableComponent", _.getNextFocusableComponent, _.setNextFocusableComponent(_))
   val Opaque = SwingVar[Component, Boolean]("opaque", _.isOpaque, _.setOpaque(_))
   val RequestFocusEnabled = SwingVar[Component, Boolean]("requestFocusEnabled", _.isRequestFocusEnabled, _.setRequestFocusEnabled(_))
-  val ToolTipText = SwingVar[Component, java.lang.String]("toolTipText", _.getToolTipText, _.setToolTipText(_))
-  val TransferHandler = SwingVar[Component, javax.swing.TransferHandler]("transferHandler", _.getTransferHandler, _.setTransferHandler(_))
+  val ToolTipText = SwingVar[Component, java.lang.String | Null]("toolTipText", _.getToolTipText, _.setToolTipText(_))
+  val TransferHandler = SwingVar[Component, javax.swing.TransferHandler | Null]("transferHandler", _.getTransferHandler, _.setTransferHandler(_))
   val VerifyInputWhenFocusTarget = SwingVar[Component, Boolean]("verifyInputWhenFocusTarget", _.getVerifyInputWhenFocusTarget, _.setVerifyInputWhenFocusTarget(_))
 
   def init(n: Component) = (given sc: Scenegraph) => {
     Node.init(n)
+    n.addPropertyChangeListener(varsPropertyListener(n))
   }
 
   given ops: (v: Component) extended with {

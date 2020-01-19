@@ -6,18 +6,18 @@ import javax.swing._
 import guarana.swing.util._
 
 opaque type Window <: Node = java.awt.Window & Node
-object Window {
+object Window extends VarsMap {
 
   val AlwaysOnTop = SwingVar[Window, Boolean]("alwaysOnTop", _.isAlwaysOnTop, _.setAlwaysOnTop(_))
   val AutoRequestFocus = SwingVar[Window, Boolean]("autoRequestFocus", _.isAutoRequestFocus, _.setAutoRequestFocus(_))
   val FocusCycleRoot = SwingVar[Window, Boolean]("focusCycleRoot", _.isFocusCycleRoot, _.setFocusCycleRoot(_))
   val FocusableWindowState = SwingVar[Window, Boolean]("focusableWindowState", _.getFocusableWindowState, _.setFocusableWindowState(_))
-  val IconImages = SwingVar[Window, java.util.List[_ <: java.awt.Image]]("iconImages", _.getIconImages, _.setIconImages(_))
+  val IconImages = SwingVar[Window, java.util.List[_ <: java.awt.Image] | Null]("iconImages", _.getIconImages, _.setIconImages(_))
   val LocationByPlatform = SwingVar[Window, Boolean]("locationByPlatform", _.isLocationByPlatform, _.setLocationByPlatform(_))
-  val ModalExclusionType = SwingVar[Window, java.awt.Dialog.ModalExclusionType]("modalExclusionType", _.getModalExclusionType, _.setModalExclusionType(_))
+  val ModalExclusionType = SwingVar[Window, java.awt.Dialog.ModalExclusionType]("modalExclusionType", _.getModalExclusionType.nn, _.setModalExclusionType(_))
   val Opacity = SwingVar[Window, Float]("opacity", _.getOpacity, _.setOpacity(_))
-  val Shape = SwingVar[Window, java.awt.Shape]("shape", _.getShape, _.setShape(_))
-  val Type = SwingVar[Window, java.awt.Window.Type]("type", _.getType, _.setType(_))
+  val Shape = SwingVar[Window, java.awt.Shape | Null]("shape", _.getShape, _.setShape(_))
+  val Type = SwingVar[Window, java.awt.Window.Type]("type", _.getType.nn, _.setType(_))
   val Visible = SwingVar[Window, Boolean]("visible", _.isVisible, _.setVisible(_))
   val Root = SwingVar[Window, Node]("root", c => Node(c.getComponent(0).asInstanceOf[Container]), (w, n) => w.add(n.unwrap, 0))
 
@@ -58,34 +58,39 @@ object Window {
     def unwrap: java.awt.Window = v
   } 
 
-  def uninitialized(parent: java.awt.Window = null, gc: GraphicsConfiguration = null): Window = java.awt.Window(parent, gc).asInstanceOf[Window]
+  def uninitialized(parent: java.awt.Window | Null = null, gc: GraphicsConfiguration | Null = null): Window = java.awt.Window(parent, gc).asInstanceOf[Window]
+
+  def init(n: Window) = (given sc: Scenegraph) => {
+    Node.init(n)
+    n.addPropertyChangeListener(varsPropertyListener(n))
+  }
 
   def apply(
-    parent: java.awt.Window = null, gc: GraphicsConfiguration = null,
+    parent: java.awt.Window | Null = null, gc: GraphicsConfiguration | Null = null,
     alwaysOnTop: Opt[Binding[Boolean]] = UnsetParam,
     autoRequestFocus: Opt[Binding[Boolean]] = UnsetParam,
-    background: Opt[Binding[java.awt.Color]] = UnsetParam,
+    background: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     focusCycleRoot: Opt[Binding[Boolean]] = UnsetParam,
     focusableWindowState: Opt[Binding[Boolean]] = UnsetParam,
-    iconImages: Opt[Binding[java.util.List[_ <: java.awt.Image]]] = UnsetParam,
+    iconImages: Opt[Binding[java.util.List[_ <: java.awt.Image] | Null]] = UnsetParam,
     locationByPlatform: Opt[Binding[Boolean]] = UnsetParam,
-    minimumSize: Opt[Binding[java.awt.Dimension]] = UnsetParam,
+    minimumSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
     modalExclusionType: Opt[Binding[java.awt.Dialog.ModalExclusionType]] = UnsetParam,
     opacity: Opt[Binding[Float]] = UnsetParam,
     root: Node = Node.uninitialized(),
-    shape: Opt[Binding[java.awt.Shape]] = UnsetParam,
+    shape: Opt[Binding[java.awt.Shape | Null]] = UnsetParam,
     tpe: Opt[Binding[java.awt.Window.Type]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam,
     bounds: Opt[Binding[Rectangle]] = UnsetParam,
     componentOrientation: Opt[Binding[ComponentOrientation]] = UnsetParam,
-    cursor: Opt[Binding[Cursor]] = UnsetParam,
+    cursor: Opt[Binding[Cursor | Null]] = UnsetParam,
     enabled: Opt[Binding[Boolean]] = UnsetParam,
     focusable: Opt[Binding[Boolean]] = UnsetParam,
-    maximumSize: Opt[Binding[Dimension]] = UnsetParam,
-    prefSize: Opt[Binding[Dimension]] = UnsetParam,
+    maximumSize: Opt[Binding[Dimension | Null]] = UnsetParam,
+    prefSize: Opt[Binding[Dimension | Null]] = UnsetParam,
   ): (given Scenegraph) => VarContextAction[Window] = {
     val res = uninitialized(parent, gc)
-    Node.init(res)
+    init(res)
     ifSet(alwaysOnTop, Window.ops.alwaysOnTop(res) := _)
     ifSet(autoRequestFocus, Window.ops.autoRequestFocus(res) := _)
     ifSet(focusCycleRoot, Window.ops.focusCycleRoot(res) := _)
@@ -113,14 +118,14 @@ object Window {
 }
 
 opaque type Frame <: Node & Window = java.awt.Frame & Node
-object Frame {
+object Frame extends VarsMap {
   val ExtendedState = SwingVar[Frame, Int]("extendedState", _.getExtendedState, _.setExtendedState(_))
-  val IconImage = SwingVar[Frame, java.awt.Image]("iconImage", _.getIconImage, _.setIconImage(_))
-  val MaximizedBounds = SwingVar[Frame, java.awt.Rectangle]("maximizedBounds", _.getMaximizedBounds, _.setMaximizedBounds(_))
-  val MenuBar = SwingVar[Frame, java.awt.MenuBar]("menuBar", _.getMenuBar, _.setMenuBar(_))
+  val IconImage = SwingVar[Frame, java.awt.Image | Null]("iconImage", _.getIconImage, _.setIconImage(_))
+  val MaximizedBounds = SwingVar[Frame, java.awt.Rectangle | Null]("maximizedBounds", _.getMaximizedBounds, _.setMaximizedBounds(_))
+  val MenuBar = SwingVar[Frame, java.awt.MenuBar | Null]("menuBar", _.getMenuBar, _.setMenuBar(_))
   val Resizable = SwingVar[Frame, Boolean]("resizable", _.isResizable, _.setResizable(_))
   val State = SwingVar[Frame, Int]("state", _.getState, _.setState(_))
-  val Title = SwingVar[Frame, java.lang.String]("title", _.getTitle, _.setTitle(_))
+  val Title = SwingVar[Frame, java.lang.String | Null]("title", _.getTitle, _.setTitle(_))
   val Undecorated = SwingVar[Frame, Boolean]("undecorated", _.isUndecorated, _.setUndecorated(_))
 
   given ops: (v: Frame) extended with {
@@ -136,42 +141,47 @@ object Frame {
     def unwrap: java.awt.Frame = v
   }
 
-  def uninitialized(title: String = null, gc: GraphicsConfiguration = null): Frame = java.awt.Frame(title, gc).asInstanceOf[Frame]
+  def uninitialized(title: String | Null = null, gc: GraphicsConfiguration | Null = null): Frame = java.awt.Frame(title, gc).asInstanceOf[Frame]
+
+  def init(n: Frame) = (given sc: Scenegraph) => {
+    Window.init(n)
+    n.addPropertyChangeListener(varsPropertyListener(n))
+  }
 
   def apply(
-    gc: GraphicsConfiguration = null,
+    gc: GraphicsConfiguration | Null = null,
     alwaysOnTop: Opt[Binding[Boolean]] = UnsetParam,
     autoRequestFocus: Opt[Binding[Boolean]] = UnsetParam,
-    background: Opt[Binding[java.awt.Color]] = UnsetParam,
+    background: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     focusCycleRoot: Opt[Binding[Boolean]] = UnsetParam,
     focusableWindowState: Opt[Binding[Boolean]] = UnsetParam,
-    iconImages: Opt[Binding[java.util.List[_ <: java.awt.Image]]] = UnsetParam,
+    iconImages: Opt[Binding[java.util.List[_ <: java.awt.Image] | Null]] = UnsetParam,
     locationByPlatform: Opt[Binding[Boolean]] = UnsetParam,
-    minimumSize: Opt[Binding[java.awt.Dimension]] = UnsetParam,
+    minimumSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
     modalExclusionType: Opt[Binding[java.awt.Dialog.ModalExclusionType]] = UnsetParam,
     opacity: Opt[Binding[Float]] = UnsetParam,
-    shape: Opt[Binding[java.awt.Shape]] = UnsetParam,
+    shape: Opt[Binding[java.awt.Shape | Null]] = UnsetParam,
     root: Node = Node.uninitialized(),
     tpe: Opt[Binding[java.awt.Window.Type]] = UnsetParam,
     visible: Opt[Boolean] = UnsetParam,
     bounds: Opt[Binding[Rectangle]] = UnsetParam,
     componentOrientation: Opt[Binding[ComponentOrientation]] = UnsetParam,
-    cursor: Opt[Binding[Cursor]] = UnsetParam,
+    cursor: Opt[Binding[Cursor | Null]] = UnsetParam,
     enabled: Opt[Binding[Boolean]] = UnsetParam,
     focusable: Opt[Binding[Boolean]] = UnsetParam,
-    maximumSize: Opt[Binding[Dimension]] = UnsetParam,
-    prefSize: Opt[Binding[Dimension]] = UnsetParam,
+    maximumSize: Opt[Binding[Dimension | Null]] = UnsetParam,
+    prefSize: Opt[Binding[Dimension | Null]] = UnsetParam,
     extendedState: Opt[Binding[Int]] = UnsetParam,
-    iconImage: Opt[Binding[java.awt.Image]] = UnsetParam,
-    maximizedBounds: Opt[Binding[java.awt.Rectangle]] = UnsetParam,
-    menuBar: Opt[Binding[java.awt.MenuBar]] = UnsetParam,
+    iconImage: Opt[Binding[java.awt.Image | Null]] = UnsetParam,
+    maximizedBounds: Opt[Binding[java.awt.Rectangle | Null]] = UnsetParam,
+    menuBar: Opt[Binding[java.awt.MenuBar | Null]] = UnsetParam,
     resizable: Opt[Binding[Boolean]] = UnsetParam,
     state: Opt[Binding[Int]] = UnsetParam,
-    title: Opt[Binding[java.lang.String]] = UnsetParam,
+    title: Opt[Binding[java.lang.String | Null]] = UnsetParam,
     undecorated: Opt[Boolean] = UnsetParam
   ): (given Scenegraph) => VarContextAction[Frame] = {
     val res = uninitialized(gc = gc)
-    Node.init(res)
+    init(res)
     ifSet(alwaysOnTop, Window.ops.alwaysOnTop(res) := _)
     ifSet(autoRequestFocus, Window.ops.autoRequestFocus(res) := _)
     ifSet(focusCycleRoot, Window.ops.focusCycleRoot(res) := _)

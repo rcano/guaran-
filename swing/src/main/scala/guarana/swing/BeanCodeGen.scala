@@ -10,10 +10,11 @@ import scala.util.control.NonFatal
 @main def beanCodeGen(patterns: String*) = {
 
   val ObjectClass = classOf[Object]
-  def adaptType(tpe: java.lang.reflect.Type): String = tpe match {
+  def adaptType(tpe: java.lang.reflect.Type | Null): String = tpe match {
+    case null => ???
     case tpe: Class[_] =>
       if (tpe.isArray) {
-        "Array[" + adaptType(tpe.getComponentType) + "]"
+        "Array[" + adaptType(tpe.getComponentType.nn) + "]"
       } else if (tpe.isPrimitive) {
         tpe match {
           case java.lang.Byte.TYPE => "Byte"
@@ -27,29 +28,29 @@ import scala.util.control.NonFatal
           case java.lang.Void.TYPE => "Unit"
         }
       } else {
-        tpe.getTypeParameters match {
-          case Array() => tpe.getCanonicalName
-          case other => tpe.getCanonicalName + other.map(_ => "_").mkString("[", ", ", "]")
+        tpe.getTypeParameters.nn match {
+          case Array() => tpe.getCanonicalName.nn + " | Null"
+          case other => tpe.getCanonicalName + other.map(_ => "_").mkString("[", ", ", "]") + " | Null"
         }
       }
       
       //handle cases like SomeType.ThisType[ActualParam1, ActualParam2...]
     case tpe: java.lang.reflect.ParameterizedType => 
 //      val owner = Option(tpe.getOwnerType).map(_.asInstanceOf[Class[_]]).map(_ + ".").getOrElse("")
-      tpe.getRawType.asInstanceOf[Class[_]].getCanonicalName + tpe.getActualTypeArguments.map {
+      tpe.getRawType.asInstanceOf[Class[_]].getCanonicalName + tpe.getActualTypeArguments.nn.map {
         case tv: java.lang.reflect.TypeVariable[_] => tv.getName
-        case other => adaptType(other)
-      }.mkString("[", ", ", "]")
+        case other => adaptType(other.nn)
+      }.mkString("[", ", ", "]")  + " | Null"
       
       //handle wildcars like ? extends or ? super
     case tpe: java.lang.reflect.WildcardType =>
-      val upper = tpe.getUpperBounds match {
+      val upper = tpe.getUpperBounds.nn match {
         case Array(ObjectClass) | Array() => None
-        case others => Some(" <: " + others.map(adaptType).mkString(" with "))
+        case others => Some(" <: " + others.nn.map(adaptType).mkString(" with "))
       }
-      val lower = tpe.getLowerBounds match {
+      val lower = tpe.getLowerBounds.nn match {
         case Array() => None
-        case others => Some(" >: " + others.map(adaptType).mkString(" with "))
+        case others => Some(" >: " + others.nn.map(adaptType).mkString(" with "))
       }
       
       "_" + upper.getOrElse("") + lower.getOrElse("")
@@ -57,7 +58,7 @@ import scala.util.control.NonFatal
     case tpe: java.lang.reflect.TypeVariable[_] =>
       val bounds = tpe.getBounds match {
         case Array(ObjectClass) | Array() => ""
-        case others => " <: " + others.map(adaptType).mkString(" with ")
+        case others => " <: " + others.nn.map(adaptType).mkString(" with ")
       }
       tpe.getName + bounds
   }
@@ -79,11 +80,11 @@ import scala.util.control.NonFatal
     "res.visible" -> "Node.ops.visible(res)",
   ).withDefault(identity)
 
-  def generate(destFile: File, classpath: Array[File], patterns: Seq[String]): File = {
+  def generate(destFile: File | Null, classpath: Array[File], patterns: Seq[String]): File | Null = {
     // destFile.parent.createDirectory()
 
-    val inheritedJars = Iterator.iterate(ClassLoader.getSystemClassLoader)(_.getParent).takeWhile(_ != null).flatMap {
-      case ucl: java.net.URLClassLoader => ucl.getURLs.map(u => File(u))
+    val inheritedJars = Iterator.iterate[ClassLoader | UncheckedNull](ClassLoader.getSystemClassLoader)(_.getParent).takeWhile(_ != null).flatMap {
+      case ucl: java.net.URLClassLoader => ucl.getURLs.nn.map(u => File(u.nn))
       case _ => Iterator.empty
     }.filter(_.extension.exists(".jar".==))
     val fullClasspath = (inheritedJars ++ classpath).toArray
@@ -91,7 +92,7 @@ import scala.util.control.NonFatal
     val allClasses = fullClasspath.iterator.flatMap { p =>
       if (p.isDirectory) p.listRecursively.map(f => p.relativize(f).toString)
       else {
-        try new java.util.jar.JarFile(p.toJava).stream.iterator.asScala.map(_.getName)
+        try new java.util.jar.JarFile(p.toJava).stream.iterator.nn.asScala.map(_.getName.nn)
         catch { case NonFatal(ex) => throw new RuntimeException(s"Could not open $p", ex)}
       }
     }.filter(e => e.endsWith(".class") && !e.contains("$")).
@@ -99,41 +100,40 @@ import scala.util.control.NonFatal
       
     val jmodClasses = if (!scala.util.Properties.javaVersion.matches(raw"1\.\d+.*")) {
       for {
-        moduleRef <- java.lang.module.ModuleFinder.ofSystem().findAll().iterator.asScala
-        reader = moduleRef.open
-        clazz <- reader.list.iterator.asScala if clazz.endsWith(".class") && !clazz.contains("module-info") && !clazz.contains("$") && patterns.exists(clazz.matches)
+        moduleRef <- java.lang.module.ModuleFinder.ofSystem().findAll().iterator.nn.asScala
+        reader = moduleRef.open.nn
+        clazz <- reader.list.iterator.nn.asScala if clazz.endsWith(".class") && !clazz.contains("module-info") && !clazz.contains("$") && patterns.exists(clazz.matches)
       } yield clazz
     } else Iterator.empty
 
     // val out = new java.io.PrintStream(destFile.toJava, "utf-8")
-    val out = System.out
+    val out = System.out.nn
+    def Option[T](o: T | Null) = scala.Option(o).asInstanceOf[Option[T]]
 
-    var classpathClassLoader = new java.net.URLClassLoader(classpath.map(_.url).to(Array))
+    var classpathClassLoader = new java.net.URLClassLoader(classpath.map(_.url).to(Array).asInstanceOf[Array[java.net.URL | UncheckedNull]])
     val valueClasses = (for {
         entry <- (allClasses ++ jmodClasses)
-        c = Class.forName(entry.replace("/", ".").replace(".class", ""), false, classpathClassLoader)
-        beanInfo = java.beans.Introspector.getBeanInfo(c)
-        beanProperties = beanInfo.getPropertyDescriptors().filterNot(_.getName == "class").
-            filterNot(_.isInstanceOf[IndexedPropertyDescriptor])
+        c = Class.forName(entry.replace("/", ".").replace(".class", ""), false, classpathClassLoader).nn
+        beanInfo = java.beans.Introspector.getBeanInfo(c).nn
+        beanProperties = beanInfo.getPropertyDescriptors().nn.filterNot(_.nn.getName == "class").
+            filterNot(_.isInstanceOf[IndexedPropertyDescriptor]).asInstanceOf[Array[PropertyDescriptor]]
             // .filter(prop =>
             //   Option(prop.getWriteMethod).getOrElse(prop.getReadMethod).getDeclaringClass == c)
         if beanProperties.nonEmpty
       } yield {
 
-        val parentMethods = Iterator.unfold(c.getSuperclass: Class[_])(Option(_).map(c => c.getDeclaredMethods -> c.getSuperclass))
-          .flatMap(_.map(m => m.getName -> m.getGenericParameterTypes.toSeq)).toSet
+        val parentMethods = Iterator.unfold(c.getSuperclass: Class[_] | UncheckedNull)(Option(_).map(c => c.nn.getDeclaredMethods -> c.nn.getSuperclass))
+          .flatMap(_.nn.map(m => m.nn.getName -> m.nn.getGenericParameterTypes.nn.toSeq)).toSet
         def inParents(m: (String, String, PropertyDescriptor, java.lang.reflect.Method)): Boolean =
-          parentMethods(m._4.getName -> m._4.getGenericParameterTypes.toSeq)
+          parentMethods(m._4.getName -> m._4.getGenericParameterTypes.nn.toSeq)
 
-        println("Parent properties:\n == " + parentMethods.mkString("\n == "))
-
-        val nodeName = toNodeName(beanInfo.getBeanDescriptor.getName)
+        val nodeName = toNodeName(beanInfo.getBeanDescriptor.nn.getName.nn)
 
         // methods, Left indicates rw property, Right indicates r only
         val properties = beanProperties.flatMap { descriptor =>
           Option(descriptor.getWriteMethod) -> Option(descriptor.getReadMethod) match {
-            case (Some(w), Some(r)) => Seq(Left( (descriptor.getName, adaptType(w.getGenericParameterTypes()(0)), descriptor, w) ))
-            case (_, Some(r)) => Seq(Right( (descriptor.getName, adaptType(r.getGenericReturnType), descriptor, r) ))
+            case (Some(w), Some(r)) => Seq(Left( (descriptor.getName.nn, adaptType(w.getGenericParameterTypes().nn(0)), descriptor, w) ))
+            case (_, Some(r)) => Seq(Right( (descriptor.getName.nn, adaptType(r.getGenericReturnType), descriptor, r) ))
             case _ => Nil
           }  
         }
@@ -149,7 +149,7 @@ import scala.util.control.NonFatal
 
         val ctrParams = varDescrs.map((prop, tpe, descr, m) => s"$prop: Opt[Binding[$tpe]] = UnsetParam")
         val ctrInitializers = varDescrs.map { (prop, tpe, descr, m) => 
-          val opsClass = toNodeName(m.getDeclaringClass.getSimpleName)
+          val opsClass = toNodeName(m.getDeclaringClass.getSimpleName.nn)
           s"ifSet($prop, ${specialNodeProperties(s"res.$prop")} := _)"
         }
 
@@ -163,9 +163,9 @@ import scala.util.control.NonFatal
         // }
 
 
-        c.getPackage -> s"""
+        c.getPackage.nn -> s"""
           |opaque type $nodeName <: Node = ${c.getName}
-          |object $nodeName {
+          |object $nodeName extends VarsMap {
           |  ${varProps.mkString("\n  ")}
 
           |  given ops: (v: $nodeName) extended with {
@@ -173,11 +173,17 @@ import scala.util.control.NonFatal
           |    ${varExtMethods.mkString("\n    ")}
           |    def unwrap: ${c.getName} = v
           |  }
-
+          |  
+          |  def init(n: $nodeName) = (given sc: Scenegraph) => {
+          |    Component.init(n)
+          |    n.addPropertyChangeListener(varsPropertyListener(n))
+          |  }
+          |
           |  def apply(
           |    ${ctrParams.mkString(",\n    ")}
           |  ): (given Scenegraph) => VarContextAction[$nodeName] = {
           |    val res = uninitialized()
+          |    init(res)
           |    ${ctrInitializers.mkString("\n    ")}
           |    res
           |  }
@@ -186,7 +192,7 @@ import scala.util.control.NonFatal
       }).toSeq.groupBy(_._1).view.mapValues(_.map(_._2)).toMap
 
     for ((pck, valueClasses) <- valueClasses) {
-      val pkgParts = pck.getName.split("\\.")
+      val pkgParts = pck.getName.split("\\.").asInstanceOf[Array[String]]
       val parentPkg = pkgParts.take(pkgParts.length - 1).mkString(".")
       // out.println(s"package $parentPkg { package object ${pkgParts.last} {\n" +
       //             valueClasses.mkString("\n") + "}}")
@@ -196,7 +202,7 @@ import scala.util.control.NonFatal
     java.beans.Introspector.flushCaches()
     System.gc()
     classpathClassLoader.close()
-    classpathClassLoader = null
+    // classpathClassLoader = null
     System.gc()
     out.flush()
     out.close()

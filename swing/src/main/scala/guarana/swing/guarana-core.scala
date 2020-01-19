@@ -7,6 +7,9 @@ import scala.concurrent.duration.Duration
 import scala.util.Try
 import guarana.swing.impl.SignalSwitchboard
 
+object Scenegraph {
+  type ContextAction[+R] =  (given VarContext & Emitter.Context) => R
+}
 class Scenegraph {
 
   type Signal[+T] = ObsVal[T]
@@ -17,21 +20,6 @@ class Scenegraph {
   private[this] val threadLocalContext = new ThreadLocal[ContextImpl] {
     override def initialValue = null
   }
-
-  //vars definitions
-  // val rootNode = Var[Node]("rootNode").forInstance(this)
-  // private[guarana] val mutableMouseLocation = Var[(Int, Int)]("mouseLocation").forInstance(this)
-  // val width = Var[Int]("width").forInstance(this)
-  // val height = Var[Int]("height").forInstance(this)
-  // def mouseLocation = mutableMouseLocation.asObsValIn(Scenegraph.this)
-
-  // {//register own vars
-  //   switchboard(rootNode) = rootNode.initialValue
-  //   switchboard(mutableMouseLocation) = mutableMouseLocation.initialValue
-  //   switchboard(width) = width.initialValue
-  //   switchboard(height) = height.initialValue
-  // }
-
 
   trait VarValueChanged {
     type T
@@ -57,8 +45,8 @@ class Scenegraph {
   }
 
 
-  def update[R](f: (given Scenegraph) => (given VarContext & Emitter.Context) => R): R = Await.result(updateAsync(f), Duration.Inf)
-  def updateAsync[R](f: (given Scenegraph) => (given VarContext & Emitter.Context) => R): Future[R] = {
+  def update[R](f: (given Scenegraph) => Scenegraph.ContextAction[R]): R = Await.result(updateAsync(f), Duration.Inf)
+  def updateAsync[R](f: (given Scenegraph) => Scenegraph.ContextAction[R]): Future[R] = {
     val res = Promise[R]()
     def impl = res.complete(Try {
       var locallyCreatedContext = false
@@ -78,11 +66,25 @@ class Scenegraph {
     })
 
     if (SwingUtilities.isEventDispatchThread) impl
-    else SwingUtilities.invokeLater(() => impl)
+    else {
+      val r: Runnable = () => impl
+      SwingUtilities.invokeLater(r)
+    }
     
     res.future
   }
   
+  private val reactingSwingVars = collection.mutable.HashSet.empty[Keyed[Signal[_]]]
+  /** Executes the given thunk preventing swing property changes from being propagated to the signals.
+    * Reason: When computing the values for swing properties, they'll notify that they were change, and we want to avoid resetting the value
+    * and discarding the user provided Binding.
+    */
+  private def reactingToVar[R](k: Keyed[Signal[_]])(f: => R): R = {
+    reactingSwingVars += k
+    val res = f
+    reactingSwingVars -= k
+    res
+  }
   private object reporter extends SignalSwitchboard.Reporter[Signal] {
 
     private def withContext(f: ContextImpl => Any): Unit = {
@@ -95,33 +97,13 @@ class Scenegraph {
     def signalInvalidated(sb: SignalSwitchboard[Signal], s: Keyed[Signal[_]]) = {
       //swing keys need to be eagerly computed
       if (s.keyed.isInstanceOf[SwingObsVal[_]]) withContext { ctx =>
-        ctx.switchboard(s)  
+        reactingToVar(s) { ctx.switchboard(s) }
       }
     }
-    // {
-      // withContext { ctx =>
-        // if (s.keyed == Node.render && s.instance.isInstanceOf[Node]) requestRenderPass()
-
-        // for the children var, we force computation eagerly, so that we may compute parents.
-        // if (s.keyed == Node.children && s.instance.isInstanceOf[Node]) ctx.switchboard(s)
-      // }
-    // }
 
     def signalUpdated[T](sb: SignalSwitchboard[Signal], s: Keyed[Signal[T]], oldValue: Option[T], newValue: T, dependencies: collection.Set[Keyed[Signal[_]]], dependents: collection.Set[Keyed[Signal[_]]]): Unit = {
       withContext { ctx =>
         ctx.emit(varUpdates, VarValueChanged(s, oldValue, newValue))(given ValueOf(Scenegraph.this))
-
-        // s match {
-        //   // check for children var changing and compute parents
-        //   case Keyed(Node.children, node: Node) =>
-        //     for {
-        //       nodes <- oldValue.asInstanceOf[Option[Seq[Node]]].iterator
-        //       n <- nodes
-        //     } n.parentsMut := n.parentsMut() - node
-            
-        //     for (n <- newValue.asInstanceOf[Seq[Node]]) n.parentsMut := n.parentsMut() + node
-        //   case _ => 
-        // }
       }
     }
   }
@@ -129,7 +111,7 @@ class Scenegraph {
   private def emitterDispose[A](emittersData: Map[Keyed[Emitter[_]], EmitterData[_]], emitter: Emitter[A])(given instance: ValueOf[emitter.ForInstance]): Map[Keyed[Emitter[_]], EmitterData[_]] = {
     emittersData.removed(emitter)
   }
-  private def emitterEmit[A](emittersData: Map[Keyed[Emitter[_]], EmitterData[_]], emitter: Emitter[A], evt: A)(given instance: ValueOf[emitter.ForInstance]): Map[Keyed[Emitter[_]], EmitterData[_]] = {
+  private def emitterEmit[A](emittersData: Map[Keyed[Emitter[_]], EmitterData[_]], emitter: Emitter[A], evt: A)(given instance: ValueOf[emitter.ForInstance], ctx: VarContext & Emitter.Context): Map[Keyed[Emitter[_]], EmitterData[_]] = {
     val key: Keyed[Emitter[_]] = emitter
     emittersData.get(key) match {
       case Some(data) => emittersData.updated(key, data.asInstanceOf[EmitterData[A]].emit(evt))
@@ -156,13 +138,7 @@ class Scenegraph {
 
   private class SwitchboardAsVarContext(switchboard: SignalSwitchboard[Signal]) extends VarContext {
     def apply[T](v: ObsVal[T])(given instance: ValueOf[v.ForInstance]): T = {
-      val res = switchboard.get(v) orElse stylist(scenegraphInfo)(v) getOrElse (throw new NoSuchElementException(s"Undefined value for $v"))
-      // //reading may trigger a recompute, which we need to propagate back to the swing property
-      // v match {
-      //   case v: SwingVar[T] => v.set(instance.value.asInstanceOf[v.ForInstance], res)
-      //   case _ =>
-      // }
-      res
+      switchboard.get(v) orElse stylist(scenegraphInfo)(v) getOrElse v.initialValue(instance.value)
     }
     def update[T](v: Var[T], binding: Binding[T])(given instance: ValueOf[v.ForInstance]): Unit = {
       binding match {
@@ -170,6 +146,9 @@ class Scenegraph {
         case Binding.Compute(c) => switchboard.bind(v)(sb =>
             c(new SwitchboardAsVarContext(sb)))
       }
+    }
+    private[guarana] def swingPropertyUpdated[T](v: Var[T], value: T)(given instance: ValueOf[v.ForInstance]): Unit = {
+      if (!reactingSwingVars(v)) switchboard(v) = value
     }
   }
 
@@ -187,7 +166,7 @@ class Scenegraph {
     def dispose(emitter: Emitter[_])(given instance: ValueOf[emitter.ForInstance]): Unit =
       emittersData = emitterDispose(emittersData, emitter)
     def emit[A](emitter: Emitter[A], evt: A)(given instance: ValueOf[emitter.ForInstance]): Unit =
-      emittersData = emitterEmit(emittersData, emitter, evt)
+      emittersData = emitterEmit(emittersData, emitter, evt)(given summon, this)
     def listen[A](emitter: Emitter[A])(f: EventIterator[A])(given instance: ValueOf[emitter.ForInstance]): Unit =
       emittersData = emitterListen(emittersData, emitter)(f)
     def register(emitter: Emitter[_])(given instance: ValueOf[emitter.ForInstance]): Unit =
@@ -197,7 +176,7 @@ class Scenegraph {
   private case class EmitterData[T](itIdx: Int = 0, listeners: collection.immutable.IntMap[EventIterator[T]] = collection.immutable.IntMap.empty[EventIterator[T]]) {
     def addListener(listener: EventIterator[T]): EmitterData[T] = copy(itIdx + 1, listeners.updated(itIdx, listener))
 
-    def emit(evt: T): EmitterData[T] = {
+    def emit(evt: T): Scenegraph.ContextAction[EmitterData[T]] = {
       var updatedListeners = collection.immutable.IntMap.empty[EventIterator[T]]
       for ((key, listener) <- listeners) {
         listener.step(evt) foreach (newState => updatedListeners = updatedListeners.updated(key, newState))
