@@ -17,6 +17,13 @@ class Scenegraph {
   private[this] var emittersData = Map.empty[Keyed[Emitter[_]], EmitterData[_]]
   private[this] var stylist: Stylist = Stylist.NoOp
 
+  private val systemEm = {
+    //ideally we'd want a way to detect system configured DPI, but we can't, so...
+    16
+  }
+
+  val emSize = Var[Double]("emSize", systemEm).forInstance(Scenegraph.this) 
+
   private[this] val threadLocalContext = new ThreadLocal[ContextImpl] {
     override def initialValue = null
   }
@@ -185,4 +192,14 @@ class Scenegraph {
     }
   }
 
+}
+
+given metrics: (d: Double | Float | Int) extended with {
+  inline def em(given sc: Scenegraph) = Binding.dyn {
+    (inline d match {
+      case i: Int => i.toDouble
+      case d: Double => d
+      case f: Float => f.toDouble
+    }) * sc.emSize()
+  }
 }

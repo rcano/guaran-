@@ -23,7 +23,12 @@ sealed trait ObsVal[+T] {
   def name: String
   type ForInstance <: Singleton
 
-  def initialValue(v: ForInstance): T
+  /** Given an instance of ForInstance, provide a default value.
+    * **Implementation Note:** Due to dotty compilation reifying the type of the parameter of this method, we need to turn to <:< to ensure the parameter
+    * is of type object and no ClassCastExceptionOcurrs, because otherwise when creating actual instances of ObsVal and setting ForInstance to something,
+    * it will reify the parameter instead of keeping the generic version defined in this trait.
+    */
+  def initialValue(v: Any)(given v.type <:< ForInstance): T
 
   def apply()(given instance: ValueOf[ForInstance]): VarContextAction[T] = (given c) => c(this)
 
@@ -46,10 +51,12 @@ sealed trait Var[T] extends ObsVal[T] {
 }
 object Var {
   type Aux[T, Instance <: Singleton] = Var[T] { type ForInstance = Instance }
-  def apply[T](varName: => String, initValue: => T) = new Var[T] {
-    def initialValue(v: ForInstance): T = initValue
-    lazy val name = varName
-    type ForInstance = this.type
+  def apply[T](varName: => String, initValue: => T) = {
+    new Var[T] {
+      def initialValue(v: Any)(given v.type <:< ForInstance): T = initValue
+      lazy val name = varName
+      type ForInstance = this.type
+    }
   }
   // inline def autoName[T] = ${autoNameMacro[T]}
 
@@ -69,6 +76,18 @@ object Var {
 enum Binding[T] {
   case Const(value: () => T)
   case Compute(compute: VarContext => T)
+
+  def map[U](f: T => U): Binding[U] = this match {
+    case Const(v) => 
+      val cached = f(v())
+      Const(() => cached)
+    case Compute(compute) => Compute(ctx => f(compute(ctx)))
+  }
+
+  def apply()(given ctx: VarContext): T = this match {
+    case Const(v) => v() 
+    case Compute(compute) => compute(ctx)
+  }
 }
 
 object Binding {
@@ -81,7 +100,7 @@ object Binding {
 trait SwingObsVal[+T] extends ObsVal[T] {
   type ForInstance <: Node with Singleton
   private[swing] def get(n: ForInstance): T
-  def initialValue(v: ForInstance) = get(v)
+  def initialValue(v: Any)(given ev: v.type <:< ForInstance) = get(ev(v))
 }
 
 trait SwingVar[T] extends Var[T] with SwingObsVal[T] {

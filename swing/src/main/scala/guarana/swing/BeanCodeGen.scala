@@ -138,20 +138,21 @@ import scala.util.control.NonFatal
           }  
         }
 
-        val readOnlyProps = properties.collect { case Right(t) => t }.filterNot(inParents).map((prop, tpe, descr, m) => s"def $prop = v.${m.getName}")
+        val readOnlyProps = properties.collect { case Right(t) => t }.filterNot(inParents).map((prop, tpe, descr, m) => s""""def $prop = v.${m.getName}"""")
         val varDescrs = properties.collect { case Left(t) => t }
         val varProps = varDescrs.filterNot(inParents).map { (prop, tpe, descr, m) => 
-          s"""val ${prop.capitalize} = SwingVar[$nodeName, $tpe]("${prop}", _.${descr.getReadMethod.getName}, _.${descr.getWriteMethod.getName}(_))"""
+          // s"""val ${prop.capitalize} = SwingVar[$nodeName, $tpe]("${prop}", _.${descr.getReadMethod.getName}, _.${descr.getWriteMethod.getName}(_))"""
+          s"""SwingProp("$prop", "$tpe")"""
         }
-        val varExtMethods = varDescrs.filterNot(inParents).map{ (prop, tpe, descr, m) => 
-          s"""def $prop = $nodeName.${prop.capitalize}.forInstance(v)"""
-        }
+        // val varExtMethods = varDescrs.filterNot(inParents).map{ (prop, tpe, descr, m) => 
+        //   s"""def $prop = $nodeName.${prop.capitalize}.forInstance(v)"""
+        // }
 
-        val ctrParams = varDescrs.map((prop, tpe, descr, m) => s"$prop: Opt[Binding[$tpe]] = UnsetParam")
-        val ctrInitializers = varDescrs.map { (prop, tpe, descr, m) => 
-          val opsClass = toNodeName(m.getDeclaringClass.getSimpleName.nn)
-          s"ifSet($prop, ${specialNodeProperties(s"res.$prop")} := _)"
-        }
+        // val ctrParams = varDescrs.map((prop, tpe, descr, m) => s"$prop: Opt[Binding[$tpe]] = UnsetParam")
+        // val ctrInitializers = varDescrs.map { (prop, tpe, descr, m) => 
+        //   val opsClass = toNodeName(m.getDeclaringClass.getSimpleName.nn)
+        //   s"ifSet($prop, ${specialNodeProperties(s"res.$prop")} := _)"
+        // }
 
         // val genericDecls = c.getTypeParameters() match {
         //   case arr if arr.isEmpty => ""
@@ -162,33 +163,33 @@ import scala.util.control.NonFatal
         //   case arr => arr.map(_.getName).mkString("[", ", ", "]")
         // }
 
+        c.getPackage.nn -> (varProps ++ readOnlyProps).mkString(",\n")
+        // c.getPackage.nn -> s"""
+        //   |opaque type $nodeName <: Node = ${c.getName}
+        //   |object $nodeName extends VarsMap {
+        //   |  ${varProps.mkString("\n  ")}
 
-        c.getPackage.nn -> s"""
-          |opaque type $nodeName <: Node = ${c.getName}
-          |object $nodeName extends VarsMap {
-          |  ${varProps.mkString("\n  ")}
-
-          |  given ops: (v: $nodeName) extended with {
-          |    ${readOnlyProps.mkString("\n    ")}
-          |    ${varExtMethods.mkString("\n    ")}
-          |    def unwrap: ${c.getName} = v
-          |  }
-          |  
-          |  def init(n: $nodeName) = (given sc: Scenegraph) => {
-          |    Component.init(n)
-          |    n.addPropertyChangeListener(varsPropertyListener(n))
-          |  }
-          |
-          |  def apply(
-          |    ${ctrParams.mkString(",\n    ")}
-          |  ): (given Scenegraph) => VarContextAction[$nodeName] = {
-          |    val res = uninitialized()
-          |    init(res)
-          |    ${ctrInitializers.mkString("\n    ")}
-          |    res
-          |  }
-          |}
-          """.stripMargin
+        //   |  given ops: (v: $nodeName) extended with {
+        //   |    ${readOnlyProps.mkString("\n    ")}
+        //   |    ${varExtMethods.mkString("\n    ")}
+        //   |    def unwrap: ${c.getName} = v
+        //   |  }
+        //   |  
+        //   |  def init(n: $nodeName) = (given sc: Scenegraph) => {
+        //   |    Component.init(n)
+        //   |    n.addPropertyChangeListener(varsPropertyListener(n))
+        //   |  }
+        //   |
+        //   |  def apply(
+        //   |    ${ctrParams.mkString(",\n    ")}
+        //   |  ): (given Scenegraph) => VarContextAction[$nodeName] = {
+        //   |    val res = uninitialized()
+        //   |    init(res)
+        //   |    ${ctrInitializers.mkString("\n    ")}
+        //   |    res
+        //   |  }
+        //   |}
+        //   """.stripMargin
       }).toSeq.groupBy(_._1).view.mapValues(_.map(_._2)).toMap
 
     for ((pck, valueClasses) <- valueClasses) {

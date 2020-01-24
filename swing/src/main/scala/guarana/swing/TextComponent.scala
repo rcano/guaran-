@@ -24,13 +24,6 @@ object TextComponent extends VarsMap {
   val SelectionColor = SwingVar[TextComponent, java.awt.Color | Null]("selectionColor", _.getSelectionColor, _.setSelectionColor(_))
 
   given ops: (v: TextComponent) extended with {
-    def actions = v.getActions
-    def caretListeners = v.getCaretListeners
-    def dropLocation = v.getDropLocation
-    def preferredScrollableViewportSize = v.getPreferredScrollableViewportSize
-    def scrollableTracksViewportHeight = v.getScrollableTracksViewportHeight
-    def scrollableTracksViewportWidth = v.getScrollableTracksViewportWidth
-    def selectedText = v.getSelectedText
     def UI = TextComponent.UI.forInstance(v)
     def caret = TextComponent.Caret.forInstance(v)
     def caretColor = TextComponent.CaretColor.forInstance(v)
@@ -46,12 +39,21 @@ object TextComponent extends VarsMap {
     def navigationFilter = TextComponent.NavigationFilter.forInstance(v)
     def selectedTextColor = TextComponent.SelectedTextColor.forInstance(v)
     def selectionColor = TextComponent.SelectionColor.forInstance(v)
+    def actions = v.getActions
+    def caretListeners = v.getCaretListeners
+    def dropLocation = v.getDropLocation
+    def preferredScrollableViewportSize = v.getPreferredScrollableViewportSize
+    def scrollableTracksViewportHeight = v.getScrollableTracksViewportHeight
+    def scrollableTracksViewportWidth = v.getScrollableTracksViewportWidth
+    def selectedText = v.getSelectedText
     def text = v.getText
     def text_=(s: String) = v.setText(s)
     def unwrap: javax.swing.text.JTextComponent = v
   }
 
-  def init(v: TextComponent): (given Scenegraph) => Unit = {
+  def apply(v: javax.swing.text.JTextComponent) = v.asInstanceOf[TextComponent]
+
+  def init(v: TextComponent): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     Component.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
     v.getDocument.addDocumentListener(new DocumentListener {
@@ -61,7 +63,9 @@ object TextComponent extends VarsMap {
       def notifyChange() = summon[Scenegraph].update(summon[VarContext].swingPropertyUpdated(ops.document(v), v.getDocument.nn))
     })
   }
+  
 }
+
 
 given documentOps: (d: javax.swing.text.Document) extended with {
   def defaultRootElement = d.getDefaultRootElement
