@@ -16,7 +16,7 @@ libraryDependencies += "com.novocode" % "junit-interface" % "0.11" % "test"
 
 libraryDependencies ++= Seq(
   ("com.github.pathikrit" % "better-files_2.13" % "3.8.0"), //.withDottyCompat(scalaVersion.value),
-
+  "org.codehaus.griffon.plugins" % "griffon-lookandfeel-napkin" % "2.0.0",
   //"de.vandermeer" % "asciitable" % "0.3.2",
   //"io.github.classgraph" % "classgraph" % "4.8.60",
 )
@@ -41,3 +41,6 @@ javaOptions ++= {
     "--module-path=" + modules.map(_._1.data.getAbsolutePath).mkString(java.io.File.pathSeparator)
   )
 }
+
+javaOptions ++= Seq("-Dsun.java2d.uiScale.enabled=true", "-Dsun.java2d.uiScale=2")
+outputStrategy := Some(StdoutOutput)

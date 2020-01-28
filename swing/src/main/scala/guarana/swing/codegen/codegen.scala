@@ -129,6 +129,7 @@ case object Window extends NodeDescr(
   props = Seq(
     SwingProp("alwaysOnTop", "Boolean"),
     SwingProp("autoRequestFocus", "Boolean"),
+    SwingProp("focusCycleRoot", "Boolean"),
     SwingProp("focusableWindowState", "Boolean", "_.getFocusableWindowState", "_.setFocusableWindowState(_)"),
     SwingProp("iconImages", "java.util.List[_ <: java.awt.Image] | Null"),
     SwingProp("locationByPlatform", "Boolean"),
@@ -136,7 +137,7 @@ case object Window extends NodeDescr(
     SwingProp("opacity", "Float"),
     SwingProp("shape", "java.awt.Shape | Null"),
     SwingProp("tpe", "java.awt.Window.Type", "_.getType.nn", "_.setType(_)"),
-    SwingProp("Root", "Node", "c => Node(c.getComponent(0).asInstanceOf[Container])", "(w, n) => w.add(n, 0)"),
+    SwingProp("root", "Node", "c => Node(c.getComponent(0).asInstanceOf[Container])", "(w, n) => w.add(n, 0)"),
   ),
   opsExtra = Seq(
     "def accessibleContext = v.getAccessibleContext",
@@ -182,7 +183,7 @@ case object Frame extends NodeDescr(
   opsExtra = Seq(
     "def cursorType = v.getCursorType"
   ),
-  uninitExtraParams = Seq("title" -> "String | Null = null", "gc" -> "GraphicsConfiguration | Null = null"),
+  uninitExtraParams = Seq("gc" -> "GraphicsConfiguration | Null = null"),
 )
 
 ////////////////////////////////////////////////////////////////////////////
@@ -405,6 +406,27 @@ case object PasswordField extends NodeDescr(
     "def password = v.getPassword"
   ),
 )
+case object Label extends NodeDescr(
+  "Label",
+  "javax.swing.JLabel",
+  parents = Seq(Component),
+  props = Seq(
+    SwingProp("UI", "javax.swing.plaf.LabelUI"),
+    SwingProp("disabledIcon", "javax.swing.Icon | Null"),
+    SwingProp("displayedMnemonic", "Int"),
+    SwingProp("displayedMnemonicIndex", "Int"),
+    SwingProp("horizontalAlignment", "Int"),
+    SwingProp("horizontalTextPosition", "Int"),
+    SwingProp("icon", "javax.swing.Icon | Null"),
+    SwingProp("iconTextGap", "Int"),
+    SwingProp("labelFor", "java.awt.Component | Null"),
+    SwingProp("text", "java.lang.String | Null"),
+    SwingProp("verticalAlignment", "Int"),
+    SwingProp("verticalTextPosition", "Int")
+  ),
+  opsExtra = Seq(
+  ),
+)
 
 ////////////////////////////////////////////////////////////////////////////
 // Buttons
@@ -611,6 +633,7 @@ def genCode(n: NodeDescr): String = {
     Node,
     Component,
     Window,
+    Frame,
     Pane,
     AbsolutePositioningPane,
     BorderPane,
@@ -621,6 +644,7 @@ def genCode(n: NodeDescr): String = {
     TextArea,
     TextField,
     PasswordField,
+    Label,
     ButtonBase,
     Button,
     ToggleButton,
