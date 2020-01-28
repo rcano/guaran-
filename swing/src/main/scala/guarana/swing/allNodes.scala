@@ -12,22 +12,22 @@ import scala.util.chaining._
 opaque type Node  = java.awt.Container
 object Node extends VarsMap {
   val Background = SwingVar[Node, java.awt.Color | Null]("background", _.getBackground, _.setBackground(_))
-  val Bounds = SwingVar[Node, java.awt.Rectangle]("bounds", _.getBounds.nn, _.setBounds(_))
+  val Bounds = SwingVar[Node, Bounds]("bounds", _.getBounds.nn, _.setBounds(_))
   val ComponentOrientation = SwingVar[Node, java.awt.ComponentOrientation]("componentOrientation", _.getComponentOrientation.nn, _.setComponentOrientation(_))
   val Cursor = SwingVar[Node, java.awt.Cursor | Null]("cursor", _.getCursor, _.setCursor(_))
   val Enabled = SwingVar[Node, Boolean]("enabled", _.isEnabled, _.setEnabled(_))
   val Focusable = SwingVar[Node, Boolean]("focusable", _.isFocusable, _.setFocusable(_))
   val Font = SwingVar[Node, java.awt.Font | Null]("font", _.getFont, _.setFont(_))
   val Foreground = SwingVar[Node, java.awt.Color | Null]("foreground", _.getForeground, _.setForeground(_))
-  val MaximumSize = SwingVar[Node, java.awt.Dimension | Null]("maximumSize", _.getMaximumSize, _.setMaximumSize(_))
-  val MinimumSize = SwingVar[Node, java.awt.Dimension | Null]("minimumSize", _.getMinimumSize, _.setMinimumSize(_))
-  val MouseLocation = Var[(Int, Int)]("mouseLocation", (0, 0))
-  val PrefSize = SwingVar[Node, java.awt.Dimension | Null]("prefSize", _.getPreferredSize, _.setPreferredSize(_))
+  val MaxSize = SwingVar[Node, (Double, Double) | Null]("maxSize", {n => val d = n.getMaximumSize; if (d != null) (d.getWidth, d.getHeight) else null}, {(n, d) => n.setMaximumSize(if (d == null) null else java.awt.Dimension(d._1.toInt, d._2.toInt))})
+  val MinSize = SwingVar[Node, (Double, Double) | Null]("minSize", {n => val d = n.getMinimumSize; if (d != null) (d.getWidth, d.getHeight) else null}, {(n, d) => n.setMinimumSize(if (d == null) null else java.awt.Dimension(d._1.toInt, d._2.toInt))})
+  private val MouseLocationMut = Var[(Int, Int)]("mouseLocationMut", (0, 0))
+  val PrefSize = SwingVar[Node, (Double, Double) | Null]("prefSize", {n => val d = n.getPreferredSize; if (d != null) (d.getWidth, d.getHeight) else null}, {(n, d) => n.setPreferredSize(if (d == null) null else java.awt.Dimension(d._1.toInt, d._2.toInt))})
   val Visible = SwingVar[Node, Boolean]("visible", _.isVisible, _.setVisible(_))
 
   
 
-  given ops: (v: Node) extended with {
+  extension ops on (v: Node) {
     def background = Node.Background.forInstance(v)
     def bounds = Node.Bounds.forInstance(v)
     def componentOrientation = Node.ComponentOrientation.forInstance(v)
@@ -36,14 +36,15 @@ object Node extends VarsMap {
     def focusable = Node.Focusable.forInstance(v)
     def font = Node.Font.forInstance(v)
     def foreground = Node.Foreground.forInstance(v)
-    def maximumSize = Node.MaximumSize.forInstance(v)
-    def minimumSize = Node.MinimumSize.forInstance(v)
-    def mouseLocation = Node.MouseLocation.forInstance(v)
+    def maxSize = Node.MaxSize.forInstance(v)
+    def minSize = Node.MinSize.forInstance(v)
+    def mouseLocationMut = Node.MouseLocationMut.forInstance(v)
     def prefSize = Node.PrefSize.forInstance(v)
     def visible = Node.Visible.forInstance(v)
 
     
 
+    def mouseLocation = Node.MouseLocationMut.asObsValIn(v)
     def alignmentX = v.getAlignmentX
     def alignmentY = v.getAlignmentY
     def insets = v.getInsets
@@ -64,7 +65,7 @@ object Node extends VarsMap {
       def mouseDragged(evt: java.awt.event.MouseEvent | Null) = ()
       def mouseMoved(evt: java.awt.event.MouseEvent | Null) = sc.update {
         val nnEvt = evt.nn
-        Node.MouseLocation.forInstance(v) := (nnEvt.getX, nnEvt.getY)
+        Node.MouseLocationMut.forInstance(v) := (nnEvt.getX, nnEvt.getY)
       }
     }
     
@@ -78,17 +79,17 @@ object Node extends VarsMap {
   def apply(
     
     background: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
-    bounds: Opt[Binding[java.awt.Rectangle]] = UnsetParam,
+    bounds: Opt[Binding[Bounds]] = UnsetParam,
     componentOrientation: Opt[Binding[java.awt.ComponentOrientation]] = UnsetParam,
     cursor: Opt[Binding[java.awt.Cursor | Null]] = UnsetParam,
     enabled: Opt[Binding[Boolean]] = UnsetParam,
     focusable: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
-    maximumSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
-    minimumSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
-    mouseLocation: Opt[Binding[(Int, Int)]] = UnsetParam,
-    prefSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
+    maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
+    minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
+    mouseLocationMut: Opt[Binding[(Int, Int)]] = UnsetParam,
+    prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): (given Scenegraph) => VarContextAction[Node] = {
     val res = uninitialized()
@@ -101,9 +102,9 @@ object Node extends VarsMap {
     ifSet(focusable, Node.ops.focusable(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
-    ifSet(maximumSize, Node.ops.maximumSize(res) := _)
-    ifSet(minimumSize, Node.ops.minimumSize(res) := _)
-    ifSet(mouseLocation, Node.ops.mouseLocation(res) := _)
+    ifSet(maxSize, Node.ops.maxSize(res) := _)
+    ifSet(minSize, Node.ops.minSize(res) := _)
+    ifSet(mouseLocationMut, Node.ops.mouseLocationMut(res) := _)
     ifSet(prefSize, Node.ops.prefSize(res) := _)
     ifSet(visible, Node.ops.visible(res) := _)
     res
@@ -130,7 +131,7 @@ object Component extends VarsMap {
 
   
 
-  given ops: (v: Component) extended with {
+  extension ops on (v: Component) {
     def actionMap = Component.ActionMap.forInstance(v)
     def alignmentX = Component.AlignmentX.forInstance(v)
     def alignmentY = Component.AlignmentY.forInstance(v)
@@ -175,7 +176,7 @@ object Component extends VarsMap {
   
 }
 
-opaque type Window <: Component = java.awt.Window & Component
+opaque type Window <: Node = java.awt.Window & Node
 object Window extends VarsMap {
   val AlwaysOnTop = SwingVar[Window, Boolean]("alwaysOnTop", _.isAlwaysOnTop, _.setAlwaysOnTop(_))
   val AutoRequestFocus = SwingVar[Window, Boolean]("autoRequestFocus", _.isAutoRequestFocus, _.setAutoRequestFocus(_))
@@ -191,7 +192,7 @@ object Window extends VarsMap {
 
   
 
-  given ops: (v: Window) extended with {
+  extension ops on (v: Window) {
     def alwaysOnTop = Window.AlwaysOnTop.forInstance(v)
     def autoRequestFocus = Window.AutoRequestFocus.forInstance(v)
     def focusCycleRoot = Window.FocusCycleRoot.forInstance(v)
@@ -234,7 +235,7 @@ object Window extends VarsMap {
   def apply(v: java.awt.Window) = v.asInstanceOf[Window]
 
   def init(v: Window): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
-    Component.init(v)
+    Node.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
     
     
@@ -247,20 +248,12 @@ object Window extends VarsMap {
   
   def apply(
     parent: java.awt.Window | Null = null, gc: GraphicsConfiguration | Null = null,
-    actionMap: Opt[Binding[javax.swing.ActionMap]] = UnsetParam,
-    alignmentX: Opt[Binding[Float]] = UnsetParam,
-    alignmentY: Opt[Binding[Float]] = UnsetParam,
     alwaysOnTop: Opt[Binding[Boolean]] = UnsetParam,
     autoRequestFocus: Opt[Binding[Boolean]] = UnsetParam,
-    autoscrolls: Opt[Binding[Boolean]] = UnsetParam,
     background: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
-    border: Opt[Binding[javax.swing.border.Border | Null]] = UnsetParam,
-    bounds: Opt[Binding[java.awt.Rectangle]] = UnsetParam,
+    bounds: Opt[Binding[Bounds]] = UnsetParam,
     componentOrientation: Opt[Binding[java.awt.ComponentOrientation]] = UnsetParam,
-    componentPopupMenu: Opt[Binding[javax.swing.JPopupMenu | Null]] = UnsetParam,
     cursor: Opt[Binding[java.awt.Cursor | Null]] = UnsetParam,
-    debugGraphicsOptions: Opt[Binding[Int]] = UnsetParam,
-    doubleBuffered: Opt[Binding[Boolean]] = UnsetParam,
     enabled: Opt[Binding[Boolean]] = UnsetParam,
     focusCycleRoot: Opt[Binding[Boolean]] = UnsetParam,
     focusable: Opt[Binding[Boolean]] = UnsetParam,
@@ -268,41 +261,26 @@ object Window extends VarsMap {
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     iconImages: Opt[Binding[java.util.List[_ <: java.awt.Image] | Null]] = UnsetParam,
-    inheritsPopupMenu: Opt[Binding[Boolean]] = UnsetParam,
-    inputVerifier: Opt[Binding[javax.swing.InputVerifier | Null]] = UnsetParam,
     locationByPlatform: Opt[Binding[Boolean]] = UnsetParam,
-    maximumSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
-    minimumSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
+    maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
+    minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     modalExclusionType: Opt[Binding[java.awt.Dialog.ModalExclusionType]] = UnsetParam,
-    mouseLocation: Opt[Binding[(Int, Int)]] = UnsetParam,
+    mouseLocationMut: Opt[Binding[(Int, Int)]] = UnsetParam,
     opacity: Opt[Binding[Float]] = UnsetParam,
-    opaque: Opt[Binding[Boolean]] = UnsetParam,
-    prefSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
-    requestFocusEnabled: Opt[Binding[Boolean]] = UnsetParam,
+    prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     root: Opt[Binding[Node]] = UnsetParam,
     shape: Opt[Binding[java.awt.Shape | Null]] = UnsetParam,
-    toolTipText: Opt[Binding[String | Null]] = UnsetParam,
     tpe: Opt[Binding[java.awt.Window.Type]] = UnsetParam,
-    transferHandler: Opt[Binding[javax.swing.TransferHandler | Null]] = UnsetParam,
-    verifyInputWhenFocusTarget: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): (given Scenegraph) => VarContextAction[Window] = {
     val res = uninitialized()
     Window.init(res)
-    ifSet(actionMap, Component.ops.actionMap(res) := _)
-    ifSet(alignmentX, Component.ops.alignmentX(res) := _)
-    ifSet(alignmentY, Component.ops.alignmentY(res) := _)
     ifSet(alwaysOnTop, Window.ops.alwaysOnTop(res) := _)
     ifSet(autoRequestFocus, Window.ops.autoRequestFocus(res) := _)
-    ifSet(autoscrolls, Component.ops.autoscrolls(res) := _)
     ifSet(background, Node.ops.background(res) := _)
-    ifSet(border, Component.ops.border(res) := _)
     ifSet(bounds, Node.ops.bounds(res) := _)
     ifSet(componentOrientation, Node.ops.componentOrientation(res) := _)
-    ifSet(componentPopupMenu, Component.ops.componentPopupMenu(res) := _)
     ifSet(cursor, Node.ops.cursor(res) := _)
-    ifSet(debugGraphicsOptions, Component.ops.debugGraphicsOptions(res) := _)
-    ifSet(doubleBuffered, Component.ops.doubleBuffered(res) := _)
     ifSet(enabled, Node.ops.enabled(res) := _)
     ifSet(focusCycleRoot, Window.ops.focusCycleRoot(res) := _)
     ifSet(focusable, Node.ops.focusable(res) := _)
@@ -310,23 +288,16 @@ object Window extends VarsMap {
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
     ifSet(iconImages, Window.ops.iconImages(res) := _)
-    ifSet(inheritsPopupMenu, Component.ops.inheritsPopupMenu(res) := _)
-    ifSet(inputVerifier, Component.ops.inputVerifier(res) := _)
     ifSet(locationByPlatform, Window.ops.locationByPlatform(res) := _)
-    ifSet(maximumSize, Node.ops.maximumSize(res) := _)
-    ifSet(minimumSize, Node.ops.minimumSize(res) := _)
+    ifSet(maxSize, Node.ops.maxSize(res) := _)
+    ifSet(minSize, Node.ops.minSize(res) := _)
     ifSet(modalExclusionType, Window.ops.modalExclusionType(res) := _)
-    ifSet(mouseLocation, Node.ops.mouseLocation(res) := _)
+    ifSet(mouseLocationMut, Node.ops.mouseLocationMut(res) := _)
     ifSet(opacity, Window.ops.opacity(res) := _)
-    ifSet(opaque, Component.ops.opaque(res) := _)
     ifSet(prefSize, Node.ops.prefSize(res) := _)
-    ifSet(requestFocusEnabled, Component.ops.requestFocusEnabled(res) := _)
     ifSet(root, Window.ops.root(res) := _)
     ifSet(shape, Window.ops.shape(res) := _)
-    ifSet(toolTipText, Component.ops.toolTipText(res) := _)
     ifSet(tpe, Window.ops.tpe(res) := _)
-    ifSet(transferHandler, Component.ops.transferHandler(res) := _)
-    ifSet(verifyInputWhenFocusTarget, Component.ops.verifyInputWhenFocusTarget(res) := _)
     ifSet(visible, Node.ops.visible(res) := _)
     res
   }
@@ -336,7 +307,7 @@ opaque type Frame <: Window = java.awt.Frame & Window
 object Frame extends VarsMap {
   val ExtendedState = SwingVar[Frame, Int]("extendedState", _.getExtendedState, _.setExtendedState(_))
   val IconImage = SwingVar[Frame, java.awt.Image | Null]("iconImage", _.getIconImage, _.setIconImage(_))
-  val MaximizedBounds = SwingVar[Frame, java.awt.Rectangle | Null]("maximizedBounds", _.getMaximizedBounds, _.setMaximizedBounds(_))
+  val MaximizedBounds = SwingVar[Frame, Bounds | Null]("maximizedBounds", _.getMaximizedBounds, _.setMaximizedBounds(_))
   val MenuBar = SwingVar[Frame, java.awt.MenuBar | Null]("menuBar", _.getMenuBar, _.setMenuBar(_))
   val Resizable = SwingVar[Frame, Boolean]("resizable", _.isResizable, _.setResizable(_))
   val State = SwingVar[Frame, Int]("state", _.getState, _.setState(_))
@@ -345,7 +316,7 @@ object Frame extends VarsMap {
 
   
 
-  given ops: (v: Frame) extended with {
+  extension ops on (v: Frame) {
     def extendedState = Frame.ExtendedState.forInstance(v)
     def iconImage = Frame.IconImage.forInstance(v)
     def maximizedBounds = Frame.MaximizedBounds.forInstance(v)
@@ -377,20 +348,12 @@ object Frame extends VarsMap {
   
   def apply(
     gc: GraphicsConfiguration | Null = null,
-    actionMap: Opt[Binding[javax.swing.ActionMap]] = UnsetParam,
-    alignmentX: Opt[Binding[Float]] = UnsetParam,
-    alignmentY: Opt[Binding[Float]] = UnsetParam,
     alwaysOnTop: Opt[Binding[Boolean]] = UnsetParam,
     autoRequestFocus: Opt[Binding[Boolean]] = UnsetParam,
-    autoscrolls: Opt[Binding[Boolean]] = UnsetParam,
     background: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
-    border: Opt[Binding[javax.swing.border.Border | Null]] = UnsetParam,
-    bounds: Opt[Binding[java.awt.Rectangle]] = UnsetParam,
+    bounds: Opt[Binding[Bounds]] = UnsetParam,
     componentOrientation: Opt[Binding[java.awt.ComponentOrientation]] = UnsetParam,
-    componentPopupMenu: Opt[Binding[javax.swing.JPopupMenu | Null]] = UnsetParam,
     cursor: Opt[Binding[java.awt.Cursor | Null]] = UnsetParam,
-    debugGraphicsOptions: Opt[Binding[Int]] = UnsetParam,
-    doubleBuffered: Opt[Binding[Boolean]] = UnsetParam,
     enabled: Opt[Binding[Boolean]] = UnsetParam,
     extendedState: Opt[Binding[Int]] = UnsetParam,
     focusCycleRoot: Opt[Binding[Boolean]] = UnsetParam,
@@ -400,47 +363,32 @@ object Frame extends VarsMap {
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     iconImage: Opt[Binding[java.awt.Image | Null]] = UnsetParam,
     iconImages: Opt[Binding[java.util.List[_ <: java.awt.Image] | Null]] = UnsetParam,
-    inheritsPopupMenu: Opt[Binding[Boolean]] = UnsetParam,
-    inputVerifier: Opt[Binding[javax.swing.InputVerifier | Null]] = UnsetParam,
     locationByPlatform: Opt[Binding[Boolean]] = UnsetParam,
-    maximizedBounds: Opt[Binding[java.awt.Rectangle | Null]] = UnsetParam,
-    maximumSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
+    maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
+    maximizedBounds: Opt[Binding[Bounds | Null]] = UnsetParam,
     menuBar: Opt[Binding[java.awt.MenuBar | Null]] = UnsetParam,
-    minimumSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
+    minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     modalExclusionType: Opt[Binding[java.awt.Dialog.ModalExclusionType]] = UnsetParam,
-    mouseLocation: Opt[Binding[(Int, Int)]] = UnsetParam,
+    mouseLocationMut: Opt[Binding[(Int, Int)]] = UnsetParam,
     opacity: Opt[Binding[Float]] = UnsetParam,
-    opaque: Opt[Binding[Boolean]] = UnsetParam,
-    prefSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
-    requestFocusEnabled: Opt[Binding[Boolean]] = UnsetParam,
+    prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     resizable: Opt[Binding[Boolean]] = UnsetParam,
     root: Opt[Binding[Node]] = UnsetParam,
     shape: Opt[Binding[java.awt.Shape | Null]] = UnsetParam,
     state: Opt[Binding[Int]] = UnsetParam,
     title: Opt[Binding[java.lang.String | Null]] = UnsetParam,
-    toolTipText: Opt[Binding[String | Null]] = UnsetParam,
     tpe: Opt[Binding[java.awt.Window.Type]] = UnsetParam,
-    transferHandler: Opt[Binding[javax.swing.TransferHandler | Null]] = UnsetParam,
     undecorated: Opt[Binding[Boolean]] = UnsetParam,
-    verifyInputWhenFocusTarget: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): (given Scenegraph) => VarContextAction[Frame] = {
     val res = uninitialized()
     Frame.init(res)
-    ifSet(actionMap, Component.ops.actionMap(res) := _)
-    ifSet(alignmentX, Component.ops.alignmentX(res) := _)
-    ifSet(alignmentY, Component.ops.alignmentY(res) := _)
     ifSet(alwaysOnTop, Window.ops.alwaysOnTop(res) := _)
     ifSet(autoRequestFocus, Window.ops.autoRequestFocus(res) := _)
-    ifSet(autoscrolls, Component.ops.autoscrolls(res) := _)
     ifSet(background, Node.ops.background(res) := _)
-    ifSet(border, Component.ops.border(res) := _)
     ifSet(bounds, Node.ops.bounds(res) := _)
     ifSet(componentOrientation, Node.ops.componentOrientation(res) := _)
-    ifSet(componentPopupMenu, Component.ops.componentPopupMenu(res) := _)
     ifSet(cursor, Node.ops.cursor(res) := _)
-    ifSet(debugGraphicsOptions, Component.ops.debugGraphicsOptions(res) := _)
-    ifSet(doubleBuffered, Component.ops.doubleBuffered(res) := _)
     ifSet(enabled, Node.ops.enabled(res) := _)
     ifSet(extendedState, Frame.ops.extendedState(res) := _)
     ifSet(focusCycleRoot, Window.ops.focusCycleRoot(res) := _)
@@ -450,29 +398,22 @@ object Frame extends VarsMap {
     ifSet(foreground, Node.ops.foreground(res) := _)
     ifSet(iconImage, Frame.ops.iconImage(res) := _)
     ifSet(iconImages, Window.ops.iconImages(res) := _)
-    ifSet(inheritsPopupMenu, Component.ops.inheritsPopupMenu(res) := _)
-    ifSet(inputVerifier, Component.ops.inputVerifier(res) := _)
     ifSet(locationByPlatform, Window.ops.locationByPlatform(res) := _)
+    ifSet(maxSize, Node.ops.maxSize(res) := _)
     ifSet(maximizedBounds, Frame.ops.maximizedBounds(res) := _)
-    ifSet(maximumSize, Node.ops.maximumSize(res) := _)
     ifSet(menuBar, Frame.ops.menuBar(res) := _)
-    ifSet(minimumSize, Node.ops.minimumSize(res) := _)
+    ifSet(minSize, Node.ops.minSize(res) := _)
     ifSet(modalExclusionType, Window.ops.modalExclusionType(res) := _)
-    ifSet(mouseLocation, Node.ops.mouseLocation(res) := _)
+    ifSet(mouseLocationMut, Node.ops.mouseLocationMut(res) := _)
     ifSet(opacity, Window.ops.opacity(res) := _)
-    ifSet(opaque, Component.ops.opaque(res) := _)
     ifSet(prefSize, Node.ops.prefSize(res) := _)
-    ifSet(requestFocusEnabled, Component.ops.requestFocusEnabled(res) := _)
     ifSet(resizable, Frame.ops.resizable(res) := _)
     ifSet(root, Window.ops.root(res) := _)
     ifSet(shape, Window.ops.shape(res) := _)
     ifSet(state, Frame.ops.state(res) := _)
     ifSet(title, Frame.ops.title(res) := _)
-    ifSet(toolTipText, Component.ops.toolTipText(res) := _)
     ifSet(tpe, Window.ops.tpe(res) := _)
-    ifSet(transferHandler, Component.ops.transferHandler(res) := _)
     ifSet(undecorated, Frame.ops.undecorated(res) := _)
-    ifSet(verifyInputWhenFocusTarget, Component.ops.verifyInputWhenFocusTarget(res) := _)
     ifSet(visible, Node.ops.visible(res) := _)
     res
   }
@@ -484,7 +425,7 @@ object Pane extends VarsMap {
 
   
 
-  given ops: (v: Pane) extended with {
+  extension ops on (v: Pane) {
     def UI = Pane.UI.forInstance(v)
 
     
@@ -516,7 +457,7 @@ object Pane extends VarsMap {
     autoscrolls: Opt[Binding[Boolean]] = UnsetParam,
     background: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     border: Opt[Binding[javax.swing.border.Border | Null]] = UnsetParam,
-    bounds: Opt[Binding[java.awt.Rectangle]] = UnsetParam,
+    bounds: Opt[Binding[Bounds]] = UnsetParam,
     componentOrientation: Opt[Binding[java.awt.ComponentOrientation]] = UnsetParam,
     componentPopupMenu: Opt[Binding[javax.swing.JPopupMenu | Null]] = UnsetParam,
     cursor: Opt[Binding[java.awt.Cursor | Null]] = UnsetParam,
@@ -528,11 +469,11 @@ object Pane extends VarsMap {
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     inheritsPopupMenu: Opt[Binding[Boolean]] = UnsetParam,
     inputVerifier: Opt[Binding[javax.swing.InputVerifier | Null]] = UnsetParam,
-    maximumSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
-    minimumSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
-    mouseLocation: Opt[Binding[(Int, Int)]] = UnsetParam,
+    maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
+    minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
+    mouseLocationMut: Opt[Binding[(Int, Int)]] = UnsetParam,
     opaque: Opt[Binding[Boolean]] = UnsetParam,
-    prefSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
+    prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     requestFocusEnabled: Opt[Binding[Boolean]] = UnsetParam,
     toolTipText: Opt[Binding[String | Null]] = UnsetParam,
     transferHandler: Opt[Binding[javax.swing.TransferHandler | Null]] = UnsetParam,
@@ -560,9 +501,9 @@ object Pane extends VarsMap {
     ifSet(foreground, Node.ops.foreground(res) := _)
     ifSet(inheritsPopupMenu, Component.ops.inheritsPopupMenu(res) := _)
     ifSet(inputVerifier, Component.ops.inputVerifier(res) := _)
-    ifSet(maximumSize, Node.ops.maximumSize(res) := _)
-    ifSet(minimumSize, Node.ops.minimumSize(res) := _)
-    ifSet(mouseLocation, Node.ops.mouseLocation(res) := _)
+    ifSet(maxSize, Node.ops.maxSize(res) := _)
+    ifSet(minSize, Node.ops.minSize(res) := _)
+    ifSet(mouseLocationMut, Node.ops.mouseLocationMut(res) := _)
     ifSet(opaque, Component.ops.opaque(res) := _)
     ifSet(prefSize, Node.ops.prefSize(res) := _)
     ifSet(requestFocusEnabled, Component.ops.requestFocusEnabled(res) := _)
@@ -580,7 +521,7 @@ object AbsolutePositioningPane extends VarsMap {
 
   
 
-  given ops: (v: AbsolutePositioningPane) extended with {
+  extension ops on (v: AbsolutePositioningPane) {
     def nodes = AbsolutePositioningPane.Nodes.forInstance(v)
 
     
@@ -612,7 +553,7 @@ object AbsolutePositioningPane extends VarsMap {
     autoscrolls: Opt[Binding[Boolean]] = UnsetParam,
     background: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     border: Opt[Binding[javax.swing.border.Border | Null]] = UnsetParam,
-    bounds: Opt[Binding[java.awt.Rectangle]] = UnsetParam,
+    bounds: Opt[Binding[Bounds]] = UnsetParam,
     componentOrientation: Opt[Binding[java.awt.ComponentOrientation]] = UnsetParam,
     componentPopupMenu: Opt[Binding[javax.swing.JPopupMenu | Null]] = UnsetParam,
     cursor: Opt[Binding[java.awt.Cursor | Null]] = UnsetParam,
@@ -624,12 +565,12 @@ object AbsolutePositioningPane extends VarsMap {
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     inheritsPopupMenu: Opt[Binding[Boolean]] = UnsetParam,
     inputVerifier: Opt[Binding[javax.swing.InputVerifier | Null]] = UnsetParam,
-    maximumSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
-    minimumSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
-    mouseLocation: Opt[Binding[(Int, Int)]] = UnsetParam,
+    maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
+    minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
+    mouseLocationMut: Opt[Binding[(Int, Int)]] = UnsetParam,
     nodes: Opt[Binding[Seq[Node]]] = UnsetParam,
     opaque: Opt[Binding[Boolean]] = UnsetParam,
-    prefSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
+    prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     requestFocusEnabled: Opt[Binding[Boolean]] = UnsetParam,
     toolTipText: Opt[Binding[String | Null]] = UnsetParam,
     transferHandler: Opt[Binding[javax.swing.TransferHandler | Null]] = UnsetParam,
@@ -657,9 +598,9 @@ object AbsolutePositioningPane extends VarsMap {
     ifSet(foreground, Node.ops.foreground(res) := _)
     ifSet(inheritsPopupMenu, Component.ops.inheritsPopupMenu(res) := _)
     ifSet(inputVerifier, Component.ops.inputVerifier(res) := _)
-    ifSet(maximumSize, Node.ops.maximumSize(res) := _)
-    ifSet(minimumSize, Node.ops.minimumSize(res) := _)
-    ifSet(mouseLocation, Node.ops.mouseLocation(res) := _)
+    ifSet(maxSize, Node.ops.maxSize(res) := _)
+    ifSet(minSize, Node.ops.minSize(res) := _)
+    ifSet(mouseLocationMut, Node.ops.mouseLocationMut(res) := _)
     ifSet(nodes, AbsolutePositioningPane.ops.nodes(res) := _)
     ifSet(opaque, Component.ops.opaque(res) := _)
     ifSet(prefSize, Node.ops.prefSize(res) := _)
@@ -676,15 +617,15 @@ opaque type BorderPane <: Pane = javax.swing.JPanel & Pane
 object BorderPane extends VarsMap {
   val Bottom = SwingVar[BorderPane, Node | Null]("bottom", c => c.getLayout.asInstanceOf[BorderLayout].getLayoutComponent(BorderLayout.SOUTH).asInstanceOf[Node | Null], (p, n) => { p.add(if (n == null) null else n, BorderLayout.SOUTH) })
   val Center = SwingVar[BorderPane, Node | Null]("center", c => c.getLayout.asInstanceOf[BorderLayout].getLayoutComponent(BorderLayout.CENTER).asInstanceOf[Node | Null], (p, n) => { p.add(if (n == null) null else n, BorderLayout.CENTER) })
-  val Hgap = SwingVar[BorderPane, Int]("hgap", c => c.getLayout.asInstanceOf[BorderLayout].getHgap, (p, g) => p.getLayout.asInstanceOf[BorderLayout].setHgap(g))
+  val Hgap = SwingVar[BorderPane, Double]("hgap", c => c.getLayout.asInstanceOf[BorderLayout].getHgap, (p, g) => p.getLayout.asInstanceOf[BorderLayout].setHgap(g.toInt))
   val Left = SwingVar[BorderPane, Node | Null]("left", c => c.getLayout.asInstanceOf[BorderLayout].getLayoutComponent(BorderLayout.WEST).asInstanceOf[Node | Null], (p, n) => { p.add(if (n == null) null else n, BorderLayout.WEST) })
   val Right = SwingVar[BorderPane, Node | Null]("right", c => c.getLayout.asInstanceOf[BorderLayout].getLayoutComponent(BorderLayout.EAST).asInstanceOf[Node | Null], (p, n) => { p.add(if (n == null) null else n, BorderLayout.EAST) })
   val Top = SwingVar[BorderPane, Node | Null]("top", c => c.getLayout.asInstanceOf[BorderLayout].getLayoutComponent(BorderLayout.NORTH).asInstanceOf[Node | Null], (p, n) => { p.add(if (n == null) null else n, BorderLayout.NORTH) })
-  val Vgap = SwingVar[BorderPane, Int]("vgap", c => c.getLayout.asInstanceOf[BorderLayout].getVgap, (p, g) => p.getLayout.asInstanceOf[BorderLayout].setVgap(g))
+  val Vgap = SwingVar[BorderPane, Double]("vgap", c => c.getLayout.asInstanceOf[BorderLayout].getVgap, (p, g) => p.getLayout.asInstanceOf[BorderLayout].setVgap(g.toInt))
 
   
 
-  given ops: (v: BorderPane) extended with {
+  extension ops on (v: BorderPane) {
     def bottom = BorderPane.Bottom.forInstance(v)
     def center = BorderPane.Center.forInstance(v)
     def hgap = BorderPane.Hgap.forInstance(v)
@@ -723,7 +664,7 @@ object BorderPane extends VarsMap {
     background: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     border: Opt[Binding[javax.swing.border.Border | Null]] = UnsetParam,
     bottom: Opt[Binding[Node | Null]] = UnsetParam,
-    bounds: Opt[Binding[java.awt.Rectangle]] = UnsetParam,
+    bounds: Opt[Binding[Bounds]] = UnsetParam,
     center: Opt[Binding[Node | Null]] = UnsetParam,
     componentOrientation: Opt[Binding[java.awt.ComponentOrientation]] = UnsetParam,
     componentPopupMenu: Opt[Binding[javax.swing.JPopupMenu | Null]] = UnsetParam,
@@ -734,22 +675,22 @@ object BorderPane extends VarsMap {
     focusable: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
-    hgap: Opt[Binding[Int]] = UnsetParam,
+    hgap: Opt[Binding[Double]] = UnsetParam,
     inheritsPopupMenu: Opt[Binding[Boolean]] = UnsetParam,
     inputVerifier: Opt[Binding[javax.swing.InputVerifier | Null]] = UnsetParam,
     left: Opt[Binding[Node | Null]] = UnsetParam,
-    maximumSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
-    minimumSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
-    mouseLocation: Opt[Binding[(Int, Int)]] = UnsetParam,
+    maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
+    minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
+    mouseLocationMut: Opt[Binding[(Int, Int)]] = UnsetParam,
     opaque: Opt[Binding[Boolean]] = UnsetParam,
-    prefSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
+    prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     requestFocusEnabled: Opt[Binding[Boolean]] = UnsetParam,
     right: Opt[Binding[Node | Null]] = UnsetParam,
     toolTipText: Opt[Binding[String | Null]] = UnsetParam,
     top: Opt[Binding[Node | Null]] = UnsetParam,
     transferHandler: Opt[Binding[javax.swing.TransferHandler | Null]] = UnsetParam,
     verifyInputWhenFocusTarget: Opt[Binding[Boolean]] = UnsetParam,
-    vgap: Opt[Binding[Int]] = UnsetParam,
+    vgap: Opt[Binding[Double]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): (given Scenegraph) => VarContextAction[BorderPane] = {
     val res = uninitialized()
@@ -777,9 +718,9 @@ object BorderPane extends VarsMap {
     ifSet(inheritsPopupMenu, Component.ops.inheritsPopupMenu(res) := _)
     ifSet(inputVerifier, Component.ops.inputVerifier(res) := _)
     ifSet(left, BorderPane.ops.left(res) := _)
-    ifSet(maximumSize, Node.ops.maximumSize(res) := _)
-    ifSet(minimumSize, Node.ops.minimumSize(res) := _)
-    ifSet(mouseLocation, Node.ops.mouseLocation(res) := _)
+    ifSet(maxSize, Node.ops.maxSize(res) := _)
+    ifSet(minSize, Node.ops.minSize(res) := _)
+    ifSet(mouseLocationMut, Node.ops.mouseLocationMut(res) := _)
     ifSet(opaque, Component.ops.opaque(res) := _)
     ifSet(prefSize, Node.ops.prefSize(res) := _)
     ifSet(requestFocusEnabled, Component.ops.requestFocusEnabled(res) := _)
@@ -797,14 +738,14 @@ object BorderPane extends VarsMap {
 opaque type GridPane <: Pane = javax.swing.JPanel & Pane
 object GridPane extends VarsMap {
   val AutoCreateContainerGaps = SwingVar[GridPane, Boolean]("autoCreateContainerGaps", _.getLayout.asInstanceOf[GroupLayout].getAutoCreateContainerGaps(), _.getLayout.asInstanceOf[GroupLayout].setAutoCreateContainerGaps(_))
-  val Hgap = Var[Int]("hgap", 0)
+  val Hgap = Var[Double]("hgap", 0.0)
   val LayoutVar = SwingVar[GridPane, Unit]("layoutVar", _ => (), (_, _) => ())
   val Rows = Var[Seq[Seq[Node]]]("rows", Seq.empty)
-  val Vgap = Var[Int]("vgap", 0)
+  val Vgap = Var[Double]("vgap", 0.0)
 
   
 
-  given ops: (v: GridPane) extended with {
+  extension ops on (v: GridPane) {
     def autoCreateContainerGaps = GridPane.AutoCreateContainerGaps.forInstance(v)
     def hgap = GridPane.Hgap.forInstance(v)
     def layoutVar = GridPane.LayoutVar.forInstance(v)
@@ -824,8 +765,8 @@ object GridPane extends VarsMap {
     v.addPropertyChangeListener(varsPropertyListener(v))
     sc.update(LayoutVar.forInstance(v) := Binding.dyn {
     val rows = v.rows()
-    val hgap = v.hgap()
-    val vgap = v.vgap()
+    val hgap = v.hgap().toInt
+    val vgap = v.vgap().toInt
     
     val layout = v.getLayout.asInstanceOf[GroupLayout]
     val hgroup = layout.createSequentialGroup().nn
@@ -877,7 +818,7 @@ object GridPane extends VarsMap {
     autoscrolls: Opt[Binding[Boolean]] = UnsetParam,
     background: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     border: Opt[Binding[javax.swing.border.Border | Null]] = UnsetParam,
-    bounds: Opt[Binding[java.awt.Rectangle]] = UnsetParam,
+    bounds: Opt[Binding[Bounds]] = UnsetParam,
     componentOrientation: Opt[Binding[java.awt.ComponentOrientation]] = UnsetParam,
     componentPopupMenu: Opt[Binding[javax.swing.JPopupMenu | Null]] = UnsetParam,
     cursor: Opt[Binding[java.awt.Cursor | Null]] = UnsetParam,
@@ -887,21 +828,21 @@ object GridPane extends VarsMap {
     focusable: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
-    hgap: Opt[Binding[Int]] = UnsetParam,
+    hgap: Opt[Binding[Double]] = UnsetParam,
     inheritsPopupMenu: Opt[Binding[Boolean]] = UnsetParam,
     inputVerifier: Opt[Binding[javax.swing.InputVerifier | Null]] = UnsetParam,
     layoutVar: Opt[Binding[Unit]] = UnsetParam,
-    maximumSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
-    minimumSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
-    mouseLocation: Opt[Binding[(Int, Int)]] = UnsetParam,
+    maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
+    minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
+    mouseLocationMut: Opt[Binding[(Int, Int)]] = UnsetParam,
     opaque: Opt[Binding[Boolean]] = UnsetParam,
-    prefSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
+    prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     requestFocusEnabled: Opt[Binding[Boolean]] = UnsetParam,
     rows: Opt[Binding[Seq[Seq[Node]]]] = UnsetParam,
     toolTipText: Opt[Binding[String | Null]] = UnsetParam,
     transferHandler: Opt[Binding[javax.swing.TransferHandler | Null]] = UnsetParam,
     verifyInputWhenFocusTarget: Opt[Binding[Boolean]] = UnsetParam,
-    vgap: Opt[Binding[Int]] = UnsetParam,
+    vgap: Opt[Binding[Double]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): (given Scenegraph) => VarContextAction[GridPane] = {
     val res = uninitialized()
@@ -928,9 +869,9 @@ object GridPane extends VarsMap {
     ifSet(inheritsPopupMenu, Component.ops.inheritsPopupMenu(res) := _)
     ifSet(inputVerifier, Component.ops.inputVerifier(res) := _)
     ifSet(layoutVar, GridPane.ops.layoutVar(res) := _)
-    ifSet(maximumSize, Node.ops.maximumSize(res) := _)
-    ifSet(minimumSize, Node.ops.minimumSize(res) := _)
-    ifSet(mouseLocation, Node.ops.mouseLocation(res) := _)
+    ifSet(maxSize, Node.ops.maxSize(res) := _)
+    ifSet(minSize, Node.ops.minSize(res) := _)
+    ifSet(mouseLocationMut, Node.ops.mouseLocationMut(res) := _)
     ifSet(opaque, Component.ops.opaque(res) := _)
     ifSet(prefSize, Node.ops.prefSize(res) := _)
     ifSet(requestFocusEnabled, Component.ops.requestFocusEnabled(res) := _)
@@ -950,7 +891,7 @@ object Hbox extends VarsMap {
 
   
 
-  given ops: (v: Hbox) extended with {
+  extension ops on (v: Hbox) {
     def nodes = Hbox.Nodes.forInstance(v)
 
     
@@ -982,7 +923,7 @@ object Hbox extends VarsMap {
     autoscrolls: Opt[Binding[Boolean]] = UnsetParam,
     background: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     border: Opt[Binding[javax.swing.border.Border | Null]] = UnsetParam,
-    bounds: Opt[Binding[java.awt.Rectangle]] = UnsetParam,
+    bounds: Opt[Binding[Bounds]] = UnsetParam,
     componentOrientation: Opt[Binding[java.awt.ComponentOrientation]] = UnsetParam,
     componentPopupMenu: Opt[Binding[javax.swing.JPopupMenu | Null]] = UnsetParam,
     cursor: Opt[Binding[java.awt.Cursor | Null]] = UnsetParam,
@@ -994,12 +935,12 @@ object Hbox extends VarsMap {
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     inheritsPopupMenu: Opt[Binding[Boolean]] = UnsetParam,
     inputVerifier: Opt[Binding[javax.swing.InputVerifier | Null]] = UnsetParam,
-    maximumSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
-    minimumSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
-    mouseLocation: Opt[Binding[(Int, Int)]] = UnsetParam,
+    maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
+    minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
+    mouseLocationMut: Opt[Binding[(Int, Int)]] = UnsetParam,
     nodes: Opt[Binding[Seq[Node]]] = UnsetParam,
     opaque: Opt[Binding[Boolean]] = UnsetParam,
-    prefSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
+    prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     requestFocusEnabled: Opt[Binding[Boolean]] = UnsetParam,
     toolTipText: Opt[Binding[String | Null]] = UnsetParam,
     transferHandler: Opt[Binding[javax.swing.TransferHandler | Null]] = UnsetParam,
@@ -1027,9 +968,9 @@ object Hbox extends VarsMap {
     ifSet(foreground, Node.ops.foreground(res) := _)
     ifSet(inheritsPopupMenu, Component.ops.inheritsPopupMenu(res) := _)
     ifSet(inputVerifier, Component.ops.inputVerifier(res) := _)
-    ifSet(maximumSize, Node.ops.maximumSize(res) := _)
-    ifSet(minimumSize, Node.ops.minimumSize(res) := _)
-    ifSet(mouseLocation, Node.ops.mouseLocation(res) := _)
+    ifSet(maxSize, Node.ops.maxSize(res) := _)
+    ifSet(minSize, Node.ops.minSize(res) := _)
+    ifSet(mouseLocationMut, Node.ops.mouseLocationMut(res) := _)
     ifSet(nodes, Hbox.ops.nodes(res) := _)
     ifSet(opaque, Component.ops.opaque(res) := _)
     ifSet(prefSize, Node.ops.prefSize(res) := _)
@@ -1048,7 +989,7 @@ object Vbox extends VarsMap {
 
   
 
-  given ops: (v: Vbox) extended with {
+  extension ops on (v: Vbox) {
     def nodes = Vbox.Nodes.forInstance(v)
 
     
@@ -1080,7 +1021,7 @@ object Vbox extends VarsMap {
     autoscrolls: Opt[Binding[Boolean]] = UnsetParam,
     background: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     border: Opt[Binding[javax.swing.border.Border | Null]] = UnsetParam,
-    bounds: Opt[Binding[java.awt.Rectangle]] = UnsetParam,
+    bounds: Opt[Binding[Bounds]] = UnsetParam,
     componentOrientation: Opt[Binding[java.awt.ComponentOrientation]] = UnsetParam,
     componentPopupMenu: Opt[Binding[javax.swing.JPopupMenu | Null]] = UnsetParam,
     cursor: Opt[Binding[java.awt.Cursor | Null]] = UnsetParam,
@@ -1092,12 +1033,12 @@ object Vbox extends VarsMap {
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     inheritsPopupMenu: Opt[Binding[Boolean]] = UnsetParam,
     inputVerifier: Opt[Binding[javax.swing.InputVerifier | Null]] = UnsetParam,
-    maximumSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
-    minimumSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
-    mouseLocation: Opt[Binding[(Int, Int)]] = UnsetParam,
+    maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
+    minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
+    mouseLocationMut: Opt[Binding[(Int, Int)]] = UnsetParam,
     nodes: Opt[Binding[Seq[Node]]] = UnsetParam,
     opaque: Opt[Binding[Boolean]] = UnsetParam,
-    prefSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
+    prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     requestFocusEnabled: Opt[Binding[Boolean]] = UnsetParam,
     toolTipText: Opt[Binding[String | Null]] = UnsetParam,
     transferHandler: Opt[Binding[javax.swing.TransferHandler | Null]] = UnsetParam,
@@ -1125,9 +1066,9 @@ object Vbox extends VarsMap {
     ifSet(foreground, Node.ops.foreground(res) := _)
     ifSet(inheritsPopupMenu, Component.ops.inheritsPopupMenu(res) := _)
     ifSet(inputVerifier, Component.ops.inputVerifier(res) := _)
-    ifSet(maximumSize, Node.ops.maximumSize(res) := _)
-    ifSet(minimumSize, Node.ops.minimumSize(res) := _)
-    ifSet(mouseLocation, Node.ops.mouseLocation(res) := _)
+    ifSet(maxSize, Node.ops.maxSize(res) := _)
+    ifSet(minSize, Node.ops.minSize(res) := _)
+    ifSet(mouseLocationMut, Node.ops.mouseLocationMut(res) := _)
     ifSet(nodes, Vbox.ops.nodes(res) := _)
     ifSet(opaque, Component.ops.opaque(res) := _)
     ifSet(prefSize, Node.ops.prefSize(res) := _)
@@ -1160,7 +1101,7 @@ object TextComponent extends VarsMap {
 
   
 
-  given ops: (v: TextComponent) extended with {
+  extension ops on (v: TextComponent) {
     def UI = TextComponent.UI.forInstance(v)
     def caret = TextComponent.Caret.forInstance(v)
     def caretColor = TextComponent.CaretColor.forInstance(v)
@@ -1217,7 +1158,7 @@ object TextArea extends VarsMap {
 
   
 
-  given ops: (v: TextArea) extended with {
+  extension ops on (v: TextArea) {
     def columns = TextArea.Columns.forInstance(v)
     def lineWrap = TextArea.LineWrap.forInstance(v)
     def rows = TextArea.Rows.forInstance(v)
@@ -1253,7 +1194,7 @@ object TextArea extends VarsMap {
     autoscrolls: Opt[Binding[Boolean]] = UnsetParam,
     background: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     border: Opt[Binding[javax.swing.border.Border | Null]] = UnsetParam,
-    bounds: Opt[Binding[java.awt.Rectangle]] = UnsetParam,
+    bounds: Opt[Binding[Bounds]] = UnsetParam,
     caret: Opt[Binding[javax.swing.text.Caret]] = UnsetParam,
     caretColor: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     columns: Opt[Binding[Int]] = UnsetParam,
@@ -1278,12 +1219,12 @@ object TextArea extends VarsMap {
     keymap: Opt[Binding[javax.swing.text.Keymap | Null]] = UnsetParam,
     lineWrap: Opt[Binding[Boolean]] = UnsetParam,
     margin: Opt[Binding[java.awt.Insets | Null]] = UnsetParam,
-    maximumSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
-    minimumSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
-    mouseLocation: Opt[Binding[(Int, Int)]] = UnsetParam,
+    maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
+    minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
+    mouseLocationMut: Opt[Binding[(Int, Int)]] = UnsetParam,
     navigationFilter: Opt[Binding[javax.swing.text.NavigationFilter | Null]] = UnsetParam,
     opaque: Opt[Binding[Boolean]] = UnsetParam,
-    prefSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
+    prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     requestFocusEnabled: Opt[Binding[Boolean]] = UnsetParam,
     rows: Opt[Binding[Int]] = UnsetParam,
     selectedTextColor: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
@@ -1329,9 +1270,9 @@ object TextArea extends VarsMap {
     ifSet(keymap, TextComponent.ops.keymap(res) := _)
     ifSet(lineWrap, TextArea.ops.lineWrap(res) := _)
     ifSet(margin, TextComponent.ops.margin(res) := _)
-    ifSet(maximumSize, Node.ops.maximumSize(res) := _)
-    ifSet(minimumSize, Node.ops.minimumSize(res) := _)
-    ifSet(mouseLocation, Node.ops.mouseLocation(res) := _)
+    ifSet(maxSize, Node.ops.maxSize(res) := _)
+    ifSet(minSize, Node.ops.minSize(res) := _)
+    ifSet(mouseLocationMut, Node.ops.mouseLocationMut(res) := _)
     ifSet(navigationFilter, TextComponent.ops.navigationFilter(res) := _)
     ifSet(opaque, Component.ops.opaque(res) := _)
     ifSet(prefSize, Node.ops.prefSize(res) := _)
@@ -1358,7 +1299,7 @@ object TextField extends VarsMap {
 
   
 
-  given ops: (v: TextField) extended with {
+  extension ops on (v: TextField) {
     def action = TextField.Action.forInstance(v)
     def columns = TextField.Columns.forInstance(v)
     def horizontalAlignment = TextField.HorizontalAlignment.forInstance(v)
@@ -1394,7 +1335,7 @@ object TextField extends VarsMap {
     autoscrolls: Opt[Binding[Boolean]] = UnsetParam,
     background: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     border: Opt[Binding[javax.swing.border.Border | Null]] = UnsetParam,
-    bounds: Opt[Binding[java.awt.Rectangle]] = UnsetParam,
+    bounds: Opt[Binding[Bounds]] = UnsetParam,
     caret: Opt[Binding[javax.swing.text.Caret]] = UnsetParam,
     caretColor: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     columns: Opt[Binding[Int]] = UnsetParam,
@@ -1419,12 +1360,12 @@ object TextField extends VarsMap {
     inputVerifier: Opt[Binding[javax.swing.InputVerifier | Null]] = UnsetParam,
     keymap: Opt[Binding[javax.swing.text.Keymap | Null]] = UnsetParam,
     margin: Opt[Binding[java.awt.Insets | Null]] = UnsetParam,
-    maximumSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
-    minimumSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
-    mouseLocation: Opt[Binding[(Int, Int)]] = UnsetParam,
+    maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
+    minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
+    mouseLocationMut: Opt[Binding[(Int, Int)]] = UnsetParam,
     navigationFilter: Opt[Binding[javax.swing.text.NavigationFilter | Null]] = UnsetParam,
     opaque: Opt[Binding[Boolean]] = UnsetParam,
-    prefSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
+    prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     requestFocusEnabled: Opt[Binding[Boolean]] = UnsetParam,
     scrollOffset: Opt[Binding[Int]] = UnsetParam,
     selectedTextColor: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
@@ -1469,9 +1410,9 @@ object TextField extends VarsMap {
     ifSet(inputVerifier, Component.ops.inputVerifier(res) := _)
     ifSet(keymap, TextComponent.ops.keymap(res) := _)
     ifSet(margin, TextComponent.ops.margin(res) := _)
-    ifSet(maximumSize, Node.ops.maximumSize(res) := _)
-    ifSet(minimumSize, Node.ops.minimumSize(res) := _)
-    ifSet(mouseLocation, Node.ops.mouseLocation(res) := _)
+    ifSet(maxSize, Node.ops.maxSize(res) := _)
+    ifSet(minSize, Node.ops.minSize(res) := _)
+    ifSet(mouseLocationMut, Node.ops.mouseLocationMut(res) := _)
     ifSet(navigationFilter, TextComponent.ops.navigationFilter(res) := _)
     ifSet(opaque, Component.ops.opaque(res) := _)
     ifSet(prefSize, Node.ops.prefSize(res) := _)
@@ -1493,7 +1434,7 @@ object PasswordField extends VarsMap {
 
   
 
-  given ops: (v: PasswordField) extended with {
+  extension ops on (v: PasswordField) {
     def echoChar = PasswordField.EchoChar.forInstance(v)
 
     
@@ -1526,7 +1467,7 @@ object PasswordField extends VarsMap {
     autoscrolls: Opt[Binding[Boolean]] = UnsetParam,
     background: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     border: Opt[Binding[javax.swing.border.Border | Null]] = UnsetParam,
-    bounds: Opt[Binding[java.awt.Rectangle]] = UnsetParam,
+    bounds: Opt[Binding[Bounds]] = UnsetParam,
     caret: Opt[Binding[javax.swing.text.Caret]] = UnsetParam,
     caretColor: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     columns: Opt[Binding[Int]] = UnsetParam,
@@ -1552,12 +1493,12 @@ object PasswordField extends VarsMap {
     inputVerifier: Opt[Binding[javax.swing.InputVerifier | Null]] = UnsetParam,
     keymap: Opt[Binding[javax.swing.text.Keymap | Null]] = UnsetParam,
     margin: Opt[Binding[java.awt.Insets | Null]] = UnsetParam,
-    maximumSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
-    minimumSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
-    mouseLocation: Opt[Binding[(Int, Int)]] = UnsetParam,
+    maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
+    minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
+    mouseLocationMut: Opt[Binding[(Int, Int)]] = UnsetParam,
     navigationFilter: Opt[Binding[javax.swing.text.NavigationFilter | Null]] = UnsetParam,
     opaque: Opt[Binding[Boolean]] = UnsetParam,
-    prefSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
+    prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     requestFocusEnabled: Opt[Binding[Boolean]] = UnsetParam,
     scrollOffset: Opt[Binding[Int]] = UnsetParam,
     selectedTextColor: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
@@ -1603,9 +1544,9 @@ object PasswordField extends VarsMap {
     ifSet(inputVerifier, Component.ops.inputVerifier(res) := _)
     ifSet(keymap, TextComponent.ops.keymap(res) := _)
     ifSet(margin, TextComponent.ops.margin(res) := _)
-    ifSet(maximumSize, Node.ops.maximumSize(res) := _)
-    ifSet(minimumSize, Node.ops.minimumSize(res) := _)
-    ifSet(mouseLocation, Node.ops.mouseLocation(res) := _)
+    ifSet(maxSize, Node.ops.maxSize(res) := _)
+    ifSet(minSize, Node.ops.minSize(res) := _)
+    ifSet(mouseLocationMut, Node.ops.mouseLocationMut(res) := _)
     ifSet(navigationFilter, TextComponent.ops.navigationFilter(res) := _)
     ifSet(opaque, Component.ops.opaque(res) := _)
     ifSet(prefSize, Node.ops.prefSize(res) := _)
@@ -1630,7 +1571,7 @@ object Label extends VarsMap {
   val HorizontalAlignment = SwingVar[Label, Int]("horizontalAlignment", _.getHorizontalAlignment, _.setHorizontalAlignment(_))
   val HorizontalTextPosition = SwingVar[Label, Int]("horizontalTextPosition", _.getHorizontalTextPosition, _.setHorizontalTextPosition(_))
   val Icon = SwingVar[Label, javax.swing.Icon | Null]("icon", _.getIcon, _.setIcon(_))
-  val IconTextGap = SwingVar[Label, Int]("iconTextGap", _.getIconTextGap, _.setIconTextGap(_))
+  val IconTextGap = SwingVar[Label, Double]("iconTextGap", _.getIconTextGap, (l, g) => l.setIconTextGap(g.toInt))
   val LabelFor = SwingVar[Label, java.awt.Component | Null]("labelFor", _.getLabelFor, _.setLabelFor(_))
   val Text = SwingVar[Label, java.lang.String | Null]("text", _.getText, _.setText(_))
   val VerticalAlignment = SwingVar[Label, Int]("verticalAlignment", _.getVerticalAlignment, _.setVerticalAlignment(_))
@@ -1638,7 +1579,7 @@ object Label extends VarsMap {
 
   
 
-  given ops: (v: Label) extended with {
+  extension ops on (v: Label) {
     def UI = Label.UI.forInstance(v)
     def disabledIcon = Label.DisabledIcon.forInstance(v)
     def displayedMnemonic = Label.DisplayedMnemonic.forInstance(v)
@@ -1681,7 +1622,7 @@ object Label extends VarsMap {
     autoscrolls: Opt[Binding[Boolean]] = UnsetParam,
     background: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     border: Opt[Binding[javax.swing.border.Border | Null]] = UnsetParam,
-    bounds: Opt[Binding[java.awt.Rectangle]] = UnsetParam,
+    bounds: Opt[Binding[Bounds]] = UnsetParam,
     componentOrientation: Opt[Binding[java.awt.ComponentOrientation]] = UnsetParam,
     componentPopupMenu: Opt[Binding[javax.swing.JPopupMenu | Null]] = UnsetParam,
     cursor: Opt[Binding[java.awt.Cursor | Null]] = UnsetParam,
@@ -1697,15 +1638,15 @@ object Label extends VarsMap {
     horizontalAlignment: Opt[Binding[Int]] = UnsetParam,
     horizontalTextPosition: Opt[Binding[Int]] = UnsetParam,
     icon: Opt[Binding[javax.swing.Icon | Null]] = UnsetParam,
-    iconTextGap: Opt[Binding[Int]] = UnsetParam,
+    iconTextGap: Opt[Binding[Double]] = UnsetParam,
     inheritsPopupMenu: Opt[Binding[Boolean]] = UnsetParam,
     inputVerifier: Opt[Binding[javax.swing.InputVerifier | Null]] = UnsetParam,
     labelFor: Opt[Binding[java.awt.Component | Null]] = UnsetParam,
-    maximumSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
-    minimumSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
-    mouseLocation: Opt[Binding[(Int, Int)]] = UnsetParam,
+    maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
+    minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
+    mouseLocationMut: Opt[Binding[(Int, Int)]] = UnsetParam,
     opaque: Opt[Binding[Boolean]] = UnsetParam,
-    prefSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
+    prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     requestFocusEnabled: Opt[Binding[Boolean]] = UnsetParam,
     text: Opt[Binding[java.lang.String | Null]] = UnsetParam,
     toolTipText: Opt[Binding[String | Null]] = UnsetParam,
@@ -1744,9 +1685,9 @@ object Label extends VarsMap {
     ifSet(inheritsPopupMenu, Component.ops.inheritsPopupMenu(res) := _)
     ifSet(inputVerifier, Component.ops.inputVerifier(res) := _)
     ifSet(labelFor, Label.ops.labelFor(res) := _)
-    ifSet(maximumSize, Node.ops.maximumSize(res) := _)
-    ifSet(minimumSize, Node.ops.minimumSize(res) := _)
-    ifSet(mouseLocation, Node.ops.mouseLocation(res) := _)
+    ifSet(maxSize, Node.ops.maxSize(res) := _)
+    ifSet(minSize, Node.ops.minSize(res) := _)
+    ifSet(mouseLocationMut, Node.ops.mouseLocationMut(res) := _)
     ifSet(opaque, Component.ops.opaque(res) := _)
     ifSet(prefSize, Node.ops.prefSize(res) := _)
     ifSet(requestFocusEnabled, Component.ops.requestFocusEnabled(res) := _)
@@ -1794,7 +1735,7 @@ object ButtonBase extends VarsMap {
 
   val ActionEvents = Emitter[java.awt.event.ActionEvent]()
 
-  given ops: (v: ButtonBase) extended with {
+  extension ops on (v: ButtonBase) {
     def UI = ButtonBase.UI.forInstance(v)
     def action = ButtonBase.Action.forInstance(v)
     def actionCommand = ButtonBase.ActionCommand.forInstance(v)
@@ -1851,7 +1792,7 @@ object Button extends VarsMap {
 
   
 
-  given ops: (v: Button) extended with {
+  extension ops on (v: Button) {
     def defaultCapable = Button.DefaultCapable.forInstance(v)
 
     
@@ -1886,7 +1827,7 @@ object Button extends VarsMap {
     background: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     border: Opt[Binding[javax.swing.border.Border | Null]] = UnsetParam,
     borderPainted: Opt[Binding[Boolean]] = UnsetParam,
-    bounds: Opt[Binding[java.awt.Rectangle]] = UnsetParam,
+    bounds: Opt[Binding[Bounds]] = UnsetParam,
     componentOrientation: Opt[Binding[java.awt.ComponentOrientation]] = UnsetParam,
     componentPopupMenu: Opt[Binding[javax.swing.JPopupMenu | Null]] = UnsetParam,
     contentAreaFilled: Opt[Binding[Boolean]] = UnsetParam,
@@ -1911,14 +1852,14 @@ object Button extends VarsMap {
     inputVerifier: Opt[Binding[javax.swing.InputVerifier | Null]] = UnsetParam,
     label: Opt[Binding[java.lang.String | Null]] = UnsetParam,
     margin: Opt[Binding[java.awt.Insets | Null]] = UnsetParam,
-    maximumSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
-    minimumSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
+    maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
+    minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     mnemonic: Opt[Binding[Int]] = UnsetParam,
     model: Opt[Binding[javax.swing.ButtonModel | Null]] = UnsetParam,
-    mouseLocation: Opt[Binding[(Int, Int)]] = UnsetParam,
+    mouseLocationMut: Opt[Binding[(Int, Int)]] = UnsetParam,
     multiClickThreshhold: Opt[Binding[Long]] = UnsetParam,
     opaque: Opt[Binding[Boolean]] = UnsetParam,
-    prefSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
+    prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     pressedIcon: Opt[Binding[javax.swing.Icon | Null]] = UnsetParam,
     requestFocusEnabled: Opt[Binding[Boolean]] = UnsetParam,
     rolloverEnabled: Opt[Binding[Boolean]] = UnsetParam,
@@ -1971,11 +1912,11 @@ object Button extends VarsMap {
     ifSet(inputVerifier, Component.ops.inputVerifier(res) := _)
     ifSet(label, ButtonBase.ops.label(res) := _)
     ifSet(margin, ButtonBase.ops.margin(res) := _)
-    ifSet(maximumSize, Node.ops.maximumSize(res) := _)
-    ifSet(minimumSize, Node.ops.minimumSize(res) := _)
+    ifSet(maxSize, Node.ops.maxSize(res) := _)
+    ifSet(minSize, Node.ops.minSize(res) := _)
     ifSet(mnemonic, ButtonBase.ops.mnemonic(res) := _)
     ifSet(model, ButtonBase.ops.model(res) := _)
-    ifSet(mouseLocation, Node.ops.mouseLocation(res) := _)
+    ifSet(mouseLocationMut, Node.ops.mouseLocationMut(res) := _)
     ifSet(multiClickThreshhold, ButtonBase.ops.multiClickThreshhold(res) := _)
     ifSet(opaque, Component.ops.opaque(res) := _)
     ifSet(prefSize, Node.ops.prefSize(res) := _)
@@ -2003,7 +1944,7 @@ object ToggleButton extends VarsMap {
 
   
 
-  given ops: (v: ToggleButton) extended with {
+  extension ops on (v: ToggleButton) {
     
 
     
@@ -2038,7 +1979,7 @@ object ToggleButton extends VarsMap {
     background: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     border: Opt[Binding[javax.swing.border.Border | Null]] = UnsetParam,
     borderPainted: Opt[Binding[Boolean]] = UnsetParam,
-    bounds: Opt[Binding[java.awt.Rectangle]] = UnsetParam,
+    bounds: Opt[Binding[Bounds]] = UnsetParam,
     componentOrientation: Opt[Binding[java.awt.ComponentOrientation]] = UnsetParam,
     componentPopupMenu: Opt[Binding[javax.swing.JPopupMenu | Null]] = UnsetParam,
     contentAreaFilled: Opt[Binding[Boolean]] = UnsetParam,
@@ -2062,14 +2003,14 @@ object ToggleButton extends VarsMap {
     inputVerifier: Opt[Binding[javax.swing.InputVerifier | Null]] = UnsetParam,
     label: Opt[Binding[java.lang.String | Null]] = UnsetParam,
     margin: Opt[Binding[java.awt.Insets | Null]] = UnsetParam,
-    maximumSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
-    minimumSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
+    maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
+    minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     mnemonic: Opt[Binding[Int]] = UnsetParam,
     model: Opt[Binding[javax.swing.ButtonModel | Null]] = UnsetParam,
-    mouseLocation: Opt[Binding[(Int, Int)]] = UnsetParam,
+    mouseLocationMut: Opt[Binding[(Int, Int)]] = UnsetParam,
     multiClickThreshhold: Opt[Binding[Long]] = UnsetParam,
     opaque: Opt[Binding[Boolean]] = UnsetParam,
-    prefSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
+    prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     pressedIcon: Opt[Binding[javax.swing.Icon | Null]] = UnsetParam,
     requestFocusEnabled: Opt[Binding[Boolean]] = UnsetParam,
     rolloverEnabled: Opt[Binding[Boolean]] = UnsetParam,
@@ -2121,11 +2062,11 @@ object ToggleButton extends VarsMap {
     ifSet(inputVerifier, Component.ops.inputVerifier(res) := _)
     ifSet(label, ButtonBase.ops.label(res) := _)
     ifSet(margin, ButtonBase.ops.margin(res) := _)
-    ifSet(maximumSize, Node.ops.maximumSize(res) := _)
-    ifSet(minimumSize, Node.ops.minimumSize(res) := _)
+    ifSet(maxSize, Node.ops.maxSize(res) := _)
+    ifSet(minSize, Node.ops.minSize(res) := _)
     ifSet(mnemonic, ButtonBase.ops.mnemonic(res) := _)
     ifSet(model, ButtonBase.ops.model(res) := _)
-    ifSet(mouseLocation, Node.ops.mouseLocation(res) := _)
+    ifSet(mouseLocationMut, Node.ops.mouseLocationMut(res) := _)
     ifSet(multiClickThreshhold, ButtonBase.ops.multiClickThreshhold(res) := _)
     ifSet(opaque, Component.ops.opaque(res) := _)
     ifSet(prefSize, Node.ops.prefSize(res) := _)
@@ -2153,7 +2094,7 @@ object CheckBox extends VarsMap {
 
   
 
-  given ops: (v: CheckBox) extended with {
+  extension ops on (v: CheckBox) {
     def borderPaintedFlat = CheckBox.BorderPaintedFlat.forInstance(v)
 
     
@@ -2189,7 +2130,7 @@ object CheckBox extends VarsMap {
     border: Opt[Binding[javax.swing.border.Border | Null]] = UnsetParam,
     borderPainted: Opt[Binding[Boolean]] = UnsetParam,
     borderPaintedFlat: Opt[Binding[Boolean]] = UnsetParam,
-    bounds: Opt[Binding[java.awt.Rectangle]] = UnsetParam,
+    bounds: Opt[Binding[Bounds]] = UnsetParam,
     componentOrientation: Opt[Binding[java.awt.ComponentOrientation]] = UnsetParam,
     componentPopupMenu: Opt[Binding[javax.swing.JPopupMenu | Null]] = UnsetParam,
     contentAreaFilled: Opt[Binding[Boolean]] = UnsetParam,
@@ -2213,14 +2154,14 @@ object CheckBox extends VarsMap {
     inputVerifier: Opt[Binding[javax.swing.InputVerifier | Null]] = UnsetParam,
     label: Opt[Binding[java.lang.String | Null]] = UnsetParam,
     margin: Opt[Binding[java.awt.Insets | Null]] = UnsetParam,
-    maximumSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
-    minimumSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
+    maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
+    minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     mnemonic: Opt[Binding[Int]] = UnsetParam,
     model: Opt[Binding[javax.swing.ButtonModel | Null]] = UnsetParam,
-    mouseLocation: Opt[Binding[(Int, Int)]] = UnsetParam,
+    mouseLocationMut: Opt[Binding[(Int, Int)]] = UnsetParam,
     multiClickThreshhold: Opt[Binding[Long]] = UnsetParam,
     opaque: Opt[Binding[Boolean]] = UnsetParam,
-    prefSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
+    prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     pressedIcon: Opt[Binding[javax.swing.Icon | Null]] = UnsetParam,
     requestFocusEnabled: Opt[Binding[Boolean]] = UnsetParam,
     rolloverEnabled: Opt[Binding[Boolean]] = UnsetParam,
@@ -2273,11 +2214,11 @@ object CheckBox extends VarsMap {
     ifSet(inputVerifier, Component.ops.inputVerifier(res) := _)
     ifSet(label, ButtonBase.ops.label(res) := _)
     ifSet(margin, ButtonBase.ops.margin(res) := _)
-    ifSet(maximumSize, Node.ops.maximumSize(res) := _)
-    ifSet(minimumSize, Node.ops.minimumSize(res) := _)
+    ifSet(maxSize, Node.ops.maxSize(res) := _)
+    ifSet(minSize, Node.ops.minSize(res) := _)
     ifSet(mnemonic, ButtonBase.ops.mnemonic(res) := _)
     ifSet(model, ButtonBase.ops.model(res) := _)
-    ifSet(mouseLocation, Node.ops.mouseLocation(res) := _)
+    ifSet(mouseLocationMut, Node.ops.mouseLocationMut(res) := _)
     ifSet(multiClickThreshhold, ButtonBase.ops.multiClickThreshhold(res) := _)
     ifSet(opaque, Component.ops.opaque(res) := _)
     ifSet(prefSize, Node.ops.prefSize(res) := _)
@@ -2305,7 +2246,7 @@ object RadioButton extends VarsMap {
 
   
 
-  given ops: (v: RadioButton) extended with {
+  extension ops on (v: RadioButton) {
     
 
     
@@ -2340,7 +2281,7 @@ object RadioButton extends VarsMap {
     background: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     border: Opt[Binding[javax.swing.border.Border | Null]] = UnsetParam,
     borderPainted: Opt[Binding[Boolean]] = UnsetParam,
-    bounds: Opt[Binding[java.awt.Rectangle]] = UnsetParam,
+    bounds: Opt[Binding[Bounds]] = UnsetParam,
     componentOrientation: Opt[Binding[java.awt.ComponentOrientation]] = UnsetParam,
     componentPopupMenu: Opt[Binding[javax.swing.JPopupMenu | Null]] = UnsetParam,
     contentAreaFilled: Opt[Binding[Boolean]] = UnsetParam,
@@ -2364,14 +2305,14 @@ object RadioButton extends VarsMap {
     inputVerifier: Opt[Binding[javax.swing.InputVerifier | Null]] = UnsetParam,
     label: Opt[Binding[java.lang.String | Null]] = UnsetParam,
     margin: Opt[Binding[java.awt.Insets | Null]] = UnsetParam,
-    maximumSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
-    minimumSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
+    maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
+    minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     mnemonic: Opt[Binding[Int]] = UnsetParam,
     model: Opt[Binding[javax.swing.ButtonModel | Null]] = UnsetParam,
-    mouseLocation: Opt[Binding[(Int, Int)]] = UnsetParam,
+    mouseLocationMut: Opt[Binding[(Int, Int)]] = UnsetParam,
     multiClickThreshhold: Opt[Binding[Long]] = UnsetParam,
     opaque: Opt[Binding[Boolean]] = UnsetParam,
-    prefSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
+    prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     pressedIcon: Opt[Binding[javax.swing.Icon | Null]] = UnsetParam,
     requestFocusEnabled: Opt[Binding[Boolean]] = UnsetParam,
     rolloverEnabled: Opt[Binding[Boolean]] = UnsetParam,
@@ -2423,11 +2364,11 @@ object RadioButton extends VarsMap {
     ifSet(inputVerifier, Component.ops.inputVerifier(res) := _)
     ifSet(label, ButtonBase.ops.label(res) := _)
     ifSet(margin, ButtonBase.ops.margin(res) := _)
-    ifSet(maximumSize, Node.ops.maximumSize(res) := _)
-    ifSet(minimumSize, Node.ops.minimumSize(res) := _)
+    ifSet(maxSize, Node.ops.maxSize(res) := _)
+    ifSet(minSize, Node.ops.minSize(res) := _)
     ifSet(mnemonic, ButtonBase.ops.mnemonic(res) := _)
     ifSet(model, ButtonBase.ops.model(res) := _)
-    ifSet(mouseLocation, Node.ops.mouseLocation(res) := _)
+    ifSet(mouseLocationMut, Node.ops.mouseLocationMut(res) := _)
     ifSet(multiClickThreshhold, ButtonBase.ops.multiClickThreshhold(res) := _)
     ifSet(opaque, Component.ops.opaque(res) := _)
     ifSet(prefSize, Node.ops.prefSize(res) := _)
@@ -2470,7 +2411,7 @@ object Slider extends VarsMap {
 
   
 
-  given ops: (v: Slider) extended with {
+  extension ops on (v: Slider) {
     def UI = Slider.UI.forInstance(v)
     def extent = Slider.Extent.forInstance(v)
     def inverted = Slider.Inverted.forInstance(v)
@@ -2499,12 +2440,13 @@ object Slider extends VarsMap {
   def init(v: Slider): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     Component.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
-    
+    val l: ChangeListener = (e: ChangeEvent | UncheckedNull) => summon[Scenegraph].update(summon[VarContext].swingPropertyUpdated(ops.value(v), v.getValue))
+    v.getModel.addChangeListener(l)
     
   }
   def uninitialized(): Slider = {
     val res = javax.swing.JSlider().asInstanceOf[Slider]
-    
+
     res
   }
   
@@ -2517,7 +2459,7 @@ object Slider extends VarsMap {
     autoscrolls: Opt[Binding[Boolean]] = UnsetParam,
     background: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     border: Opt[Binding[javax.swing.border.Border | Null]] = UnsetParam,
-    bounds: Opt[Binding[java.awt.Rectangle]] = UnsetParam,
+    bounds: Opt[Binding[Bounds]] = UnsetParam,
     componentOrientation: Opt[Binding[java.awt.ComponentOrientation]] = UnsetParam,
     componentPopupMenu: Opt[Binding[javax.swing.JPopupMenu | Null]] = UnsetParam,
     cursor: Opt[Binding[java.awt.Cursor | Null]] = UnsetParam,
@@ -2534,18 +2476,18 @@ object Slider extends VarsMap {
     labelTable: Opt[Binding[java.util.Dictionary[_, _] | Null]] = UnsetParam,
     majorTickSpacing: Opt[Binding[Int]] = UnsetParam,
     max: Opt[Binding[Int]] = UnsetParam,
-    maximumSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
+    maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     min: Opt[Binding[Int]] = UnsetParam,
-    minimumSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
+    minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     minorTickSpacing: Opt[Binding[Int]] = UnsetParam,
     model: Opt[Binding[javax.swing.BoundedRangeModel | Null]] = UnsetParam,
-    mouseLocation: Opt[Binding[(Int, Int)]] = UnsetParam,
+    mouseLocationMut: Opt[Binding[(Int, Int)]] = UnsetParam,
     opaque: Opt[Binding[Boolean]] = UnsetParam,
     orientation: Opt[Binding[Int]] = UnsetParam,
     paintLabels: Opt[Binding[Boolean]] = UnsetParam,
     paintTicks: Opt[Binding[Boolean]] = UnsetParam,
     paintTrack: Opt[Binding[Boolean]] = UnsetParam,
-    prefSize: Opt[Binding[java.awt.Dimension | Null]] = UnsetParam,
+    prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     requestFocusEnabled: Opt[Binding[Boolean]] = UnsetParam,
     snapToTicks: Opt[Binding[Boolean]] = UnsetParam,
     toolTipText: Opt[Binding[String | Null]] = UnsetParam,
@@ -2581,12 +2523,12 @@ object Slider extends VarsMap {
     ifSet(labelTable, Slider.ops.labelTable(res) := _)
     ifSet(majorTickSpacing, Slider.ops.majorTickSpacing(res) := _)
     ifSet(max, Slider.ops.max(res) := _)
-    ifSet(maximumSize, Node.ops.maximumSize(res) := _)
+    ifSet(maxSize, Node.ops.maxSize(res) := _)
     ifSet(min, Slider.ops.min(res) := _)
-    ifSet(minimumSize, Node.ops.minimumSize(res) := _)
+    ifSet(minSize, Node.ops.minSize(res) := _)
     ifSet(minorTickSpacing, Slider.ops.minorTickSpacing(res) := _)
     ifSet(model, Slider.ops.model(res) := _)
-    ifSet(mouseLocation, Node.ops.mouseLocation(res) := _)
+    ifSet(mouseLocationMut, Node.ops.mouseLocationMut(res) := _)
     ifSet(opaque, Component.ops.opaque(res) := _)
     ifSet(orientation, Slider.ops.orientation(res) := _)
     ifSet(paintLabels, Slider.ops.paintLabels(res) := _)
@@ -2604,4 +2546,3 @@ object Slider extends VarsMap {
     res
   }
 }
-

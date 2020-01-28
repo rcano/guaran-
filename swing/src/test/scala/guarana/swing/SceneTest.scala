@@ -23,12 +23,12 @@ import scala.util.chaining._
     label.bounds := dyn {
       val (x, y) = root.mouseLocation()
       val dim = label.prefSize().nn
-      Rect(x, y, dim.getWidth.toInt, dim.getHeight.toInt)
+      Bounds(x, y, dim._1, dim._2)
     }
       
     root.nodes := Seq(
       label,
-      Button(text = "Press me!", bounds = Rect(10, 10, 100, 50)).tap(
+      Button(text = "Press me!", bounds = Bounds(10, 10, 100, 50)).tap(
         _.actionEvents := EventIterator.foreach { e =>
           presses := presses() + 1
         }
@@ -37,7 +37,7 @@ import scala.util.chaining._
 
     Frame(
       title = "Guarná test",
-      bounds = Rect(1300, 300, 300, 300),
+      bounds = Bounds(1300, 300, 300, 300),
       visible = true,
       root = root,
     )
@@ -74,6 +74,9 @@ import scala.util.chaining._
       defaultCapable = true
     )
 
+    val emModifier = Slider(min = 5, max = 30, majorTickSpacing = 5, value = 5, paintTicks = true, paintLabels = true, orientation = javax.swing.SwingConstants.VERTICAL)
+    scenegraph.emSize := dyn { emModifier.value() }
+
     Frame(
       title = "Guaraná test",
       // bounds = Rect(1300, 300, 300, 300),
@@ -85,15 +88,15 @@ import scala.util.chaining._
             Seq(Label(text = "User:"), userTf),
             Seq(Label(text = "Password:"), passwordTf),
           ),
-          hgap = 10,
-          vgap = 10,
+          hgap = 1.em,
+          vgap = 1.em,
           autoCreateContainerGaps = true,
           border = javax.swing.BorderFactory.createTitledBorder("Center thing")
         ),
-        right = Slider(min = 0, max = 10, majorTickSpacing = 5, paintTicks = true, orientation = javax.swing.SwingConstants.VERTICAL),
+        right = Vbox(nodes = Seq(Label(text = "Em Size"), emModifier)),
         left = Vbox(nodes = Seq(ToggleButton(text = "toggle"), CheckBox(text = "check"), RadioButton(text = "radio"))),
         bottom = Hbox(nodes = Seq(Box.horizontalGlue(), login)),
-        border = javax.swing.BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        border = dyn { javax.swing.BorderFactory.createEmptyBorder(1.em.toInt, 1.em.toInt, 1.em.toInt, 1.em.toInt) }
       ),
     ).pack()
   }

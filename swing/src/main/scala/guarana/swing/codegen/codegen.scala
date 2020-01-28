@@ -36,6 +36,7 @@ abstract class NodeDescr(
   val underlying: String,
   val parents: Seq[NodeDescr] = Seq.empty,
   val props: Seq[Property] = Seq.empty,
+  val fieldsExtra: Seq[String] = Seq.empty,
   val opsExtra: Seq[String] = Seq.empty,
   val emitters: Seq[EmitterDescr] = Seq.empty,
   val initExtra: Seq[String] = Seq.empty,
@@ -50,20 +51,28 @@ case object Node extends NodeDescr(
   "java.awt.Container",
   props = Seq(
     SwingProp("background", "java.awt.Color | Null"),
-    SwingProp("bounds", "java.awt.Rectangle"),
+    SwingProp("bounds", "Bounds"),
     SwingProp("componentOrientation", "java.awt.ComponentOrientation"),
     SwingProp("cursor", "java.awt.Cursor | Null"),
     SwingProp("enabled", "Boolean"),
     SwingProp("focusable", "Boolean"),
     SwingProp("font", "java.awt.Font | Null"),
     SwingProp("foreground", "java.awt.Color | Null"),
-    SwingProp("maximumSize", "java.awt.Dimension | Null"),
-    SwingProp("minimumSize", "java.awt.Dimension | Null"),
-    SwingProp("prefSize", "java.awt.Dimension | Null", "_.getPreferredSize", "_.setPreferredSize(_)"),
+    SwingProp("maxSize", "(Double, Double) | Null",
+      "{n => val d = n.getMaximumSize; if (d != null) (d.getWidth, d.getHeight) else null}",
+      "{(n, d) => n.setMaximumSize(if (d == null) null else java.awt.Dimension(d._1.toInt, d._2.toInt))}"),
+    SwingProp("minSize", "(Double, Double) | Null",
+      "{n => val d = n.getMinimumSize; if (d != null) (d.getWidth, d.getHeight) else null}",
+      "{(n, d) => n.setMinimumSize(if (d == null) null else java.awt.Dimension(d._1.toInt, d._2.toInt))}"),
+    SwingProp("prefSize", "(Double, Double) | Null",
+      "{n => val d = n.getPreferredSize; if (d != null) (d.getWidth, d.getHeight) else null}",
+      "{(n, d) => n.setPreferredSize(if (d == null) null else java.awt.Dimension(d._1.toInt, d._2.toInt))}"),
     SwingProp("visible", "Boolean"),
-    VarProp("mouseLocation", "(Int, Int)", "(0, 0)"),
+    VarProp("mouseLocationMut", "(Int, Int)", "(0, 0)", Some("private")),
   ),
+  fieldsExtra = Seq("val MouseLocation = mouseLocationMut.asObsValIn()"),
   opsExtra = """
+    |def mouseLocation = Node.MouseLocationMut.asObsValIn(v)
     |def alignmentX = v.getAlignmentX
     |def alignmentY = v.getAlignmentY
     |def insets = v.getInsets
@@ -78,7 +87,7 @@ case object Node extends NodeDescr(
   |  def mouseDragged(evt: java.awt.event.MouseEvent | Null) = ()
   |  def mouseMoved(evt: java.awt.event.MouseEvent | Null) = sc.update {
   |    val nnEvt = evt.nn
-  |    Node.MouseLocation.forInstance(v) := (nnEvt.getX, nnEvt.getY)
+  |    Node.MouseLocationMut.forInstance(v) := (nnEvt.getX, nnEvt.getY)
   |  }
   |}
   """.stripMargin.trim.split("\n").asInstanceOf[Array[String]].toIndexedSeq
@@ -125,7 +134,7 @@ case object Component extends NodeDescr(
 case object Window extends NodeDescr(
   "Window",
   "java.awt.Window",
-  parents = Seq(Component),
+  parents = Seq(Node),
   props = Seq(
     SwingProp("alwaysOnTop", "Boolean"),
     SwingProp("autoRequestFocus", "Boolean"),
@@ -173,7 +182,7 @@ case object Frame extends NodeDescr(
   props = Seq(
     SwingProp("extendedState", "Int"),
     SwingProp("iconImage", "java.awt.Image | Null"),
-    SwingProp("maximizedBounds", "java.awt.Rectangle | Null"),
+    SwingProp("maximizedBounds", "Bounds | Null"),
     SwingProp("menuBar", "java.awt.MenuBar | Null"),
     SwingProp("resizable", "Boolean"),
     SwingProp("state", "Int"),
@@ -231,12 +240,12 @@ case object BorderPane extends NodeDescr(
     SwingProp("center", "Node | Null",
       "c => c.getLayout.asInstanceOf[BorderLayout].getLayoutComponent(BorderLayout.CENTER).asInstanceOf[Node | Null]",
       "(p, n) => { p.add(if (n == null) null else n, BorderLayout.CENTER) }"),
-    SwingProp("hgap", "Int",
+    SwingProp("hgap", "Double",
       "c => c.getLayout.asInstanceOf[BorderLayout].getHgap",
-      "(p, g) => p.getLayout.asInstanceOf[BorderLayout].setHgap(g)"),
-    SwingProp("vgap", "Int",
+      "(p, g) => p.getLayout.asInstanceOf[BorderLayout].setHgap(g.toInt)"),
+    SwingProp("vgap", "Double",
       "c => c.getLayout.asInstanceOf[BorderLayout].getVgap",
-      "(p, g) => p.getLayout.asInstanceOf[BorderLayout].setVgap(g)"),
+      "(p, g) => p.getLayout.asInstanceOf[BorderLayout].setVgap(g.toInt)"),
   ),
   uninitExtra = Seq("res.asInstanceOf[JPanel].setLayout(BorderLayout())"),
 )
@@ -247,8 +256,8 @@ case object GridPane extends NodeDescr(
   parents = Seq(Pane),
   props = Seq(
     VarProp("rows", "Seq[Seq[Node]]", "Seq.empty"),
-    VarProp("hgap", "Int", "0"),
-    VarProp("vgap", "Int", "0"),
+    VarProp("hgap", "Double", "0.0"),
+    VarProp("vgap", "Double", "0.0"),
     SwingProp("layoutVar", "Unit", "_ => ()", "(_, _) => ()"),
     SwingProp("autoCreateContainerGaps", "Boolean",
       "_.getLayout.asInstanceOf[GroupLayout].getAutoCreateContainerGaps()",
@@ -258,8 +267,8 @@ case object GridPane extends NodeDescr(
   initExtra = """
       |sc.update(LayoutVar.forInstance(v) := Binding.dyn {
       |val rows = v.rows()
-      |val hgap = v.hgap()
-      |val vgap = v.vgap()
+      |val hgap = v.hgap().toInt
+      |val vgap = v.vgap().toInt
 
       |val layout = v.getLayout.asInstanceOf[GroupLayout]
       |val hgroup = layout.createSequentialGroup().nn
@@ -418,7 +427,7 @@ case object Label extends NodeDescr(
     SwingProp("horizontalAlignment", "Int"),
     SwingProp("horizontalTextPosition", "Int"),
     SwingProp("icon", "javax.swing.Icon | Null"),
-    SwingProp("iconTextGap", "Int"),
+    SwingProp("iconTextGap", "Double", "_.getIconTextGap", "(l, g) => l.setIconTextGap(g.toInt)"),
     SwingProp("labelFor", "java.awt.Component | Null"),
     SwingProp("text", "java.lang.String | Null"),
     SwingProp("verticalAlignment", "Int"),
@@ -590,7 +599,7 @@ def genCode(n: NodeDescr): String = {
      |
      |  ${sortedEmitters.map(e => s"val ${e.name.capitalize} = Emitter[${e.tpe}]()").mkString("\n  ")}
      |
-     |  given ops: (v: ${n.name}) extended with {
+     |  extension ops on (v: ${n.name}) {
      |    ${sortedProps.map(p => s"def ${p.name} = ${n.name}.${p.name.capitalize}.forInstance(v)").mkString("\n    ")}
 
      |    ${sortedEmitters.map(e => s"def ${e.name} = ${n.name}.${e.name.capitalize}.forInstance(v)").mkString("\n    ")}

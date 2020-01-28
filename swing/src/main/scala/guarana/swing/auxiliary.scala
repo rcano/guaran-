@@ -1,8 +1,9 @@
 package guarana.swing
 
 import language.implicitConversions
+import util._
 
-given metrics: (d: Double | Float | Int) extended with {
+extension metricsBinding on (d: Double | Float | Int) {
   inline def em(given sc: Scenegraph) = Binding.dyn {
     (inline d match {
       case i: Int => i.toDouble
@@ -10,6 +11,14 @@ given metrics: (d: Double | Float | Int) extended with {
       case f: Float => f.toDouble
     }) * sc.emSize()
   }
+}
+extension metrics on (d: Double | Float | Int) {
+  inline def em(given sc: Scenegraph, vc: VarContext) = 
+    (inline d match {
+      case i: Int => i.toDouble
+      case d: Double => d
+      case f: Float => f.toDouble
+    }) * sc.emSize()
 }
 
 /** Calculates the map of name→var for this node by using reflection
@@ -29,7 +38,7 @@ trait VarsMap {
   }: java.beans.PropertyChangeListener
 }
 
-given documentOps: (d: javax.swing.text.Document) extended with {
+extension documentOps on (d: javax.swing.text.Document) {
   def defaultRootElement = d.getDefaultRootElement
   def length = d.getLength
   def empty = d.length == 0
@@ -56,9 +65,9 @@ object Box {
 
     val res = Node(javax.swing.Box.createGlue().nn.asInstanceOf[java.awt.Container])
     Node.init(res)
-    res.minimumSize := Binding.dyn(java.awt.Dimension(minWidth().toInt, minHeight().toInt))
-    res.prefSize := Binding.dyn(res.minimumSize())
-    res.maximumSize := Binding.dyn(java.awt.Dimension(maxWidth().toInt, maxHeight().toInt))
+    res.minSize := Binding.dyn((minWidth(), minHeight()))
+    res.prefSize := Binding.dyn(res.minSize())
+    res.maxSize := Binding.dyn((maxWidth(), maxHeight()))
     res
   }
 
@@ -69,3 +78,14 @@ object Box {
   def verticalStrut(height: Binding[Double]): (given Scenegraph) =>  VarContextAction[Node] = createFiller(0.0, 0.0, height, height)
   def strut(width: Binding[Double], height: Binding[Double]): (given Scenegraph) =>  VarContextAction[Node] = createFiller(width, width, height, height)
 }
+
+def Font(name: String, style: Opt[Int] = UnsetParam, size: Opt[Double] = UnsetParam): java.awt.Font = {
+  var res = java.awt.Font.getFont(name).nn
+  ifSet(style, s => res = res.deriveFont(s).nn)
+  ifSet(size, s => res = res.deriveFont(s.toFloat).nn)
+  res
+}
+
+type Bounds = java.awt.Rectangle
+def Bounds(x: Double = 0, y: Double = 0, width: Double = 0, height: Double = 0) =
+  java.awt.Rectangle(x.toInt, y.toInt, width.toInt, height.toInt)
