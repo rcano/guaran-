@@ -45,7 +45,24 @@ import scala.util.chaining._
 }
 
 @main def FormTest: Unit = {
+  // val orig = System.getProperties().nn
+  // new java.util.Properties() {
+  //   override def getProperty(prop: String | UncheckedNull) = 
+  //     println(s"Reading $prop")
+  //     orig.getProperty(prop).tap(r => println(s"  = $r"))
+  //   override def getProperty(prop: String | UncheckedNull, default: String | UncheckedNull) = 
+  //     println(s"Reading $prop def $default")
+  //     orig.getProperty(prop, default).tap(r => println(s"  = $r"))
+  //   override def get(a: Any) = 
+  //     println(s"Reading $a")
+  //     orig.get(a).tap(r => println(s"  = $r"))
+  // } pipe System.setProperties
+
   val scenegraph = Scenegraph()
+
+  javax.swing.UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel")
+  // javax.swing.UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel")
+  // plaf.CssSynthLaf.install()
 
   scenegraph.update {
 
@@ -59,7 +76,8 @@ import scala.util.chaining._
 
     Frame(
       title = "Guaraná test",
-      bounds = Rect(1300, 300, 300, 300),
+      // bounds = Rect(1300, 300, 300, 300),
+      locationByPlatform = true,
       visible = true,
       root = BorderPane(
         center = GridPane(
@@ -70,9 +88,13 @@ import scala.util.chaining._
           hgap = 10,
           vgap = 10,
           autoCreateContainerGaps = true,
+          border = javax.swing.BorderFactory.createTitledBorder("Center thing")
         ),
-        bottom = login,
+        right = Slider(min = 0, max = 10, majorTickSpacing = 5, paintTicks = true, orientation = javax.swing.SwingConstants.VERTICAL),
+        left = Vbox(nodes = Seq(ToggleButton(text = "toggle"), CheckBox(text = "check"), RadioButton(text = "radio"))),
+        bottom = Hbox(nodes = Seq(Box.horizontalGlue(), login)),
+        border = javax.swing.BorderFactory.createEmptyBorder(10, 10, 10, 10)
       ),
-    )
+    ).pack()
   }
 }

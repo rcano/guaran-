@@ -4,7 +4,6 @@ import guarana.swing.util._
 import java.awt.{Component => _, _}
 import javax.swing.JButton
 
-
 opaque type ButtonBase <: Component = javax.swing.AbstractButton & Component
 object ButtonBase extends VarsMap {
   val UI = SwingVar[ButtonBase, javax.swing.plaf.ButtonUI]("UI", _.getUI.nn, _.setUI(_))
@@ -39,10 +38,6 @@ object ButtonBase extends VarsMap {
   val ActionEvents = Emitter[java.awt.event.ActionEvent]()
 
   given ops: (v: ButtonBase) extended with {
-    def actionListeners = v.getActionListeners
-    def changeListeners = v.getChangeListeners
-    def itemListeners = v.getItemListeners
-    def selectedObjects = v.getSelectedObjects
     def UI = ButtonBase.UI.forInstance(v)
     def action = ButtonBase.Action.forInstance(v)
     def actionCommand = ButtonBase.ActionCommand.forInstance(v)
@@ -71,16 +66,24 @@ object ButtonBase extends VarsMap {
     def text = ButtonBase.Text.forInstance(v)
     def verticalAlignment = ButtonBase.VerticalAlignment.forInstance(v)
     def verticalTextPosition = ButtonBase.VerticalTextPosition.forInstance(v)
-    def unwrap: javax.swing.AbstractButton = v
 
     def actionEvents = ButtonBase.ActionEvents.forInstance(v)
+     
+    def actionListeners = v.getActionListeners
+    def changeListeners = v.getChangeListeners
+    def itemListeners = v.getItemListeners
+    def selectedObjects = v.getSelectedObjects
+    def unwrap: javax.swing.AbstractButton = v
   }
 
-  def init(v: ButtonBase) = (given sc: Scenegraph) => {
+  def apply(v: javax.swing.AbstractButton) = v.asInstanceOf[ButtonBase]
+
+  def init(v: ButtonBase): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     Component.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
-    sc.update(summon[Emitter.Context].register(v.actionEvents))
+    
     val al: java.awt.event.ActionListener = evt => sc.update(summon[Emitter.Context].emit(v.actionEvents, evt.nn))
     v.addActionListener(al)
   }
+  
 }

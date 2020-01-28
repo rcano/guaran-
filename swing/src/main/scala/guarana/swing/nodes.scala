@@ -76,6 +76,10 @@ object Node extends VarsMap {
         Node.MouseLocation.forInstance(v) := (nnEvt.getX, nnEvt.getY)
       }
     }
+    v match {
+      case jc: JComponent => jc.putClientProperty(Scenegraph, sc)
+      case _=>
+    }
   }
   def uninitialized(): Node = {
     val res = java.awt.Container().asInstanceOf[Node]

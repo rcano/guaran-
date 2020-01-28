@@ -1,6 +1,7 @@
 package guarana.swing
 package codegen
 
+import better.files._
 import language.implicitConversions
 
 /** Since there's no way in scala to abstract over method parameters, and the builders guaraná provides
@@ -27,13 +28,18 @@ object SwingProp {
 }
 case class VarProp(name: String, tpe: String, initValue: String, visibility: Option[String] = None) extends Property
 
+case class EmitterDescr(name: String, tpe: String, initializer: Seq[String])
+type Parameter = (String, String)
+
 abstract class NodeDescr(
   val name: String,
   val underlying: String,
   val parents: Seq[NodeDescr] = Seq.empty,
   val props: Seq[Property] = Seq.empty,
   val opsExtra: Seq[String] = Seq.empty,
+  val emitters: Seq[EmitterDescr] = Seq.empty,
   val initExtra: Seq[String] = Seq.empty,
+  val uninitExtraParams: Seq[Parameter] = Seq.empty,
   val uninitExtra: Seq[String] = Seq.empty,
   val isAbstract: Boolean = false,
   val addsPropertySwingListener: Boolean = true,
@@ -86,18 +92,18 @@ case object Component extends NodeDescr(
     SwingProp("actionMap", "javax.swing.ActionMap"),
     SwingProp("alignmentX", "Float"),
     SwingProp("alignmentY", "Float"),
-    SwingProp("autoscrolls", "Boolean"),
+    SwingProp("autoscrolls", "Boolean", "_.getAutoscrolls", "_.setAutoscrolls(_)"),
     SwingProp("border", "javax.swing.border.Border | Null"),
     SwingProp("componentPopupMenu", "javax.swing.JPopupMenu | Null"),
     SwingProp("debugGraphicsOptions", "Int"),
     SwingProp("doubleBuffered", "Boolean"),
-    SwingProp("inheritsPopupMenu", "Boolean"),
+    SwingProp("inheritsPopupMenu", "Boolean", "_.getInheritsPopupMenu", "_.setInheritsPopupMenu(_)"),
     SwingProp("inputVerifier", "javax.swing.InputVerifier | Null"),
     SwingProp("opaque", "Boolean"),
     SwingProp("requestFocusEnabled", "Boolean"),
     SwingProp("toolTipText", "String | Null"),
     SwingProp("transferHandler", "javax.swing.TransferHandler | Null"),
-    SwingProp("verifyInputWhenFocusTarget", "Boolean"),
+    SwingProp("verifyInputWhenFocusTarget", "Boolean", "_.getVerifyInputWhenFocusTarget", "_.setVerifyInputWhenFocusTarget(_)"),
   ),
   opsExtra = Seq(
     "def UI = v.getUI",
@@ -114,6 +120,69 @@ case object Component extends NodeDescr(
     "def visibleRect = v.getVisibleRect"
   ),
   isAbstract = true,
+)
+
+case object Window extends NodeDescr(
+  "Window",
+  "java.awt.Window",
+  parents = Seq(Component),
+  props = Seq(
+    SwingProp("alwaysOnTop", "Boolean"),
+    SwingProp("autoRequestFocus", "Boolean"),
+    SwingProp("focusableWindowState", "Boolean", "_.getFocusableWindowState", "_.setFocusableWindowState(_)"),
+    SwingProp("iconImages", "java.util.List[_ <: java.awt.Image] | Null"),
+    SwingProp("locationByPlatform", "Boolean"),
+    SwingProp("modalExclusionType", "java.awt.Dialog.ModalExclusionType"),
+    SwingProp("opacity", "Float"),
+    SwingProp("shape", "java.awt.Shape | Null"),
+    SwingProp("tpe", "java.awt.Window.Type", "_.getType.nn", "_.setType(_)"),
+    SwingProp("Root", "Node", "c => Node(c.getComponent(0).asInstanceOf[Container])", "(w, n) => w.add(n, 0)"),
+  ),
+  opsExtra = Seq(
+    "def accessibleContext = v.getAccessibleContext",
+    "def active = v.isActive",
+    "def alwaysOnTopSupported = v.isAlwaysOnTopSupported",
+    "def bufferStrategy = v.getBufferStrategy",
+    "def focusCycleRootAncestor = v.getFocusCycleRootAncestor",
+    "def focusOwner = v.getFocusOwner",
+    "def focusableWindow = v.isFocusableWindow",
+    "def focused = v.isFocused",
+    "def inputContext = v.getInputContext",
+    "def locale = v.getLocale",
+    "def mostRecentFocusOwner = v.getMostRecentFocusOwner",
+    "def opaque = v.isOpaque",
+    "def ownedWindows = v.getOwnedWindows",
+    "def owner = v.getOwner",
+    "def pack() = v.pack()",
+    "def showing = v.isShowing",
+    "def toolkit = v.getToolkit",
+    "def validateRoot = v.isValidateRoot",
+    "def warningString = v.getWarningString",
+    "def windowFocusListeners = v.getWindowFocusListeners",
+    "def windowListeners = v.getWindowListeners",
+    "def windowStateListeners = v.getWindowStateListeners"
+  ),
+  uninitExtraParams = Seq("parent" -> "java.awt.Window | Null = null", "gc" -> "GraphicsConfiguration | Null = null"),
+)
+
+case object Frame extends NodeDescr(
+  "Frame",
+  "java.awt.Frame",
+  parents = Seq(Window),
+  props = Seq(
+    SwingProp("extendedState", "Int"),
+    SwingProp("iconImage", "java.awt.Image | Null"),
+    SwingProp("maximizedBounds", "java.awt.Rectangle | Null"),
+    SwingProp("menuBar", "java.awt.MenuBar | Null"),
+    SwingProp("resizable", "Boolean"),
+    SwingProp("state", "Int"),
+    SwingProp("title", "java.lang.String | Null"),
+    SwingProp("undecorated", "Boolean"),
+  ),
+  opsExtra = Seq(
+    "def cursorType = v.getCursorType"
+  ),
+  uninitExtraParams = Seq("title" -> "String | Null = null", "gc" -> "GraphicsConfiguration | Null = null"),
 )
 
 ////////////////////////////////////////////////////////////////////////////
@@ -136,7 +205,7 @@ case object AbsolutePositioningPane extends NodeDescr(
   props = Seq(
     SwingProp("nodes", "Seq[Node]",
       "c => (0 until c.getComponentCount).map(c.getComponent(_).asInstanceOf[Node])",
-      "(p, children) => { p.removeAll(); children foreach (n => p.add(n.unwrap)) }"),
+      "(p, children) => { p.removeAll(); children foreach (n => p.add(n)) }"),
   ),
   uninitExtra = Seq("res.asInstanceOf[JPanel].setLayout(null)"),
 )
@@ -148,19 +217,19 @@ case object BorderPane extends NodeDescr(
   props = Seq(
     SwingProp("top", "Node | Null",
       "c => c.getLayout.asInstanceOf[BorderLayout].getLayoutComponent(BorderLayout.NORTH).asInstanceOf[Node | Null]",
-      "(p, n) => { p.add(if (n == null) null else n.unwrap, BorderLayout.NORTH) }"),
+      "(p, n) => { p.add(if (n == null) null else n, BorderLayout.NORTH) }"),
     SwingProp("bottom", "Node | Null",
       "c => c.getLayout.asInstanceOf[BorderLayout].getLayoutComponent(BorderLayout.SOUTH).asInstanceOf[Node | Null]",
-      "(p, n) => { p.add(if (n == null) null else n.unwrap, BorderLayout.SOUTH) }"),
+      "(p, n) => { p.add(if (n == null) null else n, BorderLayout.SOUTH) }"),
     SwingProp("left", "Node | Null",
       "c => c.getLayout.asInstanceOf[BorderLayout].getLayoutComponent(BorderLayout.WEST).asInstanceOf[Node | Null]",
-      "(p, n) => { p.add(if (n == null) null else n.unwrap, BorderLayout.WEST) }"),
+      "(p, n) => { p.add(if (n == null) null else n, BorderLayout.WEST) }"),
     SwingProp("right", "Node | Null",
       "c => c.getLayout.asInstanceOf[BorderLayout].getLayoutComponent(BorderLayout.EAST).asInstanceOf[Node | Null]",
-      "(p, n) => { p.add(if (n == null) null else n.unwrap, BorderLayout.EAST) }"),
+      "(p, n) => { p.add(if (n == null) null else n, BorderLayout.EAST) }"),
     SwingProp("center", "Node | Null",
       "c => c.getLayout.asInstanceOf[BorderLayout].getLayoutComponent(BorderLayout.CENTER).asInstanceOf[Node | Null]",
-      "(p, n) => { p.add(if (n == null) null else n.unwrap, BorderLayout.CENTER) }"),
+      "(p, n) => { p.add(if (n == null) null else n, BorderLayout.CENTER) }"),
     SwingProp("hgap", "Int",
       "c => c.getLayout.asInstanceOf[BorderLayout].getHgap",
       "(p, g) => p.getLayout.asInstanceOf[BorderLayout].setHgap(g)"),
@@ -210,14 +279,14 @@ case object GridPane extends NodeDescr(
       |      hgroup.addGroup(g)
       |      if (hgap > 0 && colIdx < colSize - 1) hgroup.addGap(hgap)
       |    })
-      |    .addComponent(node.unwrap)
+      |    .addComponent(node)
 
       |  vSeqGroups
       |    .getOrElseUpdate(rowIdx, layout.createBaselineGroup(true, false).nn.tap { g => 
       |      vgroup.addGroup(g)
       |      if (vgap > 0 && rowIdx < rowSize - 1) vgroup.addGap(vgap)
       |    })
-      |    .addComponent(node.unwrap)
+      |    .addComponent(node)
       |}
 
       |layout.setHorizontalGroup(hgroup)
@@ -233,7 +302,7 @@ case object Hbox extends NodeDescr(
   props = Seq(
     SwingProp("nodes", "Seq[Node]",
       "c => (0 until c.getComponentCount).map(c.getComponent(_).asInstanceOf[Node])",
-      "(p, children) => { p.removeAll(); children foreach (n => p.add(n.unwrap)) }"),
+      "(p, children) => { p.removeAll(); children foreach (n => p.add(n)) }"),
   ),
   uninitExtra = Seq("res.asInstanceOf[JPanel].setLayout(BoxLayout(res, BoxLayout.X_AXIS))"),
 )
@@ -244,7 +313,7 @@ case object Vbox extends NodeDescr(
   props = Seq(
     SwingProp("nodes", "Seq[Node]",
       "c => (0 until c.getComponentCount).map(c.getComponent(_).asInstanceOf[Node])",
-      "(p, children) => { p.removeAll(); children foreach (n => p.add(n.unwrap)) }"),
+      "(p, children) => { p.removeAll(); children foreach (n => p.add(n)) }"),
   ),
   uninitExtra = Seq("res.asInstanceOf[JPanel].setLayout(BoxLayout(res, BoxLayout.Y_AXIS))"),
 )
@@ -264,7 +333,7 @@ case object TextComponent extends NodeDescr(
     SwingProp("caretColor", "java.awt.Color | Null"),
     SwingProp("disabledTextColor", "java.awt.Color | Null"),
     SwingProp("document", "javax.swing.text.Document"),
-    SwingProp("dragEnabled", "Boolean"),
+    SwingProp("dragEnabled", "Boolean", "_.getDragEnabled", "_.setDragEnabled(_)"),
     SwingProp("dropMode", "javax.swing.DropMode | Null"),
     SwingProp("editable", "Boolean"),
     SwingProp("focusAccelerator", "Char"),
@@ -302,10 +371,10 @@ case object TextArea extends NodeDescr(
   parents = Seq(TextComponent),
   props = Seq(
     SwingProp("columns", "Int"),
-    SwingProp("lineWrap", "Boolean"),
+    SwingProp("lineWrap", "Boolean", "_.getLineWrap", "_.setLineWrap(_)"),
     SwingProp("rows", "Int"),
     SwingProp("tabSize", "Int"),
-    SwingProp("wrapStyleWord", "Boolean"),
+    SwingProp("wrapStyleWord", "Boolean", "_.getWrapStyleWord", "_.setWrapStyleWord(_)"),
   ),
   opsExtra = Seq(
     "def lineCount = v.getLineCount"
@@ -341,6 +410,120 @@ case object PasswordField extends NodeDescr(
 // Buttons
 ////////////////////////////////////////////////////////////////////////////
 
+case object ButtonBase extends NodeDescr(
+  "ButtonBase",
+  "javax.swing.AbstractButton",
+  parents = Seq(Component),
+  props = Seq(
+    SwingProp("UI", "javax.swing.plaf.ButtonUI"),
+    SwingProp("action", "javax.swing.Action | Null"),
+    SwingProp("actionCommand", "java.lang.String | Null"),
+    SwingProp("borderPainted", "Boolean"),
+    SwingProp("contentAreaFilled", "Boolean"),
+    SwingProp("disabledIcon", "javax.swing.Icon | Null"),
+    SwingProp("disabledSelectedIcon", "javax.swing.Icon | Null"),
+    SwingProp("displayedMnemonicIndex", "Int"),
+    SwingProp("focusPainted", "Boolean"),
+    SwingProp("hideActionText", "Boolean", "_.getHideActionText", "_.setHideActionText(_)"),
+    SwingProp("horizontalAlignment", "Int"),
+    SwingProp("horizontalTextPosition", "Int"),
+    SwingProp("icon", "javax.swing.Icon | Null"),
+    SwingProp("iconTextGap", "Int"),
+    SwingProp("label", "java.lang.String | Null"),
+    SwingProp("margin", "java.awt.Insets | Null"),
+    SwingProp("mnemonic", "Int"),
+    SwingProp("model", "javax.swing.ButtonModel | Null"),
+    SwingProp("multiClickThreshhold", "Long"),
+    SwingProp("pressedIcon", "javax.swing.Icon | Null"),
+    SwingProp("rolloverEnabled", "Boolean"),
+    SwingProp("rolloverIcon", "javax.swing.Icon | Null"),
+    SwingProp("rolloverSelectedIcon", "javax.swing.Icon | Null"),
+    SwingProp("selected", "Boolean"),
+    SwingProp("selectedIcon", "javax.swing.Icon | Null"),
+    SwingProp("text", "java.lang.String | Null"),
+    SwingProp("verticalAlignment", "Int"),
+    SwingProp("verticalTextPosition", "Int"),
+  ),
+  emitters = Seq(
+    EmitterDescr("actionEvents", "java.awt.event.ActionEvent",
+      "val al: java.awt.event.ActionListener = evt => sc.update(summon[Emitter.Context].emit(v.actionEvents, evt.nn))" ::
+      "v.addActionListener(al)" ::
+      Nil),
+  ),
+  opsExtra = Seq(
+    "def actionListeners = v.getActionListeners",
+    "def changeListeners = v.getChangeListeners",
+    "def itemListeners = v.getItemListeners",
+    "def selectedObjects = v.getSelectedObjects"
+  ),
+  isAbstract = true
+)
+
+case object Button extends NodeDescr(
+  "Button",
+  "javax.swing.JButton",
+  parents = Seq(ButtonBase),
+  props = Seq(
+    SwingProp("defaultCapable", "Boolean"),
+  ),
+  opsExtra = Seq(
+   "def defaultButton = v.isDefaultButton"
+  ),
+)
+
+case object ToggleButton extends NodeDescr(
+  "ToggleButton",
+  "javax.swing.JToggleButton",
+  parents = Seq(ButtonBase),
+)
+
+case object CheckBox extends NodeDescr(
+  "CheckBox",
+  "javax.swing.JCheckBox",
+  parents = Seq(ToggleButton),
+  props = Seq(
+    SwingProp("borderPaintedFlat", "Boolean")
+  ),
+)
+
+case object RadioButton extends NodeDescr(
+  "RadioButton",
+  "javax.swing.JRadioButton",
+  parents = Seq(ToggleButton),
+)
+
+////////////////////////////////////////////////////////////////////////////
+// slider
+////////////////////////////////////////////////////////////////////////////
+
+case object Slider extends NodeDescr(
+  "Slider",
+  "javax.swing.JSlider",
+  parents = Seq(Component),
+  props = Seq(
+    SwingProp("UI", "javax.swing.plaf.SliderUI"),
+    SwingProp("extent", "Int"),
+    SwingProp("inverted", "Boolean", "_.getInverted", "_.setInverted(_)"),
+    SwingProp("labelTable", "java.util.Dictionary[_, _] | Null"),
+    SwingProp("majorTickSpacing", "Int"),
+    SwingProp("min", "Int", "_.getMinimum", "_.setMinimum(_)"),
+    SwingProp("max", "Int", "_.getMaximum", "_.setMaximum(_)"),
+    SwingProp("minorTickSpacing", "Int"),
+    SwingProp("model", "javax.swing.BoundedRangeModel | Null"),
+    SwingProp("orientation", "Int"),
+    SwingProp("paintLabels", "Boolean", "_.getPaintLabels", "_.setPaintLabels(_)"),
+    SwingProp("paintTicks", "Boolean", "_.getPaintTicks", "_.setPaintTicks(_)"),
+    SwingProp("paintTrack", "Boolean", "_.getPaintTrack", "_.setPaintTrack(_)"),
+    SwingProp("snapToTicks", "Boolean", "_.getSnapToTicks", "_.setSnapToTicks(_)"),
+    SwingProp("value", "Int"),
+    SwingProp("valueIsAdjusting", "Boolean", "_.getValueIsAdjusting", "_.setValueIsAdjusting(_)"),
+  ),
+  emitters = Seq(
+  ),
+  opsExtra = Seq(
+    "def changeListeners = v.getChangeListeners",
+  ),
+)
 
 ////////////////////////////////////////////////////////////////////////////
 // main function
@@ -357,13 +540,14 @@ def genCode(n: NodeDescr): String = {
   }.flatten.toVector.sortBy(_._2.name)
 
   val initializers = if (!n.isAbstract) 
-      s"""def uninitialized(): ${n.name} = {
-         |  val res = ${n.underlying}().asInstanceOf[${n.name}]
+      s"""def uninitialized(${n.uninitExtraParams.map(t => s"${t._1}: ${t._2}").mkString(", ")}): ${n.name} = {
+         |  val res = ${n.underlying}(${n.uninitExtraParams.map(_._1).mkString(", ")}).asInstanceOf[${n.name}]
          |  ${n.uninitExtra.mkString("\n    ")}
          |  res
          |}
          |
          |def apply(
+         |  ${if (n.uninitExtraParams.nonEmpty) n.uninitExtraParams.map(t => s"${t._1}: ${t._2}").mkString(", ") + "," else ""}
          |  ${allVars.map(v => s"${v._2.name}: Opt[Binding[${v._2.tpe}]] = UnsetParam").mkString(",\n  ")}
          |): (given Scenegraph) => VarContextAction[${n.name}] = {
          |  val res = uninitialized()
@@ -376,13 +560,19 @@ def genCode(n: NodeDescr): String = {
     else Seq.empty 
 
   val sortedProps = n.props.sortBy(_.name)
+  val sortedEmitters = n.emitters.sortBy(_.name)
 
   s"""opaque type ${n.name} ${if (n.parents.nonEmpty) n.parents.mkString("<: ", " & ", "") else ""} = ${(n.underlying +: n.parents).mkString(" & ")}
      |object ${n.name} extends VarsMap {
      |  ${sortedProps.map(propDecl).mkString("\n  ")}
      |
+     |  ${sortedEmitters.map(e => s"val ${e.name.capitalize} = Emitter[${e.tpe}]()").mkString("\n  ")}
+     |
      |  given ops: (v: ${n.name}) extended with {
      |    ${sortedProps.map(p => s"def ${p.name} = ${n.name}.${p.name.capitalize}.forInstance(v)").mkString("\n    ")}
+
+     |    ${sortedEmitters.map(e => s"def ${e.name} = ${n.name}.${e.name.capitalize}.forInstance(v)").mkString("\n    ")}
+
      |    ${n.opsExtra.mkString("\n    ")}
      |    def unwrap: ${n.underlying} = v
      |  }
@@ -393,6 +583,7 @@ def genCode(n: NodeDescr): String = {
      |    ${n.parents.headOption.map(p => s"$p.init(v)").getOrElse("")}
      |    ${if (n.addsPropertySwingListener) "v.addPropertyChangeListener(varsPropertyListener(v))" else ""}
      |    ${n.initExtra.mkString("\n    ")}
+     |    ${sortedEmitters.flatMap(_.initializer).mkString("\n    ")}
      |  }
      |  ${initializers.mkString("\n  ")}
      |}
@@ -400,5 +591,41 @@ def genCode(n: NodeDescr): String = {
 }
 
 @main def run(): Unit = {
-  println(genCode(Vbox))
+  val dest = File("src/main/scala/guarana/swing/impl/allNodes.scala").clear()
+  val preamble = """
+    //AUTOGENERATED FILE, DO NOT MODIFY
+
+    |package guarana.swing
+    |package impl
+    |import language.implicitConversions
+    |import java.awt.{Component => _, TextComponent => _, _}
+    |import java.awt.event._
+    |import javax.swing._
+    |import javax.swing.event._
+    |import guarana.swing.util._
+    |import scala.util.chaining._
+    """.stripMargin.trim.nn
+  dest.append(preamble).append("\n\n")
+
+  for (node <- Seq(
+    Node,
+    Component,
+    Window,
+    Pane,
+    AbsolutePositioningPane,
+    BorderPane,
+    GridPane,
+    Hbox,
+    Vbox,
+    TextComponent,
+    TextArea,
+    TextField,
+    PasswordField,
+    ButtonBase,
+    Button,
+    ToggleButton,
+    CheckBox,
+    RadioButton,
+    Slider
+  )) dest.append(genCode(node)).append("\n\n")
 }

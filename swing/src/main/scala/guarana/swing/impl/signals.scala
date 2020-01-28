@@ -72,6 +72,7 @@ private[impl] class SignalSwitchboardImpl[Signal[+T]](val reporter: Reporter[Sig
 
   def get[T](s: Keyed[Signal[T]]): Option[T] = {
     signalStates.get(s) map {
+      case Value(null) => null.asInstanceOf[T]
       case Value(value: T @unchecked) => value
       case Recompute(oldv) =>
         signalRels.get(s) foreach (_.dependents foreach remove) //when recomputing the value, we gotta undo all the dependents

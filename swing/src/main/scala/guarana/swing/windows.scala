@@ -36,6 +36,7 @@ object Window extends VarsMap {
     def opaque = v.isOpaque
     def ownedWindows = v.getOwnedWindows
     def owner = v.getOwner
+    def pack() = v.pack()
     def showing = v.isShowing
     def toolkit = v.getToolkit
     def validateRoot = v.isValidateRoot
