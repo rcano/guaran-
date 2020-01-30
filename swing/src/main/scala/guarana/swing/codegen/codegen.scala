@@ -661,6 +661,11 @@ def genCode(n: NodeDescr): String = {
      |
      |  def init(v: ${n.name}): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
      |    ${n.parents.headOption.map(p => s"$p.init(v)").getOrElse("")}
+     |    ${if (sortedEmitters.nonEmpty) {
+              val registeredEmitters = sortedEmitters.map(e => s"  ctx.register(v.${e.name})")
+              (("sc.update {" +: "  val ctx = summon[Emitter.Context]" +: registeredEmitters) :+ "}").mkString("\n    ")
+            } else ""
+          }
      |    ${if (n.addsPropertySwingListener) "v.addPropertyChangeListener(varsPropertyListener(v))" else ""}
      |    ${n.initExtra.mkString("\n    ")}
      |    ${sortedEmitters.flatMap(_.initializer).mkString("\n    ")}

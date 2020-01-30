@@ -55,7 +55,6 @@ object Node extends VarsMap {
     def size = v.getSize
     def location(x: Int, y: Int) = v.setLocation(x, y)
     def requestFocus() = v.requestFocus()
-    def requestFocusInWindow() = v.requestFocusInWindow()
     def size(x: Int, y: Int) = v.setSize(x, y)
     def children: Seq[Node] = (0 until v.getComponentCount).map(i => v.getComponent(i).asInstanceOf[Container])
     def unwrap: java.awt.Container = v
@@ -65,6 +64,10 @@ object Node extends VarsMap {
 
   def init(v: Node): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     
+    sc.update {
+      val ctx = summon[Emitter.Context]
+      ctx.register(v.focusEvents)
+    }
     v.addPropertyChangeListener(varsPropertyListener(v))
     v addMouseMotionListener new java.awt.event.MouseMotionListener {
       def mouseDragged(evt: java.awt.event.MouseEvent | Null) = ()
@@ -186,6 +189,7 @@ object Component extends VarsMap {
 
   def init(v: Component): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     Node.init(v)
+    
     v.addPropertyChangeListener(varsPropertyListener(v))
     
     
@@ -255,6 +259,7 @@ object Window extends VarsMap {
 
   def init(v: Window): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     Node.init(v)
+    
     v.addPropertyChangeListener(varsPropertyListener(v))
     
     
@@ -357,6 +362,7 @@ object Frame extends VarsMap {
 
   def init(v: Frame): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     Window.init(v)
+    
     v.addPropertyChangeListener(varsPropertyListener(v))
     
     
@@ -461,6 +467,7 @@ object Pane extends VarsMap {
 
   def init(v: Pane): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     Component.init(v)
+    
     v.addPropertyChangeListener(varsPropertyListener(v))
     
     
@@ -559,6 +566,7 @@ object AbsolutePositioningPane extends VarsMap {
 
   def init(v: AbsolutePositioningPane): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     Pane.init(v)
+    
     v.addPropertyChangeListener(varsPropertyListener(v))
     
     
@@ -671,6 +679,7 @@ object BorderPane extends VarsMap {
 
   def init(v: BorderPane): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     Pane.init(v)
+    
     v.addPropertyChangeListener(varsPropertyListener(v))
     
     
@@ -791,6 +800,7 @@ object GridPane extends VarsMap {
 
   def init(v: GridPane): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     Pane.init(v)
+    
     v.addPropertyChangeListener(varsPropertyListener(v))
     sc.update(LayoutVar.forInstance(v) := Binding.dyn {
     val rows = v.rows()
@@ -935,6 +945,7 @@ object Hbox extends VarsMap {
 
   def init(v: Hbox): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     Pane.init(v)
+    
     v.addPropertyChangeListener(varsPropertyListener(v))
     
     
@@ -1035,6 +1046,7 @@ object Vbox extends VarsMap {
 
   def init(v: Vbox): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     Pane.init(v)
+    
     v.addPropertyChangeListener(varsPropertyListener(v))
     
     
@@ -1171,6 +1183,7 @@ object TextComponent extends VarsMap {
 
   def init(v: TextComponent): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     Component.init(v)
+    
     v.addPropertyChangeListener(varsPropertyListener(v))
     v.getDocument.addDocumentListener(new DocumentListener {
       def changedUpdate(evt: DocumentEvent | Null) = notifyChange()
@@ -1210,6 +1223,7 @@ object TextArea extends VarsMap {
 
   def init(v: TextArea): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     TextComponent.init(v)
+    
     v.addPropertyChangeListener(varsPropertyListener(v))
     
     
@@ -1352,6 +1366,7 @@ object TextField extends VarsMap {
 
   def init(v: TextField): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     TextComponent.init(v)
+    
     v.addPropertyChangeListener(varsPropertyListener(v))
     
     
@@ -1486,6 +1501,7 @@ object PasswordField extends VarsMap {
 
   def init(v: PasswordField): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     TextField.init(v)
+    
     v.addPropertyChangeListener(varsPropertyListener(v))
     
     
@@ -1644,6 +1660,7 @@ object Label extends VarsMap {
 
   def init(v: Label): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     Component.init(v)
+    
     v.addPropertyChangeListener(varsPropertyListener(v))
     
     
@@ -1821,6 +1838,10 @@ object ButtonBase extends VarsMap {
 
   def init(v: ButtonBase): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     Component.init(v)
+    sc.update {
+      val ctx = summon[Emitter.Context]
+      ctx.register(v.actionEvents)
+    }
     v.addPropertyChangeListener(varsPropertyListener(v))
     
     val al: java.awt.event.ActionListener = evt => sc.update(summon[Emitter.Context].emit(v.actionEvents, evt.nn))
@@ -1848,6 +1869,7 @@ object Button extends VarsMap {
 
   def init(v: Button): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     ButtonBase.init(v)
+    
     v.addPropertyChangeListener(varsPropertyListener(v))
     
     
@@ -2002,6 +2024,7 @@ object ToggleButton extends VarsMap {
 
   def init(v: ToggleButton): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     ButtonBase.init(v)
+    
     v.addPropertyChangeListener(varsPropertyListener(v))
     
     
@@ -2154,6 +2177,7 @@ object CheckBox extends VarsMap {
 
   def init(v: CheckBox): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     ToggleButton.init(v)
+    
     v.addPropertyChangeListener(varsPropertyListener(v))
     
     
@@ -2308,6 +2332,7 @@ object RadioButton extends VarsMap {
 
   def init(v: RadioButton): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     ToggleButton.init(v)
+    
     v.addPropertyChangeListener(varsPropertyListener(v))
     
     
@@ -2490,6 +2515,7 @@ object Slider extends VarsMap {
 
   def init(v: Slider): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     Component.init(v)
+    
     v.addPropertyChangeListener(varsPropertyListener(v))
     val l: ChangeListener = (e: ChangeEvent | UncheckedNull) => summon[Scenegraph].update(summon[VarContext].swingPropertyUpdated(ops.value(v), v.getValue))
     v.addChangeListener(l)
@@ -2638,6 +2664,7 @@ object ProgressBar extends VarsMap {
 
   def init(v: ProgressBar): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     Component.init(v)
+    
     v.addPropertyChangeListener(varsPropertyListener(v))
     val l: ChangeListener = (e: ChangeEvent | UncheckedNull) => summon[Scenegraph].update(summon[VarContext].swingPropertyUpdated(ops.value(v), v.getValue))
     v.addChangeListener(l)
