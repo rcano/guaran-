@@ -55,7 +55,7 @@ object Node extends VarsMap {
     def size = v.getSize
     def location(x: Int, y: Int) = v.setLocation(x, y)
     def requestFocus() = v.requestFocus()
-    def requestFocusInWindow() = v.asInstanceOf[java.awt.Container].requestFocusInWindow()
+    def requestFocusInWindow() = v.requestFocusInWindow()
     def size(x: Int, y: Int) = v.setSize(x, y)
     def children: Seq[Node] = (0 until v.getComponentCount).map(i => v.getComponent(i).asInstanceOf[Container])
     def unwrap: java.awt.Container = v
@@ -198,34 +198,34 @@ object Component extends VarsMap {
   
 }
 
-opaque type Window <: Node = java.awt.Window & Node
-object Window extends VarsMap {
-  val AlwaysOnTop: SwingVar.Aux[Window, Boolean] = SwingVar[Window, Boolean]("alwaysOnTop", _.isAlwaysOnTop, _.setAlwaysOnTop(_))
-  val AutoRequestFocus: SwingVar.Aux[Window, Boolean] = SwingVar[Window, Boolean]("autoRequestFocus", _.isAutoRequestFocus, _.setAutoRequestFocus(_))
-  val FocusCycleRoot: SwingVar.Aux[Window, Boolean] = SwingVar[Window, Boolean]("focusCycleRoot", _.isFocusCycleRoot, _.setFocusCycleRoot(_))
-  val FocusableWindowState: SwingVar.Aux[Window, Boolean] = SwingVar[Window, Boolean]("focusableWindowState", _.getFocusableWindowState, _.setFocusableWindowState(_))
-  val IconImages: SwingVar.Aux[Window, java.util.List[_ <: java.awt.Image] | Null] = SwingVar[Window, java.util.List[_ <: java.awt.Image] | Null]("iconImages", _.getIconImages, _.setIconImages(_))
-  val LocationByPlatform: SwingVar.Aux[Window, Boolean] = SwingVar[Window, Boolean]("locationByPlatform", _.isLocationByPlatform, _.setLocationByPlatform(_))
-  val ModalExclusionType: SwingVar.Aux[Window, java.awt.Dialog.ModalExclusionType] = SwingVar[Window, java.awt.Dialog.ModalExclusionType]("modalExclusionType", _.getModalExclusionType.nn, _.setModalExclusionType(_))
-  val Opacity: SwingVar.Aux[Window, Float] = SwingVar[Window, Float]("opacity", _.getOpacity, _.setOpacity(_))
-  val Root: SwingVar.Aux[Window, Node] = SwingVar[Window, Node]("root", c => Node(c.getComponent(0).asInstanceOf[Container]), (w, n) => w.add(n, 0))
-  val Shape: SwingVar.Aux[Window, java.awt.Shape | Null] = SwingVar[Window, java.awt.Shape | Null]("shape", _.getShape, _.setShape(_))
-  val Tpe: SwingVar.Aux[Window, java.awt.Window.Type] = SwingVar[Window, java.awt.Window.Type]("tpe", _.getType.nn, _.setType(_))
+opaque type WindowBase <: Node = java.awt.Window & Node
+object WindowBase extends VarsMap {
+  val AlwaysOnTop: SwingVar.Aux[WindowBase, Boolean] = SwingVar[WindowBase, Boolean]("alwaysOnTop", _.isAlwaysOnTop, _.setAlwaysOnTop(_))
+  val AutoRequestFocus: SwingVar.Aux[WindowBase, Boolean] = SwingVar[WindowBase, Boolean]("autoRequestFocus", _.isAutoRequestFocus, _.setAutoRequestFocus(_))
+  val FocusCycleRoot: SwingVar.Aux[WindowBase, Boolean] = SwingVar[WindowBase, Boolean]("focusCycleRoot", _.isFocusCycleRoot, _.setFocusCycleRoot(_))
+  val FocusableWindowState: SwingVar.Aux[WindowBase, Boolean] = SwingVar[WindowBase, Boolean]("focusableWindowState", _.getFocusableWindowState, _.setFocusableWindowState(_))
+  val IconImages: SwingVar.Aux[WindowBase, java.util.List[_ <: java.awt.Image] | Null] = SwingVar[WindowBase, java.util.List[_ <: java.awt.Image] | Null]("iconImages", _.getIconImages, _.setIconImages(_))
+  val LocationByPlatform: SwingVar.Aux[WindowBase, Boolean] = SwingVar[WindowBase, Boolean]("locationByPlatform", _.isLocationByPlatform, _.setLocationByPlatform(_))
+  val ModalExclusionType: SwingVar.Aux[WindowBase, java.awt.Dialog.ModalExclusionType] = SwingVar[WindowBase, java.awt.Dialog.ModalExclusionType]("modalExclusionType", _.getModalExclusionType.nn, _.setModalExclusionType(_))
+  val Opacity: SwingVar.Aux[WindowBase, Float] = SwingVar[WindowBase, Float]("opacity", _.getOpacity, _.setOpacity(_))
+  val Root: SwingVar.Aux[WindowBase, Node] = SwingVar[WindowBase, Node]("root", c => Node(c.getComponent(0).asInstanceOf[Container]), (w, n) => w.add(n, 0))
+  val Shape: SwingVar.Aux[WindowBase, java.awt.Shape | Null] = SwingVar[WindowBase, java.awt.Shape | Null]("shape", _.getShape, _.setShape(_))
+  val Tpe: SwingVar.Aux[WindowBase, java.awt.Window.Type] = SwingVar[WindowBase, java.awt.Window.Type]("tpe", _.getType.nn, _.setType(_))
 
   
 
-  extension ops on (v: Window) {
-    def alwaysOnTop: Var.Aux[Boolean, v.type] = Window.AlwaysOnTop.forInstance(v)
-    def autoRequestFocus: Var.Aux[Boolean, v.type] = Window.AutoRequestFocus.forInstance(v)
-    def focusCycleRoot: Var.Aux[Boolean, v.type] = Window.FocusCycleRoot.forInstance(v)
-    def focusableWindowState: Var.Aux[Boolean, v.type] = Window.FocusableWindowState.forInstance(v)
-    def iconImages: Var.Aux[java.util.List[_ <: java.awt.Image] | Null, v.type] = Window.IconImages.forInstance(v)
-    def locationByPlatform: Var.Aux[Boolean, v.type] = Window.LocationByPlatform.forInstance(v)
-    def modalExclusionType: Var.Aux[java.awt.Dialog.ModalExclusionType, v.type] = Window.ModalExclusionType.forInstance(v)
-    def opacity: Var.Aux[Float, v.type] = Window.Opacity.forInstance(v)
-    def root: Var.Aux[Node, v.type] = Window.Root.forInstance(v)
-    def shape: Var.Aux[java.awt.Shape | Null, v.type] = Window.Shape.forInstance(v)
-    def tpe: Var.Aux[java.awt.Window.Type, v.type] = Window.Tpe.forInstance(v)
+  extension ops on (v: WindowBase) {
+    def alwaysOnTop: Var.Aux[Boolean, v.type] = WindowBase.AlwaysOnTop.forInstance(v)
+    def autoRequestFocus: Var.Aux[Boolean, v.type] = WindowBase.AutoRequestFocus.forInstance(v)
+    def focusCycleRoot: Var.Aux[Boolean, v.type] = WindowBase.FocusCycleRoot.forInstance(v)
+    def focusableWindowState: Var.Aux[Boolean, v.type] = WindowBase.FocusableWindowState.forInstance(v)
+    def iconImages: Var.Aux[java.util.List[_ <: java.awt.Image] | Null, v.type] = WindowBase.IconImages.forInstance(v)
+    def locationByPlatform: Var.Aux[Boolean, v.type] = WindowBase.LocationByPlatform.forInstance(v)
+    def modalExclusionType: Var.Aux[java.awt.Dialog.ModalExclusionType, v.type] = WindowBase.ModalExclusionType.forInstance(v)
+    def opacity: Var.Aux[Float, v.type] = WindowBase.Opacity.forInstance(v)
+    def root: Var.Aux[Node, v.type] = WindowBase.Root.forInstance(v)
+    def shape: Var.Aux[java.awt.Shape | Null, v.type] = WindowBase.Shape.forInstance(v)
+    def tpe: Var.Aux[java.awt.Window.Type, v.type] = WindowBase.Tpe.forInstance(v)
 
     
 
@@ -256,17 +256,17 @@ object Window extends VarsMap {
     def unwrap: java.awt.Window = v
   }
 
-  def apply(v: java.awt.Window) = v.asInstanceOf[Window]
+  def apply(v: java.awt.Window) = v.asInstanceOf[WindowBase]
 
-  def init(v: Window): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
+  def init(v: WindowBase): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     Node.init(v)
     
     v.addPropertyChangeListener(varsPropertyListener(v))
     
     
   }
-  def uninitialized(parent: java.awt.Window | Null = null, gc: GraphicsConfiguration | Null = null): Window = {
-    val res = java.awt.Window(parent, gc).asInstanceOf[Window]
+  def uninitialized(parent: java.awt.Window | Null = null, gc: GraphicsConfiguration | Null = null): WindowBase = {
+    val res = java.awt.Window(parent, gc).asInstanceOf[WindowBase]
     
     res
   }
@@ -298,78 +298,70 @@ object Window extends VarsMap {
     shape: Opt[Binding[java.awt.Shape | Null]] = UnsetParam,
     tpe: Opt[Binding[java.awt.Window.Type]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): (given Scenegraph) => VarContextAction[Window] = {
+  ): (given Scenegraph) => VarContextAction[WindowBase] = {
     val res = uninitialized()
-    Window.init(res)
-    ifSet(alwaysOnTop, Window.ops.alwaysOnTop(res) := _)
-    ifSet(autoRequestFocus, Window.ops.autoRequestFocus(res) := _)
+    WindowBase.init(res)
+    ifSet(alwaysOnTop, WindowBase.ops.alwaysOnTop(res) := _)
+    ifSet(autoRequestFocus, WindowBase.ops.autoRequestFocus(res) := _)
     ifSet(background, Node.ops.background(res) := _)
     ifSet(bounds, Node.ops.bounds(res) := _)
     ifSet(componentOrientation, Node.ops.componentOrientation(res) := _)
     ifSet(cursor, Node.ops.cursor(res) := _)
     ifSet(enabled, Node.ops.enabled(res) := _)
-    ifSet(focusCycleRoot, Window.ops.focusCycleRoot(res) := _)
+    ifSet(focusCycleRoot, WindowBase.ops.focusCycleRoot(res) := _)
     ifSet(focusable, Node.ops.focusable(res) := _)
-    ifSet(focusableWindowState, Window.ops.focusableWindowState(res) := _)
+    ifSet(focusableWindowState, WindowBase.ops.focusableWindowState(res) := _)
     ifSet(focusedMut, Node.ops.focusedMut(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
-    ifSet(iconImages, Window.ops.iconImages(res) := _)
-    ifSet(locationByPlatform, Window.ops.locationByPlatform(res) := _)
+    ifSet(iconImages, WindowBase.ops.iconImages(res) := _)
+    ifSet(locationByPlatform, WindowBase.ops.locationByPlatform(res) := _)
     ifSet(maxSize, Node.ops.maxSize(res) := _)
     ifSet(minSize, Node.ops.minSize(res) := _)
-    ifSet(modalExclusionType, Window.ops.modalExclusionType(res) := _)
+    ifSet(modalExclusionType, WindowBase.ops.modalExclusionType(res) := _)
     ifSet(mouseLocationMut, Node.ops.mouseLocationMut(res) := _)
-    ifSet(opacity, Window.ops.opacity(res) := _)
+    ifSet(opacity, WindowBase.ops.opacity(res) := _)
     ifSet(prefSize, Node.ops.prefSize(res) := _)
-    ifSet(root, Window.ops.root(res) := _)
-    ifSet(shape, Window.ops.shape(res) := _)
-    ifSet(tpe, Window.ops.tpe(res) := _)
+    ifSet(root, WindowBase.ops.root(res) := _)
+    ifSet(shape, WindowBase.ops.shape(res) := _)
+    ifSet(tpe, WindowBase.ops.tpe(res) := _)
     ifSet(visible, Node.ops.visible(res) := _)
     res
   }
 }
 
-opaque type Frame <: Window = java.awt.Frame & Window
-object Frame extends VarsMap {
-  val ExtendedState: SwingVar.Aux[Frame, Int] = SwingVar[Frame, Int]("extendedState", _.getExtendedState, _.setExtendedState(_))
-  val IconImage: SwingVar.Aux[Frame, java.awt.Image | Null] = SwingVar[Frame, java.awt.Image | Null]("iconImage", _.getIconImage, _.setIconImage(_))
-  val MaximizedBounds: SwingVar.Aux[Frame, Bounds | Null] = SwingVar[Frame, Bounds | Null]("maximizedBounds", _.getMaximizedBounds, _.setMaximizedBounds(_))
-  val MenuBar: SwingVar.Aux[Frame, java.awt.MenuBar | Null] = SwingVar[Frame, java.awt.MenuBar | Null]("menuBar", _.getMenuBar, _.setMenuBar(_))
-  val Resizable: SwingVar.Aux[Frame, Boolean] = SwingVar[Frame, Boolean]("resizable", _.isResizable, _.setResizable(_))
-  val State: SwingVar.Aux[Frame, Int] = SwingVar[Frame, Int]("state", _.getState, _.setState(_))
-  val Title: SwingVar.Aux[Frame, java.lang.String | Null] = SwingVar[Frame, java.lang.String | Null]("title", _.getTitle, _.setTitle(_))
-  val Undecorated: SwingVar.Aux[Frame, Boolean] = SwingVar[Frame, Boolean]("undecorated", _.isUndecorated, _.setUndecorated(_))
+opaque type Window <: WindowBase = javax.swing.JWindow & WindowBase
+object Window extends VarsMap {
+  val ContentPane: SwingVar.Aux[Window, java.awt.Container] = SwingVar[Window, java.awt.Container]("contentPane", _.getContentPane().nn, _.setContentPane(_))
+  val GlassPane: SwingVar.Aux[Window, java.awt.Component | Null] = SwingVar[Window, java.awt.Component | Null]("glassPane", _.getGlassPane, _.setGlassPane(_))
+  val LayeredPane: SwingVar.Aux[Window, javax.swing.JLayeredPane | Null] = SwingVar[Window, javax.swing.JLayeredPane | Null]("layeredPane", _.getLayeredPane, _.setLayeredPane(_))
+  val TransferHandler: SwingVar.Aux[Window, javax.swing.TransferHandler | Null] = SwingVar[Window, javax.swing.TransferHandler | Null]("transferHandler", _.getTransferHandler, _.setTransferHandler(_))
 
   
 
-  extension ops on (v: Frame) {
-    def extendedState: Var.Aux[Int, v.type] = Frame.ExtendedState.forInstance(v)
-    def iconImage: Var.Aux[java.awt.Image | Null, v.type] = Frame.IconImage.forInstance(v)
-    def maximizedBounds: Var.Aux[Bounds | Null, v.type] = Frame.MaximizedBounds.forInstance(v)
-    def menuBar: Var.Aux[java.awt.MenuBar | Null, v.type] = Frame.MenuBar.forInstance(v)
-    def resizable: Var.Aux[Boolean, v.type] = Frame.Resizable.forInstance(v)
-    def state: Var.Aux[Int, v.type] = Frame.State.forInstance(v)
-    def title: Var.Aux[java.lang.String | Null, v.type] = Frame.Title.forInstance(v)
-    def undecorated: Var.Aux[Boolean, v.type] = Frame.Undecorated.forInstance(v)
+  extension ops on (v: Window) {
+    def contentPane: Var.Aux[java.awt.Container, v.type] = Window.ContentPane.forInstance(v)
+    def glassPane: Var.Aux[java.awt.Component | Null, v.type] = Window.GlassPane.forInstance(v)
+    def layeredPane: Var.Aux[javax.swing.JLayeredPane | Null, v.type] = Window.LayeredPane.forInstance(v)
+    def transferHandler: Var.Aux[javax.swing.TransferHandler | Null, v.type] = Window.TransferHandler.forInstance(v)
 
     
 
-    def cursorType = v.getCursorType
-    def unwrap: java.awt.Frame = v
+    def rootPane: JRootPane = v.getRootPane.nn
+    def unwrap: javax.swing.JWindow = v
   }
 
-  def apply(v: java.awt.Frame) = v.asInstanceOf[Frame]
+  def apply(v: javax.swing.JWindow) = v.asInstanceOf[Window]
 
-  def init(v: Frame): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
-    Window.init(v)
+  def init(v: Window): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
+    WindowBase.init(v)
     
     v.addPropertyChangeListener(varsPropertyListener(v))
     
     
   }
-  def uninitialized(gc: GraphicsConfiguration | Null = null): Frame = {
-    val res = java.awt.Frame(gc).asInstanceOf[Frame]
+  def uninitialized(gc: GraphicsConfiguration | Null = null): Window = {
+    val res = javax.swing.JWindow(gc).asInstanceOf[Window]
     
     res
   }
@@ -381,7 +373,130 @@ object Frame extends VarsMap {
     background: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     bounds: Opt[Binding[Bounds]] = UnsetParam,
     componentOrientation: Opt[Binding[java.awt.ComponentOrientation]] = UnsetParam,
+    contentPane: Opt[Binding[java.awt.Container]] = UnsetParam,
     cursor: Opt[Binding[java.awt.Cursor | Null]] = UnsetParam,
+    enabled: Opt[Binding[Boolean]] = UnsetParam,
+    focusCycleRoot: Opt[Binding[Boolean]] = UnsetParam,
+    focusable: Opt[Binding[Boolean]] = UnsetParam,
+    focusableWindowState: Opt[Binding[Boolean]] = UnsetParam,
+    focusedMut: Opt[Binding[Boolean]] = UnsetParam,
+    font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
+    foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
+    glassPane: Opt[Binding[java.awt.Component | Null]] = UnsetParam,
+    iconImages: Opt[Binding[java.util.List[_ <: java.awt.Image] | Null]] = UnsetParam,
+    layeredPane: Opt[Binding[javax.swing.JLayeredPane | Null]] = UnsetParam,
+    locationByPlatform: Opt[Binding[Boolean]] = UnsetParam,
+    maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
+    minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
+    modalExclusionType: Opt[Binding[java.awt.Dialog.ModalExclusionType]] = UnsetParam,
+    mouseLocationMut: Opt[Binding[(Int, Int)]] = UnsetParam,
+    opacity: Opt[Binding[Float]] = UnsetParam,
+    prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
+    root: Opt[Binding[Node]] = UnsetParam,
+    shape: Opt[Binding[java.awt.Shape | Null]] = UnsetParam,
+    tpe: Opt[Binding[java.awt.Window.Type]] = UnsetParam,
+    transferHandler: Opt[Binding[javax.swing.TransferHandler | Null]] = UnsetParam,
+    visible: Opt[Binding[Boolean]] = UnsetParam
+  ): (given Scenegraph) => VarContextAction[Window] = {
+    val res = uninitialized()
+    Window.init(res)
+    ifSet(alwaysOnTop, WindowBase.ops.alwaysOnTop(res) := _)
+    ifSet(autoRequestFocus, WindowBase.ops.autoRequestFocus(res) := _)
+    ifSet(background, Node.ops.background(res) := _)
+    ifSet(bounds, Node.ops.bounds(res) := _)
+    ifSet(componentOrientation, Node.ops.componentOrientation(res) := _)
+    ifSet(contentPane, Window.ops.contentPane(res) := _)
+    ifSet(cursor, Node.ops.cursor(res) := _)
+    ifSet(enabled, Node.ops.enabled(res) := _)
+    ifSet(focusCycleRoot, WindowBase.ops.focusCycleRoot(res) := _)
+    ifSet(focusable, Node.ops.focusable(res) := _)
+    ifSet(focusableWindowState, WindowBase.ops.focusableWindowState(res) := _)
+    ifSet(focusedMut, Node.ops.focusedMut(res) := _)
+    ifSet(font, Node.ops.font(res) := _)
+    ifSet(foreground, Node.ops.foreground(res) := _)
+    ifSet(glassPane, Window.ops.glassPane(res) := _)
+    ifSet(iconImages, WindowBase.ops.iconImages(res) := _)
+    ifSet(layeredPane, Window.ops.layeredPane(res) := _)
+    ifSet(locationByPlatform, WindowBase.ops.locationByPlatform(res) := _)
+    ifSet(maxSize, Node.ops.maxSize(res) := _)
+    ifSet(minSize, Node.ops.minSize(res) := _)
+    ifSet(modalExclusionType, WindowBase.ops.modalExclusionType(res) := _)
+    ifSet(mouseLocationMut, Node.ops.mouseLocationMut(res) := _)
+    ifSet(opacity, WindowBase.ops.opacity(res) := _)
+    ifSet(prefSize, Node.ops.prefSize(res) := _)
+    ifSet(root, WindowBase.ops.root(res) := _)
+    ifSet(shape, WindowBase.ops.shape(res) := _)
+    ifSet(tpe, WindowBase.ops.tpe(res) := _)
+    ifSet(transferHandler, Window.ops.transferHandler(res) := _)
+    ifSet(visible, Node.ops.visible(res) := _)
+    res
+  }
+}
+
+opaque type Frame <: WindowBase = javax.swing.JFrame & WindowBase
+object Frame extends VarsMap {
+  val ContentPane: SwingVar.Aux[Frame, java.awt.Container] = SwingVar[Frame, java.awt.Container]("contentPane", _.getContentPane().nn, _.setContentPane(_))
+  val DefaultCloseOperation: SwingVar.Aux[Frame, Int] = SwingVar[Frame, Int]("defaultCloseOperation", _.getDefaultCloseOperation, _.setDefaultCloseOperation(_))
+  val ExtendedState: SwingVar.Aux[Frame, Int] = SwingVar[Frame, Int]("extendedState", _.getExtendedState, _.setExtendedState(_))
+  val GlassPane: SwingVar.Aux[Frame, java.awt.Component | Null] = SwingVar[Frame, java.awt.Component | Null]("glassPane", _.getGlassPane, _.setGlassPane(_))
+  val IconImage: SwingVar.Aux[Frame, java.awt.Image | Null] = SwingVar[Frame, java.awt.Image | Null]("iconImage", _.getIconImage, _.setIconImage(_))
+  val LayeredPane: SwingVar.Aux[Frame, javax.swing.JLayeredPane | Null] = SwingVar[Frame, javax.swing.JLayeredPane | Null]("layeredPane", _.getLayeredPane, _.setLayeredPane(_))
+  val MaximizedBounds: SwingVar.Aux[Frame, Bounds | Null] = SwingVar[Frame, Bounds | Null]("maximizedBounds", _.getMaximizedBounds, _.setMaximizedBounds(_))
+  val MenuBar: SwingVar.Aux[Frame, javax.swing.JMenuBar | Null] = SwingVar[Frame, javax.swing.JMenuBar | Null]("menuBar", _.getJMenuBar, _.setJMenuBar(_))
+  val Resizable: SwingVar.Aux[Frame, Boolean] = SwingVar[Frame, Boolean]("resizable", _.isResizable, _.setResizable(_))
+  val State: SwingVar.Aux[Frame, Int] = SwingVar[Frame, Int]("state", _.getState, _.setState(_))
+  val Title: SwingVar.Aux[Frame, java.lang.String | Null] = SwingVar[Frame, java.lang.String | Null]("title", _.getTitle, _.setTitle(_))
+  val TransferHandler: SwingVar.Aux[Frame, javax.swing.TransferHandler | Null] = SwingVar[Frame, javax.swing.TransferHandler | Null]("transferHandler", _.getTransferHandler, _.setTransferHandler(_))
+  val Undecorated: SwingVar.Aux[Frame, Boolean] = SwingVar[Frame, Boolean]("undecorated", _.isUndecorated, _.setUndecorated(_))
+
+  
+
+  extension ops on (v: Frame) {
+    def contentPane: Var.Aux[java.awt.Container, v.type] = Frame.ContentPane.forInstance(v)
+    def defaultCloseOperation: Var.Aux[Int, v.type] = Frame.DefaultCloseOperation.forInstance(v)
+    def extendedState: Var.Aux[Int, v.type] = Frame.ExtendedState.forInstance(v)
+    def glassPane: Var.Aux[java.awt.Component | Null, v.type] = Frame.GlassPane.forInstance(v)
+    def iconImage: Var.Aux[java.awt.Image | Null, v.type] = Frame.IconImage.forInstance(v)
+    def layeredPane: Var.Aux[javax.swing.JLayeredPane | Null, v.type] = Frame.LayeredPane.forInstance(v)
+    def maximizedBounds: Var.Aux[Bounds | Null, v.type] = Frame.MaximizedBounds.forInstance(v)
+    def menuBar: Var.Aux[javax.swing.JMenuBar | Null, v.type] = Frame.MenuBar.forInstance(v)
+    def resizable: Var.Aux[Boolean, v.type] = Frame.Resizable.forInstance(v)
+    def state: Var.Aux[Int, v.type] = Frame.State.forInstance(v)
+    def title: Var.Aux[java.lang.String | Null, v.type] = Frame.Title.forInstance(v)
+    def transferHandler: Var.Aux[javax.swing.TransferHandler | Null, v.type] = Frame.TransferHandler.forInstance(v)
+    def undecorated: Var.Aux[Boolean, v.type] = Frame.Undecorated.forInstance(v)
+
+    
+
+    def rootPane: JRootPane = v.getRootPane.nn
+    def unwrap: javax.swing.JFrame = v
+  }
+
+  def apply(v: javax.swing.JFrame) = v.asInstanceOf[Frame]
+
+  def init(v: Frame): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
+    WindowBase.init(v)
+    
+    v.addPropertyChangeListener(varsPropertyListener(v))
+    
+    
+  }
+  def uninitialized(gc: GraphicsConfiguration | Null = null): Frame = {
+    val res = javax.swing.JFrame(gc).asInstanceOf[Frame]
+    
+    res
+  }
+  
+  def apply(
+    gc: GraphicsConfiguration | Null = null,
+    alwaysOnTop: Opt[Binding[Boolean]] = UnsetParam,
+    autoRequestFocus: Opt[Binding[Boolean]] = UnsetParam,
+    background: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
+    bounds: Opt[Binding[Bounds]] = UnsetParam,
+    componentOrientation: Opt[Binding[java.awt.ComponentOrientation]] = UnsetParam,
+    contentPane: Opt[Binding[java.awt.Container]] = UnsetParam,
+    cursor: Opt[Binding[java.awt.Cursor | Null]] = UnsetParam,
+    defaultCloseOperation: Opt[Binding[Int]] = UnsetParam,
     enabled: Opt[Binding[Boolean]] = UnsetParam,
     extendedState: Opt[Binding[Int]] = UnsetParam,
     focusCycleRoot: Opt[Binding[Boolean]] = UnsetParam,
@@ -390,12 +505,14 @@ object Frame extends VarsMap {
     focusedMut: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
+    glassPane: Opt[Binding[java.awt.Component | Null]] = UnsetParam,
     iconImage: Opt[Binding[java.awt.Image | Null]] = UnsetParam,
     iconImages: Opt[Binding[java.util.List[_ <: java.awt.Image] | Null]] = UnsetParam,
+    layeredPane: Opt[Binding[javax.swing.JLayeredPane | Null]] = UnsetParam,
     locationByPlatform: Opt[Binding[Boolean]] = UnsetParam,
     maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     maximizedBounds: Opt[Binding[Bounds | Null]] = UnsetParam,
-    menuBar: Opt[Binding[java.awt.MenuBar | Null]] = UnsetParam,
+    menuBar: Opt[Binding[javax.swing.JMenuBar | Null]] = UnsetParam,
     minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     modalExclusionType: Opt[Binding[java.awt.Dialog.ModalExclusionType]] = UnsetParam,
     mouseLocationMut: Opt[Binding[(Int, Int)]] = UnsetParam,
@@ -407,42 +524,48 @@ object Frame extends VarsMap {
     state: Opt[Binding[Int]] = UnsetParam,
     title: Opt[Binding[java.lang.String | Null]] = UnsetParam,
     tpe: Opt[Binding[java.awt.Window.Type]] = UnsetParam,
+    transferHandler: Opt[Binding[javax.swing.TransferHandler | Null]] = UnsetParam,
     undecorated: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): (given Scenegraph) => VarContextAction[Frame] = {
     val res = uninitialized()
     Frame.init(res)
-    ifSet(alwaysOnTop, Window.ops.alwaysOnTop(res) := _)
-    ifSet(autoRequestFocus, Window.ops.autoRequestFocus(res) := _)
+    ifSet(alwaysOnTop, WindowBase.ops.alwaysOnTop(res) := _)
+    ifSet(autoRequestFocus, WindowBase.ops.autoRequestFocus(res) := _)
     ifSet(background, Node.ops.background(res) := _)
     ifSet(bounds, Node.ops.bounds(res) := _)
     ifSet(componentOrientation, Node.ops.componentOrientation(res) := _)
+    ifSet(contentPane, Frame.ops.contentPane(res) := _)
     ifSet(cursor, Node.ops.cursor(res) := _)
+    ifSet(defaultCloseOperation, Frame.ops.defaultCloseOperation(res) := _)
     ifSet(enabled, Node.ops.enabled(res) := _)
     ifSet(extendedState, Frame.ops.extendedState(res) := _)
-    ifSet(focusCycleRoot, Window.ops.focusCycleRoot(res) := _)
+    ifSet(focusCycleRoot, WindowBase.ops.focusCycleRoot(res) := _)
     ifSet(focusable, Node.ops.focusable(res) := _)
-    ifSet(focusableWindowState, Window.ops.focusableWindowState(res) := _)
+    ifSet(focusableWindowState, WindowBase.ops.focusableWindowState(res) := _)
     ifSet(focusedMut, Node.ops.focusedMut(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
+    ifSet(glassPane, Frame.ops.glassPane(res) := _)
     ifSet(iconImage, Frame.ops.iconImage(res) := _)
-    ifSet(iconImages, Window.ops.iconImages(res) := _)
-    ifSet(locationByPlatform, Window.ops.locationByPlatform(res) := _)
+    ifSet(iconImages, WindowBase.ops.iconImages(res) := _)
+    ifSet(layeredPane, Frame.ops.layeredPane(res) := _)
+    ifSet(locationByPlatform, WindowBase.ops.locationByPlatform(res) := _)
     ifSet(maxSize, Node.ops.maxSize(res) := _)
     ifSet(maximizedBounds, Frame.ops.maximizedBounds(res) := _)
     ifSet(menuBar, Frame.ops.menuBar(res) := _)
     ifSet(minSize, Node.ops.minSize(res) := _)
-    ifSet(modalExclusionType, Window.ops.modalExclusionType(res) := _)
+    ifSet(modalExclusionType, WindowBase.ops.modalExclusionType(res) := _)
     ifSet(mouseLocationMut, Node.ops.mouseLocationMut(res) := _)
-    ifSet(opacity, Window.ops.opacity(res) := _)
+    ifSet(opacity, WindowBase.ops.opacity(res) := _)
     ifSet(prefSize, Node.ops.prefSize(res) := _)
     ifSet(resizable, Frame.ops.resizable(res) := _)
-    ifSet(root, Window.ops.root(res) := _)
-    ifSet(shape, Window.ops.shape(res) := _)
+    ifSet(root, WindowBase.ops.root(res) := _)
+    ifSet(shape, WindowBase.ops.shape(res) := _)
     ifSet(state, Frame.ops.state(res) := _)
     ifSet(title, Frame.ops.title(res) := _)
-    ifSet(tpe, Window.ops.tpe(res) := _)
+    ifSet(tpe, WindowBase.ops.tpe(res) := _)
+    ifSet(transferHandler, Frame.ops.transferHandler(res) := _)
     ifSet(undecorated, Frame.ops.undecorated(res) := _)
     ifSet(visible, Node.ops.visible(res) := _)
     res

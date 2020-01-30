@@ -64,9 +64,6 @@ import scala.util.chaining._
   // javax.swing.UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel")
   // plaf.CssSynthLaf.install()
 
-  val a: java.awt.Container = ???
-  a.requestFocusInWindow()
-
   scenegraph.update {
 
     val userTf = TextField(columns = 5)

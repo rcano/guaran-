@@ -82,7 +82,7 @@ case object Node extends NodeDescr(
     |def size = v.getSize
     |def location(x: Int, y: Int) = v.setLocation(x, y)
     |def requestFocus() = v.requestFocus()
-    |def requestFocusInWindow() = v.asInstanceOf[java.awt.Container].requestFocusInWindow​()
+    |def requestFocusInWindow() = v.requestFocusInWindow()
     |def size(x: Int, y: Int) = v.setSize(x, y)
     |def children: Seq[Node] = (0 until v.getComponentCount).map(i => v.getComponent(i).asInstanceOf[Container])
     """.stripMargin.trim.split("\n").asInstanceOf[Array[String]].toIndexedSeq,
@@ -146,8 +146,8 @@ case object Component extends NodeDescr(
   isAbstract = true,
 )
 
-case object Window extends NodeDescr(
-  "Window",
+case object WindowBase extends NodeDescr(
+  "WindowBase",
   "java.awt.Window",
   parents = Seq(Node),
   props = Seq(
@@ -192,22 +192,43 @@ case object Window extends NodeDescr(
   uninitExtraParams = Seq("parent" -> "java.awt.Window | Null = null", "gc" -> "GraphicsConfiguration | Null = null"),
 )
 
+case object Window extends NodeDescr(
+  "Window",
+  "javax.swing.JWindow",
+  parents = Seq(WindowBase),
+  props = Seq(
+    SwingProp("contentPane", "java.awt.Container", "_.getContentPane().nn", "_.setContentPane(_)"),
+    SwingProp("glassPane", "java.awt.Component | Null"),
+    SwingProp("layeredPane", "javax.swing.JLayeredPane | Null"),
+    SwingProp("transferHandler", "javax.swing.TransferHandler | Null"),
+  ),
+  opsExtra = Seq(
+    "def rootPane: JRootPane = v.getRootPane.nn"
+  ),
+  uninitExtraParams = Seq("gc" -> "GraphicsConfiguration | Null = null"),
+)
+
 case object Frame extends NodeDescr(
   "Frame",
-  "java.awt.Frame",
-  parents = Seq(Window),
+  "javax.swing.JFrame",
+  parents = Seq(WindowBase),
   props = Seq(
     SwingProp("extendedState", "Int"),
     SwingProp("iconImage", "java.awt.Image | Null"),
     SwingProp("maximizedBounds", "Bounds | Null"),
-    SwingProp("menuBar", "java.awt.MenuBar | Null"),
     SwingProp("resizable", "Boolean"),
     SwingProp("state", "Int"),
     SwingProp("title", "java.lang.String | Null"),
     SwingProp("undecorated", "Boolean"),
+    SwingProp("menuBar", "javax.swing.JMenuBar | Null", "_.getJMenuBar", "_.setJMenuBar(_)"),
+    SwingProp("contentPane", "java.awt.Container", "_.getContentPane().nn", "_.setContentPane(_)"),
+    SwingProp("defaultCloseOperation", "Int"),
+    SwingProp("glassPane", "java.awt.Component | Null"),
+    SwingProp("layeredPane", "javax.swing.JLayeredPane | Null"),
+    SwingProp("transferHandler", "javax.swing.TransferHandler | Null"),
   ),
   opsExtra = Seq(
-    "def cursorType = v.getCursorType"
+    "def rootPane: JRootPane = v.getRootPane.nn"
   ),
   uninitExtraParams = Seq("gc" -> "GraphicsConfiguration | Null = null"),
 )
@@ -614,9 +635,13 @@ def genCode(n: NodeDescr): String = {
     case VarProp(name, tpe, initValue, _) => s"""val ${name.capitalize}: Var[$tpe] = Var[$tpe]("$name", $initValue)"""
   })
 
+  val seenVars = collection.mutable.Set.empty[String]
   val allVars: Vector[(NodeDescr, Property)] = Iterator.unfold(Seq(n)) {
     case Seq() => None
-    case parents => Some(parents.flatMap(p => p.props.map(p -> _)) -> parents.flatMap(_.parents))
+    case parents => 
+      val allParentVars = parents.flatMap(p => p.props.filterNot(prop => seenVars(prop.name)).map(p -> _))
+      seenVars ++= allParentVars.map(_._2.name)
+      Some(allParentVars -> parents.flatMap(_.parents))
   }.flatten.toVector.sortBy(_._2.name)
 
   val initializers = if (!n.isAbstract) 
@@ -695,6 +720,7 @@ def genCode(n: NodeDescr): String = {
   for (node <- Seq(
     Node,
     Component,
+    WindowBase,
     Window,
     Frame,
     Pane,
