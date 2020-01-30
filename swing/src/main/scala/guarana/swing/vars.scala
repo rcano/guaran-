@@ -126,7 +126,10 @@ trait SwingVar[T] extends Var[T] with SwingObsVal[T] {
 }
 
 object SwingVar {
-  def apply[N <: Node, T](varName: => String, getter: N => T, setter: (N, T) => Unit): SwingVar[T] = new SwingVar[T] {
+  type Aux[N <: Node, T] = SwingVar[T] {
+    type ForInstance <: N & Singleton
+  }
+  def apply[N <: Node, T](varName: => String, getter: N => T, setter: (N, T) => Unit): Aux[N, T] = new SwingVar[T] {
     lazy val name = varName
     type ForInstance <: N & Singleton
     def get(n: ForInstance) = getter(n)

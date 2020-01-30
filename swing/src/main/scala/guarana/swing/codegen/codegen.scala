@@ -82,7 +82,7 @@ case object Node extends NodeDescr(
     |def size = v.getSize
     |def location(x: Int, y: Int) = v.setLocation(x, y)
     |def requestFocus() = v.requestFocus()
-    |def requestFocusInWindow() = v.requestFocusInWindow​()
+    |def requestFocusInWindow() = v.asInstanceOf[java.awt.Container].requestFocusInWindow​()
     |def size(x: Int, y: Int) = v.setSize(x, y)
     |def children: Seq[Node] = (0 until v.getComponentCount).map(i => v.getComponent(i).asInstanceOf[Container])
     """.stripMargin.trim.split("\n").asInstanceOf[Array[String]].toIndexedSeq,
@@ -610,8 +610,8 @@ case object ProgressBar extends NodeDescr(
 ////////////////////////////////////////////////////////////////////////////
 def genCode(n: NodeDescr): String = {
   def propDecl(p: Property) = p.visibility.map(s => s + " ").getOrElse("") + (p match {
-    case SwingProp(name, tpe, getter, setter, _) => s"""val ${name.capitalize} = SwingVar[${n.name}, $tpe]("$name", $getter, $setter)"""
-    case VarProp(name, tpe, initValue, _) => s"""val ${name.capitalize} = Var[$tpe]("$name", $initValue)"""
+    case SwingProp(name, tpe, getter, setter, _) => s"""val ${name.capitalize}: SwingVar.Aux[${n.name}, $tpe] = SwingVar[${n.name}, $tpe]("$name", $getter, $setter)"""
+    case VarProp(name, tpe, initValue, _) => s"""val ${name.capitalize}: Var[$tpe] = Var[$tpe]("$name", $initValue)"""
   })
 
   val allVars: Vector[(NodeDescr, Property)] = Iterator.unfold(Seq(n)) {
@@ -649,9 +649,9 @@ def genCode(n: NodeDescr): String = {
      |  ${sortedEmitters.map(e => s"val ${e.name.capitalize} = Emitter[${e.tpe}]()").mkString("\n  ")}
      |
      |  extension ops on (v: ${n.name}) {
-     |    ${sortedProps.map(p => s"def ${p.name} = ${n.name}.${p.name.capitalize}.forInstance(v)").mkString("\n    ")}
+     |    ${sortedProps.map(p => s"def ${p.name}: Var.Aux[${p.tpe}, v.type] = ${n.name}.${p.name.capitalize}.forInstance(v)").mkString("\n    ")}
 
-     |    ${sortedEmitters.map(e => s"def ${e.name} = ${n.name}.${e.name.capitalize}.forInstance(v)").mkString("\n    ")}
+     |    ${sortedEmitters.map(e => s"def ${e.name}: Emitter.Aux[${e.tpe}, v.type] = ${n.name}.${e.name.capitalize}.forInstance(v)").mkString("\n    ")}
 
      |    ${n.opsExtra.mkString("\n    ")}
      |    def unwrap: ${n.underlying} = v

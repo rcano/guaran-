@@ -11,40 +11,40 @@ import scala.util.chaining._
 
 opaque type Node  = java.awt.Container
 object Node extends VarsMap {
-  val Background = SwingVar[Node, java.awt.Color | Null]("background", _.getBackground, _.setBackground(_))
-  val Bounds = SwingVar[Node, Bounds]("bounds", _.getBounds.nn, _.setBounds(_))
-  val ComponentOrientation = SwingVar[Node, java.awt.ComponentOrientation]("componentOrientation", _.getComponentOrientation.nn, _.setComponentOrientation(_))
-  val Cursor = SwingVar[Node, java.awt.Cursor | Null]("cursor", _.getCursor, _.setCursor(_))
-  val Enabled = SwingVar[Node, Boolean]("enabled", _.isEnabled, _.setEnabled(_))
-  val Focusable = SwingVar[Node, Boolean]("focusable", _.isFocusable, _.setFocusable(_))
-  private val FocusedMut = Var[Boolean]("focusedMut", false)
-  val Font = SwingVar[Node, java.awt.Font | Null]("font", _.getFont, _.setFont(_))
-  val Foreground = SwingVar[Node, java.awt.Color | Null]("foreground", _.getForeground, _.setForeground(_))
-  val MaxSize = SwingVar[Node, (Double, Double) | Null]("maxSize", {n => val d = n.getMaximumSize; if (d != null) (d.getWidth, d.getHeight) else null}, {(n, d) => n.setMaximumSize(if (d == null) null else java.awt.Dimension(d._1.toInt, d._2.toInt))})
-  val MinSize = SwingVar[Node, (Double, Double) | Null]("minSize", {n => val d = n.getMinimumSize; if (d != null) (d.getWidth, d.getHeight) else null}, {(n, d) => n.setMinimumSize(if (d == null) null else java.awt.Dimension(d._1.toInt, d._2.toInt))})
-  private val MouseLocationMut = Var[(Int, Int)]("mouseLocationMut", (0, 0))
-  val PrefSize = SwingVar[Node, (Double, Double) | Null]("prefSize", {n => val d = n.getPreferredSize; if (d != null) (d.getWidth, d.getHeight) else null}, {(n, d) => n.setPreferredSize(if (d == null) null else java.awt.Dimension(d._1.toInt, d._2.toInt))})
-  val Visible = SwingVar[Node, Boolean]("visible", _.isVisible, _.setVisible(_))
+  val Background: SwingVar.Aux[Node, java.awt.Color | Null] = SwingVar[Node, java.awt.Color | Null]("background", _.getBackground, _.setBackground(_))
+  val Bounds: SwingVar.Aux[Node, Bounds] = SwingVar[Node, Bounds]("bounds", _.getBounds.nn, _.setBounds(_))
+  val ComponentOrientation: SwingVar.Aux[Node, java.awt.ComponentOrientation] = SwingVar[Node, java.awt.ComponentOrientation]("componentOrientation", _.getComponentOrientation.nn, _.setComponentOrientation(_))
+  val Cursor: SwingVar.Aux[Node, java.awt.Cursor | Null] = SwingVar[Node, java.awt.Cursor | Null]("cursor", _.getCursor, _.setCursor(_))
+  val Enabled: SwingVar.Aux[Node, Boolean] = SwingVar[Node, Boolean]("enabled", _.isEnabled, _.setEnabled(_))
+  val Focusable: SwingVar.Aux[Node, Boolean] = SwingVar[Node, Boolean]("focusable", _.isFocusable, _.setFocusable(_))
+  private val FocusedMut: Var[Boolean] = Var[Boolean]("focusedMut", false)
+  val Font: SwingVar.Aux[Node, java.awt.Font | Null] = SwingVar[Node, java.awt.Font | Null]("font", _.getFont, _.setFont(_))
+  val Foreground: SwingVar.Aux[Node, java.awt.Color | Null] = SwingVar[Node, java.awt.Color | Null]("foreground", _.getForeground, _.setForeground(_))
+  val MaxSize: SwingVar.Aux[Node, (Double, Double) | Null] = SwingVar[Node, (Double, Double) | Null]("maxSize", {n => val d = n.getMaximumSize; if (d != null) (d.getWidth, d.getHeight) else null}, {(n, d) => n.setMaximumSize(if (d == null) null else java.awt.Dimension(d._1.toInt, d._2.toInt))})
+  val MinSize: SwingVar.Aux[Node, (Double, Double) | Null] = SwingVar[Node, (Double, Double) | Null]("minSize", {n => val d = n.getMinimumSize; if (d != null) (d.getWidth, d.getHeight) else null}, {(n, d) => n.setMinimumSize(if (d == null) null else java.awt.Dimension(d._1.toInt, d._2.toInt))})
+  private val MouseLocationMut: Var[(Int, Int)] = Var[(Int, Int)]("mouseLocationMut", (0, 0))
+  val PrefSize: SwingVar.Aux[Node, (Double, Double) | Null] = SwingVar[Node, (Double, Double) | Null]("prefSize", {n => val d = n.getPreferredSize; if (d != null) (d.getWidth, d.getHeight) else null}, {(n, d) => n.setPreferredSize(if (d == null) null else java.awt.Dimension(d._1.toInt, d._2.toInt))})
+  val Visible: SwingVar.Aux[Node, Boolean] = SwingVar[Node, Boolean]("visible", _.isVisible, _.setVisible(_))
 
   val FocusEvents = Emitter[(FocusEvent, Boolean)]()
 
   extension ops on (v: Node) {
-    def background = Node.Background.forInstance(v)
-    def bounds = Node.Bounds.forInstance(v)
-    def componentOrientation = Node.ComponentOrientation.forInstance(v)
-    def cursor = Node.Cursor.forInstance(v)
-    def enabled = Node.Enabled.forInstance(v)
-    def focusable = Node.Focusable.forInstance(v)
-    def focusedMut = Node.FocusedMut.forInstance(v)
-    def font = Node.Font.forInstance(v)
-    def foreground = Node.Foreground.forInstance(v)
-    def maxSize = Node.MaxSize.forInstance(v)
-    def minSize = Node.MinSize.forInstance(v)
-    def mouseLocationMut = Node.MouseLocationMut.forInstance(v)
-    def prefSize = Node.PrefSize.forInstance(v)
-    def visible = Node.Visible.forInstance(v)
+    def background: Var.Aux[java.awt.Color | Null, v.type] = Node.Background.forInstance(v)
+    def bounds: Var.Aux[Bounds, v.type] = Node.Bounds.forInstance(v)
+    def componentOrientation: Var.Aux[java.awt.ComponentOrientation, v.type] = Node.ComponentOrientation.forInstance(v)
+    def cursor: Var.Aux[java.awt.Cursor | Null, v.type] = Node.Cursor.forInstance(v)
+    def enabled: Var.Aux[Boolean, v.type] = Node.Enabled.forInstance(v)
+    def focusable: Var.Aux[Boolean, v.type] = Node.Focusable.forInstance(v)
+    def focusedMut: Var.Aux[Boolean, v.type] = Node.FocusedMut.forInstance(v)
+    def font: Var.Aux[java.awt.Font | Null, v.type] = Node.Font.forInstance(v)
+    def foreground: Var.Aux[java.awt.Color | Null, v.type] = Node.Foreground.forInstance(v)
+    def maxSize: Var.Aux[(Double, Double) | Null, v.type] = Node.MaxSize.forInstance(v)
+    def minSize: Var.Aux[(Double, Double) | Null, v.type] = Node.MinSize.forInstance(v)
+    def mouseLocationMut: Var.Aux[(Int, Int), v.type] = Node.MouseLocationMut.forInstance(v)
+    def prefSize: Var.Aux[(Double, Double) | Null, v.type] = Node.PrefSize.forInstance(v)
+    def visible: Var.Aux[Boolean, v.type] = Node.Visible.forInstance(v)
 
-    def focusEvents = Node.FocusEvents.forInstance(v)
+    def focusEvents: Emitter.Aux[(FocusEvent, Boolean), v.type] = Node.FocusEvents.forInstance(v)
 
     def focused = Node.FocusedMut.asObsValIn(v)
     def mouseLocation = Node.MouseLocationMut.asObsValIn(v)
@@ -55,6 +55,7 @@ object Node extends VarsMap {
     def size = v.getSize
     def location(x: Int, y: Int) = v.setLocation(x, y)
     def requestFocus() = v.requestFocus()
+    def requestFocusInWindow() = v.asInstanceOf[java.awt.Container].requestFocusInWindow()
     def size(x: Int, y: Int) = v.setSize(x, y)
     def children: Seq[Node] = (0 until v.getComponentCount).map(i => v.getComponent(i).asInstanceOf[Container])
     def unwrap: java.awt.Container = v
@@ -133,40 +134,40 @@ object Node extends VarsMap {
 
 opaque type Component <: Node = javax.swing.JComponent & Node
 object Component extends VarsMap {
-  val ActionMap = SwingVar[Component, javax.swing.ActionMap]("actionMap", _.getActionMap.nn, _.setActionMap(_))
-  val AlignmentX = SwingVar[Component, Float]("alignmentX", _.getAlignmentX, _.setAlignmentX(_))
-  val AlignmentY = SwingVar[Component, Float]("alignmentY", _.getAlignmentY, _.setAlignmentY(_))
-  val Autoscrolls = SwingVar[Component, Boolean]("autoscrolls", _.getAutoscrolls, _.setAutoscrolls(_))
-  val Border = SwingVar[Component, javax.swing.border.Border | Null]("border", _.getBorder, _.setBorder(_))
-  val ComponentPopupMenu = SwingVar[Component, javax.swing.JPopupMenu | Null]("componentPopupMenu", _.getComponentPopupMenu, _.setComponentPopupMenu(_))
-  val DebugGraphicsOptions = SwingVar[Component, Int]("debugGraphicsOptions", _.getDebugGraphicsOptions, _.setDebugGraphicsOptions(_))
-  val DoubleBuffered = SwingVar[Component, Boolean]("doubleBuffered", _.isDoubleBuffered, _.setDoubleBuffered(_))
-  val InheritsPopupMenu = SwingVar[Component, Boolean]("inheritsPopupMenu", _.getInheritsPopupMenu, _.setInheritsPopupMenu(_))
-  val InputVerifier = SwingVar[Component, javax.swing.InputVerifier | Null]("inputVerifier", _.getInputVerifier, _.setInputVerifier(_))
-  val Opaque = SwingVar[Component, Boolean]("opaque", _.isOpaque, _.setOpaque(_))
-  val RequestFocusEnabled = SwingVar[Component, Boolean]("requestFocusEnabled", _.isRequestFocusEnabled, _.setRequestFocusEnabled(_))
-  val ToolTipText = SwingVar[Component, String | Null]("toolTipText", _.getToolTipText, _.setToolTipText(_))
-  val TransferHandler = SwingVar[Component, javax.swing.TransferHandler | Null]("transferHandler", _.getTransferHandler, _.setTransferHandler(_))
-  val VerifyInputWhenFocusTarget = SwingVar[Component, Boolean]("verifyInputWhenFocusTarget", _.getVerifyInputWhenFocusTarget, _.setVerifyInputWhenFocusTarget(_))
+  val ActionMap: SwingVar.Aux[Component, javax.swing.ActionMap] = SwingVar[Component, javax.swing.ActionMap]("actionMap", _.getActionMap.nn, _.setActionMap(_))
+  val AlignmentX: SwingVar.Aux[Component, Float] = SwingVar[Component, Float]("alignmentX", _.getAlignmentX, _.setAlignmentX(_))
+  val AlignmentY: SwingVar.Aux[Component, Float] = SwingVar[Component, Float]("alignmentY", _.getAlignmentY, _.setAlignmentY(_))
+  val Autoscrolls: SwingVar.Aux[Component, Boolean] = SwingVar[Component, Boolean]("autoscrolls", _.getAutoscrolls, _.setAutoscrolls(_))
+  val Border: SwingVar.Aux[Component, javax.swing.border.Border | Null] = SwingVar[Component, javax.swing.border.Border | Null]("border", _.getBorder, _.setBorder(_))
+  val ComponentPopupMenu: SwingVar.Aux[Component, javax.swing.JPopupMenu | Null] = SwingVar[Component, javax.swing.JPopupMenu | Null]("componentPopupMenu", _.getComponentPopupMenu, _.setComponentPopupMenu(_))
+  val DebugGraphicsOptions: SwingVar.Aux[Component, Int] = SwingVar[Component, Int]("debugGraphicsOptions", _.getDebugGraphicsOptions, _.setDebugGraphicsOptions(_))
+  val DoubleBuffered: SwingVar.Aux[Component, Boolean] = SwingVar[Component, Boolean]("doubleBuffered", _.isDoubleBuffered, _.setDoubleBuffered(_))
+  val InheritsPopupMenu: SwingVar.Aux[Component, Boolean] = SwingVar[Component, Boolean]("inheritsPopupMenu", _.getInheritsPopupMenu, _.setInheritsPopupMenu(_))
+  val InputVerifier: SwingVar.Aux[Component, javax.swing.InputVerifier | Null] = SwingVar[Component, javax.swing.InputVerifier | Null]("inputVerifier", _.getInputVerifier, _.setInputVerifier(_))
+  val Opaque: SwingVar.Aux[Component, Boolean] = SwingVar[Component, Boolean]("opaque", _.isOpaque, _.setOpaque(_))
+  val RequestFocusEnabled: SwingVar.Aux[Component, Boolean] = SwingVar[Component, Boolean]("requestFocusEnabled", _.isRequestFocusEnabled, _.setRequestFocusEnabled(_))
+  val ToolTipText: SwingVar.Aux[Component, String | Null] = SwingVar[Component, String | Null]("toolTipText", _.getToolTipText, _.setToolTipText(_))
+  val TransferHandler: SwingVar.Aux[Component, javax.swing.TransferHandler | Null] = SwingVar[Component, javax.swing.TransferHandler | Null]("transferHandler", _.getTransferHandler, _.setTransferHandler(_))
+  val VerifyInputWhenFocusTarget: SwingVar.Aux[Component, Boolean] = SwingVar[Component, Boolean]("verifyInputWhenFocusTarget", _.getVerifyInputWhenFocusTarget, _.setVerifyInputWhenFocusTarget(_))
 
   
 
   extension ops on (v: Component) {
-    def actionMap = Component.ActionMap.forInstance(v)
-    def alignmentX = Component.AlignmentX.forInstance(v)
-    def alignmentY = Component.AlignmentY.forInstance(v)
-    def autoscrolls = Component.Autoscrolls.forInstance(v)
-    def border = Component.Border.forInstance(v)
-    def componentPopupMenu = Component.ComponentPopupMenu.forInstance(v)
-    def debugGraphicsOptions = Component.DebugGraphicsOptions.forInstance(v)
-    def doubleBuffered = Component.DoubleBuffered.forInstance(v)
-    def inheritsPopupMenu = Component.InheritsPopupMenu.forInstance(v)
-    def inputVerifier = Component.InputVerifier.forInstance(v)
-    def opaque = Component.Opaque.forInstance(v)
-    def requestFocusEnabled = Component.RequestFocusEnabled.forInstance(v)
-    def toolTipText = Component.ToolTipText.forInstance(v)
-    def transferHandler = Component.TransferHandler.forInstance(v)
-    def verifyInputWhenFocusTarget = Component.VerifyInputWhenFocusTarget.forInstance(v)
+    def actionMap: Var.Aux[javax.swing.ActionMap, v.type] = Component.ActionMap.forInstance(v)
+    def alignmentX: Var.Aux[Float, v.type] = Component.AlignmentX.forInstance(v)
+    def alignmentY: Var.Aux[Float, v.type] = Component.AlignmentY.forInstance(v)
+    def autoscrolls: Var.Aux[Boolean, v.type] = Component.Autoscrolls.forInstance(v)
+    def border: Var.Aux[javax.swing.border.Border | Null, v.type] = Component.Border.forInstance(v)
+    def componentPopupMenu: Var.Aux[javax.swing.JPopupMenu | Null, v.type] = Component.ComponentPopupMenu.forInstance(v)
+    def debugGraphicsOptions: Var.Aux[Int, v.type] = Component.DebugGraphicsOptions.forInstance(v)
+    def doubleBuffered: Var.Aux[Boolean, v.type] = Component.DoubleBuffered.forInstance(v)
+    def inheritsPopupMenu: Var.Aux[Boolean, v.type] = Component.InheritsPopupMenu.forInstance(v)
+    def inputVerifier: Var.Aux[javax.swing.InputVerifier | Null, v.type] = Component.InputVerifier.forInstance(v)
+    def opaque: Var.Aux[Boolean, v.type] = Component.Opaque.forInstance(v)
+    def requestFocusEnabled: Var.Aux[Boolean, v.type] = Component.RequestFocusEnabled.forInstance(v)
+    def toolTipText: Var.Aux[String | Null, v.type] = Component.ToolTipText.forInstance(v)
+    def transferHandler: Var.Aux[javax.swing.TransferHandler | Null, v.type] = Component.TransferHandler.forInstance(v)
+    def verifyInputWhenFocusTarget: Var.Aux[Boolean, v.type] = Component.VerifyInputWhenFocusTarget.forInstance(v)
 
     
 
@@ -199,32 +200,32 @@ object Component extends VarsMap {
 
 opaque type Window <: Node = java.awt.Window & Node
 object Window extends VarsMap {
-  val AlwaysOnTop = SwingVar[Window, Boolean]("alwaysOnTop", _.isAlwaysOnTop, _.setAlwaysOnTop(_))
-  val AutoRequestFocus = SwingVar[Window, Boolean]("autoRequestFocus", _.isAutoRequestFocus, _.setAutoRequestFocus(_))
-  val FocusCycleRoot = SwingVar[Window, Boolean]("focusCycleRoot", _.isFocusCycleRoot, _.setFocusCycleRoot(_))
-  val FocusableWindowState = SwingVar[Window, Boolean]("focusableWindowState", _.getFocusableWindowState, _.setFocusableWindowState(_))
-  val IconImages = SwingVar[Window, java.util.List[_ <: java.awt.Image] | Null]("iconImages", _.getIconImages, _.setIconImages(_))
-  val LocationByPlatform = SwingVar[Window, Boolean]("locationByPlatform", _.isLocationByPlatform, _.setLocationByPlatform(_))
-  val ModalExclusionType = SwingVar[Window, java.awt.Dialog.ModalExclusionType]("modalExclusionType", _.getModalExclusionType.nn, _.setModalExclusionType(_))
-  val Opacity = SwingVar[Window, Float]("opacity", _.getOpacity, _.setOpacity(_))
-  val Root = SwingVar[Window, Node]("root", c => Node(c.getComponent(0).asInstanceOf[Container]), (w, n) => w.add(n, 0))
-  val Shape = SwingVar[Window, java.awt.Shape | Null]("shape", _.getShape, _.setShape(_))
-  val Tpe = SwingVar[Window, java.awt.Window.Type]("tpe", _.getType.nn, _.setType(_))
+  val AlwaysOnTop: SwingVar.Aux[Window, Boolean] = SwingVar[Window, Boolean]("alwaysOnTop", _.isAlwaysOnTop, _.setAlwaysOnTop(_))
+  val AutoRequestFocus: SwingVar.Aux[Window, Boolean] = SwingVar[Window, Boolean]("autoRequestFocus", _.isAutoRequestFocus, _.setAutoRequestFocus(_))
+  val FocusCycleRoot: SwingVar.Aux[Window, Boolean] = SwingVar[Window, Boolean]("focusCycleRoot", _.isFocusCycleRoot, _.setFocusCycleRoot(_))
+  val FocusableWindowState: SwingVar.Aux[Window, Boolean] = SwingVar[Window, Boolean]("focusableWindowState", _.getFocusableWindowState, _.setFocusableWindowState(_))
+  val IconImages: SwingVar.Aux[Window, java.util.List[_ <: java.awt.Image] | Null] = SwingVar[Window, java.util.List[_ <: java.awt.Image] | Null]("iconImages", _.getIconImages, _.setIconImages(_))
+  val LocationByPlatform: SwingVar.Aux[Window, Boolean] = SwingVar[Window, Boolean]("locationByPlatform", _.isLocationByPlatform, _.setLocationByPlatform(_))
+  val ModalExclusionType: SwingVar.Aux[Window, java.awt.Dialog.ModalExclusionType] = SwingVar[Window, java.awt.Dialog.ModalExclusionType]("modalExclusionType", _.getModalExclusionType.nn, _.setModalExclusionType(_))
+  val Opacity: SwingVar.Aux[Window, Float] = SwingVar[Window, Float]("opacity", _.getOpacity, _.setOpacity(_))
+  val Root: SwingVar.Aux[Window, Node] = SwingVar[Window, Node]("root", c => Node(c.getComponent(0).asInstanceOf[Container]), (w, n) => w.add(n, 0))
+  val Shape: SwingVar.Aux[Window, java.awt.Shape | Null] = SwingVar[Window, java.awt.Shape | Null]("shape", _.getShape, _.setShape(_))
+  val Tpe: SwingVar.Aux[Window, java.awt.Window.Type] = SwingVar[Window, java.awt.Window.Type]("tpe", _.getType.nn, _.setType(_))
 
   
 
   extension ops on (v: Window) {
-    def alwaysOnTop = Window.AlwaysOnTop.forInstance(v)
-    def autoRequestFocus = Window.AutoRequestFocus.forInstance(v)
-    def focusCycleRoot = Window.FocusCycleRoot.forInstance(v)
-    def focusableWindowState = Window.FocusableWindowState.forInstance(v)
-    def iconImages = Window.IconImages.forInstance(v)
-    def locationByPlatform = Window.LocationByPlatform.forInstance(v)
-    def modalExclusionType = Window.ModalExclusionType.forInstance(v)
-    def opacity = Window.Opacity.forInstance(v)
-    def root = Window.Root.forInstance(v)
-    def shape = Window.Shape.forInstance(v)
-    def tpe = Window.Tpe.forInstance(v)
+    def alwaysOnTop: Var.Aux[Boolean, v.type] = Window.AlwaysOnTop.forInstance(v)
+    def autoRequestFocus: Var.Aux[Boolean, v.type] = Window.AutoRequestFocus.forInstance(v)
+    def focusCycleRoot: Var.Aux[Boolean, v.type] = Window.FocusCycleRoot.forInstance(v)
+    def focusableWindowState: Var.Aux[Boolean, v.type] = Window.FocusableWindowState.forInstance(v)
+    def iconImages: Var.Aux[java.util.List[_ <: java.awt.Image] | Null, v.type] = Window.IconImages.forInstance(v)
+    def locationByPlatform: Var.Aux[Boolean, v.type] = Window.LocationByPlatform.forInstance(v)
+    def modalExclusionType: Var.Aux[java.awt.Dialog.ModalExclusionType, v.type] = Window.ModalExclusionType.forInstance(v)
+    def opacity: Var.Aux[Float, v.type] = Window.Opacity.forInstance(v)
+    def root: Var.Aux[Node, v.type] = Window.Root.forInstance(v)
+    def shape: Var.Aux[java.awt.Shape | Null, v.type] = Window.Shape.forInstance(v)
+    def tpe: Var.Aux[java.awt.Window.Type, v.type] = Window.Tpe.forInstance(v)
 
     
 
@@ -331,26 +332,26 @@ object Window extends VarsMap {
 
 opaque type Frame <: Window = java.awt.Frame & Window
 object Frame extends VarsMap {
-  val ExtendedState = SwingVar[Frame, Int]("extendedState", _.getExtendedState, _.setExtendedState(_))
-  val IconImage = SwingVar[Frame, java.awt.Image | Null]("iconImage", _.getIconImage, _.setIconImage(_))
-  val MaximizedBounds = SwingVar[Frame, Bounds | Null]("maximizedBounds", _.getMaximizedBounds, _.setMaximizedBounds(_))
-  val MenuBar = SwingVar[Frame, java.awt.MenuBar | Null]("menuBar", _.getMenuBar, _.setMenuBar(_))
-  val Resizable = SwingVar[Frame, Boolean]("resizable", _.isResizable, _.setResizable(_))
-  val State = SwingVar[Frame, Int]("state", _.getState, _.setState(_))
-  val Title = SwingVar[Frame, java.lang.String | Null]("title", _.getTitle, _.setTitle(_))
-  val Undecorated = SwingVar[Frame, Boolean]("undecorated", _.isUndecorated, _.setUndecorated(_))
+  val ExtendedState: SwingVar.Aux[Frame, Int] = SwingVar[Frame, Int]("extendedState", _.getExtendedState, _.setExtendedState(_))
+  val IconImage: SwingVar.Aux[Frame, java.awt.Image | Null] = SwingVar[Frame, java.awt.Image | Null]("iconImage", _.getIconImage, _.setIconImage(_))
+  val MaximizedBounds: SwingVar.Aux[Frame, Bounds | Null] = SwingVar[Frame, Bounds | Null]("maximizedBounds", _.getMaximizedBounds, _.setMaximizedBounds(_))
+  val MenuBar: SwingVar.Aux[Frame, java.awt.MenuBar | Null] = SwingVar[Frame, java.awt.MenuBar | Null]("menuBar", _.getMenuBar, _.setMenuBar(_))
+  val Resizable: SwingVar.Aux[Frame, Boolean] = SwingVar[Frame, Boolean]("resizable", _.isResizable, _.setResizable(_))
+  val State: SwingVar.Aux[Frame, Int] = SwingVar[Frame, Int]("state", _.getState, _.setState(_))
+  val Title: SwingVar.Aux[Frame, java.lang.String | Null] = SwingVar[Frame, java.lang.String | Null]("title", _.getTitle, _.setTitle(_))
+  val Undecorated: SwingVar.Aux[Frame, Boolean] = SwingVar[Frame, Boolean]("undecorated", _.isUndecorated, _.setUndecorated(_))
 
   
 
   extension ops on (v: Frame) {
-    def extendedState = Frame.ExtendedState.forInstance(v)
-    def iconImage = Frame.IconImage.forInstance(v)
-    def maximizedBounds = Frame.MaximizedBounds.forInstance(v)
-    def menuBar = Frame.MenuBar.forInstance(v)
-    def resizable = Frame.Resizable.forInstance(v)
-    def state = Frame.State.forInstance(v)
-    def title = Frame.Title.forInstance(v)
-    def undecorated = Frame.Undecorated.forInstance(v)
+    def extendedState: Var.Aux[Int, v.type] = Frame.ExtendedState.forInstance(v)
+    def iconImage: Var.Aux[java.awt.Image | Null, v.type] = Frame.IconImage.forInstance(v)
+    def maximizedBounds: Var.Aux[Bounds | Null, v.type] = Frame.MaximizedBounds.forInstance(v)
+    def menuBar: Var.Aux[java.awt.MenuBar | Null, v.type] = Frame.MenuBar.forInstance(v)
+    def resizable: Var.Aux[Boolean, v.type] = Frame.Resizable.forInstance(v)
+    def state: Var.Aux[Int, v.type] = Frame.State.forInstance(v)
+    def title: Var.Aux[java.lang.String | Null, v.type] = Frame.Title.forInstance(v)
+    def undecorated: Var.Aux[Boolean, v.type] = Frame.Undecorated.forInstance(v)
 
     
 
@@ -450,12 +451,12 @@ object Frame extends VarsMap {
 
 opaque type Pane <: Component = javax.swing.JPanel & Component
 object Pane extends VarsMap {
-  val UI = SwingVar[Pane, javax.swing.plaf.PanelUI]("UI", _.getUI.nn, _.setUI(_))
+  val UI: SwingVar.Aux[Pane, javax.swing.plaf.PanelUI] = SwingVar[Pane, javax.swing.plaf.PanelUI]("UI", _.getUI.nn, _.setUI(_))
 
   
 
   extension ops on (v: Pane) {
-    def UI = Pane.UI.forInstance(v)
+    def UI: Var.Aux[javax.swing.plaf.PanelUI, v.type] = Pane.UI.forInstance(v)
 
     
 
@@ -549,12 +550,12 @@ object Pane extends VarsMap {
 
 opaque type AbsolutePositioningPane <: Pane = javax.swing.JPanel & Pane
 object AbsolutePositioningPane extends VarsMap {
-  val Nodes = SwingVar[AbsolutePositioningPane, Seq[Node]]("nodes", c => (0 until c.getComponentCount).map(c.getComponent(_).asInstanceOf[Node]), (p, children) => { p.removeAll(); children foreach (n => p.add(n)) })
+  val Nodes: SwingVar.Aux[AbsolutePositioningPane, Seq[Node]] = SwingVar[AbsolutePositioningPane, Seq[Node]]("nodes", c => (0 until c.getComponentCount).map(c.getComponent(_).asInstanceOf[Node]), (p, children) => { p.removeAll(); children foreach (n => p.add(n)) })
 
   
 
   extension ops on (v: AbsolutePositioningPane) {
-    def nodes = AbsolutePositioningPane.Nodes.forInstance(v)
+    def nodes: Var.Aux[Seq[Node], v.type] = AbsolutePositioningPane.Nodes.forInstance(v)
 
     
 
@@ -650,24 +651,24 @@ object AbsolutePositioningPane extends VarsMap {
 
 opaque type BorderPane <: Pane = javax.swing.JPanel & Pane
 object BorderPane extends VarsMap {
-  val Bottom = SwingVar[BorderPane, Node | Null]("bottom", c => c.getLayout.asInstanceOf[BorderLayout].getLayoutComponent(BorderLayout.SOUTH).asInstanceOf[Node | Null], (p, n) => { p.add(if (n == null) null else n, BorderLayout.SOUTH) })
-  val Center = SwingVar[BorderPane, Node | Null]("center", c => c.getLayout.asInstanceOf[BorderLayout].getLayoutComponent(BorderLayout.CENTER).asInstanceOf[Node | Null], (p, n) => { p.add(if (n == null) null else n, BorderLayout.CENTER) })
-  val Hgap = SwingVar[BorderPane, Double]("hgap", c => c.getLayout.asInstanceOf[BorderLayout].getHgap, (p, g) => p.getLayout.asInstanceOf[BorderLayout].setHgap(g.toInt))
-  val Left = SwingVar[BorderPane, Node | Null]("left", c => c.getLayout.asInstanceOf[BorderLayout].getLayoutComponent(BorderLayout.WEST).asInstanceOf[Node | Null], (p, n) => { p.add(if (n == null) null else n, BorderLayout.WEST) })
-  val Right = SwingVar[BorderPane, Node | Null]("right", c => c.getLayout.asInstanceOf[BorderLayout].getLayoutComponent(BorderLayout.EAST).asInstanceOf[Node | Null], (p, n) => { p.add(if (n == null) null else n, BorderLayout.EAST) })
-  val Top = SwingVar[BorderPane, Node | Null]("top", c => c.getLayout.asInstanceOf[BorderLayout].getLayoutComponent(BorderLayout.NORTH).asInstanceOf[Node | Null], (p, n) => { p.add(if (n == null) null else n, BorderLayout.NORTH) })
-  val Vgap = SwingVar[BorderPane, Double]("vgap", c => c.getLayout.asInstanceOf[BorderLayout].getVgap, (p, g) => p.getLayout.asInstanceOf[BorderLayout].setVgap(g.toInt))
+  val Bottom: SwingVar.Aux[BorderPane, Node | Null] = SwingVar[BorderPane, Node | Null]("bottom", c => c.getLayout.asInstanceOf[BorderLayout].getLayoutComponent(BorderLayout.SOUTH).asInstanceOf[Node | Null], (p, n) => { p.add(if (n == null) null else n, BorderLayout.SOUTH) })
+  val Center: SwingVar.Aux[BorderPane, Node | Null] = SwingVar[BorderPane, Node | Null]("center", c => c.getLayout.asInstanceOf[BorderLayout].getLayoutComponent(BorderLayout.CENTER).asInstanceOf[Node | Null], (p, n) => { p.add(if (n == null) null else n, BorderLayout.CENTER) })
+  val Hgap: SwingVar.Aux[BorderPane, Double] = SwingVar[BorderPane, Double]("hgap", c => c.getLayout.asInstanceOf[BorderLayout].getHgap, (p, g) => p.getLayout.asInstanceOf[BorderLayout].setHgap(g.toInt))
+  val Left: SwingVar.Aux[BorderPane, Node | Null] = SwingVar[BorderPane, Node | Null]("left", c => c.getLayout.asInstanceOf[BorderLayout].getLayoutComponent(BorderLayout.WEST).asInstanceOf[Node | Null], (p, n) => { p.add(if (n == null) null else n, BorderLayout.WEST) })
+  val Right: SwingVar.Aux[BorderPane, Node | Null] = SwingVar[BorderPane, Node | Null]("right", c => c.getLayout.asInstanceOf[BorderLayout].getLayoutComponent(BorderLayout.EAST).asInstanceOf[Node | Null], (p, n) => { p.add(if (n == null) null else n, BorderLayout.EAST) })
+  val Top: SwingVar.Aux[BorderPane, Node | Null] = SwingVar[BorderPane, Node | Null]("top", c => c.getLayout.asInstanceOf[BorderLayout].getLayoutComponent(BorderLayout.NORTH).asInstanceOf[Node | Null], (p, n) => { p.add(if (n == null) null else n, BorderLayout.NORTH) })
+  val Vgap: SwingVar.Aux[BorderPane, Double] = SwingVar[BorderPane, Double]("vgap", c => c.getLayout.asInstanceOf[BorderLayout].getVgap, (p, g) => p.getLayout.asInstanceOf[BorderLayout].setVgap(g.toInt))
 
   
 
   extension ops on (v: BorderPane) {
-    def bottom = BorderPane.Bottom.forInstance(v)
-    def center = BorderPane.Center.forInstance(v)
-    def hgap = BorderPane.Hgap.forInstance(v)
-    def left = BorderPane.Left.forInstance(v)
-    def right = BorderPane.Right.forInstance(v)
-    def top = BorderPane.Top.forInstance(v)
-    def vgap = BorderPane.Vgap.forInstance(v)
+    def bottom: Var.Aux[Node | Null, v.type] = BorderPane.Bottom.forInstance(v)
+    def center: Var.Aux[Node | Null, v.type] = BorderPane.Center.forInstance(v)
+    def hgap: Var.Aux[Double, v.type] = BorderPane.Hgap.forInstance(v)
+    def left: Var.Aux[Node | Null, v.type] = BorderPane.Left.forInstance(v)
+    def right: Var.Aux[Node | Null, v.type] = BorderPane.Right.forInstance(v)
+    def top: Var.Aux[Node | Null, v.type] = BorderPane.Top.forInstance(v)
+    def vgap: Var.Aux[Double, v.type] = BorderPane.Vgap.forInstance(v)
 
     
 
@@ -775,20 +776,20 @@ object BorderPane extends VarsMap {
 
 opaque type GridPane <: Pane = javax.swing.JPanel & Pane
 object GridPane extends VarsMap {
-  val AutoCreateContainerGaps = SwingVar[GridPane, Boolean]("autoCreateContainerGaps", _.getLayout.asInstanceOf[GroupLayout].getAutoCreateContainerGaps(), _.getLayout.asInstanceOf[GroupLayout].setAutoCreateContainerGaps(_))
-  val Hgap = Var[Double]("hgap", 0.0)
-  val LayoutVar = SwingVar[GridPane, Unit]("layoutVar", _ => (), (_, _) => ())
-  val Rows = Var[Seq[Seq[Node]]]("rows", Seq.empty)
-  val Vgap = Var[Double]("vgap", 0.0)
+  val AutoCreateContainerGaps: SwingVar.Aux[GridPane, Boolean] = SwingVar[GridPane, Boolean]("autoCreateContainerGaps", _.getLayout.asInstanceOf[GroupLayout].getAutoCreateContainerGaps(), _.getLayout.asInstanceOf[GroupLayout].setAutoCreateContainerGaps(_))
+  val Hgap: Var[Double] = Var[Double]("hgap", 0.0)
+  val LayoutVar: SwingVar.Aux[GridPane, Unit] = SwingVar[GridPane, Unit]("layoutVar", _ => (), (_, _) => ())
+  val Rows: Var[Seq[Seq[Node]]] = Var[Seq[Seq[Node]]]("rows", Seq.empty)
+  val Vgap: Var[Double] = Var[Double]("vgap", 0.0)
 
   
 
   extension ops on (v: GridPane) {
-    def autoCreateContainerGaps = GridPane.AutoCreateContainerGaps.forInstance(v)
-    def hgap = GridPane.Hgap.forInstance(v)
-    def layoutVar = GridPane.LayoutVar.forInstance(v)
-    def rows = GridPane.Rows.forInstance(v)
-    def vgap = GridPane.Vgap.forInstance(v)
+    def autoCreateContainerGaps: Var.Aux[Boolean, v.type] = GridPane.AutoCreateContainerGaps.forInstance(v)
+    def hgap: Var.Aux[Double, v.type] = GridPane.Hgap.forInstance(v)
+    def layoutVar: Var.Aux[Unit, v.type] = GridPane.LayoutVar.forInstance(v)
+    def rows: Var.Aux[Seq[Seq[Node]], v.type] = GridPane.Rows.forInstance(v)
+    def vgap: Var.Aux[Double, v.type] = GridPane.Vgap.forInstance(v)
 
     
 
@@ -928,12 +929,12 @@ object GridPane extends VarsMap {
 
 opaque type Hbox <: Pane = javax.swing.JPanel & Pane
 object Hbox extends VarsMap {
-  val Nodes = SwingVar[Hbox, Seq[Node]]("nodes", c => (0 until c.getComponentCount).map(c.getComponent(_).asInstanceOf[Node]), (p, children) => { p.removeAll(); children foreach (n => p.add(n)) })
+  val Nodes: SwingVar.Aux[Hbox, Seq[Node]] = SwingVar[Hbox, Seq[Node]]("nodes", c => (0 until c.getComponentCount).map(c.getComponent(_).asInstanceOf[Node]), (p, children) => { p.removeAll(); children foreach (n => p.add(n)) })
 
   
 
   extension ops on (v: Hbox) {
-    def nodes = Hbox.Nodes.forInstance(v)
+    def nodes: Var.Aux[Seq[Node], v.type] = Hbox.Nodes.forInstance(v)
 
     
 
@@ -1029,12 +1030,12 @@ object Hbox extends VarsMap {
 
 opaque type Vbox <: Pane = javax.swing.JPanel & Pane
 object Vbox extends VarsMap {
-  val Nodes = SwingVar[Vbox, Seq[Node]]("nodes", c => (0 until c.getComponentCount).map(c.getComponent(_).asInstanceOf[Node]), (p, children) => { p.removeAll(); children foreach (n => p.add(n)) })
+  val Nodes: SwingVar.Aux[Vbox, Seq[Node]] = SwingVar[Vbox, Seq[Node]]("nodes", c => (0 until c.getComponentCount).map(c.getComponent(_).asInstanceOf[Node]), (p, children) => { p.removeAll(); children foreach (n => p.add(n)) })
 
   
 
   extension ops on (v: Vbox) {
-    def nodes = Vbox.Nodes.forInstance(v)
+    def nodes: Var.Aux[Seq[Node], v.type] = Vbox.Nodes.forInstance(v)
 
     
 
@@ -1130,40 +1131,40 @@ object Vbox extends VarsMap {
 
 opaque type TextComponent <: Component = javax.swing.text.JTextComponent & Component
 object TextComponent extends VarsMap {
-  val UI = SwingVar[TextComponent, javax.swing.plaf.TextUI]("UI", _.getUI.nn, _.setUI(_))
-  val Caret = SwingVar[TextComponent, javax.swing.text.Caret]("caret", _.getCaret.nn, _.setCaret(_))
-  val CaretColor = SwingVar[TextComponent, java.awt.Color | Null]("caretColor", _.getCaretColor, _.setCaretColor(_))
-  val DisabledTextColor = SwingVar[TextComponent, java.awt.Color | Null]("disabledTextColor", _.getDisabledTextColor, _.setDisabledTextColor(_))
-  val Document = SwingVar[TextComponent, javax.swing.text.Document]("document", _.getDocument.nn, _.setDocument(_))
-  val DragEnabled = SwingVar[TextComponent, Boolean]("dragEnabled", _.getDragEnabled, _.setDragEnabled(_))
-  val DropMode = SwingVar[TextComponent, javax.swing.DropMode | Null]("dropMode", _.getDropMode, _.setDropMode(_))
-  val Editable = SwingVar[TextComponent, Boolean]("editable", _.isEditable, _.setEditable(_))
-  val FocusAccelerator = SwingVar[TextComponent, Char]("focusAccelerator", _.getFocusAccelerator, _.setFocusAccelerator(_))
-  val Highlighter = SwingVar[TextComponent, javax.swing.text.Highlighter | Null]("highlighter", _.getHighlighter, _.setHighlighter(_))
-  val Keymap = SwingVar[TextComponent, javax.swing.text.Keymap | Null]("keymap", _.getKeymap, _.setKeymap(_))
-  val Margin = SwingVar[TextComponent, java.awt.Insets | Null]("margin", _.getMargin, _.setMargin(_))
-  val NavigationFilter = SwingVar[TextComponent, javax.swing.text.NavigationFilter | Null]("navigationFilter", _.getNavigationFilter, _.setNavigationFilter(_))
-  val SelectedTextColor = SwingVar[TextComponent, java.awt.Color | Null]("selectedTextColor", _.getSelectedTextColor, _.setSelectedTextColor(_))
-  val SelectionColor = SwingVar[TextComponent, java.awt.Color | Null]("selectionColor", _.getSelectionColor, _.setSelectionColor(_))
+  val UI: SwingVar.Aux[TextComponent, javax.swing.plaf.TextUI] = SwingVar[TextComponent, javax.swing.plaf.TextUI]("UI", _.getUI.nn, _.setUI(_))
+  val Caret: SwingVar.Aux[TextComponent, javax.swing.text.Caret] = SwingVar[TextComponent, javax.swing.text.Caret]("caret", _.getCaret.nn, _.setCaret(_))
+  val CaretColor: SwingVar.Aux[TextComponent, java.awt.Color | Null] = SwingVar[TextComponent, java.awt.Color | Null]("caretColor", _.getCaretColor, _.setCaretColor(_))
+  val DisabledTextColor: SwingVar.Aux[TextComponent, java.awt.Color | Null] = SwingVar[TextComponent, java.awt.Color | Null]("disabledTextColor", _.getDisabledTextColor, _.setDisabledTextColor(_))
+  val Document: SwingVar.Aux[TextComponent, javax.swing.text.Document] = SwingVar[TextComponent, javax.swing.text.Document]("document", _.getDocument.nn, _.setDocument(_))
+  val DragEnabled: SwingVar.Aux[TextComponent, Boolean] = SwingVar[TextComponent, Boolean]("dragEnabled", _.getDragEnabled, _.setDragEnabled(_))
+  val DropMode: SwingVar.Aux[TextComponent, javax.swing.DropMode | Null] = SwingVar[TextComponent, javax.swing.DropMode | Null]("dropMode", _.getDropMode, _.setDropMode(_))
+  val Editable: SwingVar.Aux[TextComponent, Boolean] = SwingVar[TextComponent, Boolean]("editable", _.isEditable, _.setEditable(_))
+  val FocusAccelerator: SwingVar.Aux[TextComponent, Char] = SwingVar[TextComponent, Char]("focusAccelerator", _.getFocusAccelerator, _.setFocusAccelerator(_))
+  val Highlighter: SwingVar.Aux[TextComponent, javax.swing.text.Highlighter | Null] = SwingVar[TextComponent, javax.swing.text.Highlighter | Null]("highlighter", _.getHighlighter, _.setHighlighter(_))
+  val Keymap: SwingVar.Aux[TextComponent, javax.swing.text.Keymap | Null] = SwingVar[TextComponent, javax.swing.text.Keymap | Null]("keymap", _.getKeymap, _.setKeymap(_))
+  val Margin: SwingVar.Aux[TextComponent, java.awt.Insets | Null] = SwingVar[TextComponent, java.awt.Insets | Null]("margin", _.getMargin, _.setMargin(_))
+  val NavigationFilter: SwingVar.Aux[TextComponent, javax.swing.text.NavigationFilter | Null] = SwingVar[TextComponent, javax.swing.text.NavigationFilter | Null]("navigationFilter", _.getNavigationFilter, _.setNavigationFilter(_))
+  val SelectedTextColor: SwingVar.Aux[TextComponent, java.awt.Color | Null] = SwingVar[TextComponent, java.awt.Color | Null]("selectedTextColor", _.getSelectedTextColor, _.setSelectedTextColor(_))
+  val SelectionColor: SwingVar.Aux[TextComponent, java.awt.Color | Null] = SwingVar[TextComponent, java.awt.Color | Null]("selectionColor", _.getSelectionColor, _.setSelectionColor(_))
 
   
 
   extension ops on (v: TextComponent) {
-    def UI = TextComponent.UI.forInstance(v)
-    def caret = TextComponent.Caret.forInstance(v)
-    def caretColor = TextComponent.CaretColor.forInstance(v)
-    def disabledTextColor = TextComponent.DisabledTextColor.forInstance(v)
-    def document = TextComponent.Document.forInstance(v)
-    def dragEnabled = TextComponent.DragEnabled.forInstance(v)
-    def dropMode = TextComponent.DropMode.forInstance(v)
-    def editable = TextComponent.Editable.forInstance(v)
-    def focusAccelerator = TextComponent.FocusAccelerator.forInstance(v)
-    def highlighter = TextComponent.Highlighter.forInstance(v)
-    def keymap = TextComponent.Keymap.forInstance(v)
-    def margin = TextComponent.Margin.forInstance(v)
-    def navigationFilter = TextComponent.NavigationFilter.forInstance(v)
-    def selectedTextColor = TextComponent.SelectedTextColor.forInstance(v)
-    def selectionColor = TextComponent.SelectionColor.forInstance(v)
+    def UI: Var.Aux[javax.swing.plaf.TextUI, v.type] = TextComponent.UI.forInstance(v)
+    def caret: Var.Aux[javax.swing.text.Caret, v.type] = TextComponent.Caret.forInstance(v)
+    def caretColor: Var.Aux[java.awt.Color | Null, v.type] = TextComponent.CaretColor.forInstance(v)
+    def disabledTextColor: Var.Aux[java.awt.Color | Null, v.type] = TextComponent.DisabledTextColor.forInstance(v)
+    def document: Var.Aux[javax.swing.text.Document, v.type] = TextComponent.Document.forInstance(v)
+    def dragEnabled: Var.Aux[Boolean, v.type] = TextComponent.DragEnabled.forInstance(v)
+    def dropMode: Var.Aux[javax.swing.DropMode | Null, v.type] = TextComponent.DropMode.forInstance(v)
+    def editable: Var.Aux[Boolean, v.type] = TextComponent.Editable.forInstance(v)
+    def focusAccelerator: Var.Aux[Char, v.type] = TextComponent.FocusAccelerator.forInstance(v)
+    def highlighter: Var.Aux[javax.swing.text.Highlighter | Null, v.type] = TextComponent.Highlighter.forInstance(v)
+    def keymap: Var.Aux[javax.swing.text.Keymap | Null, v.type] = TextComponent.Keymap.forInstance(v)
+    def margin: Var.Aux[java.awt.Insets | Null, v.type] = TextComponent.Margin.forInstance(v)
+    def navigationFilter: Var.Aux[javax.swing.text.NavigationFilter | Null, v.type] = TextComponent.NavigationFilter.forInstance(v)
+    def selectedTextColor: Var.Aux[java.awt.Color | Null, v.type] = TextComponent.SelectedTextColor.forInstance(v)
+    def selectionColor: Var.Aux[java.awt.Color | Null, v.type] = TextComponent.SelectionColor.forInstance(v)
 
     
 
@@ -1198,20 +1199,20 @@ object TextComponent extends VarsMap {
 
 opaque type TextArea <: TextComponent = javax.swing.JTextArea & TextComponent
 object TextArea extends VarsMap {
-  val Columns = SwingVar[TextArea, Int]("columns", _.getColumns, _.setColumns(_))
-  val LineWrap = SwingVar[TextArea, Boolean]("lineWrap", _.getLineWrap, _.setLineWrap(_))
-  val Rows = SwingVar[TextArea, Int]("rows", _.getRows, _.setRows(_))
-  val TabSize = SwingVar[TextArea, Int]("tabSize", _.getTabSize, _.setTabSize(_))
-  val WrapStyleWord = SwingVar[TextArea, Boolean]("wrapStyleWord", _.getWrapStyleWord, _.setWrapStyleWord(_))
+  val Columns: SwingVar.Aux[TextArea, Int] = SwingVar[TextArea, Int]("columns", _.getColumns, _.setColumns(_))
+  val LineWrap: SwingVar.Aux[TextArea, Boolean] = SwingVar[TextArea, Boolean]("lineWrap", _.getLineWrap, _.setLineWrap(_))
+  val Rows: SwingVar.Aux[TextArea, Int] = SwingVar[TextArea, Int]("rows", _.getRows, _.setRows(_))
+  val TabSize: SwingVar.Aux[TextArea, Int] = SwingVar[TextArea, Int]("tabSize", _.getTabSize, _.setTabSize(_))
+  val WrapStyleWord: SwingVar.Aux[TextArea, Boolean] = SwingVar[TextArea, Boolean]("wrapStyleWord", _.getWrapStyleWord, _.setWrapStyleWord(_))
 
   
 
   extension ops on (v: TextArea) {
-    def columns = TextArea.Columns.forInstance(v)
-    def lineWrap = TextArea.LineWrap.forInstance(v)
-    def rows = TextArea.Rows.forInstance(v)
-    def tabSize = TextArea.TabSize.forInstance(v)
-    def wrapStyleWord = TextArea.WrapStyleWord.forInstance(v)
+    def columns: Var.Aux[Int, v.type] = TextArea.Columns.forInstance(v)
+    def lineWrap: Var.Aux[Boolean, v.type] = TextArea.LineWrap.forInstance(v)
+    def rows: Var.Aux[Int, v.type] = TextArea.Rows.forInstance(v)
+    def tabSize: Var.Aux[Int, v.type] = TextArea.TabSize.forInstance(v)
+    def wrapStyleWord: Var.Aux[Boolean, v.type] = TextArea.WrapStyleWord.forInstance(v)
 
     
 
@@ -1343,18 +1344,18 @@ object TextArea extends VarsMap {
 
 opaque type TextField <: TextComponent = javax.swing.JTextField & TextComponent
 object TextField extends VarsMap {
-  val Action = SwingVar[TextField, javax.swing.Action | Null]("action", _.getAction, _.setAction(_))
-  val Columns = SwingVar[TextField, Int]("columns", _.getColumns, _.setColumns(_))
-  val HorizontalAlignment = SwingVar[TextField, Int]("horizontalAlignment", _.getHorizontalAlignment, _.setHorizontalAlignment(_))
-  val ScrollOffset = SwingVar[TextField, Int]("scrollOffset", _.getScrollOffset, _.setScrollOffset(_))
+  val Action: SwingVar.Aux[TextField, javax.swing.Action | Null] = SwingVar[TextField, javax.swing.Action | Null]("action", _.getAction, _.setAction(_))
+  val Columns: SwingVar.Aux[TextField, Int] = SwingVar[TextField, Int]("columns", _.getColumns, _.setColumns(_))
+  val HorizontalAlignment: SwingVar.Aux[TextField, Int] = SwingVar[TextField, Int]("horizontalAlignment", _.getHorizontalAlignment, _.setHorizontalAlignment(_))
+  val ScrollOffset: SwingVar.Aux[TextField, Int] = SwingVar[TextField, Int]("scrollOffset", _.getScrollOffset, _.setScrollOffset(_))
 
   
 
   extension ops on (v: TextField) {
-    def action = TextField.Action.forInstance(v)
-    def columns = TextField.Columns.forInstance(v)
-    def horizontalAlignment = TextField.HorizontalAlignment.forInstance(v)
-    def scrollOffset = TextField.ScrollOffset.forInstance(v)
+    def action: Var.Aux[javax.swing.Action | Null, v.type] = TextField.Action.forInstance(v)
+    def columns: Var.Aux[Int, v.type] = TextField.Columns.forInstance(v)
+    def horizontalAlignment: Var.Aux[Int, v.type] = TextField.HorizontalAlignment.forInstance(v)
+    def scrollOffset: Var.Aux[Int, v.type] = TextField.ScrollOffset.forInstance(v)
 
     
 
@@ -1484,12 +1485,12 @@ object TextField extends VarsMap {
 
 opaque type PasswordField <: TextField = javax.swing.JPasswordField & TextField
 object PasswordField extends VarsMap {
-  val EchoChar = SwingVar[PasswordField, Char]("echoChar", _.getEchoChar, _.setEchoChar(_))
+  val EchoChar: SwingVar.Aux[PasswordField, Char] = SwingVar[PasswordField, Char]("echoChar", _.getEchoChar, _.setEchoChar(_))
 
   
 
   extension ops on (v: PasswordField) {
-    def echoChar = PasswordField.EchoChar.forInstance(v)
+    def echoChar: Var.Aux[Char, v.type] = PasswordField.EchoChar.forInstance(v)
 
     
 
@@ -1621,34 +1622,34 @@ object PasswordField extends VarsMap {
 
 opaque type Label <: Component = javax.swing.JLabel & Component
 object Label extends VarsMap {
-  val UI = SwingVar[Label, javax.swing.plaf.LabelUI]("UI", _.getUI.nn, _.setUI(_))
-  val DisabledIcon = SwingVar[Label, javax.swing.Icon | Null]("disabledIcon", _.getDisabledIcon, _.setDisabledIcon(_))
-  val DisplayedMnemonic = SwingVar[Label, Int]("displayedMnemonic", _.getDisplayedMnemonic, _.setDisplayedMnemonic(_))
-  val DisplayedMnemonicIndex = SwingVar[Label, Int]("displayedMnemonicIndex", _.getDisplayedMnemonicIndex, _.setDisplayedMnemonicIndex(_))
-  val HorizontalAlignment = SwingVar[Label, Int]("horizontalAlignment", _.getHorizontalAlignment, _.setHorizontalAlignment(_))
-  val HorizontalTextPosition = SwingVar[Label, Int]("horizontalTextPosition", _.getHorizontalTextPosition, _.setHorizontalTextPosition(_))
-  val Icon = SwingVar[Label, javax.swing.Icon | Null]("icon", _.getIcon, _.setIcon(_))
-  val IconTextGap = SwingVar[Label, Double]("iconTextGap", _.getIconTextGap, (l, g) => l.setIconTextGap(g.toInt))
-  val LabelFor = SwingVar[Label, java.awt.Component | Null]("labelFor", _.getLabelFor, _.setLabelFor(_))
-  val Text = SwingVar[Label, java.lang.String | Null]("text", _.getText, _.setText(_))
-  val VerticalAlignment = SwingVar[Label, Int]("verticalAlignment", _.getVerticalAlignment, _.setVerticalAlignment(_))
-  val VerticalTextPosition = SwingVar[Label, Int]("verticalTextPosition", _.getVerticalTextPosition, _.setVerticalTextPosition(_))
+  val UI: SwingVar.Aux[Label, javax.swing.plaf.LabelUI] = SwingVar[Label, javax.swing.plaf.LabelUI]("UI", _.getUI.nn, _.setUI(_))
+  val DisabledIcon: SwingVar.Aux[Label, javax.swing.Icon | Null] = SwingVar[Label, javax.swing.Icon | Null]("disabledIcon", _.getDisabledIcon, _.setDisabledIcon(_))
+  val DisplayedMnemonic: SwingVar.Aux[Label, Int] = SwingVar[Label, Int]("displayedMnemonic", _.getDisplayedMnemonic, _.setDisplayedMnemonic(_))
+  val DisplayedMnemonicIndex: SwingVar.Aux[Label, Int] = SwingVar[Label, Int]("displayedMnemonicIndex", _.getDisplayedMnemonicIndex, _.setDisplayedMnemonicIndex(_))
+  val HorizontalAlignment: SwingVar.Aux[Label, Int] = SwingVar[Label, Int]("horizontalAlignment", _.getHorizontalAlignment, _.setHorizontalAlignment(_))
+  val HorizontalTextPosition: SwingVar.Aux[Label, Int] = SwingVar[Label, Int]("horizontalTextPosition", _.getHorizontalTextPosition, _.setHorizontalTextPosition(_))
+  val Icon: SwingVar.Aux[Label, javax.swing.Icon | Null] = SwingVar[Label, javax.swing.Icon | Null]("icon", _.getIcon, _.setIcon(_))
+  val IconTextGap: SwingVar.Aux[Label, Double] = SwingVar[Label, Double]("iconTextGap", _.getIconTextGap, (l, g) => l.setIconTextGap(g.toInt))
+  val LabelFor: SwingVar.Aux[Label, java.awt.Component | Null] = SwingVar[Label, java.awt.Component | Null]("labelFor", _.getLabelFor, _.setLabelFor(_))
+  val Text: SwingVar.Aux[Label, java.lang.String | Null] = SwingVar[Label, java.lang.String | Null]("text", _.getText, _.setText(_))
+  val VerticalAlignment: SwingVar.Aux[Label, Int] = SwingVar[Label, Int]("verticalAlignment", _.getVerticalAlignment, _.setVerticalAlignment(_))
+  val VerticalTextPosition: SwingVar.Aux[Label, Int] = SwingVar[Label, Int]("verticalTextPosition", _.getVerticalTextPosition, _.setVerticalTextPosition(_))
 
   
 
   extension ops on (v: Label) {
-    def UI = Label.UI.forInstance(v)
-    def disabledIcon = Label.DisabledIcon.forInstance(v)
-    def displayedMnemonic = Label.DisplayedMnemonic.forInstance(v)
-    def displayedMnemonicIndex = Label.DisplayedMnemonicIndex.forInstance(v)
-    def horizontalAlignment = Label.HorizontalAlignment.forInstance(v)
-    def horizontalTextPosition = Label.HorizontalTextPosition.forInstance(v)
-    def icon = Label.Icon.forInstance(v)
-    def iconTextGap = Label.IconTextGap.forInstance(v)
-    def labelFor = Label.LabelFor.forInstance(v)
-    def text = Label.Text.forInstance(v)
-    def verticalAlignment = Label.VerticalAlignment.forInstance(v)
-    def verticalTextPosition = Label.VerticalTextPosition.forInstance(v)
+    def UI: Var.Aux[javax.swing.plaf.LabelUI, v.type] = Label.UI.forInstance(v)
+    def disabledIcon: Var.Aux[javax.swing.Icon | Null, v.type] = Label.DisabledIcon.forInstance(v)
+    def displayedMnemonic: Var.Aux[Int, v.type] = Label.DisplayedMnemonic.forInstance(v)
+    def displayedMnemonicIndex: Var.Aux[Int, v.type] = Label.DisplayedMnemonicIndex.forInstance(v)
+    def horizontalAlignment: Var.Aux[Int, v.type] = Label.HorizontalAlignment.forInstance(v)
+    def horizontalTextPosition: Var.Aux[Int, v.type] = Label.HorizontalTextPosition.forInstance(v)
+    def icon: Var.Aux[javax.swing.Icon | Null, v.type] = Label.Icon.forInstance(v)
+    def iconTextGap: Var.Aux[Double, v.type] = Label.IconTextGap.forInstance(v)
+    def labelFor: Var.Aux[java.awt.Component | Null, v.type] = Label.LabelFor.forInstance(v)
+    def text: Var.Aux[java.lang.String | Null, v.type] = Label.Text.forInstance(v)
+    def verticalAlignment: Var.Aux[Int, v.type] = Label.VerticalAlignment.forInstance(v)
+    def verticalTextPosition: Var.Aux[Int, v.type] = Label.VerticalTextPosition.forInstance(v)
 
     
 
@@ -1764,68 +1765,68 @@ object Label extends VarsMap {
 
 opaque type ButtonBase <: Component = javax.swing.AbstractButton & Component
 object ButtonBase extends VarsMap {
-  val UI = SwingVar[ButtonBase, javax.swing.plaf.ButtonUI]("UI", _.getUI.nn, _.setUI(_))
-  val Action = SwingVar[ButtonBase, javax.swing.Action | Null]("action", _.getAction, _.setAction(_))
-  val ActionCommand = SwingVar[ButtonBase, java.lang.String | Null]("actionCommand", _.getActionCommand, _.setActionCommand(_))
-  val BorderPainted = SwingVar[ButtonBase, Boolean]("borderPainted", _.isBorderPainted, _.setBorderPainted(_))
-  val ContentAreaFilled = SwingVar[ButtonBase, Boolean]("contentAreaFilled", _.isContentAreaFilled, _.setContentAreaFilled(_))
-  val DisabledIcon = SwingVar[ButtonBase, javax.swing.Icon | Null]("disabledIcon", _.getDisabledIcon, _.setDisabledIcon(_))
-  val DisabledSelectedIcon = SwingVar[ButtonBase, javax.swing.Icon | Null]("disabledSelectedIcon", _.getDisabledSelectedIcon, _.setDisabledSelectedIcon(_))
-  val DisplayedMnemonicIndex = SwingVar[ButtonBase, Int]("displayedMnemonicIndex", _.getDisplayedMnemonicIndex, _.setDisplayedMnemonicIndex(_))
-  val FocusPainted = SwingVar[ButtonBase, Boolean]("focusPainted", _.isFocusPainted, _.setFocusPainted(_))
-  val HideActionText = SwingVar[ButtonBase, Boolean]("hideActionText", _.getHideActionText, _.setHideActionText(_))
-  val HorizontalAlignment = SwingVar[ButtonBase, Int]("horizontalAlignment", _.getHorizontalAlignment, _.setHorizontalAlignment(_))
-  val HorizontalTextPosition = SwingVar[ButtonBase, Int]("horizontalTextPosition", _.getHorizontalTextPosition, _.setHorizontalTextPosition(_))
-  val Icon = SwingVar[ButtonBase, javax.swing.Icon | Null]("icon", _.getIcon, _.setIcon(_))
-  val IconTextGap = SwingVar[ButtonBase, Int]("iconTextGap", _.getIconTextGap, _.setIconTextGap(_))
-  val Label = SwingVar[ButtonBase, java.lang.String | Null]("label", _.getLabel, _.setLabel(_))
-  val Margin = SwingVar[ButtonBase, java.awt.Insets | Null]("margin", _.getMargin, _.setMargin(_))
-  val Mnemonic = SwingVar[ButtonBase, Int]("mnemonic", _.getMnemonic, _.setMnemonic(_))
-  val Model = SwingVar[ButtonBase, javax.swing.ButtonModel | Null]("model", _.getModel, _.setModel(_))
-  val MultiClickThreshhold = SwingVar[ButtonBase, Long]("multiClickThreshhold", _.getMultiClickThreshhold, _.setMultiClickThreshhold(_))
-  val PressedIcon = SwingVar[ButtonBase, javax.swing.Icon | Null]("pressedIcon", _.getPressedIcon, _.setPressedIcon(_))
-  val RolloverEnabled = SwingVar[ButtonBase, Boolean]("rolloverEnabled", _.isRolloverEnabled, _.setRolloverEnabled(_))
-  val RolloverIcon = SwingVar[ButtonBase, javax.swing.Icon | Null]("rolloverIcon", _.getRolloverIcon, _.setRolloverIcon(_))
-  val RolloverSelectedIcon = SwingVar[ButtonBase, javax.swing.Icon | Null]("rolloverSelectedIcon", _.getRolloverSelectedIcon, _.setRolloverSelectedIcon(_))
-  val Selected = SwingVar[ButtonBase, Boolean]("selected", _.isSelected, _.setSelected(_))
-  val SelectedIcon = SwingVar[ButtonBase, javax.swing.Icon | Null]("selectedIcon", _.getSelectedIcon, _.setSelectedIcon(_))
-  val Text = SwingVar[ButtonBase, java.lang.String | Null]("text", _.getText, _.setText(_))
-  val VerticalAlignment = SwingVar[ButtonBase, Int]("verticalAlignment", _.getVerticalAlignment, _.setVerticalAlignment(_))
-  val VerticalTextPosition = SwingVar[ButtonBase, Int]("verticalTextPosition", _.getVerticalTextPosition, _.setVerticalTextPosition(_))
+  val UI: SwingVar.Aux[ButtonBase, javax.swing.plaf.ButtonUI] = SwingVar[ButtonBase, javax.swing.plaf.ButtonUI]("UI", _.getUI.nn, _.setUI(_))
+  val Action: SwingVar.Aux[ButtonBase, javax.swing.Action | Null] = SwingVar[ButtonBase, javax.swing.Action | Null]("action", _.getAction, _.setAction(_))
+  val ActionCommand: SwingVar.Aux[ButtonBase, java.lang.String | Null] = SwingVar[ButtonBase, java.lang.String | Null]("actionCommand", _.getActionCommand, _.setActionCommand(_))
+  val BorderPainted: SwingVar.Aux[ButtonBase, Boolean] = SwingVar[ButtonBase, Boolean]("borderPainted", _.isBorderPainted, _.setBorderPainted(_))
+  val ContentAreaFilled: SwingVar.Aux[ButtonBase, Boolean] = SwingVar[ButtonBase, Boolean]("contentAreaFilled", _.isContentAreaFilled, _.setContentAreaFilled(_))
+  val DisabledIcon: SwingVar.Aux[ButtonBase, javax.swing.Icon | Null] = SwingVar[ButtonBase, javax.swing.Icon | Null]("disabledIcon", _.getDisabledIcon, _.setDisabledIcon(_))
+  val DisabledSelectedIcon: SwingVar.Aux[ButtonBase, javax.swing.Icon | Null] = SwingVar[ButtonBase, javax.swing.Icon | Null]("disabledSelectedIcon", _.getDisabledSelectedIcon, _.setDisabledSelectedIcon(_))
+  val DisplayedMnemonicIndex: SwingVar.Aux[ButtonBase, Int] = SwingVar[ButtonBase, Int]("displayedMnemonicIndex", _.getDisplayedMnemonicIndex, _.setDisplayedMnemonicIndex(_))
+  val FocusPainted: SwingVar.Aux[ButtonBase, Boolean] = SwingVar[ButtonBase, Boolean]("focusPainted", _.isFocusPainted, _.setFocusPainted(_))
+  val HideActionText: SwingVar.Aux[ButtonBase, Boolean] = SwingVar[ButtonBase, Boolean]("hideActionText", _.getHideActionText, _.setHideActionText(_))
+  val HorizontalAlignment: SwingVar.Aux[ButtonBase, Int] = SwingVar[ButtonBase, Int]("horizontalAlignment", _.getHorizontalAlignment, _.setHorizontalAlignment(_))
+  val HorizontalTextPosition: SwingVar.Aux[ButtonBase, Int] = SwingVar[ButtonBase, Int]("horizontalTextPosition", _.getHorizontalTextPosition, _.setHorizontalTextPosition(_))
+  val Icon: SwingVar.Aux[ButtonBase, javax.swing.Icon | Null] = SwingVar[ButtonBase, javax.swing.Icon | Null]("icon", _.getIcon, _.setIcon(_))
+  val IconTextGap: SwingVar.Aux[ButtonBase, Int] = SwingVar[ButtonBase, Int]("iconTextGap", _.getIconTextGap, _.setIconTextGap(_))
+  val Label: SwingVar.Aux[ButtonBase, java.lang.String | Null] = SwingVar[ButtonBase, java.lang.String | Null]("label", _.getLabel, _.setLabel(_))
+  val Margin: SwingVar.Aux[ButtonBase, java.awt.Insets | Null] = SwingVar[ButtonBase, java.awt.Insets | Null]("margin", _.getMargin, _.setMargin(_))
+  val Mnemonic: SwingVar.Aux[ButtonBase, Int] = SwingVar[ButtonBase, Int]("mnemonic", _.getMnemonic, _.setMnemonic(_))
+  val Model: SwingVar.Aux[ButtonBase, javax.swing.ButtonModel | Null] = SwingVar[ButtonBase, javax.swing.ButtonModel | Null]("model", _.getModel, _.setModel(_))
+  val MultiClickThreshhold: SwingVar.Aux[ButtonBase, Long] = SwingVar[ButtonBase, Long]("multiClickThreshhold", _.getMultiClickThreshhold, _.setMultiClickThreshhold(_))
+  val PressedIcon: SwingVar.Aux[ButtonBase, javax.swing.Icon | Null] = SwingVar[ButtonBase, javax.swing.Icon | Null]("pressedIcon", _.getPressedIcon, _.setPressedIcon(_))
+  val RolloverEnabled: SwingVar.Aux[ButtonBase, Boolean] = SwingVar[ButtonBase, Boolean]("rolloverEnabled", _.isRolloverEnabled, _.setRolloverEnabled(_))
+  val RolloverIcon: SwingVar.Aux[ButtonBase, javax.swing.Icon | Null] = SwingVar[ButtonBase, javax.swing.Icon | Null]("rolloverIcon", _.getRolloverIcon, _.setRolloverIcon(_))
+  val RolloverSelectedIcon: SwingVar.Aux[ButtonBase, javax.swing.Icon | Null] = SwingVar[ButtonBase, javax.swing.Icon | Null]("rolloverSelectedIcon", _.getRolloverSelectedIcon, _.setRolloverSelectedIcon(_))
+  val Selected: SwingVar.Aux[ButtonBase, Boolean] = SwingVar[ButtonBase, Boolean]("selected", _.isSelected, _.setSelected(_))
+  val SelectedIcon: SwingVar.Aux[ButtonBase, javax.swing.Icon | Null] = SwingVar[ButtonBase, javax.swing.Icon | Null]("selectedIcon", _.getSelectedIcon, _.setSelectedIcon(_))
+  val Text: SwingVar.Aux[ButtonBase, java.lang.String | Null] = SwingVar[ButtonBase, java.lang.String | Null]("text", _.getText, _.setText(_))
+  val VerticalAlignment: SwingVar.Aux[ButtonBase, Int] = SwingVar[ButtonBase, Int]("verticalAlignment", _.getVerticalAlignment, _.setVerticalAlignment(_))
+  val VerticalTextPosition: SwingVar.Aux[ButtonBase, Int] = SwingVar[ButtonBase, Int]("verticalTextPosition", _.getVerticalTextPosition, _.setVerticalTextPosition(_))
 
   val ActionEvents = Emitter[java.awt.event.ActionEvent]()
 
   extension ops on (v: ButtonBase) {
-    def UI = ButtonBase.UI.forInstance(v)
-    def action = ButtonBase.Action.forInstance(v)
-    def actionCommand = ButtonBase.ActionCommand.forInstance(v)
-    def borderPainted = ButtonBase.BorderPainted.forInstance(v)
-    def contentAreaFilled = ButtonBase.ContentAreaFilled.forInstance(v)
-    def disabledIcon = ButtonBase.DisabledIcon.forInstance(v)
-    def disabledSelectedIcon = ButtonBase.DisabledSelectedIcon.forInstance(v)
-    def displayedMnemonicIndex = ButtonBase.DisplayedMnemonicIndex.forInstance(v)
-    def focusPainted = ButtonBase.FocusPainted.forInstance(v)
-    def hideActionText = ButtonBase.HideActionText.forInstance(v)
-    def horizontalAlignment = ButtonBase.HorizontalAlignment.forInstance(v)
-    def horizontalTextPosition = ButtonBase.HorizontalTextPosition.forInstance(v)
-    def icon = ButtonBase.Icon.forInstance(v)
-    def iconTextGap = ButtonBase.IconTextGap.forInstance(v)
-    def label = ButtonBase.Label.forInstance(v)
-    def margin = ButtonBase.Margin.forInstance(v)
-    def mnemonic = ButtonBase.Mnemonic.forInstance(v)
-    def model = ButtonBase.Model.forInstance(v)
-    def multiClickThreshhold = ButtonBase.MultiClickThreshhold.forInstance(v)
-    def pressedIcon = ButtonBase.PressedIcon.forInstance(v)
-    def rolloverEnabled = ButtonBase.RolloverEnabled.forInstance(v)
-    def rolloverIcon = ButtonBase.RolloverIcon.forInstance(v)
-    def rolloverSelectedIcon = ButtonBase.RolloverSelectedIcon.forInstance(v)
-    def selected = ButtonBase.Selected.forInstance(v)
-    def selectedIcon = ButtonBase.SelectedIcon.forInstance(v)
-    def text = ButtonBase.Text.forInstance(v)
-    def verticalAlignment = ButtonBase.VerticalAlignment.forInstance(v)
-    def verticalTextPosition = ButtonBase.VerticalTextPosition.forInstance(v)
+    def UI: Var.Aux[javax.swing.plaf.ButtonUI, v.type] = ButtonBase.UI.forInstance(v)
+    def action: Var.Aux[javax.swing.Action | Null, v.type] = ButtonBase.Action.forInstance(v)
+    def actionCommand: Var.Aux[java.lang.String | Null, v.type] = ButtonBase.ActionCommand.forInstance(v)
+    def borderPainted: Var.Aux[Boolean, v.type] = ButtonBase.BorderPainted.forInstance(v)
+    def contentAreaFilled: Var.Aux[Boolean, v.type] = ButtonBase.ContentAreaFilled.forInstance(v)
+    def disabledIcon: Var.Aux[javax.swing.Icon | Null, v.type] = ButtonBase.DisabledIcon.forInstance(v)
+    def disabledSelectedIcon: Var.Aux[javax.swing.Icon | Null, v.type] = ButtonBase.DisabledSelectedIcon.forInstance(v)
+    def displayedMnemonicIndex: Var.Aux[Int, v.type] = ButtonBase.DisplayedMnemonicIndex.forInstance(v)
+    def focusPainted: Var.Aux[Boolean, v.type] = ButtonBase.FocusPainted.forInstance(v)
+    def hideActionText: Var.Aux[Boolean, v.type] = ButtonBase.HideActionText.forInstance(v)
+    def horizontalAlignment: Var.Aux[Int, v.type] = ButtonBase.HorizontalAlignment.forInstance(v)
+    def horizontalTextPosition: Var.Aux[Int, v.type] = ButtonBase.HorizontalTextPosition.forInstance(v)
+    def icon: Var.Aux[javax.swing.Icon | Null, v.type] = ButtonBase.Icon.forInstance(v)
+    def iconTextGap: Var.Aux[Int, v.type] = ButtonBase.IconTextGap.forInstance(v)
+    def label: Var.Aux[java.lang.String | Null, v.type] = ButtonBase.Label.forInstance(v)
+    def margin: Var.Aux[java.awt.Insets | Null, v.type] = ButtonBase.Margin.forInstance(v)
+    def mnemonic: Var.Aux[Int, v.type] = ButtonBase.Mnemonic.forInstance(v)
+    def model: Var.Aux[javax.swing.ButtonModel | Null, v.type] = ButtonBase.Model.forInstance(v)
+    def multiClickThreshhold: Var.Aux[Long, v.type] = ButtonBase.MultiClickThreshhold.forInstance(v)
+    def pressedIcon: Var.Aux[javax.swing.Icon | Null, v.type] = ButtonBase.PressedIcon.forInstance(v)
+    def rolloverEnabled: Var.Aux[Boolean, v.type] = ButtonBase.RolloverEnabled.forInstance(v)
+    def rolloverIcon: Var.Aux[javax.swing.Icon | Null, v.type] = ButtonBase.RolloverIcon.forInstance(v)
+    def rolloverSelectedIcon: Var.Aux[javax.swing.Icon | Null, v.type] = ButtonBase.RolloverSelectedIcon.forInstance(v)
+    def selected: Var.Aux[Boolean, v.type] = ButtonBase.Selected.forInstance(v)
+    def selectedIcon: Var.Aux[javax.swing.Icon | Null, v.type] = ButtonBase.SelectedIcon.forInstance(v)
+    def text: Var.Aux[java.lang.String | Null, v.type] = ButtonBase.Text.forInstance(v)
+    def verticalAlignment: Var.Aux[Int, v.type] = ButtonBase.VerticalAlignment.forInstance(v)
+    def verticalTextPosition: Var.Aux[Int, v.type] = ButtonBase.VerticalTextPosition.forInstance(v)
 
-    def actionEvents = ButtonBase.ActionEvents.forInstance(v)
+    def actionEvents: Emitter.Aux[java.awt.event.ActionEvent, v.type] = ButtonBase.ActionEvents.forInstance(v)
 
     def actionListeners = v.getActionListeners
     def changeListeners = v.getChangeListeners
@@ -1852,12 +1853,12 @@ object ButtonBase extends VarsMap {
 
 opaque type Button <: ButtonBase = javax.swing.JButton & ButtonBase
 object Button extends VarsMap {
-  val DefaultCapable = SwingVar[Button, Boolean]("defaultCapable", _.isDefaultCapable, _.setDefaultCapable(_))
+  val DefaultCapable: SwingVar.Aux[Button, Boolean] = SwingVar[Button, Boolean]("defaultCapable", _.isDefaultCapable, _.setDefaultCapable(_))
 
   
 
   extension ops on (v: Button) {
-    def defaultCapable = Button.DefaultCapable.forInstance(v)
+    def defaultCapable: Var.Aux[Boolean, v.type] = Button.DefaultCapable.forInstance(v)
 
     
 
@@ -2160,12 +2161,12 @@ object ToggleButton extends VarsMap {
 
 opaque type CheckBox <: ToggleButton = javax.swing.JCheckBox & ToggleButton
 object CheckBox extends VarsMap {
-  val BorderPaintedFlat = SwingVar[CheckBox, Boolean]("borderPaintedFlat", _.isBorderPaintedFlat, _.setBorderPaintedFlat(_))
+  val BorderPaintedFlat: SwingVar.Aux[CheckBox, Boolean] = SwingVar[CheckBox, Boolean]("borderPaintedFlat", _.isBorderPaintedFlat, _.setBorderPaintedFlat(_))
 
   
 
   extension ops on (v: CheckBox) {
-    def borderPaintedFlat = CheckBox.BorderPaintedFlat.forInstance(v)
+    def borderPaintedFlat: Var.Aux[Boolean, v.type] = CheckBox.BorderPaintedFlat.forInstance(v)
 
     
 
@@ -2468,42 +2469,42 @@ object RadioButton extends VarsMap {
 
 opaque type Slider <: Component = javax.swing.JSlider & Component
 object Slider extends VarsMap {
-  val UI = SwingVar[Slider, javax.swing.plaf.SliderUI]("UI", _.getUI.nn, _.setUI(_))
-  val Extent = SwingVar[Slider, Int]("extent", _.getExtent, _.setExtent(_))
-  val Inverted = SwingVar[Slider, Boolean]("inverted", _.getInverted, _.setInverted(_))
-  val LabelTable = SwingVar[Slider, java.util.Dictionary[_, _] | Null]("labelTable", _.getLabelTable, _.setLabelTable(_))
-  val MajorTickSpacing = SwingVar[Slider, Int]("majorTickSpacing", _.getMajorTickSpacing, _.setMajorTickSpacing(_))
-  val Max = SwingVar[Slider, Int]("max", _.getMaximum, _.setMaximum(_))
-  val Min = SwingVar[Slider, Int]("min", _.getMinimum, _.setMinimum(_))
-  val MinorTickSpacing = SwingVar[Slider, Int]("minorTickSpacing", _.getMinorTickSpacing, _.setMinorTickSpacing(_))
-  val Model = SwingVar[Slider, javax.swing.BoundedRangeModel | Null]("model", _.getModel, _.setModel(_))
-  val Orientation = SwingVar[Slider, Int]("orientation", _.getOrientation, _.setOrientation(_))
-  val PaintLabels = SwingVar[Slider, Boolean]("paintLabels", _.getPaintLabels, _.setPaintLabels(_))
-  val PaintTicks = SwingVar[Slider, Boolean]("paintTicks", _.getPaintTicks, _.setPaintTicks(_))
-  val PaintTrack = SwingVar[Slider, Boolean]("paintTrack", _.getPaintTrack, _.setPaintTrack(_))
-  val SnapToTicks = SwingVar[Slider, Boolean]("snapToTicks", _.getSnapToTicks, _.setSnapToTicks(_))
-  val Value = SwingVar[Slider, Int]("value", _.getValue, _.setValue(_))
-  val ValueIsAdjusting = SwingVar[Slider, Boolean]("valueIsAdjusting", _.getValueIsAdjusting, _.setValueIsAdjusting(_))
+  val UI: SwingVar.Aux[Slider, javax.swing.plaf.SliderUI] = SwingVar[Slider, javax.swing.plaf.SliderUI]("UI", _.getUI.nn, _.setUI(_))
+  val Extent: SwingVar.Aux[Slider, Int] = SwingVar[Slider, Int]("extent", _.getExtent, _.setExtent(_))
+  val Inverted: SwingVar.Aux[Slider, Boolean] = SwingVar[Slider, Boolean]("inverted", _.getInverted, _.setInverted(_))
+  val LabelTable: SwingVar.Aux[Slider, java.util.Dictionary[_, _] | Null] = SwingVar[Slider, java.util.Dictionary[_, _] | Null]("labelTable", _.getLabelTable, _.setLabelTable(_))
+  val MajorTickSpacing: SwingVar.Aux[Slider, Int] = SwingVar[Slider, Int]("majorTickSpacing", _.getMajorTickSpacing, _.setMajorTickSpacing(_))
+  val Max: SwingVar.Aux[Slider, Int] = SwingVar[Slider, Int]("max", _.getMaximum, _.setMaximum(_))
+  val Min: SwingVar.Aux[Slider, Int] = SwingVar[Slider, Int]("min", _.getMinimum, _.setMinimum(_))
+  val MinorTickSpacing: SwingVar.Aux[Slider, Int] = SwingVar[Slider, Int]("minorTickSpacing", _.getMinorTickSpacing, _.setMinorTickSpacing(_))
+  val Model: SwingVar.Aux[Slider, javax.swing.BoundedRangeModel | Null] = SwingVar[Slider, javax.swing.BoundedRangeModel | Null]("model", _.getModel, _.setModel(_))
+  val Orientation: SwingVar.Aux[Slider, Int] = SwingVar[Slider, Int]("orientation", _.getOrientation, _.setOrientation(_))
+  val PaintLabels: SwingVar.Aux[Slider, Boolean] = SwingVar[Slider, Boolean]("paintLabels", _.getPaintLabels, _.setPaintLabels(_))
+  val PaintTicks: SwingVar.Aux[Slider, Boolean] = SwingVar[Slider, Boolean]("paintTicks", _.getPaintTicks, _.setPaintTicks(_))
+  val PaintTrack: SwingVar.Aux[Slider, Boolean] = SwingVar[Slider, Boolean]("paintTrack", _.getPaintTrack, _.setPaintTrack(_))
+  val SnapToTicks: SwingVar.Aux[Slider, Boolean] = SwingVar[Slider, Boolean]("snapToTicks", _.getSnapToTicks, _.setSnapToTicks(_))
+  val Value: SwingVar.Aux[Slider, Int] = SwingVar[Slider, Int]("value", _.getValue, _.setValue(_))
+  val ValueIsAdjusting: SwingVar.Aux[Slider, Boolean] = SwingVar[Slider, Boolean]("valueIsAdjusting", _.getValueIsAdjusting, _.setValueIsAdjusting(_))
 
   
 
   extension ops on (v: Slider) {
-    def UI = Slider.UI.forInstance(v)
-    def extent = Slider.Extent.forInstance(v)
-    def inverted = Slider.Inverted.forInstance(v)
-    def labelTable = Slider.LabelTable.forInstance(v)
-    def majorTickSpacing = Slider.MajorTickSpacing.forInstance(v)
-    def max = Slider.Max.forInstance(v)
-    def min = Slider.Min.forInstance(v)
-    def minorTickSpacing = Slider.MinorTickSpacing.forInstance(v)
-    def model = Slider.Model.forInstance(v)
-    def orientation = Slider.Orientation.forInstance(v)
-    def paintLabels = Slider.PaintLabels.forInstance(v)
-    def paintTicks = Slider.PaintTicks.forInstance(v)
-    def paintTrack = Slider.PaintTrack.forInstance(v)
-    def snapToTicks = Slider.SnapToTicks.forInstance(v)
-    def value = Slider.Value.forInstance(v)
-    def valueIsAdjusting = Slider.ValueIsAdjusting.forInstance(v)
+    def UI: Var.Aux[javax.swing.plaf.SliderUI, v.type] = Slider.UI.forInstance(v)
+    def extent: Var.Aux[Int, v.type] = Slider.Extent.forInstance(v)
+    def inverted: Var.Aux[Boolean, v.type] = Slider.Inverted.forInstance(v)
+    def labelTable: Var.Aux[java.util.Dictionary[_, _] | Null, v.type] = Slider.LabelTable.forInstance(v)
+    def majorTickSpacing: Var.Aux[Int, v.type] = Slider.MajorTickSpacing.forInstance(v)
+    def max: Var.Aux[Int, v.type] = Slider.Max.forInstance(v)
+    def min: Var.Aux[Int, v.type] = Slider.Min.forInstance(v)
+    def minorTickSpacing: Var.Aux[Int, v.type] = Slider.MinorTickSpacing.forInstance(v)
+    def model: Var.Aux[javax.swing.BoundedRangeModel | Null, v.type] = Slider.Model.forInstance(v)
+    def orientation: Var.Aux[Int, v.type] = Slider.Orientation.forInstance(v)
+    def paintLabels: Var.Aux[Boolean, v.type] = Slider.PaintLabels.forInstance(v)
+    def paintTicks: Var.Aux[Boolean, v.type] = Slider.PaintTicks.forInstance(v)
+    def paintTrack: Var.Aux[Boolean, v.type] = Slider.PaintTrack.forInstance(v)
+    def snapToTicks: Var.Aux[Boolean, v.type] = Slider.SnapToTicks.forInstance(v)
+    def value: Var.Aux[Int, v.type] = Slider.Value.forInstance(v)
+    def valueIsAdjusting: Var.Aux[Boolean, v.type] = Slider.ValueIsAdjusting.forInstance(v)
 
     
 
@@ -2628,30 +2629,30 @@ object Slider extends VarsMap {
 
 opaque type ProgressBar <: Component = javax.swing.JProgressBar & Component
 object ProgressBar extends VarsMap {
-  val UI = SwingVar[ProgressBar, javax.swing.plaf.ProgressBarUI]("UI", _.getUI.nn, _.setUI(_))
-  val BorderPainted = SwingVar[ProgressBar, Boolean]("borderPainted", _.isBorderPainted, _.setBorderPainted(_))
-  val Indeterminate = SwingVar[ProgressBar, Boolean]("indeterminate", _.isIndeterminate, _.setIndeterminate(_))
-  val Max = SwingVar[ProgressBar, Int]("max", _.getMaximum, _.setMaximum(_))
-  val Min = SwingVar[ProgressBar, Int]("min", _.getMinimum, _.setMinimum(_))
-  val Model = SwingVar[ProgressBar, javax.swing.BoundedRangeModel | Null]("model", _.getModel, _.setModel(_))
-  val Orientation = SwingVar[ProgressBar, Int]("orientation", _.getOrientation, _.setOrientation(_))
-  val String = SwingVar[ProgressBar, java.lang.String | Null]("string", _.getString, _.setString(_))
-  val StringPainted = SwingVar[ProgressBar, Boolean]("stringPainted", _.isStringPainted, _.setStringPainted(_))
-  val Value = SwingVar[ProgressBar, Int]("value", _.getValue, _.setValue(_))
+  val UI: SwingVar.Aux[ProgressBar, javax.swing.plaf.ProgressBarUI] = SwingVar[ProgressBar, javax.swing.plaf.ProgressBarUI]("UI", _.getUI.nn, _.setUI(_))
+  val BorderPainted: SwingVar.Aux[ProgressBar, Boolean] = SwingVar[ProgressBar, Boolean]("borderPainted", _.isBorderPainted, _.setBorderPainted(_))
+  val Indeterminate: SwingVar.Aux[ProgressBar, Boolean] = SwingVar[ProgressBar, Boolean]("indeterminate", _.isIndeterminate, _.setIndeterminate(_))
+  val Max: SwingVar.Aux[ProgressBar, Int] = SwingVar[ProgressBar, Int]("max", _.getMaximum, _.setMaximum(_))
+  val Min: SwingVar.Aux[ProgressBar, Int] = SwingVar[ProgressBar, Int]("min", _.getMinimum, _.setMinimum(_))
+  val Model: SwingVar.Aux[ProgressBar, javax.swing.BoundedRangeModel | Null] = SwingVar[ProgressBar, javax.swing.BoundedRangeModel | Null]("model", _.getModel, _.setModel(_))
+  val Orientation: SwingVar.Aux[ProgressBar, Int] = SwingVar[ProgressBar, Int]("orientation", _.getOrientation, _.setOrientation(_))
+  val String: SwingVar.Aux[ProgressBar, java.lang.String | Null] = SwingVar[ProgressBar, java.lang.String | Null]("string", _.getString, _.setString(_))
+  val StringPainted: SwingVar.Aux[ProgressBar, Boolean] = SwingVar[ProgressBar, Boolean]("stringPainted", _.isStringPainted, _.setStringPainted(_))
+  val Value: SwingVar.Aux[ProgressBar, Int] = SwingVar[ProgressBar, Int]("value", _.getValue, _.setValue(_))
 
   
 
   extension ops on (v: ProgressBar) {
-    def UI = ProgressBar.UI.forInstance(v)
-    def borderPainted = ProgressBar.BorderPainted.forInstance(v)
-    def indeterminate = ProgressBar.Indeterminate.forInstance(v)
-    def max = ProgressBar.Max.forInstance(v)
-    def min = ProgressBar.Min.forInstance(v)
-    def model = ProgressBar.Model.forInstance(v)
-    def orientation = ProgressBar.Orientation.forInstance(v)
-    def string = ProgressBar.String.forInstance(v)
-    def stringPainted = ProgressBar.StringPainted.forInstance(v)
-    def value = ProgressBar.Value.forInstance(v)
+    def UI: Var.Aux[javax.swing.plaf.ProgressBarUI, v.type] = ProgressBar.UI.forInstance(v)
+    def borderPainted: Var.Aux[Boolean, v.type] = ProgressBar.BorderPainted.forInstance(v)
+    def indeterminate: Var.Aux[Boolean, v.type] = ProgressBar.Indeterminate.forInstance(v)
+    def max: Var.Aux[Int, v.type] = ProgressBar.Max.forInstance(v)
+    def min: Var.Aux[Int, v.type] = ProgressBar.Min.forInstance(v)
+    def model: Var.Aux[javax.swing.BoundedRangeModel | Null, v.type] = ProgressBar.Model.forInstance(v)
+    def orientation: Var.Aux[Int, v.type] = ProgressBar.Orientation.forInstance(v)
+    def string: Var.Aux[java.lang.String | Null, v.type] = ProgressBar.String.forInstance(v)
+    def stringPainted: Var.Aux[Boolean, v.type] = ProgressBar.StringPainted.forInstance(v)
+    def value: Var.Aux[Int, v.type] = ProgressBar.Value.forInstance(v)
 
     
 
