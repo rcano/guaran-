@@ -81,6 +81,8 @@ case object Node extends NodeDescr(
     |def location = v.getLocation
     |def size = v.getSize
     |def location(x: Int, y: Int) = v.setLocation(x, y)
+    |def requestFocus() = v.requestFocus()
+    |def requestFocusInWindow() = v.requestFocusInWindow​()
     |def size(x: Int, y: Int) = v.setSize(x, y)
     |def children: Seq[Node] = (0 until v.getComponentCount).map(i => v.getComponent(i).asInstanceOf[Container])
     """.stripMargin.trim.split("\n").asInstanceOf[Array[String]].toIndexedSeq,
