@@ -56,6 +56,7 @@ case object Node extends NodeDescr(
     SwingProp("cursor", "java.awt.Cursor | Null"),
     SwingProp("enabled", "Boolean"),
     SwingProp("focusable", "Boolean"),
+    VarProp("focusedMut", "Boolean", "false", Some("private")),
     SwingProp("font", "java.awt.Font | Null"),
     SwingProp("foreground", "java.awt.Color | Null"),
     SwingProp("maxSize", "(Double, Double) | Null",
@@ -72,6 +73,7 @@ case object Node extends NodeDescr(
   ),
   fieldsExtra = Seq("val MouseLocation = mouseLocationMut.asObsValIn()"),
   opsExtra = """
+    |def focused = Node.FocusedMut.asObsValIn(v)
     |def mouseLocation = Node.MouseLocationMut.asObsValIn(v)
     |def alignmentX = v.getAlignmentX
     |def alignmentY = v.getAlignmentY
@@ -82,12 +84,23 @@ case object Node extends NodeDescr(
     |def size(x: Int, y: Int) = v.setSize(x, y)
     |def children: Seq[Node] = (0 until v.getComponentCount).map(i => v.getComponent(i).asInstanceOf[Container])
     """.stripMargin.trim.split("\n").asInstanceOf[Array[String]].toIndexedSeq,
+  emitters = Seq(EmitterDescr("focusEvents", "(FocusEvent, Boolean)", Nil)),
   initExtra = """
   |v addMouseMotionListener new java.awt.event.MouseMotionListener {
   |  def mouseDragged(evt: java.awt.event.MouseEvent | Null) = ()
   |  def mouseMoved(evt: java.awt.event.MouseEvent | Null) = sc.update {
   |    val nnEvt = evt.nn
   |    Node.MouseLocationMut.forInstance(v) := (nnEvt.getX, nnEvt.getY)
+  |  }
+  |}
+  |v addFocusListener new FocusListener {
+  |  def focusGained(evt: FocusEvent | UncheckedNull) = sc.update {
+  |    Node.FocusedMut.forInstance(v) := true 
+  |    summon[Emitter.Context].emit(v.focusEvents, (evt.nn -> true))
+  |  }
+  |  def focusLost(evt: FocusEvent | UncheckedNull) = sc.update {
+  |    Node.FocusedMut.forInstance(v) := false
+  |    summon[Emitter.Context].emit(v.focusEvents, (evt.nn -> false))
   |  }
   |}
   """.stripMargin.trim.split("\n").asInstanceOf[Array[String]].toIndexedSeq
@@ -165,6 +178,8 @@ case object Window extends NodeDescr(
     "def owner = v.getOwner",
     "def pack() = v.pack()",
     "def showing = v.isShowing",
+    "def toFront() = v.toFront()",
+    "def toBack() = v.toBack()",
     "def toolkit = v.getToolkit",
     "def validateRoot = v.isValidateRoot",
     "def warningString = v.getWarningString",
@@ -549,11 +564,43 @@ case object Slider extends NodeDescr(
     SwingProp("value", "Int"),
     SwingProp("valueIsAdjusting", "Boolean", "_.getValueIsAdjusting", "_.setValueIsAdjusting(_)"),
   ),
-  emitters = Seq(
-  ),
   opsExtra = Seq(
     "def changeListeners = v.getChangeListeners",
   ),
+  initExtra = 
+    "val l: ChangeListener = (e: ChangeEvent | UncheckedNull) => summon[Scenegraph].update(summon[VarContext].swingPropertyUpdated(ops.value(v), v.getValue))" ::
+    "v.addChangeListener(l)" ::
+    Nil
+)
+
+////////////////////////////////////////////////////////////////////////////
+// progress bar
+////////////////////////////////////////////////////////////////////////////
+
+case object ProgressBar extends NodeDescr(
+  "ProgressBar",
+  "javax.swing.JProgressBar",
+  parents = Seq(Component),
+  props = Seq(
+    SwingProp("UI", "javax.swing.plaf.ProgressBarUI"),
+    SwingProp("borderPainted", "Boolean"),
+    SwingProp("indeterminate", "Boolean"),
+    SwingProp("max", "Int", "_.getMaximum", "_.setMaximum(_)"),
+    SwingProp("min", "Int", "_.getMinimum", "_.setMinimum(_)"),
+    SwingProp("model", "javax.swing.BoundedRangeModel | Null"),
+    SwingProp("orientation", "Int"),
+    SwingProp("string", "java.lang.String | Null"),
+    SwingProp("stringPainted", "Boolean"),
+    SwingProp("value", "Int"),
+  ),
+  opsExtra = Seq(
+    "def changeListeners = v.getChangeListeners",
+    "def percentComplete = v.getPercentComplete"
+  ),
+  initExtra = 
+    "val l: ChangeListener = (e: ChangeEvent | UncheckedNull) => summon[Scenegraph].update(summon[VarContext].swingPropertyUpdated(ops.value(v), v.getValue))" ::
+    "v.addChangeListener(l)" ::
+    Nil
 )
 
 ////////////////////////////////////////////////////////////////////////////
@@ -659,6 +706,7 @@ def genCode(n: NodeDescr): String = {
     ToggleButton,
     CheckBox,
     RadioButton,
-    Slider
+    Slider,
+    ProgressBar,
   )) dest.append(genCode(node)).append("\n\n")
 }

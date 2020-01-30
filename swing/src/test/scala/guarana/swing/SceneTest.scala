@@ -74,7 +74,16 @@ import scala.util.chaining._
       defaultCapable = true
     )
 
-    val emModifier = Slider(min = 5, max = 30, majorTickSpacing = 5, value = 5, paintTicks = true, paintLabels = true, orientation = javax.swing.SwingConstants.VERTICAL)
+    val emModifier = Slider(
+      min = 5,
+      max = 30,
+      majorTickSpacing = 5,
+      value = 5,
+      paintTicks = true,
+      paintLabels = true,
+      orientation = javax.swing.SwingConstants.VERTICAL
+    )
+      
     scenegraph.emSize := dyn { emModifier.value() }
 
     Frame(
@@ -83,13 +92,14 @@ import scala.util.chaining._
       locationByPlatform = true,
       visible = true,
       root = BorderPane(
+        top = ProgressBar(min = dyn(emModifier.min()), max = dyn(emModifier.max()), value = dyn(emModifier.value())),
         center = GridPane(
           rows = Seq(
             Seq(Label(text = "User:"), userTf),
             Seq(Label(text = "Password:"), passwordTf),
           ),
           hgap = 1.em,
-          vgap = 1.em,
+          vgap = 1.5.em,
           autoCreateContainerGaps = true,
           border = javax.swing.BorderFactory.createTitledBorder("Center thing")
         ),

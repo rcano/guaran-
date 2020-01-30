@@ -17,6 +17,7 @@ object Node extends VarsMap {
   val Cursor = SwingVar[Node, java.awt.Cursor | Null]("cursor", _.getCursor, _.setCursor(_))
   val Enabled = SwingVar[Node, Boolean]("enabled", _.isEnabled, _.setEnabled(_))
   val Focusable = SwingVar[Node, Boolean]("focusable", _.isFocusable, _.setFocusable(_))
+  private val FocusedMut = Var[Boolean]("focusedMut", false)
   val Font = SwingVar[Node, java.awt.Font | Null]("font", _.getFont, _.setFont(_))
   val Foreground = SwingVar[Node, java.awt.Color | Null]("foreground", _.getForeground, _.setForeground(_))
   val MaxSize = SwingVar[Node, (Double, Double) | Null]("maxSize", {n => val d = n.getMaximumSize; if (d != null) (d.getWidth, d.getHeight) else null}, {(n, d) => n.setMaximumSize(if (d == null) null else java.awt.Dimension(d._1.toInt, d._2.toInt))})
@@ -25,7 +26,7 @@ object Node extends VarsMap {
   val PrefSize = SwingVar[Node, (Double, Double) | Null]("prefSize", {n => val d = n.getPreferredSize; if (d != null) (d.getWidth, d.getHeight) else null}, {(n, d) => n.setPreferredSize(if (d == null) null else java.awt.Dimension(d._1.toInt, d._2.toInt))})
   val Visible = SwingVar[Node, Boolean]("visible", _.isVisible, _.setVisible(_))
 
-  
+  val FocusEvents = Emitter[(FocusEvent, Boolean)]()
 
   extension ops on (v: Node) {
     def background = Node.Background.forInstance(v)
@@ -34,6 +35,7 @@ object Node extends VarsMap {
     def cursor = Node.Cursor.forInstance(v)
     def enabled = Node.Enabled.forInstance(v)
     def focusable = Node.Focusable.forInstance(v)
+    def focusedMut = Node.FocusedMut.forInstance(v)
     def font = Node.Font.forInstance(v)
     def foreground = Node.Foreground.forInstance(v)
     def maxSize = Node.MaxSize.forInstance(v)
@@ -42,8 +44,9 @@ object Node extends VarsMap {
     def prefSize = Node.PrefSize.forInstance(v)
     def visible = Node.Visible.forInstance(v)
 
-    
+    def focusEvents = Node.FocusEvents.forInstance(v)
 
+    def focused = Node.FocusedMut.asObsValIn(v)
     def mouseLocation = Node.MouseLocationMut.asObsValIn(v)
     def alignmentX = v.getAlignmentX
     def alignmentY = v.getAlignmentY
@@ -68,6 +71,16 @@ object Node extends VarsMap {
         Node.MouseLocationMut.forInstance(v) := (nnEvt.getX, nnEvt.getY)
       }
     }
+    v addFocusListener new FocusListener {
+      def focusGained(evt: FocusEvent | UncheckedNull) = sc.update {
+        Node.FocusedMut.forInstance(v) := true 
+        summon[Emitter.Context].emit(v.focusEvents, (evt.nn -> true))
+      }
+      def focusLost(evt: FocusEvent | UncheckedNull) = sc.update {
+        Node.FocusedMut.forInstance(v) := false
+        summon[Emitter.Context].emit(v.focusEvents, (evt.nn -> false))
+      }
+    }
     
   }
   def uninitialized(): Node = {
@@ -84,6 +97,7 @@ object Node extends VarsMap {
     cursor: Opt[Binding[java.awt.Cursor | Null]] = UnsetParam,
     enabled: Opt[Binding[Boolean]] = UnsetParam,
     focusable: Opt[Binding[Boolean]] = UnsetParam,
+    focusedMut: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
@@ -100,6 +114,7 @@ object Node extends VarsMap {
     ifSet(cursor, Node.ops.cursor(res) := _)
     ifSet(enabled, Node.ops.enabled(res) := _)
     ifSet(focusable, Node.ops.focusable(res) := _)
+    ifSet(focusedMut, Node.ops.focusedMut(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
     ifSet(maxSize, Node.ops.maxSize(res) := _)
@@ -223,6 +238,8 @@ object Window extends VarsMap {
     def owner = v.getOwner
     def pack() = v.pack()
     def showing = v.isShowing
+    def toFront() = v.toFront()
+    def toBack() = v.toBack()
     def toolkit = v.getToolkit
     def validateRoot = v.isValidateRoot
     def warningString = v.getWarningString
@@ -258,6 +275,7 @@ object Window extends VarsMap {
     focusCycleRoot: Opt[Binding[Boolean]] = UnsetParam,
     focusable: Opt[Binding[Boolean]] = UnsetParam,
     focusableWindowState: Opt[Binding[Boolean]] = UnsetParam,
+    focusedMut: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     iconImages: Opt[Binding[java.util.List[_ <: java.awt.Image] | Null]] = UnsetParam,
@@ -285,6 +303,7 @@ object Window extends VarsMap {
     ifSet(focusCycleRoot, Window.ops.focusCycleRoot(res) := _)
     ifSet(focusable, Node.ops.focusable(res) := _)
     ifSet(focusableWindowState, Window.ops.focusableWindowState(res) := _)
+    ifSet(focusedMut, Node.ops.focusedMut(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
     ifSet(iconImages, Window.ops.iconImages(res) := _)
@@ -359,6 +378,7 @@ object Frame extends VarsMap {
     focusCycleRoot: Opt[Binding[Boolean]] = UnsetParam,
     focusable: Opt[Binding[Boolean]] = UnsetParam,
     focusableWindowState: Opt[Binding[Boolean]] = UnsetParam,
+    focusedMut: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     iconImage: Opt[Binding[java.awt.Image | Null]] = UnsetParam,
@@ -394,6 +414,7 @@ object Frame extends VarsMap {
     ifSet(focusCycleRoot, Window.ops.focusCycleRoot(res) := _)
     ifSet(focusable, Node.ops.focusable(res) := _)
     ifSet(focusableWindowState, Window.ops.focusableWindowState(res) := _)
+    ifSet(focusedMut, Node.ops.focusedMut(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
     ifSet(iconImage, Frame.ops.iconImage(res) := _)
@@ -465,6 +486,7 @@ object Pane extends VarsMap {
     doubleBuffered: Opt[Binding[Boolean]] = UnsetParam,
     enabled: Opt[Binding[Boolean]] = UnsetParam,
     focusable: Opt[Binding[Boolean]] = UnsetParam,
+    focusedMut: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     inheritsPopupMenu: Opt[Binding[Boolean]] = UnsetParam,
@@ -497,6 +519,7 @@ object Pane extends VarsMap {
     ifSet(doubleBuffered, Component.ops.doubleBuffered(res) := _)
     ifSet(enabled, Node.ops.enabled(res) := _)
     ifSet(focusable, Node.ops.focusable(res) := _)
+    ifSet(focusedMut, Node.ops.focusedMut(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
     ifSet(inheritsPopupMenu, Component.ops.inheritsPopupMenu(res) := _)
@@ -561,6 +584,7 @@ object AbsolutePositioningPane extends VarsMap {
     doubleBuffered: Opt[Binding[Boolean]] = UnsetParam,
     enabled: Opt[Binding[Boolean]] = UnsetParam,
     focusable: Opt[Binding[Boolean]] = UnsetParam,
+    focusedMut: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     inheritsPopupMenu: Opt[Binding[Boolean]] = UnsetParam,
@@ -594,6 +618,7 @@ object AbsolutePositioningPane extends VarsMap {
     ifSet(doubleBuffered, Component.ops.doubleBuffered(res) := _)
     ifSet(enabled, Node.ops.enabled(res) := _)
     ifSet(focusable, Node.ops.focusable(res) := _)
+    ifSet(focusedMut, Node.ops.focusedMut(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
     ifSet(inheritsPopupMenu, Component.ops.inheritsPopupMenu(res) := _)
@@ -673,6 +698,7 @@ object BorderPane extends VarsMap {
     doubleBuffered: Opt[Binding[Boolean]] = UnsetParam,
     enabled: Opt[Binding[Boolean]] = UnsetParam,
     focusable: Opt[Binding[Boolean]] = UnsetParam,
+    focusedMut: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     hgap: Opt[Binding[Double]] = UnsetParam,
@@ -712,6 +738,7 @@ object BorderPane extends VarsMap {
     ifSet(doubleBuffered, Component.ops.doubleBuffered(res) := _)
     ifSet(enabled, Node.ops.enabled(res) := _)
     ifSet(focusable, Node.ops.focusable(res) := _)
+    ifSet(focusedMut, Node.ops.focusedMut(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
     ifSet(hgap, BorderPane.ops.hgap(res) := _)
@@ -826,6 +853,7 @@ object GridPane extends VarsMap {
     doubleBuffered: Opt[Binding[Boolean]] = UnsetParam,
     enabled: Opt[Binding[Boolean]] = UnsetParam,
     focusable: Opt[Binding[Boolean]] = UnsetParam,
+    focusedMut: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     hgap: Opt[Binding[Double]] = UnsetParam,
@@ -863,6 +891,7 @@ object GridPane extends VarsMap {
     ifSet(doubleBuffered, Component.ops.doubleBuffered(res) := _)
     ifSet(enabled, Node.ops.enabled(res) := _)
     ifSet(focusable, Node.ops.focusable(res) := _)
+    ifSet(focusedMut, Node.ops.focusedMut(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
     ifSet(hgap, GridPane.ops.hgap(res) := _)
@@ -931,6 +960,7 @@ object Hbox extends VarsMap {
     doubleBuffered: Opt[Binding[Boolean]] = UnsetParam,
     enabled: Opt[Binding[Boolean]] = UnsetParam,
     focusable: Opt[Binding[Boolean]] = UnsetParam,
+    focusedMut: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     inheritsPopupMenu: Opt[Binding[Boolean]] = UnsetParam,
@@ -964,6 +994,7 @@ object Hbox extends VarsMap {
     ifSet(doubleBuffered, Component.ops.doubleBuffered(res) := _)
     ifSet(enabled, Node.ops.enabled(res) := _)
     ifSet(focusable, Node.ops.focusable(res) := _)
+    ifSet(focusedMut, Node.ops.focusedMut(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
     ifSet(inheritsPopupMenu, Component.ops.inheritsPopupMenu(res) := _)
@@ -1029,6 +1060,7 @@ object Vbox extends VarsMap {
     doubleBuffered: Opt[Binding[Boolean]] = UnsetParam,
     enabled: Opt[Binding[Boolean]] = UnsetParam,
     focusable: Opt[Binding[Boolean]] = UnsetParam,
+    focusedMut: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     inheritsPopupMenu: Opt[Binding[Boolean]] = UnsetParam,
@@ -1062,6 +1094,7 @@ object Vbox extends VarsMap {
     ifSet(doubleBuffered, Component.ops.doubleBuffered(res) := _)
     ifSet(enabled, Node.ops.enabled(res) := _)
     ifSet(focusable, Node.ops.focusable(res) := _)
+    ifSet(focusedMut, Node.ops.focusedMut(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
     ifSet(inheritsPopupMenu, Component.ops.inheritsPopupMenu(res) := _)
@@ -1211,6 +1244,7 @@ object TextArea extends VarsMap {
     enabled: Opt[Binding[Boolean]] = UnsetParam,
     focusAccelerator: Opt[Binding[Char]] = UnsetParam,
     focusable: Opt[Binding[Boolean]] = UnsetParam,
+    focusedMut: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     highlighter: Opt[Binding[javax.swing.text.Highlighter | Null]] = UnsetParam,
@@ -1262,6 +1296,7 @@ object TextArea extends VarsMap {
     ifSet(enabled, Node.ops.enabled(res) := _)
     ifSet(focusAccelerator, TextComponent.ops.focusAccelerator(res) := _)
     ifSet(focusable, Node.ops.focusable(res) := _)
+    ifSet(focusedMut, Node.ops.focusedMut(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
     ifSet(highlighter, TextComponent.ops.highlighter(res) := _)
@@ -1352,6 +1387,7 @@ object TextField extends VarsMap {
     enabled: Opt[Binding[Boolean]] = UnsetParam,
     focusAccelerator: Opt[Binding[Char]] = UnsetParam,
     focusable: Opt[Binding[Boolean]] = UnsetParam,
+    focusedMut: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     highlighter: Opt[Binding[javax.swing.text.Highlighter | Null]] = UnsetParam,
@@ -1402,6 +1438,7 @@ object TextField extends VarsMap {
     ifSet(enabled, Node.ops.enabled(res) := _)
     ifSet(focusAccelerator, TextComponent.ops.focusAccelerator(res) := _)
     ifSet(focusable, Node.ops.focusable(res) := _)
+    ifSet(focusedMut, Node.ops.focusedMut(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
     ifSet(highlighter, TextComponent.ops.highlighter(res) := _)
@@ -1485,6 +1522,7 @@ object PasswordField extends VarsMap {
     enabled: Opt[Binding[Boolean]] = UnsetParam,
     focusAccelerator: Opt[Binding[Char]] = UnsetParam,
     focusable: Opt[Binding[Boolean]] = UnsetParam,
+    focusedMut: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     highlighter: Opt[Binding[javax.swing.text.Highlighter | Null]] = UnsetParam,
@@ -1536,6 +1574,7 @@ object PasswordField extends VarsMap {
     ifSet(enabled, Node.ops.enabled(res) := _)
     ifSet(focusAccelerator, TextComponent.ops.focusAccelerator(res) := _)
     ifSet(focusable, Node.ops.focusable(res) := _)
+    ifSet(focusedMut, Node.ops.focusedMut(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
     ifSet(highlighter, TextComponent.ops.highlighter(res) := _)
@@ -1633,6 +1672,7 @@ object Label extends VarsMap {
     doubleBuffered: Opt[Binding[Boolean]] = UnsetParam,
     enabled: Opt[Binding[Boolean]] = UnsetParam,
     focusable: Opt[Binding[Boolean]] = UnsetParam,
+    focusedMut: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     horizontalAlignment: Opt[Binding[Int]] = UnsetParam,
@@ -1676,6 +1716,7 @@ object Label extends VarsMap {
     ifSet(doubleBuffered, Component.ops.doubleBuffered(res) := _)
     ifSet(enabled, Node.ops.enabled(res) := _)
     ifSet(focusable, Node.ops.focusable(res) := _)
+    ifSet(focusedMut, Node.ops.focusedMut(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
     ifSet(horizontalAlignment, Label.ops.horizontalAlignment(res) := _)
@@ -1841,6 +1882,7 @@ object Button extends VarsMap {
     enabled: Opt[Binding[Boolean]] = UnsetParam,
     focusPainted: Opt[Binding[Boolean]] = UnsetParam,
     focusable: Opt[Binding[Boolean]] = UnsetParam,
+    focusedMut: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     hideActionText: Opt[Binding[Boolean]] = UnsetParam,
@@ -1901,6 +1943,7 @@ object Button extends VarsMap {
     ifSet(enabled, Node.ops.enabled(res) := _)
     ifSet(focusPainted, ButtonBase.ops.focusPainted(res) := _)
     ifSet(focusable, Node.ops.focusable(res) := _)
+    ifSet(focusedMut, Node.ops.focusedMut(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
     ifSet(hideActionText, ButtonBase.ops.hideActionText(res) := _)
@@ -1992,6 +2035,7 @@ object ToggleButton extends VarsMap {
     enabled: Opt[Binding[Boolean]] = UnsetParam,
     focusPainted: Opt[Binding[Boolean]] = UnsetParam,
     focusable: Opt[Binding[Boolean]] = UnsetParam,
+    focusedMut: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     hideActionText: Opt[Binding[Boolean]] = UnsetParam,
@@ -2051,6 +2095,7 @@ object ToggleButton extends VarsMap {
     ifSet(enabled, Node.ops.enabled(res) := _)
     ifSet(focusPainted, ButtonBase.ops.focusPainted(res) := _)
     ifSet(focusable, Node.ops.focusable(res) := _)
+    ifSet(focusedMut, Node.ops.focusedMut(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
     ifSet(hideActionText, ButtonBase.ops.hideActionText(res) := _)
@@ -2143,6 +2188,7 @@ object CheckBox extends VarsMap {
     enabled: Opt[Binding[Boolean]] = UnsetParam,
     focusPainted: Opt[Binding[Boolean]] = UnsetParam,
     focusable: Opt[Binding[Boolean]] = UnsetParam,
+    focusedMut: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     hideActionText: Opt[Binding[Boolean]] = UnsetParam,
@@ -2203,6 +2249,7 @@ object CheckBox extends VarsMap {
     ifSet(enabled, Node.ops.enabled(res) := _)
     ifSet(focusPainted, ButtonBase.ops.focusPainted(res) := _)
     ifSet(focusable, Node.ops.focusable(res) := _)
+    ifSet(focusedMut, Node.ops.focusedMut(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
     ifSet(hideActionText, ButtonBase.ops.hideActionText(res) := _)
@@ -2294,6 +2341,7 @@ object RadioButton extends VarsMap {
     enabled: Opt[Binding[Boolean]] = UnsetParam,
     focusPainted: Opt[Binding[Boolean]] = UnsetParam,
     focusable: Opt[Binding[Boolean]] = UnsetParam,
+    focusedMut: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     hideActionText: Opt[Binding[Boolean]] = UnsetParam,
@@ -2353,6 +2401,7 @@ object RadioButton extends VarsMap {
     ifSet(enabled, Node.ops.enabled(res) := _)
     ifSet(focusPainted, ButtonBase.ops.focusPainted(res) := _)
     ifSet(focusable, Node.ops.focusable(res) := _)
+    ifSet(focusedMut, Node.ops.focusedMut(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
     ifSet(hideActionText, ButtonBase.ops.hideActionText(res) := _)
@@ -2441,12 +2490,12 @@ object Slider extends VarsMap {
     Component.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
     val l: ChangeListener = (e: ChangeEvent | UncheckedNull) => summon[Scenegraph].update(summon[VarContext].swingPropertyUpdated(ops.value(v), v.getValue))
-    v.getModel.addChangeListener(l)
+    v.addChangeListener(l)
     
   }
   def uninitialized(): Slider = {
     val res = javax.swing.JSlider().asInstanceOf[Slider]
-
+    
     res
   }
   
@@ -2468,6 +2517,7 @@ object Slider extends VarsMap {
     enabled: Opt[Binding[Boolean]] = UnsetParam,
     extent: Opt[Binding[Int]] = UnsetParam,
     focusable: Opt[Binding[Boolean]] = UnsetParam,
+    focusedMut: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     inheritsPopupMenu: Opt[Binding[Boolean]] = UnsetParam,
@@ -2515,6 +2565,7 @@ object Slider extends VarsMap {
     ifSet(enabled, Node.ops.enabled(res) := _)
     ifSet(extent, Slider.ops.extent(res) := _)
     ifSet(focusable, Node.ops.focusable(res) := _)
+    ifSet(focusedMut, Node.ops.focusedMut(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
     ifSet(inheritsPopupMenu, Component.ops.inheritsPopupMenu(res) := _)
@@ -2546,3 +2597,140 @@ object Slider extends VarsMap {
     res
   }
 }
+
+opaque type ProgressBar <: Component = javax.swing.JProgressBar & Component
+object ProgressBar extends VarsMap {
+  val UI = SwingVar[ProgressBar, javax.swing.plaf.ProgressBarUI]("UI", _.getUI.nn, _.setUI(_))
+  val BorderPainted = SwingVar[ProgressBar, Boolean]("borderPainted", _.isBorderPainted, _.setBorderPainted(_))
+  val Indeterminate = SwingVar[ProgressBar, Boolean]("indeterminate", _.isIndeterminate, _.setIndeterminate(_))
+  val Max = SwingVar[ProgressBar, Int]("max", _.getMaximum, _.setMaximum(_))
+  val Min = SwingVar[ProgressBar, Int]("min", _.getMinimum, _.setMinimum(_))
+  val Model = SwingVar[ProgressBar, javax.swing.BoundedRangeModel | Null]("model", _.getModel, _.setModel(_))
+  val Orientation = SwingVar[ProgressBar, Int]("orientation", _.getOrientation, _.setOrientation(_))
+  val String = SwingVar[ProgressBar, java.lang.String | Null]("string", _.getString, _.setString(_))
+  val StringPainted = SwingVar[ProgressBar, Boolean]("stringPainted", _.isStringPainted, _.setStringPainted(_))
+  val Value = SwingVar[ProgressBar, Int]("value", _.getValue, _.setValue(_))
+
+  
+
+  extension ops on (v: ProgressBar) {
+    def UI = ProgressBar.UI.forInstance(v)
+    def borderPainted = ProgressBar.BorderPainted.forInstance(v)
+    def indeterminate = ProgressBar.Indeterminate.forInstance(v)
+    def max = ProgressBar.Max.forInstance(v)
+    def min = ProgressBar.Min.forInstance(v)
+    def model = ProgressBar.Model.forInstance(v)
+    def orientation = ProgressBar.Orientation.forInstance(v)
+    def string = ProgressBar.String.forInstance(v)
+    def stringPainted = ProgressBar.StringPainted.forInstance(v)
+    def value = ProgressBar.Value.forInstance(v)
+
+    
+
+    def changeListeners = v.getChangeListeners
+    def percentComplete = v.getPercentComplete
+    def unwrap: javax.swing.JProgressBar = v
+  }
+
+  def apply(v: javax.swing.JProgressBar) = v.asInstanceOf[ProgressBar]
+
+  def init(v: ProgressBar): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
+    Component.init(v)
+    v.addPropertyChangeListener(varsPropertyListener(v))
+    val l: ChangeListener = (e: ChangeEvent | UncheckedNull) => summon[Scenegraph].update(summon[VarContext].swingPropertyUpdated(ops.value(v), v.getValue))
+    v.addChangeListener(l)
+    
+  }
+  def uninitialized(): ProgressBar = {
+    val res = javax.swing.JProgressBar().asInstanceOf[ProgressBar]
+    
+    res
+  }
+  
+  def apply(
+    
+    UI: Opt[Binding[javax.swing.plaf.ProgressBarUI]] = UnsetParam,
+    actionMap: Opt[Binding[javax.swing.ActionMap]] = UnsetParam,
+    alignmentX: Opt[Binding[Float]] = UnsetParam,
+    alignmentY: Opt[Binding[Float]] = UnsetParam,
+    autoscrolls: Opt[Binding[Boolean]] = UnsetParam,
+    background: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
+    border: Opt[Binding[javax.swing.border.Border | Null]] = UnsetParam,
+    borderPainted: Opt[Binding[Boolean]] = UnsetParam,
+    bounds: Opt[Binding[Bounds]] = UnsetParam,
+    componentOrientation: Opt[Binding[java.awt.ComponentOrientation]] = UnsetParam,
+    componentPopupMenu: Opt[Binding[javax.swing.JPopupMenu | Null]] = UnsetParam,
+    cursor: Opt[Binding[java.awt.Cursor | Null]] = UnsetParam,
+    debugGraphicsOptions: Opt[Binding[Int]] = UnsetParam,
+    doubleBuffered: Opt[Binding[Boolean]] = UnsetParam,
+    enabled: Opt[Binding[Boolean]] = UnsetParam,
+    focusable: Opt[Binding[Boolean]] = UnsetParam,
+    focusedMut: Opt[Binding[Boolean]] = UnsetParam,
+    font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
+    foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
+    indeterminate: Opt[Binding[Boolean]] = UnsetParam,
+    inheritsPopupMenu: Opt[Binding[Boolean]] = UnsetParam,
+    inputVerifier: Opt[Binding[javax.swing.InputVerifier | Null]] = UnsetParam,
+    max: Opt[Binding[Int]] = UnsetParam,
+    maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
+    min: Opt[Binding[Int]] = UnsetParam,
+    minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
+    model: Opt[Binding[javax.swing.BoundedRangeModel | Null]] = UnsetParam,
+    mouseLocationMut: Opt[Binding[(Int, Int)]] = UnsetParam,
+    opaque: Opt[Binding[Boolean]] = UnsetParam,
+    orientation: Opt[Binding[Int]] = UnsetParam,
+    prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
+    requestFocusEnabled: Opt[Binding[Boolean]] = UnsetParam,
+    string: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    stringPainted: Opt[Binding[Boolean]] = UnsetParam,
+    toolTipText: Opt[Binding[String | Null]] = UnsetParam,
+    transferHandler: Opt[Binding[javax.swing.TransferHandler | Null]] = UnsetParam,
+    value: Opt[Binding[Int]] = UnsetParam,
+    verifyInputWhenFocusTarget: Opt[Binding[Boolean]] = UnsetParam,
+    visible: Opt[Binding[Boolean]] = UnsetParam
+  ): (given Scenegraph) => VarContextAction[ProgressBar] = {
+    val res = uninitialized()
+    ProgressBar.init(res)
+    ifSet(UI, ProgressBar.ops.UI(res) := _)
+    ifSet(actionMap, Component.ops.actionMap(res) := _)
+    ifSet(alignmentX, Component.ops.alignmentX(res) := _)
+    ifSet(alignmentY, Component.ops.alignmentY(res) := _)
+    ifSet(autoscrolls, Component.ops.autoscrolls(res) := _)
+    ifSet(background, Node.ops.background(res) := _)
+    ifSet(border, Component.ops.border(res) := _)
+    ifSet(borderPainted, ProgressBar.ops.borderPainted(res) := _)
+    ifSet(bounds, Node.ops.bounds(res) := _)
+    ifSet(componentOrientation, Node.ops.componentOrientation(res) := _)
+    ifSet(componentPopupMenu, Component.ops.componentPopupMenu(res) := _)
+    ifSet(cursor, Node.ops.cursor(res) := _)
+    ifSet(debugGraphicsOptions, Component.ops.debugGraphicsOptions(res) := _)
+    ifSet(doubleBuffered, Component.ops.doubleBuffered(res) := _)
+    ifSet(enabled, Node.ops.enabled(res) := _)
+    ifSet(focusable, Node.ops.focusable(res) := _)
+    ifSet(focusedMut, Node.ops.focusedMut(res) := _)
+    ifSet(font, Node.ops.font(res) := _)
+    ifSet(foreground, Node.ops.foreground(res) := _)
+    ifSet(indeterminate, ProgressBar.ops.indeterminate(res) := _)
+    ifSet(inheritsPopupMenu, Component.ops.inheritsPopupMenu(res) := _)
+    ifSet(inputVerifier, Component.ops.inputVerifier(res) := _)
+    ifSet(max, ProgressBar.ops.max(res) := _)
+    ifSet(maxSize, Node.ops.maxSize(res) := _)
+    ifSet(min, ProgressBar.ops.min(res) := _)
+    ifSet(minSize, Node.ops.minSize(res) := _)
+    ifSet(model, ProgressBar.ops.model(res) := _)
+    ifSet(mouseLocationMut, Node.ops.mouseLocationMut(res) := _)
+    ifSet(opaque, Component.ops.opaque(res) := _)
+    ifSet(orientation, ProgressBar.ops.orientation(res) := _)
+    ifSet(prefSize, Node.ops.prefSize(res) := _)
+    ifSet(requestFocusEnabled, Component.ops.requestFocusEnabled(res) := _)
+    ifSet(string, ProgressBar.ops.string(res) := _)
+    ifSet(stringPainted, ProgressBar.ops.stringPainted(res) := _)
+    ifSet(toolTipText, Component.ops.toolTipText(res) := _)
+    ifSet(transferHandler, Component.ops.transferHandler(res) := _)
+    ifSet(value, ProgressBar.ops.value(res) := _)
+    ifSet(verifyInputWhenFocusTarget, Component.ops.verifyInputWhenFocusTarget(res) := _)
+    ifSet(visible, Node.ops.visible(res) := _)
+    res
+  }
+}
+
