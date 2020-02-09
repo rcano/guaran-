@@ -19,7 +19,7 @@ class Scenegraph {
 
   private val systemEm = {
     //ideally we'd want a way to detect system configured DPI, but we can't, so...
-    16
+    14
   }
 
   val emSize = Var[Double]("emSize", systemEm).forInstance(Scenegraph.this) 

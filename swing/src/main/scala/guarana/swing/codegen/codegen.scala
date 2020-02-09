@@ -14,8 +14,13 @@ sealed trait Property {
   def name: String
   def tpe: String
   def visibility: Option[String]
+  def overrideTpeInStaticPos: Option[String]
+  def tpeInStaticPos = (overrideTpeInStaticPos getOrElse tpe) match {
+    case "_" => "Any"
+    case other => other
+  }
 }
-case class SwingProp(name: String, tpe: String, getter: String, setter: String, visibility: Option[String] = None) extends Property
+case class SwingProp(name: String, tpe: String, getter: String, setter: String, visibility: Option[String] = None, overrideTpeInStaticPos: Option[String] = None) extends Property
 object SwingProp {
   def getter(name: String, tpe: String) = tpe match {
     case "Boolean" => s"_.is${name.capitalize}"
@@ -26,7 +31,7 @@ object SwingProp {
   def setter(name: String, tpe: String) = s"_.set${name.capitalize}(_)"
   def apply(name: String, tpe: String): SwingProp = SwingProp(name, tpe, getter(name, tpe), setter(name, tpe))
 }
-case class VarProp(name: String, tpe: String, initValue: String, visibility: Option[String] = None) extends Property
+case class VarProp(name: String, tpe: String, initValue: String, visibility: Option[String] = None, overrideTpeInStaticPos: Option[String] = None) extends Property
 
 case class EmitterDescr(name: String, tpe: String, initializer: Seq[String])
 type Parameter = (String, String)
@@ -34,6 +39,7 @@ type Parameter = (String, String)
 abstract class NodeDescr(
   val name: String,
   val underlying: String,
+  val tpeParams: Seq[String] = Seq.empty,
   val parents: Seq[NodeDescr] = Seq.empty,
   val props: Seq[Property] = Seq.empty,
   val fieldsExtra: Seq[String] = Seq.empty,
@@ -44,6 +50,7 @@ abstract class NodeDescr(
   val uninitExtra: Seq[String] = Seq.empty,
   val isAbstract: Boolean = false,
   val addsPropertySwingListener: Boolean = true,
+  val companionObjectExtras: Seq[String] = Seq.empty,
 )
 
 case object Node extends NodeDescr(
@@ -517,6 +524,14 @@ case object ButtonBase extends NodeDescr(
     EmitterDescr("actionEvents", "java.awt.event.ActionEvent",
       "val al: java.awt.event.ActionListener = evt => sc.update(summon[Emitter.Context].emit(v.actionEvents, evt.nn))" ::
       "v.addActionListener(al)" ::
+      "var wasSelected = v.isSelected" ::
+      "val cl: javax.swing.event.ChangeListener = evt => sc.update {" ::
+      "  val ctx = summon[VarContext]" ::
+      "  if (v.isSelected != wasSelected)" ::
+      "    ctx.swingPropertyUpdated(ops.selected(v), v.isSelected)" ::
+      "  wasSelected = v.isSelected" ::
+      "}" ::
+      "v.addChangeListener(cl)" ::
       Nil),
   ),
   opsExtra = Seq(
@@ -626,13 +641,140 @@ case object ProgressBar extends NodeDescr(
     Nil
 )
 
+
+////////////////////////////////////////////////////////////////////////////
+// list
+////////////////////////////////////////////////////////////////////////////
+
+
+case object ListView extends NodeDescr(
+  "ListView",
+  "javax.swing.JList[_ <: E]",
+  tpeParams = Seq("+E"),
+  parents = Seq(Component),
+  props = Seq(
+    SwingProp("UI", "javax.swing.plaf.ListUI"),
+    SwingProp("cellRenderer", "javax.swing.ListCellRenderer[_ >: E]", "_.getCellRenderer.nn", "(l, c) => l.setCellRenderer(c.asInstanceOf)", overrideTpeInStaticPos = Some("javax.swing.ListCellRenderer[_]")),
+    SwingProp("dragEnabled", "Boolean", "_.getDragEnabled", "_.setDragEnabled(_)"),
+    SwingProp("dropMode", "javax.swing.DropMode | Null"),
+    SwingProp("fixedCellHeight", "Int"),
+    SwingProp("fixedCellWidth", "Int"),
+    SwingProp("layoutOrientation", "Int"),
+    SwingProp("model", "javax.swing.ListModel[E]", "_.getModel.nn" , "(l, m) => l.setModel(m.asInstanceOf)", overrideTpeInStaticPos = Some("javax.swing.ListModel[_]")),
+    SwingProp("prototypeCellValue", "E | Null", "_.getPrototypeCellValue", "(l, p) => l.setPrototypeCellValue(p.asInstanceOf)", overrideTpeInStaticPos = Some("_")),
+    SwingProp("selectedIndex", "Int"),
+    SwingProp("selectedIndices", "Array[Int]"),
+    SwingProp("selectionBackground", "java.awt.Color | Null"),
+    SwingProp("selectionForeground", "java.awt.Color | Null"),
+    SwingProp("selectionMode", "Int"),
+    SwingProp("selectionModel", "javax.swing.ListSelectionModel", "_.getSelectionModel.nn", "_.setSelectionModel(_)"),
+    SwingProp("valueIsAdjusting", "Boolean", "_.getValueIsAdjusting", "_.setValueIsAdjusting(_)"),
+    SwingProp("visibleRowCount", "Int"),
+  ),
+  opsExtra = Seq(
+    "def anchorSelectionIndex: Int = v.getAnchorSelectionIndex",
+    "def dropLocation: javax.swing.JList.DropLocation | Null = v.getDropLocation",
+    "def firstVisibleIndex: Int = v.getFirstVisibleIndex",
+    "def lastVisibleIndex: Int = v.getLastVisibleIndex",
+    "def leadSelectionIndex: Int = v.getLeadSelectionIndex",
+    "def listSelectionListeners: Array[javax.swing.event.ListSelectionListener] = v.getListSelectionListeners.asInstanceOf[Array[javax.swing.event.ListSelectionListener]]",
+    "def maxSelectionIndex: Int = v.getMaxSelectionIndex",
+    "def minSelectionIndex: Int = v.getMinSelectionIndex",
+    "def preferredScrollableViewportSize: java.awt.Dimension | Null = v.getPreferredScrollableViewportSize",
+    "def scrollableTracksViewportHeight: Boolean = v.getScrollableTracksViewportHeight",
+    "def scrollableTracksViewportWidth: Boolean = v.getScrollableTracksViewportWidth",
+    "def selectedValue: Option[E] = { val r = v.getSelectedValue; if (r == null) None else Some(r) }",
+    "def selectedValues: Seq[E] = v.getSelectedValuesList.nn.asScala.asInstanceOf",
+    "def selectionEmpty: Boolean = v.isSelectionEmpty"
+  ),
+  initExtra = """
+    |val lsl: ListSelectionListener = (evt) => sc.update{
+    |  val vc = summon[VarContext]
+    |  vc.swingPropertyUpdated(ops.selectedIndex(v), v.getSelectedIndex)
+    |  vc.swingPropertyUpdated(ops.selectedIndices(v), v.getSelectedIndices.nn)
+    |  vc.swingPropertyUpdated(ops.selectedIndices(v), v.getSelectedIndices.nn)
+    |}
+    |v.addListSelectionListener(lsl)
+    """.stripMargin.split("\n").asInstanceOf[Array[String]].toIndexedSeq,
+  companionObjectExtras = Seq(
+  )
+)
+
+////////////////////////////////////////////////////////////////////////////
+// table
+////////////////////////////////////////////////////////////////////////////
+
+case object TableView extends NodeDescr(
+  "TableView",
+  "javax.swing.JTable",
+  parents = Seq(Component),
+  props = Seq(
+    SwingProp("UI", "javax.swing.plaf.TableUI"),
+    SwingProp("autoCreateColumnsFromModel", "Boolean", "_.getAutoCreateColumnsFromModel", "_.setAutoCreateColumnsFromModel(_)"),
+    SwingProp("autoCreateRowSorter", "Boolean", "_.getAutoCreateRowSorter", "_.setAutoCreateRowSorter(_)"),
+    SwingProp("autoResizeMode", "Int"),
+    SwingProp("cellEditor", "javax.swing.table.TableCellEditor"),
+    SwingProp("cellSelectionEnabled", "Boolean", "_.getCellSelectionEnabled", "_.setCellSelectionEnabled(_)"),
+    SwingProp("columnModel", "javax.swing.table.TableColumnModel"),
+    SwingProp("columnSelectionAllowed", "Boolean", "_.getColumnSelectionAllowed", "_.setColumnSelectionAllowed(_)"),
+    SwingProp("dragEnabled", "Boolean", "_.getDragEnabled", "_.setDragEnabled(_)"),
+    SwingProp("dropMode", "javax.swing.DropMode | Null"),
+    SwingProp("editingColumn", "Int"),
+    SwingProp("editingRow", "Int"),
+    SwingProp("fillsViewportHeight", "Boolean", "_.getFillsViewportHeight", "_.setFillsViewportHeight(_)"),
+    SwingProp("gridColor", "java.awt.Color | Null"),
+    SwingProp("intercellSpacing", "(Double, Double) | Null",
+      "{n => val d = n.getIntercellSpacing; if (d != null) (d.getWidth, d.getHeight) else null}",
+      "{(n, d) => n.setIntercellSpacing(if (d == null) null else java.awt.Dimension(d._1.toInt, d._2.toInt))}"),
+    SwingProp("model", "javax.swing.table.TableModel"),
+    SwingProp("preferredScrollableViewportSize", "(Double, Double) | Null",
+      "{n => val d = n.getPreferredScrollableViewportSize; if (d != null) (d.getWidth, d.getHeight) else null}",
+      "{(n, d) => n.setPreferredScrollableViewportSize(if (d == null) null else java.awt.Dimension(d._1.toInt, d._2.toInt))}"),
+    SwingProp("rowHeight", "Int"),
+    SwingProp("rowMargin", "Int"),
+    SwingProp("rowSelectionAllowed", "Boolean", "_.getRowSelectionAllowed", "_.setRowSelectionAllowed(_)"),
+    SwingProp("rowSorter", "javax.swing.RowSorter[_ <: javax.swing.table.TableModel] | Null"),
+    SwingProp("selectionBackground", "java.awt.Color | Null"),
+    SwingProp("selectionForeground", "java.awt.Color | Null"),
+    SwingProp("selectionModel", "javax.swing.ListSelectionModel"),
+    SwingProp("showHorizontalLines", "Boolean", "_.getShowHorizontalLines", "_.setShowHorizontalLines(_)"),
+    SwingProp("showVerticalLines", "Boolean", "_.getShowVerticalLines", "_.setShowVerticalLines(_)"),
+    SwingProp("surrendersFocusOnKeystroke", "Boolean", "_.getSurrendersFocusOnKeystroke", "_.setSurrendersFocusOnKeystroke(_)"),
+    SwingProp("tableHeader", "javax.swing.table.JTableHeader | Null"),
+    SwingProp("updateSelectionOnSort", "Boolean", "_.getUpdateSelectionOnSort", "_.setUpdateSelectionOnSort(_)"),
+  ),
+  opsExtra = Seq(
+    "def columnCount: Int = v.getColumnCount",
+    "def dropLocation: javax.swing.JTable.DropLocation | Null = v.getDropLocation",
+    "def editing: Boolean = v.isEditing",
+    "def editorComponent: java.awt.Component | Null = v.getEditorComponent",
+    "def rowCount: Int = v.getRowCount",
+    "def scrollableTracksViewportHeight: Boolean = v.getScrollableTracksViewportHeight",
+    "def scrollableTracksViewportWidth: Boolean = v.getScrollableTracksViewportWidth",
+    "def selectedColumn: Int = v.getSelectedColumn",
+    "def selectedColumnCount: Int = v.getSelectedColumnCount",
+    "def selectedColumns: Array[Int] = v.getSelectedColumns.nn",
+    "def selectedRow: Int = v.getSelectedRow",
+    "def selectedRowCount: Int = v.getSelectedRowCount",
+    "def selectedRows: Array[Int] = v.getSelectedRows.nn"
+  ),
+)
+
 ////////////////////////////////////////////////////////////////////////////
 // main function
 ////////////////////////////////////////////////////////////////////////////
 def genCode(n: NodeDescr): String = {
+
+  val tpeParamsDecls = if (n.tpeParams.nonEmpty) n.tpeParams.mkString("[", ", ", "]") else ""
+  val tpeParams = tpeParamsDecls.replaceAll("[+-]", "").nn
+
+  val emptyTpeParams = tpeParams.replaceAll(raw"\w|_ [><]: \w+", "Any")
+
   def propDecl(p: Property) = p.visibility.map(s => s + " ").getOrElse("") + (p match {
-    case SwingProp(name, tpe, getter, setter, _) => s"""val ${name.capitalize}: SwingVar.Aux[${n.name}, $tpe] = SwingVar[${n.name}, $tpe]("$name", $getter, $setter)"""
-    case VarProp(name, tpe, initValue, _) => s"""val ${name.capitalize}: Var[$tpe] = Var[$tpe]("$name", $initValue)"""
+    case p@SwingProp(name, tpe, getter, setter, _, _) => 
+      s"""val ${name.capitalize}: SwingVar.Aux[${n.name}$emptyTpeParams, ${p.tpeInStaticPos}] = SwingVar[${n.name}$emptyTpeParams, ${p.tpeInStaticPos}]("$name", $getter, $setter)"""
+    case p@VarProp(name, tpe, initValue, _, _) => 
+      s"""val ${name.capitalize}: Var[${p.tpeInStaticPos}] = Var[${p.tpeInStaticPos}]("$name", $initValue)"""
   })
 
   val seenVars = collection.mutable.Set.empty[String]
@@ -645,17 +787,17 @@ def genCode(n: NodeDescr): String = {
   }.flatten.toVector.sortBy(_._2.name)
 
   val initializers = if (!n.isAbstract) 
-      s"""def uninitialized(${n.uninitExtraParams.map(t => s"${t._1}: ${t._2}").mkString(", ")}): ${n.name} = {
-         |  val res = ${n.underlying}(${n.uninitExtraParams.map(_._1).mkString(", ")}).asInstanceOf[${n.name}]
+      s"""def uninitialized$tpeParams(${n.uninitExtraParams.map(t => s"${t._1}: ${t._2}").mkString(", ")}): ${n.name}$tpeParams = {
+         |  val res = ${n.underlying.replaceAll(raw"_ <: ", "")}(${n.uninitExtraParams.map(_._1).mkString(", ")}).asInstanceOf[${n.name}$tpeParams]
          |  ${n.uninitExtra.mkString("\n    ")}
          |  res
          |}
          |
-         |def apply(
+         |def apply$tpeParams(
          |  ${if (n.uninitExtraParams.nonEmpty) n.uninitExtraParams.map(t => s"${t._1}: ${t._2}").mkString(", ") + "," else ""}
          |  ${allVars.map(v => s"${v._2.name}: Opt[Binding[${v._2.tpe}]] = UnsetParam").mkString(",\n  ")}
-         |): (given Scenegraph) => VarContextAction[${n.name}] = {
-         |  val res = uninitialized()
+         |): (given Scenegraph) => VarContextAction[${n.name}$tpeParams] = {
+         |  val res = uninitialized$tpeParams()
          |  ${n.name}.init(res)
          |  ${allVars.map(v => s"ifSet(${v._2.name}, ${v._1.name}.ops.${v._2.name}(res) := _)").mkString("\n  ")}
          |  res
@@ -667,14 +809,14 @@ def genCode(n: NodeDescr): String = {
   val sortedProps = n.props.sortBy(_.name)
   val sortedEmitters = n.emitters.sortBy(_.name)
 
-  s"""opaque type ${n.name} ${if (n.parents.nonEmpty) n.parents.mkString("<: ", " & ", "") else ""} = ${(n.underlying +: n.parents).mkString(" & ")}
+  s"""opaque type ${n.name}$tpeParamsDecls ${if (n.parents.nonEmpty) n.parents.mkString("<: ", " & ", "") else ""} = ${(n.underlying +: n.parents).mkString(" & ")}
      |object ${n.name} extends VarsMap {
      |  ${sortedProps.map(propDecl).mkString("\n  ")}
      |
      |  ${sortedEmitters.map(e => s"val ${e.name.capitalize} = Emitter[${e.tpe}]()").mkString("\n  ")}
      |
-     |  extension ops on (v: ${n.name}) {
-     |    ${sortedProps.map(p => s"def ${p.name}: Var.Aux[${p.tpe}, v.type] = ${n.name}.${p.name.capitalize}.forInstance(v)").mkString("\n    ")}
+     |  extension ops on $tpeParams(v: ${n.name}$tpeParams) {
+     |    ${sortedProps.map(p => s"def ${p.name}: Var.Aux[${p.tpe}, v.type] = ${n.name}.${p.name.capitalize}.asInstanceOf[Var.Aux[${p.tpe}, v.type]]").mkString("\n    ")}
 
      |    ${sortedEmitters.map(e => s"def ${e.name}: Emitter.Aux[${e.tpe}, v.type] = ${n.name}.${e.name.capitalize}.forInstance(v)").mkString("\n    ")}
 
@@ -682,9 +824,9 @@ def genCode(n: NodeDescr): String = {
      |    def unwrap: ${n.underlying} = v
      |  }
      |
-     |  def apply(v: ${n.underlying}) = v.asInstanceOf[${n.name}]
+     |  def apply$tpeParams(v: ${n.underlying}) = v.asInstanceOf[${n.name}$tpeParams]
      |
-     |  def init(v: ${n.name}): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
+     |  def init$tpeParams(v: ${n.name}$tpeParams): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
      |    ${n.parents.headOption.map(p => s"$p.init(v)").getOrElse("")}
      |    ${if (sortedEmitters.nonEmpty) {
               val registeredEmitters = sortedEmitters.map(e => s"  ctx.register(v.${e.name})")
@@ -696,12 +838,13 @@ def genCode(n: NodeDescr): String = {
      |    ${sortedEmitters.flatMap(_.initializer).mkString("\n    ")}
      |  }
      |  ${initializers.mkString("\n  ")}
+     |  ${n.companionObjectExtras.mkString("\n  ")}
      |}
   """.stripMargin.trim.nn
 }
 
 @main def run(): Unit = {
-  val dest = File("src/main/scala/guarana/swing/impl/allNodes.scala").clear()
+  val dir = File("src/main/scala/guarana/swing/")
   val preamble = """
     //AUTOGENERATED FILE, DO NOT MODIFY
 
@@ -713,9 +856,10 @@ def genCode(n: NodeDescr): String = {
     |import javax.swing._
     |import javax.swing.event._
     |import guarana.swing.util._
+    |import scala.jdk.CollectionConverters._
     |import scala.util.chaining._
     """.stripMargin.trim.nn
-  dest.append(preamble).append("\n\n")
+  // dest.append(preamble).append("\n\n")
 
   for (node <- Seq(
     Node,
@@ -741,5 +885,11 @@ def genCode(n: NodeDescr): String = {
     RadioButton,
     Slider,
     ProgressBar,
-  )) dest.append(genCode(node)).append("\n\n")
+    ListView,
+    TableView,
+  )) {
+    val dest = dir / (node.getClass.getSimpleName.nn.stripSuffix("$") + ".scala")
+    dest.append(preamble).append("\n\n")
+    dest.append(genCode(node))
+  }
 }

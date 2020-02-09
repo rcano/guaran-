@@ -29,8 +29,10 @@ trait VarsMap {
     .map(_.invoke(this).asInstanceOf[Var[_]])
     .map(v => v.name.toLowerCase -> v).toMap
   protected def varsPropertyListener(instance: Any)(given sg: Scenegraph): java.beans.PropertyChangeListener = { evt =>
+    // println(s"Trying to update ${evt.getPropertyName}")
     VarsMap.get(evt.getPropertyName) foreach {
       case sv: SwingVar[t] =>
+        // println("  found")
         sg.update(summon[VarContext].swingPropertyUpdated(sv, evt.getNewValue.asInstanceOf[t])(given ValueOf(instance.asInstanceOf[sv.ForInstance])))
       case v: Var[t] =>
         sg.update(v.forInstance(instance) := evt.getNewValue.asInstanceOf[t])
@@ -53,6 +55,14 @@ extension documentOps on (d: javax.swing.text.Document) {
   def startPosition = d.getStartPosition
   def endPosition = d.getEndPosition
   def rootElements = d.getRootElements
+}
+
+extension listModelOps on [E](m: javax.swing.ListModel[E]) {
+  def elements: collection.IndexedSeqView[E] = (0 until m.getSize).view.map(m.getElementAt(_).nn)
+}
+implicit def seqToListModel[E](s: Seq[E]): javax.swing.ListModel[E] = new javax.swing.AbstractListModel[E] {
+  def getSize() = s.size
+  def getElementAt(i: Int) = s(i)
 }
 
 object Box {

@@ -73,7 +73,7 @@ object Var {
   // }
 }
 
-enum Binding[T] {
+enum Binding[+T] {
   case Const(value: () => T)
   case Compute(compute: VarContext => T)
 

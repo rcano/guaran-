@@ -138,7 +138,7 @@ import scala.util.control.NonFatal
           }  
         }
 
-        val readOnlyProps = properties.collect { case Right(t) => t }.filterNot(inParents).map((prop, tpe, descr, m) => s""""def $prop = v.${m.getName}"""")
+        val readOnlyProps = properties.collect { case Right(t) => t }.filterNot(inParents).map((prop, tpe, descr, m) => s""""def $prop: $tpe = v.${m.getName}"""")
         val varDescrs = properties.collect { case Left(t) => t }
         val varProps = varDescrs.filterNot(inParents).map { (prop, tpe, descr, m) => 
           // s"""val ${prop.capitalize} = SwingVar[$nodeName, $tpe]("${prop}", _.${descr.getReadMethod.getName}, _.${descr.getWriteMethod.getName}(_))"""
