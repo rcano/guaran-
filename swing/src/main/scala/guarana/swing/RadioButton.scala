@@ -49,6 +49,7 @@ object RadioButton extends VarsMap {
     actionMap: Opt[Binding[javax.swing.ActionMap]] = UnsetParam,
     alignmentX: Opt[Binding[Float]] = UnsetParam,
     alignmentY: Opt[Binding[Float]] = UnsetParam,
+    armed: Opt[Binding[Boolean]] = UnsetParam,
     autoscrolls: Opt[Binding[Boolean]] = UnsetParam,
     background: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     border: Opt[Binding[javax.swing.border.Border | Null]] = UnsetParam,
@@ -86,8 +87,10 @@ object RadioButton extends VarsMap {
     multiClickThreshhold: Opt[Binding[Long]] = UnsetParam,
     opaque: Opt[Binding[Boolean]] = UnsetParam,
     prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
+    pressed: Opt[Binding[Boolean]] = UnsetParam,
     pressedIcon: Opt[Binding[javax.swing.Icon | Null]] = UnsetParam,
     requestFocusEnabled: Opt[Binding[Boolean]] = UnsetParam,
+    rollover: Opt[Binding[Boolean]] = UnsetParam,
     rolloverEnabled: Opt[Binding[Boolean]] = UnsetParam,
     rolloverIcon: Opt[Binding[javax.swing.Icon | Null]] = UnsetParam,
     rolloverSelectedIcon: Opt[Binding[javax.swing.Icon | Null]] = UnsetParam,
@@ -109,6 +112,7 @@ object RadioButton extends VarsMap {
     ifSet(actionMap, Component.ops.actionMap(res) := _)
     ifSet(alignmentX, Component.ops.alignmentX(res) := _)
     ifSet(alignmentY, Component.ops.alignmentY(res) := _)
+    ifSet(armed, ButtonBase.ops.armed(res) := _)
     ifSet(autoscrolls, Component.ops.autoscrolls(res) := _)
     ifSet(background, Node.ops.background(res) := _)
     ifSet(border, Component.ops.border(res) := _)
@@ -123,7 +127,7 @@ object RadioButton extends VarsMap {
     ifSet(disabledSelectedIcon, ButtonBase.ops.disabledSelectedIcon(res) := _)
     ifSet(displayedMnemonicIndex, ButtonBase.ops.displayedMnemonicIndex(res) := _)
     ifSet(doubleBuffered, Component.ops.doubleBuffered(res) := _)
-    ifSet(enabled, Node.ops.enabled(res) := _)
+    ifSet(enabled, ButtonBase.ops.enabled(res) := _)
     ifSet(focusPainted, ButtonBase.ops.focusPainted(res) := _)
     ifSet(focusable, Node.ops.focusable(res) := _)
     ifSet(focusedMut, Node.ops.focusedMut(res) := _)
@@ -146,8 +150,10 @@ object RadioButton extends VarsMap {
     ifSet(multiClickThreshhold, ButtonBase.ops.multiClickThreshhold(res) := _)
     ifSet(opaque, Component.ops.opaque(res) := _)
     ifSet(prefSize, Node.ops.prefSize(res) := _)
+    ifSet(pressed, ButtonBase.ops.pressed(res) := _)
     ifSet(pressedIcon, ButtonBase.ops.pressedIcon(res) := _)
     ifSet(requestFocusEnabled, Component.ops.requestFocusEnabled(res) := _)
+    ifSet(rollover, ButtonBase.ops.rollover(res) := _)
     ifSet(rolloverEnabled, ButtonBase.ops.rolloverEnabled(res) := _)
     ifSet(rolloverIcon, ButtonBase.ops.rolloverIcon(res) := _)
     ifSet(rolloverSelectedIcon, ButtonBase.ops.rolloverSelectedIcon(res) := _)

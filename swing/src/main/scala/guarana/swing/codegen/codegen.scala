@@ -494,11 +494,13 @@ case object ButtonBase extends NodeDescr(
     SwingProp("UI", "javax.swing.plaf.ButtonUI"),
     SwingProp("action", "javax.swing.Action | Null"),
     SwingProp("actionCommand", "java.lang.String | Null"),
+    SwingProp("armed", "Boolean", "_.getModel.nn.isArmed", "_.getModel.nn.setArmed(_)"),
     SwingProp("borderPainted", "Boolean"),
     SwingProp("contentAreaFilled", "Boolean"),
     SwingProp("disabledIcon", "javax.swing.Icon | Null"),
     SwingProp("disabledSelectedIcon", "javax.swing.Icon | Null"),
     SwingProp("displayedMnemonicIndex", "Int"),
+    SwingProp("enabled", "Boolean", "_.getModel.nn.isEnabled", "_.getModel.nn.setEnabled(_)"),
     SwingProp("focusPainted", "Boolean"),
     SwingProp("hideActionText", "Boolean", "_.getHideActionText", "_.setHideActionText(_)"),
     SwingProp("horizontalAlignment", "Int"),
@@ -510,7 +512,9 @@ case object ButtonBase extends NodeDescr(
     SwingProp("mnemonic", "Int"),
     SwingProp("model", "javax.swing.ButtonModel | Null"),
     SwingProp("multiClickThreshhold", "Long"),
+    SwingProp("pressed", "Boolean", "_.getModel.nn.isPressed", "_.getModel.nn.setPressed(_)"),
     SwingProp("pressedIcon", "javax.swing.Icon | Null"),
+    SwingProp("rollover", "Boolean", "_.getModel.nn.isRollover", "_.getModel.nn.setRollover(_)"),
     SwingProp("rolloverEnabled", "Boolean"),
     SwingProp("rolloverIcon", "javax.swing.Icon | Null"),
     SwingProp("rolloverSelectedIcon", "javax.swing.Icon | Null"),
@@ -522,17 +526,35 @@ case object ButtonBase extends NodeDescr(
   ),
   emitters = Seq(
     EmitterDescr("actionEvents", "java.awt.event.ActionEvent",
-      "val al: java.awt.event.ActionListener = evt => sc.update(summon[Emitter.Context].emit(v.actionEvents, evt.nn))" ::
-      "v.addActionListener(al)" ::
-      "var wasSelected = v.isSelected" ::
-      "val cl: javax.swing.event.ChangeListener = evt => sc.update {" ::
-      "  val ctx = summon[VarContext]" ::
-      "  if (v.isSelected != wasSelected)" ::
-      "    ctx.swingPropertyUpdated(ops.selected(v), v.isSelected)" ::
-      "  wasSelected = v.isSelected" ::
-      "}" ::
-      "v.addChangeListener(cl)" ::
-      Nil),
+      """val al: java.awt.event.ActionListener = evt => sc.update(summon[Emitter.Context].emit(v.actionEvents, evt.nn))
+        |v.addActionListener(al)
+        |val m = v.getModel.nn
+        |var wasArmed = m.isArmed
+        |var wasEnabled = m.isEnabled
+        |var wasPressed = m.isPressed
+        |var wasRollover = m.isRollover
+        |var wasSelected = v.isSelected
+        |val cl: javax.swing.event.ChangeListener = evt => sc.update {
+        |  val ctx = summon[VarContext]
+        |  val m = v.getModel.nn
+        |  if (m.isArmed != wasArmed)
+        |    ctx.swingPropertyUpdated(ops.armed(v), m.isArmed)
+        |  wasArmed = m.isArmed
+        |  if (m.isEnabled != wasEnabled)
+        |    ctx.swingPropertyUpdated(ops.enabled(v), m.isEnabled)
+        |  wasEnabled = m.isEnabled
+        |  if (m.isPressed != wasPressed)
+        |    ctx.swingPropertyUpdated(ops.pressed(v), m.isPressed)
+        |  wasPressed = m.isPressed
+        |  if (m.isRollover != wasRollover)
+        |    ctx.swingPropertyUpdated(ops.rollover(v), m.isRollover)
+        |  wasRollover = m.isRollover
+        |  if (v.isSelected != wasSelected)
+        |    ctx.swingPropertyUpdated(ops.selected(v), v.isSelected)
+        |  wasSelected = v.isSelected
+        |}
+        |v.addChangeListener(cl)
+        """.trim.nn.stripMargin.split("\n").asInstanceOf[Array[String]].toIndexedSeq),
   ),
   opsExtra = Seq(
     "def actionListeners = v.getActionListeners",
@@ -889,7 +911,7 @@ def genCode(n: NodeDescr): String = {
     TableView,
   )) {
     val dest = dir / (node.getClass.getSimpleName.nn.stripSuffix("$") + ".scala")
-    dest.append(preamble).append("\n\n")
+    dest.clear().append(preamble).append("\n\n")
     dest.append(genCode(node))
   }
 }

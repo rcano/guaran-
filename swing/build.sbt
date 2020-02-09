@@ -2,7 +2,8 @@ name := "guaraná-swing"
 version := "0.1.0"
 
 // scalaVersion := "0.21.0-RC1"
-scalaVersion := "0.22.0-bin-20200125-c8371e4-NIGHTLY"
+// scalaVersion := "0.22.0-bin-20200125-c8371e4-NIGHTLY"
+scalaVersion := "0.23.0-bin-20200205-3f919dd-NIGHTLY"
 
 scalacOptions ++= Seq(
   "-Yexplicit-nulls",
