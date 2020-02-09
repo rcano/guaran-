@@ -34,7 +34,7 @@ object SwingProp {
 case class VarProp(name: String, tpe: String, initValue: String, visibility: Option[String] = None, overrideTpeInStaticPos: Option[String] = None) extends Property
 
 case class EmitterDescr(name: String, tpe: String, initializer: Seq[String])
-type Parameter = (String, String)
+case class Parameter(name: String, tpe: String, passAs: String)
 
 abstract class NodeDescr(
   val name: String,
@@ -196,7 +196,7 @@ case object WindowBase extends NodeDescr(
     "def windowListeners = v.getWindowListeners",
     "def windowStateListeners = v.getWindowStateListeners"
   ),
-  uninitExtraParams = Seq("parent" -> "java.awt.Window | Null = null", "gc" -> "GraphicsConfiguration | Null = null"),
+  uninitExtraParams = Seq(Parameter("parent", "WindowBase | Null = null", "parent"), Parameter("gc", "GraphicsConfiguration | Null = null", "gc")),
 )
 
 case object Window extends NodeDescr(
@@ -212,7 +212,7 @@ case object Window extends NodeDescr(
   opsExtra = Seq(
     "def rootPane: JRootPane = v.getRootPane.nn"
   ),
-  uninitExtraParams = Seq("gc" -> "GraphicsConfiguration | Null = null"),
+  uninitExtraParams = Seq(Parameter("gc", "GraphicsConfiguration | Null = null", "gc")),
 )
 
 case object Frame extends NodeDescr(
@@ -237,7 +237,7 @@ case object Frame extends NodeDescr(
   opsExtra = Seq(
     "def rootPane: JRootPane = v.getRootPane.nn"
   ),
-  uninitExtraParams = Seq("gc" -> "GraphicsConfiguration | Null = null"),
+  uninitExtraParams = Seq(Parameter("gc", "GraphicsConfiguration | Null = null", "gc")),
 )
 
 ////////////////////////////////////////////////////////////////////////////
@@ -783,6 +783,82 @@ case object TableView extends NodeDescr(
 )
 
 ////////////////////////////////////////////////////////////////////////////
+// scroll pane
+////////////////////////////////////////////////////////////////////////////
+
+case object ScrollPane extends NodeDescr(
+  "ScrollPane",
+  "javax.swing.JScrollPane",
+  parents = Seq(Component),
+  props = Seq(
+    SwingProp("UI", "javax.swing.plaf.ScrollPaneUI"),
+    SwingProp("columnHeader", "javax.swing.JViewport | Null"),
+    SwingProp("content", "Node | Null", "_.getViewport.nn.getView.asInstanceOf[Node | Null]", "(s, n) => s.setViewportView(if (n != null) n.unwrap else null)"),
+    SwingProp("horizontalScrollBar", "javax.swing.JScrollBar"),
+    SwingProp("horizontalScrollBarPolicy", "Int"),
+    SwingProp("rowHeader", "javax.swing.JViewport | Null"),
+    SwingProp("verticalScrollBar", "javax.swing.JScrollBar"),
+    SwingProp("verticalScrollBarPolicy", "Int"),
+    SwingProp("viewport", "javax.swing.JViewport"),
+    SwingProp("viewportBorder", "javax.swing.border.Border | Null"),
+    SwingProp("wheelScrollingEnabled", "Boolean"),
+
+    SwingProp("topLeftCorner", "Node | Null", "_.getCorner(ScrollPaneConstants.UPPER_LEFT_CORNER).asInstanceOf[Node | Null]", "(s, n) => s.setCorner(ScrollPaneConstants.UPPER_LEFT_CORNER, if (n != null) n.unwrap else null)"),
+    SwingProp("topRightCorner", "Node | Null", "_.getCorner(ScrollPaneConstants.UPPER_RIGHT_CORNER).asInstanceOf[Node | Null]", "(s, n) => s.setCorner(ScrollPaneConstants.UPPER_RIGHT_CORNER, if (n != null) n.unwrap else null)"),
+    SwingProp("botLeftCorner", "Node | Null", "_.getCorner(ScrollPaneConstants.LOWER_LEFT_CORNER).asInstanceOf[Node | Null]", "(s, n) => s.setCorner(ScrollPaneConstants.LOWER_LEFT_CORNER, if (n != null) n.unwrap else null)"),
+    SwingProp("botRightCorner", "Node | Null", "_.getCorner(ScrollPaneConstants.LOWER_RIGHT_CORNER).asInstanceOf[Node | Null]", "(s, n) => s.setCorner(ScrollPaneConstants.LOWER_RIGHT_CORNER, if (n != null) n.unwrap else null)"),
+  ),
+  opsExtra = Seq(
+    "def viewportBorderBounds: java.awt.Rectangle = v.getViewportBorderBounds.nn"
+  )
+)
+
+////////////////////////////////////////////////////////////////////////////
+// combo box
+////////////////////////////////////////////////////////////////////////////
+
+case object Combobox extends NodeDescr(
+  "ComboBox",
+  "javax.swing.JComboBox[_ <: E]",
+  tpeParams = Seq("+E"),
+  parents = Seq(Component),
+  props = Seq(
+    SwingProp("UI", "javax.swing.plaf.ComboBoxUI"),
+    SwingProp("action", "javax.swing.Action | Null"),
+    SwingProp("actionCommand", "java.lang.String | Null"),
+    SwingProp("editable", "Boolean"),
+    SwingProp("editor", "javax.swing.ComboBoxEditor | Null"),
+    SwingProp("keySelectionManager", "javax.swing.JComboBox.KeySelectionManager | Null"),
+    SwingProp("lightWeightPopupEnabled", "Boolean"),
+    SwingProp("maximumRowCount", "Int"),
+    SwingProp("model", "javax.swing.ComboBoxModel[E]", "_.getModel.nn", "(c, m) => c.setModel(m.asInstanceOf)", overrideTpeInStaticPos = Some("javax.swing.ComboBoxModel[?]")),
+    SwingProp("popupVisible", "Boolean"),
+    SwingProp("prototypeDisplayValue", "E", "_.getPrototypeDisplayValue.asInstanceOf", "(c, v) => c.setPrototypeDisplayValue(v.asInstanceOf)", overrideTpeInStaticPos = Some("Any")),
+    SwingProp("renderer", "javax.swing.ListCellRenderer[_ >: E]", "_.getRenderer.nn", "(c, r) => c.setRenderer(r.asInstanceOf)", overrideTpeInStaticPos = Some("javax.swing.ListCellRenderer[?]")),
+    SwingProp("selectedIndex", "Int"),
+    SwingProp("selectedItem", "Option[E]", "{c => val v = c.getSelectedItem; if (v != null) Some(v) else None}", "_.setSelectedItem(_)", overrideTpeInStaticPos = Some("Option[?]")),
+    SwingProp("items", "Seq[E]", "{c => val m = c.getModel.nn; (0 until m.getSize).map(m.getElementAt(_).asInstanceOf)}",
+      "(c, i) => c.setModel(DefaultComboBoxModel(i.toArray.asInstanceOf[Array[AnyRef | UncheckedNull]]).asInstanceOf)", overrideTpeInStaticPos = Some("Seq[Any]")),
+  ),
+  opsExtra = Seq(
+    "def actionListeners: Array[java.awt.event.ActionListener] = v.getActionListeners.asInstanceOf",
+    "def itemCount: Int = v.getItemCount",
+    "def itemListeners: Array[java.awt.event.ItemListener] = v.getItemListeners.asInstanceOf",
+    "def popupMenuListeners: Array[javax.swing.event.PopupMenuListener] = v.getPopupMenuListeners.asInstanceOf",
+    "def selectedObjects: Seq[E] = v.getSelectedObjects.nn.toIndexedSeq.asInstanceOf"
+  ),
+  initExtra = """
+    |val il: ItemListener = evt => sc.update {
+    |  val vc = summon[VarContext]
+    |  vc.swingPropertyUpdated(ops.selectedIndex(v), v.getSelectedIndex)
+    |  val si = v.getSelectedItem.asInstanceOf[E | Null]
+    |  vc.swingPropertyUpdated(ops.selectedItem(v), if (si == null) None else Some(si))
+    |}
+    |v.addItemListener(il)
+  """.trim.nn.stripMargin.split("\n").asInstanceOf[Array[String]].toIndexedSeq
+)
+
+////////////////////////////////////////////////////////////////////////////
 // main function
 ////////////////////////////////////////////////////////////////////////////
 def genCode(n: NodeDescr): String = {
@@ -809,8 +885,8 @@ def genCode(n: NodeDescr): String = {
   }.flatten.toVector.sortBy(_._2.name)
 
   val initializers = if (!n.isAbstract) 
-      s"""def uninitialized$tpeParams(${n.uninitExtraParams.map(t => s"${t._1}: ${t._2}").mkString(", ")}): ${n.name}$tpeParams = {
-         |  val res = ${n.underlying.replaceAll(raw"_ <: ", "")}(${n.uninitExtraParams.map(_._1).mkString(", ")}).asInstanceOf[${n.name}$tpeParams]
+      s"""def uninitialized$tpeParams(${n.uninitExtraParams.map(t => s"${t.name}: ${t.tpe}").mkString(", ")}): ${n.name}$tpeParams = {
+         |  val res = ${n.underlying.replaceAll(raw"_ <: ", "")}(${n.uninitExtraParams.map(_.passAs).mkString(", ")}).asInstanceOf[${n.name}$tpeParams]
          |  ${n.uninitExtra.mkString("\n    ")}
          |  res
          |}
@@ -909,8 +985,10 @@ def genCode(n: NodeDescr): String = {
     ProgressBar,
     ListView,
     TableView,
+    ScrollPane,
+    Combobox,
   )) {
-    val dest = dir / (node.getClass.getSimpleName.nn.stripSuffix("$") + ".scala")
+    val dest = dir / s"${node.name}.scala"
     dest.clear().append(preamble).append("\n\n")
     dest.append(genCode(node))
   }

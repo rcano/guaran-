@@ -86,6 +86,8 @@ import scala.util.chaining._
       
     scenegraph.emSize := dyn { emModifier.value() }
 
+    val combobox = ComboBox[String](items = Seq("A", "B", "C"))
+
     Frame(
       title = "Guaraná test",
       // bounds = Rect(1300, 300, 300, 300),
@@ -104,7 +106,13 @@ import scala.util.chaining._
           border = javax.swing.BorderFactory.createTitledBorder("Center thing")
         ),
         right = Vbox(nodes = Seq(Label(text = "Em Size"), emModifier)),
-        left = Vbox(nodes = Seq(ToggleButton(text = "toggle"), CheckBox(text = "check"), RadioButton(text = "radio"))),
+        left = Vbox(nodes = Seq(
+          ToggleButton(text = "toggle"),
+          CheckBox(text = "check"),
+          RadioButton(text = "radio"),
+          combobox,
+          Label(text = dyn { s"selected ${combobox.selectedItem()}" })
+        )),
         bottom = Hbox(nodes = Seq(Box.horizontalGlue(), login)),
         border = dyn { javax.swing.BorderFactory.createEmptyBorder(1.em.toInt, 1.em.toInt, 1.em.toInt, 1.em.toInt) }
       ),

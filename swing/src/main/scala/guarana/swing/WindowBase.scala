@@ -78,14 +78,14 @@ object WindowBase extends VarsMap {
     
     
   }
-  def uninitialized(parent: java.awt.Window | Null = null, gc: GraphicsConfiguration | Null = null): WindowBase = {
+  def uninitialized(parent: WindowBase | Null = null, gc: GraphicsConfiguration | Null = null): WindowBase = {
     val res = java.awt.Window(parent, gc).asInstanceOf[WindowBase]
     
     res
   }
   
   def apply(
-    parent: java.awt.Window | Null = null, gc: GraphicsConfiguration | Null = null,
+    parent: WindowBase | Null = null, gc: GraphicsConfiguration | Null = null,
     alwaysOnTop: Opt[Binding[Boolean]] = UnsetParam,
     autoRequestFocus: Opt[Binding[Boolean]] = UnsetParam,
     background: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
