@@ -33,6 +33,17 @@ sealed trait ObsVal[+T] {
   def apply()(given instance: ValueOf[ForInstance]): VarContextAction[T] = (given c) => c(this)
 
   override def toString = s"ObsVal($name)"
+
+  def unapply(evt: Scenegraph#VarValueChanged)(given instance: ValueOf[ForInstance]): Option[(Option[T], T)] = {
+    if (evt.key.instance == instance.value && evt.key.keyed == this) Some((evt.prev.asInstanceOf[Option[T]], evt.curr.asInstanceOf[T]))
+    else None
+  }
+  object generic {
+    def unapply(evt: Scenegraph#VarValueChanged): Option[(ForInstance, Option[T], T)] = {
+      if (evt.key.keyed == ObsVal.this) Some((evt.key.instance.asInstanceOf[ForInstance], evt.prev.asInstanceOf[Option[T]], evt.curr.asInstanceOf[T]))
+      else None
+    }
+  }
 }
 object ObsVal {
   type Aux[T, Instance <: Singleton] = ObsVal[T] { type ForInstance = Instance }
@@ -43,6 +54,8 @@ object ObsVal {
 sealed trait Var[T] extends ObsVal[T] {
   @alpha("assign")
   def :=(b: Binding[T])(given instance: ValueOf[ForInstance]): VarContextAction[this.type] = (given ctx) => { ctx(this) = b; this }
+  // final def :=(n: Null)(given instance: ValueOf[ForInstance], nullEv: Null <:< T): VarContextAction[this.type] = (given ctx) => { ctx(this) = Binding.Const(() => nullEv(null)); this }
+  def eagerEvaluation: Boolean
 
   def forInstance[S <: Singleton](s: S): Var.Aux[T, S] = this.asInstanceOf[Var.Aux[T, S]]
   def asObsValIn[S <: Singleton](s: S): ObsVal.Aux[T, S] = this.asInstanceOf[ObsVal.Aux[T, S]]
@@ -51,9 +64,11 @@ sealed trait Var[T] extends ObsVal[T] {
 }
 object Var {
   type Aux[T, Instance <: Singleton] = Var[T] { type ForInstance = Instance }
-  def apply[T](varName: => String, initValue: => T) = {
+  def apply[T](varName: => String, initValue: => T, eagerEvaluation: Boolean = false) = {
+    val ev = eagerEvaluation
     new Var[T] {
       def initialValue(v: Any)(given v.type <:< ForInstance): T = initValue
+      def eagerEvaluation = ev
       lazy val name = varName
       type ForInstance = this.type
     }
@@ -95,6 +110,8 @@ object Binding {
   def bind[T](compute: VarContext => T): Compute[T] = new Compute(compute)
 
   inline def dyn[T](f: VarContextAction[T]) = Compute(c => f(given c))
+
+  val Null = Const[Null](() => null)
 }
 
 trait SwingObsVal[+T] extends ObsVal[T] {
@@ -123,6 +140,7 @@ trait SwingVar[T] extends Var[T] with SwingObsVal[T] {
     }
     this
   }
+  def eagerEvaluation = true
 }
 
 object SwingVar {
@@ -137,17 +155,85 @@ object SwingVar {
   }
 }
 
-// object TestVars {
 
-//   val a = Var[String]("a").forInstance(Binding)
-//   val b = Var[String]("b").forInstance(Binding)
+import collection.mutable.{AbstractBuffer, ArrayBuffer, IndexedBuffer, IndexedSeqOps}
+class ObsBuffer[T] extends 
+    AbstractBuffer[T],
+    IndexedBuffer[T],
+    IndexedSeqOps[T, ObsBuffer, ObsBuffer[T]],
+    collection.IterableFactoryDefaults[T, ObsBuffer] {
+  import ObsBuffer.Event._
 
-//   given vc: VarContext = null
+  private val elements = ArrayBuffer[T]()
 
-//   a := Binding.dyn {
+  val observers = ArrayBuffer.empty[PartialFunction[ObsBuffer.Event[T], Unit]]
+  private inline def (f: PartialFunction[ObsBuffer.Event[T], Unit]) applyIfDefined(e: ObsBuffer.Event[T]): Unit =
+    if (f.isDefinedAt(e)) f(e)
 
-//     b := Binding.dyn { a() }
+  def insert(idx: Int, elem: T): Unit = {
+    elements.insert(idx, elem)
+    observers foreach (_.applyIfDefined(Inserted(Seq(elem), idx)))
+  }
+  def insertAll(idx: Int, elems: IterableOnce[T]): Unit = {
+    val es = elems.iterator.to(collection.immutable.IndexedSeq)
+    elements.insertAll(idx, es)
+    observers foreach (_.applyIfDefined(Inserted(es, idx)))
+  }
+  def prepend(elem: T): this.type = {
+    elements.prepend(elem)
+    observers foreach (_.applyIfDefined(Inserted(Seq(elem), 0)))
+    this
+  }
+  def remove(idx: Int, count: Int): Unit = {
+    val removed = elements.view.slice(idx, idx + count).to(Seq)
+    elements.remove(idx, count)
+    observers foreach (_.applyIfDefined(Removed(removed, idx)))
+  }
+  def remove(idx: Int): T = {
+    val removed = elements.remove(idx)
+    observers foreach (_.applyIfDefined(Removed(Seq(removed), idx)))
+    removed
+  }
+  
+  // Members declared in scala.collection.mutable.Clearable
+  def clear(): Unit = {
+    elements.clear()
+    observers foreach (_.applyIfDefined(Cleared))
+  }
+  
+  // Members declared in scala.collection.mutable.Growable
+  def addOne(elem: T): this.type = {
+    elements.addOne(elem)
+    observers foreach (_.applyIfDefined(Added(Seq(elem))))
+    this
+  }
+  override def addAll(elems: IterableOnce[T]): this.type = {
+    val es = elems.iterator.to(collection.immutable.IndexedSeq)
+    elements.addAll(es)
+    observers foreach (_.applyIfDefined(Added(es)))
+    this
+  }
+  
+  // Members declared in scala.collection.mutable.SeqOps
+  def update(idx: Int, elem: T): Unit = elements(idx) = elem
+  
+  // Members declared in scala.collection.SeqOps
+  def apply(i: Int): T = elements(i)
+  def length: Int = elements.length
 
-//     "hello"
-//   }
-// }
+}
+object ObsBuffer {
+  enum Event[+T] {
+    case Added(elems: Seq[T])
+    case Inserted(elems: Seq[T], at: Int)
+    case Removed(elems: Seq[T], at: Int)
+    case Replaced(oldElem: T, newElem: T)
+    case Cleared
+  }
+
+  def apply[T](elems: T*): ObsBuffer[T] = {
+    val res = new ObsBuffer[T]()
+    res ++= elems
+    res
+  }
+}

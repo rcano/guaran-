@@ -87,13 +87,10 @@ import scala.util.chaining._
     scenegraph.emSize := dyn { emModifier.value() }
 
     val combobox = ComboBox[String](items = Seq("A", "B", "C"))
+    val spinner = Spinner[Int](model = javax.swing.SpinnerNumberModel(10, 0, 100, 1))
 
-    Frame(
-      title = "Guaraná test",
-      // bounds = Rect(1300, 300, 300, 300),
-      locationByPlatform = true,
-      visible = true,
-      root = BorderPane(
+    val tab1Content = SplitPane(
+      componentA = BorderPane(
         top = ProgressBar(min = dyn(emModifier.min()), max = dyn(emModifier.max()), value = dyn(emModifier.value())),
         center = GridPane(
           rows = Seq(
@@ -111,11 +108,39 @@ import scala.util.chaining._
           CheckBox(text = "check"),
           RadioButton(text = "radio"),
           combobox,
-          Label(text = dyn { s"selected ${combobox.selectedItem()}" })
+          Label(text = dyn { s"selected ${combobox.selectedItem()}" }),
+          Separator(),
+          spinner,
+          Label(text = dyn { s"selected ${spinner.value()}" })
         )),
         bottom = Hbox(nodes = Seq(Box.horizontalGlue(), login)),
         border = dyn { javax.swing.BorderFactory.createEmptyBorder(1.em.toInt, 1.em.toInt, 1.em.toInt, 1.em.toInt) }
       ),
+      componentB = ScrollPane(content = ListView(model = Seq.tabulate(20)(i => s"elem $i"): javax.swing.ListModel[String])),
+      horizontal = false
+    )
+
+
+    val tabs = ObsBuffer[Tab]()
+    tabs += Tab(title = "demo1", content = tab1Content)
+    tabs += Tab(title = "tab2", content = Label(text = "second tab"), tip = "try me", tabNode = Button(text = "press me")).tap { t =>
+      val b = Button(text = "update tab title")
+      t.content := b
+      b.actionEvents := EventIterator.foreach { _ =>
+        t.tabNode := Binding.Null
+        t.title := s"${t.title()}!"
+        if (t.title().toOption.map(_.length).getOrElse(0) > 20) {
+          tabs -= t
+        }
+      }
+    }
+
+    Frame(
+      title = "Guaraná test",
+      // bounds = Rect(1300, 300, 300, 300),
+      locationByPlatform = true,
+      visible = true,
+      root = TabbedPane(tabs = tabs)
     ).pack()
   }
 }

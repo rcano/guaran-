@@ -31,7 +31,7 @@ object SwingProp {
   def setter(name: String, tpe: String) = s"_.set${name.capitalize}(_)"
   def apply(name: String, tpe: String): SwingProp = SwingProp(name, tpe, getter(name, tpe), setter(name, tpe))
 }
-case class VarProp(name: String, tpe: String, initValue: String, visibility: Option[String] = None, overrideTpeInStaticPos: Option[String] = None) extends Property
+case class VarProp(name: String, tpe: String, initValue: String, visibility: Option[String] = None, overrideTpeInStaticPos: Option[String] = None, eagerEvaluation: Boolean = false) extends Property
 
 case class EmitterDescr(name: String, tpe: String, initializer: Seq[String])
 case class Parameter(name: String, tpe: String, passAs: String)
@@ -813,6 +813,147 @@ case object ScrollPane extends NodeDescr(
   )
 )
 
+case object ScrollBar extends NodeDescr(
+  "ScrollBar",
+  "javax.swing.JScrollBar",
+  parents = Seq(Component),
+  props = Seq(
+    SwingProp("UI", "javax.swing.plaf.ScrollBarUI"),
+    SwingProp("blockIncrement", "Int"),
+    SwingProp("maximum", "Int"),
+    SwingProp("minimum", "Int"),
+    SwingProp("model", "javax.swing.BoundedRangeModel"),
+    SwingProp("orientation", "Int"),
+    SwingProp("unitIncrement", "Int"),
+    SwingProp("value", "Int"),
+    SwingProp("valueIsAdjusting", "Boolean", "_.getValueIsAdjusting", "_.setValueIsAdjusting(_)"),
+    SwingProp("visibleAmount", "Int"),
+  ),
+  opsExtra = Seq(
+    "def adjustmentListeners: Array[java.awt.event.AdjustmentListener] = v.getAdjustmentListeners.asInstanceOf"
+  )
+)
+
+////////////////////////////////////////////////////////////////////////////
+// split pane
+////////////////////////////////////////////////////////////////////////////
+
+case object SplitPane extends NodeDescr(
+  "SplitPane",
+  "javax.swing.JSplitPane",
+  parents = Seq(Component),
+  props = Seq(
+    SwingProp("UI", "javax.swing.plaf.SplitPaneUI"),
+    SwingProp("continuousLayout", "Boolean"),
+    SwingProp("dividerLocation", "Int"),
+    SwingProp("dividerSize", "Int"),
+    SwingProp("horizontal", "Boolean", "_.getOrientation == JSplitPane.HORIZONTAL_SPLIT", "(s, h) => s.setOrientation(if (h) JSplitPane.HORIZONTAL_SPLIT else JSplitPane.VERTICAL_SPLIT)"),
+    SwingProp("lastDividerLocation", "Int"),
+    SwingProp("componentA", "Component | Null", "_.getLeftComponent.asInstanceOf", "(p, c) => p.setLeftComponent(c.?(_.unwrap))"),
+    SwingProp("componentB", "Component | Null", "_.getRightComponent.asInstanceOf", "(p, c) => p.setRightComponent(c.?(_.unwrap))"),
+    SwingProp("oneTouchExpandable", "Boolean"),
+    SwingProp("resizeWeight", "Double"),
+),
+  opsExtra = Seq(
+    "def maximumDividerLocation: Int = v.getMaximumDividerLocation",
+    "def minimumDividerLocation: Int = v.getMinimumDividerLocation"
+  )
+)
+
+////////////////////////////////////////////////////////////////////////////
+// tabbed pane
+////////////////////////////////////////////////////////////////////////////
+
+case object TabbedPane extends NodeDescr(
+  "TabbedPane",
+  "javax.swing.JTabbedPane",
+  parents = Seq(Component),
+  props = Seq(
+    SwingProp("UI", "javax.swing.plaf.TabbedPaneUI"),
+    SwingProp("model", "javax.swing.SingleSelectionModel"),
+    SwingProp("selectedComponent", "Option[Node]", "_.getSelectedComponent.toOption.asInstanceOf", "(p, n) => p.setSelectedComponent(n.fold(null)(_.unwrap))"),
+    SwingProp("selectedIndex", "Int"),
+    SwingProp("tabLayoutPolicy", "Int"),
+    SwingProp("tabPlacement", "Int"),
+    VarProp("tabs", "ObsBuffer[Tab]", "ObsBuffer()", eagerEvaluation = true)
+  ),
+  opsExtra = Seq(
+    "def changeListeners: Array[javax.swing.event.ChangeListener] = v.getChangeListeners.asInstanceOf",
+    "def tabCount: Int = v.getTabCount",
+    "def tabRunCount: Int = v.getTabRunCount"
+  ),
+  initExtra = """
+    |//helper methods to add tabs and react to their changes
+    |def addTab(t: Tab): Unit = sc.update {
+    |  v.addTab(t.title(), t.icon(), t.content().unwrap, t.tip())
+    |  v.setEnabledAt(v.getTabCount - 1, t.enabled())
+    |  v.setTabComponentAt(v.getTabCount - 1, t.tabNode().?(_.unwrap))
+    |}
+    |def removeTab(at: Int): Unit = v.removeTabAt(at)
+    |def insertTab(t: Tab, at: Int) = sc.update { 
+    |  v.insertTab(t.title(), t.icon(), t.content().unwrap, t.tip(), at)
+    |  v.setEnabledAt(at, t.enabled())
+    |  v.setTabComponentAt(at, t.tabNode().?(_.unwrap))
+    |}
+    |def replaceTab(oldTab: Tab, withTab: Tab) = sc.update {
+    |  val at = v.indexOfTabComponent(oldTab.content().?(_.unwrap))
+    |  v.setTitleAt(at, withTab.title())
+    |  v.setIconAt(at, withTab.icon())
+    |  v.setComponentAt(at, withTab.content().unwrap)
+    |  v.setToolTipTextAt(at, withTab.tip())
+    |  v.setEnabledAt(at, withTab.enabled())
+    |  v.setTabComponentAt(at, withTab.tabNode().?(_.unwrap))
+    |}
+
+    |val bufferListener: PartialFunction[ObsBuffer.Event[Tab], Unit] = {
+    |  case ObsBuffer.Event.Added(elems) => elems foreach addTab
+    |  case ObsBuffer.Event.Inserted(elems, at) => elems.zipWithIndex foreach ((e, i) => insertTab(e, at + i))
+    |  case ObsBuffer.Event.Removed(elems, at) => elems foreach (_ => removeTab(at))
+    |  case ObsBuffer.Event.Replaced(oldElem, newElem) => replaceTab(oldElem, newElem)
+    |  case ObsBuffer.Event.Cleared => v.removeAll()
+    |}
+
+    |object LocatedTab {
+    |  def unapply(t: Any)(given VarContext): Option[(Tab, Int)] = t match {
+    |    case t: Tab =>  v.tabs().indexOf(t) match {
+    |      case -1 => None
+    |      case i => Some(t -> i)
+    |    }
+    |    case _ => None
+    |  }
+    |}
+
+    |sc.update {
+    |  sc.varUpdates := EventIterator.foreach {
+    |    case v.tabs(old, newv) =>
+    |      old.foreach(_.observers -= bufferListener)
+    |      newv.observers += bufferListener
+
+    |      //replace all tabs
+    |      v.removeAll()
+    |      newv foreach addTab
+
+    |    //react to updates to the vars of the Tabs
+    |    case Tab.Title.generic(LocatedTab(t, at), oldv, newv) => v.setTitleAt(at, newv)
+    |    case Tab.Icon.generic(LocatedTab(t, at), oldv, newv) => v.setIconAt(at, newv)
+    |    case Tab.Content.generic(LocatedTab(t, at), oldv, newv) => v.setComponentAt(at, newv.unwrap)
+    |    case Tab.Tip.generic(LocatedTab(t, at), oldv, newv) => v.setToolTipTextAt(at, newv)
+    |    case Tab.Enabled.generic(LocatedTab(t, at), oldv, newv) => v.setEnabledAt(at, newv)
+    |    case Tab.TabNode.generic(LocatedTab(t, at), oldv, newv) => v.setTabComponentAt(at, newv.?(_.unwrap))
+
+    |    case _ => 
+    |  }
+
+    |  val cl: ChangeListener = evt => sc.update{
+    |    val vc = summon[VarContext]
+    |    vc.swingPropertyUpdated(v.selectedComponent, v.getSelectedComponent.toOption.asInstanceOf)
+    |    vc.swingPropertyUpdated(v.selectedIndex, v.getSelectedIndex)
+    |  }
+    |  v.addChangeListener(cl)
+    |}
+    """.trim.nn.stripMargin.split("\n").asInstanceOf[Array[String]].toIndexedSeq,
+)
+
 ////////////////////////////////////////////////////////////////////////////
 // combo box
 ////////////////////////////////////////////////////////////////////////////
@@ -859,6 +1000,41 @@ case object Combobox extends NodeDescr(
 )
 
 ////////////////////////////////////////////////////////////////////////////
+// separator
+////////////////////////////////////////////////////////////////////////////
+
+case object Separator extends NodeDescr(
+  "Separator",
+  "javax.swing.JSeparator",
+  parents = Seq(Component),
+  props = Seq(
+    SwingProp("UI", "javax.swing.plaf.SeparatorUI"),
+    SwingProp("horizontal", "Boolean", "_.getOrientation == SwingConstants.HORIZONTAL", "(s, h) => s.setOrientation(if (h) SwingConstants.HORIZONTAL else SwingConstants.VERTICAL)")
+  )
+)
+
+////////////////////////////////////////////////////////////////////////////
+// spinner
+////////////////////////////////////////////////////////////////////////////
+
+case object Spinner extends NodeDescr(
+  "Spinner",
+  "javax.swing.JSpinner",
+  tpeParams = Seq("+E"),
+  parents = Seq(Component),
+  props = Seq(
+    SwingProp("UI", "javax.swing.plaf.SpinnerUI"),
+    SwingProp("editor", "javax.swing.JComponent | Null"),
+    SwingProp("model", "javax.swing.SpinnerModel"),
+    SwingProp("value", "E", "_.getValue", "_.setValue(_)", overrideTpeInStaticPos = Some("Any")),
+  ),
+  initExtra = """
+    |val cl: ChangeListener = evt => sc.update(summon[VarContext].swingPropertyUpdated(ops.value(v), v.getValue.asInstanceOf))
+    |v.addChangeListener(cl)
+    """.trim.nn.stripMargin.split("\n").asInstanceOf[Array[String]].toIndexedSeq
+)
+
+////////////////////////////////////////////////////////////////////////////
 // main function
 ////////////////////////////////////////////////////////////////////////////
 def genCode(n: NodeDescr): String = {
@@ -871,8 +1047,8 @@ def genCode(n: NodeDescr): String = {
   def propDecl(p: Property) = p.visibility.map(s => s + " ").getOrElse("") + (p match {
     case p@SwingProp(name, tpe, getter, setter, _, _) => 
       s"""val ${name.capitalize}: SwingVar.Aux[${n.name}$emptyTpeParams, ${p.tpeInStaticPos}] = SwingVar[${n.name}$emptyTpeParams, ${p.tpeInStaticPos}]("$name", $getter, $setter)"""
-    case p@VarProp(name, tpe, initValue, _, _) => 
-      s"""val ${name.capitalize}: Var[${p.tpeInStaticPos}] = Var[${p.tpeInStaticPos}]("$name", $initValue)"""
+    case p@VarProp(name, tpe, initValue, _, _, eval) => 
+      s"""val ${name.capitalize}: Var[${p.tpeInStaticPos}] = Var[${p.tpeInStaticPos}]("$name", $initValue, $eval)"""
   })
 
   val seenVars = collection.mutable.Set.empty[String]
@@ -986,7 +1162,12 @@ def genCode(n: NodeDescr): String = {
     ListView,
     TableView,
     ScrollPane,
+    ScrollBar,
+    SplitPane,
     Combobox,
+    Separator,
+    Spinner,
+    TabbedPane,
   )) {
     val dest = dir / s"${node.name}.scala"
     dest.clear().append(preamble).append("\n\n")

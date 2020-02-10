@@ -33,15 +33,17 @@ class Scenegraph {
     val key: Keyed[Signal[T]]
     val prev: Option[T]
     val curr: T
+
+    override def toString = s"VarValueChanged($key, $prev, $curr)"
   }
   object VarValueChanged {
     def apply[U](k: Keyed[Signal[U]], p: Option[U], c: U) = new VarValueChanged {
       type T = U
-      val key = key
+      val key = k
       val prev = p
       val curr = c
     }
-    def unapply(v: VarValueChanged) = (v.key, v.prev, v.curr)
+    def unapply(v: VarValueChanged) = (v.key.keyed, v.key.instance, v.prev, v.curr)
   }
 
   //emitters
@@ -103,8 +105,11 @@ class Scenegraph {
     def signalRemoved(sb: SignalSwitchboard[Signal], s: Keyed[Signal[_]]): Unit = ()
     def signalInvalidated(sb: SignalSwitchboard[Signal], s: Keyed[Signal[_]]) = {
       //swing keys need to be eagerly computed
-      if (s.keyed.isInstanceOf[SwingObsVal[_]]) withContext { ctx =>
-        reactingToVar(s) { ctx.switchboard(s) }
+      s.keyed match {
+        case v: Var[_] if v.eagerEvaluation => withContext { ctx =>
+          reactingToVar(s) { ctx.switchboard(s) }
+        }
+        case _ =>
       }
     }
 

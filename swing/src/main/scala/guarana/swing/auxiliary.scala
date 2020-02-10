@@ -28,17 +28,21 @@ trait VarsMap {
     .filter(f => classOf[Var[_]].isAssignableFrom(f.getReturnType) && f.getParameterCount == 0)
     .map(_.invoke(this).asInstanceOf[Var[_]])
     .map(v => v.name.toLowerCase -> v).toMap
-  protected def varsPropertyListener(instance: Any)(given sg: Scenegraph): java.beans.PropertyChangeListener = { evt =>
-    // println(s"Trying to update ${evt.getPropertyName}")
-    VarsMap.get(evt.getPropertyName) foreach {
+  protected inline def varsPropertyListener(instance: Any, debug: Boolean = false)(given sg: Scenegraph): java.beans.PropertyChangeListener = { evt =>
+    if (debug) println(s"Trying to update ${evt.getPropertyName.toLowerCase}")
+    VarsMap.get(evt.getPropertyName.toLowerCase) foreach {
       case sv: SwingVar[t] =>
-        // println("  found")
+        if (debug) println("  found swing var")
         sg.update(summon[VarContext].swingPropertyUpdated(sv, evt.getNewValue.asInstanceOf[t])(given ValueOf(instance.asInstanceOf[sv.ForInstance])))
       case v: Var[t] =>
+        if (debug) println("  found regular var")
         sg.update(v.forInstance(instance) := evt.getNewValue.asInstanceOf[t])
     }
   }: java.beans.PropertyChangeListener
 }
+
+def [T, U](e: T | Null) ? (f: T => U): U | Null = if (e != null) f(e) else null
+def [T](e: T | Null) toOption: Option[T] = if (e != null) Some(e) else None
 
 extension documentOps on (d: javax.swing.text.Document) {
   def defaultRootElement = d.getDefaultRootElement
