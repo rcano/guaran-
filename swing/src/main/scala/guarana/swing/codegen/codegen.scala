@@ -112,6 +112,13 @@ case object Node extends NodeDescr(
   |    summon[Emitter.Context].emit(v.focusEvents, (evt.nn -> false))
   |  }
   |}
+  |v addComponentListener new ComponentAdapter {
+  |  override def componentMoved(e: ComponentEvent | UncheckedNull): Unit = updateBounds()
+  |  override def componentResized(e: ComponentEvent | UncheckedNull): Unit = updateBounds()
+  |  def updateBounds(): Unit = sc.update {
+  |    summon[VarContext].swingPropertyUpdated(ops.bounds(v), v.getBounds.nn)
+  |  }
+  |}
   """.stripMargin.trim.split("\n").asInstanceOf[Array[String]].toIndexedSeq
 )
 
@@ -148,7 +155,8 @@ case object Component extends NodeDescr(
     "def rootPane = v.getRootPane",
     "def topLevelAncestor = v.getTopLevelAncestor",
     "def vetoableChangeListeners = v.getVetoableChangeListeners",
-    "def visibleRect = v.getVisibleRect"
+    "def visibleRect = v.getVisibleRect",
+    "def uiPrefSize: (Double, Double) | Null = UI(v).?(_.getPreferredSize(v)).?(d => (d.getWidth, d.getHeight))",
   ),
   isAbstract = true,
 )
@@ -162,7 +170,7 @@ case object WindowBase extends NodeDescr(
     SwingProp("autoRequestFocus", "Boolean"),
     SwingProp("focusCycleRoot", "Boolean"),
     SwingProp("focusableWindowState", "Boolean", "_.getFocusableWindowState", "_.setFocusableWindowState(_)"),
-    SwingProp("iconImages", "java.util.List[_ <: java.awt.Image] | Null"),
+    SwingProp("iconImages", "Seq[java.awt.Image]", "_.getIconImages.nn.asScala.toSeq", "(w, l) => w.setIconImages(l.asJava)"),
     SwingProp("locationByPlatform", "Boolean"),
     SwingProp("modalExclusionType", "java.awt.Dialog.ModalExclusionType"),
     SwingProp("opacity", "Float"),
@@ -221,7 +229,6 @@ case object Frame extends NodeDescr(
   parents = Seq(WindowBase),
   props = Seq(
     SwingProp("extendedState", "Int"),
-    SwingProp("iconImage", "java.awt.Image | Null"),
     SwingProp("maximizedBounds", "Bounds | Null"),
     SwingProp("resizable", "Boolean"),
     SwingProp("state", "Int"),
@@ -445,6 +452,12 @@ case object TextField extends NodeDescr(
     SwingProp("horizontalAlignment", "Int"),
     SwingProp("scrollOffset", "Int")
   ),
+  emitters = Seq(
+    EmitterDescr("actionEvents", "java.awt.event.ActionEvent",
+      """val al: java.awt.event.ActionListener = evt => sc.update(summon[Emitter.Context].emit(v.actionEvents, evt.nn))
+        |v.addActionListener(al)
+        """.trim.nn.stripMargin.split("\n").asInstanceOf[Array[String]].toIndexedSeq),
+  ),
   opsExtra = Seq(
     "def horizontalVisibility = v.getHorizontalVisibility"
   ),
@@ -528,34 +541,36 @@ case object ButtonBase extends NodeDescr(
     EmitterDescr("actionEvents", "java.awt.event.ActionEvent",
       """val al: java.awt.event.ActionListener = evt => sc.update(summon[Emitter.Context].emit(v.actionEvents, evt.nn))
         |v.addActionListener(al)
-        |val m = v.getModel.nn
-        |var wasArmed = m.isArmed
-        |var wasEnabled = m.isEnabled
-        |var wasPressed = m.isPressed
-        |var wasRollover = m.isRollover
-        |var wasSelected = v.isSelected
-        |val cl: javax.swing.event.ChangeListener = evt => sc.update {
-        |  val ctx = summon[VarContext]
-        |  val m = v.getModel.nn
-        |  if (m.isArmed != wasArmed)
-        |    ctx.swingPropertyUpdated(ops.armed(v), m.isArmed)
-        |  wasArmed = m.isArmed
-        |  if (m.isEnabled != wasEnabled)
-        |    ctx.swingPropertyUpdated(ops.enabled(v), m.isEnabled)
-        |  wasEnabled = m.isEnabled
-        |  if (m.isPressed != wasPressed)
-        |    ctx.swingPropertyUpdated(ops.pressed(v), m.isPressed)
-        |  wasPressed = m.isPressed
-        |  if (m.isRollover != wasRollover)
-        |    ctx.swingPropertyUpdated(ops.rollover(v), m.isRollover)
-        |  wasRollover = m.isRollover
-        |  if (v.isSelected != wasSelected)
-        |    ctx.swingPropertyUpdated(ops.selected(v), v.isSelected)
-        |  wasSelected = v.isSelected
-        |}
-        |v.addChangeListener(cl)
         """.trim.nn.stripMargin.split("\n").asInstanceOf[Array[String]].toIndexedSeq),
   ),
+  initExtra = """
+    |val m = v.getModel.nn
+    |var wasArmed = m.isArmed
+    |var wasEnabled = m.isEnabled
+    |var wasPressed = m.isPressed
+    |var wasRollover = m.isRollover
+    |var wasSelected = v.isSelected
+    |val cl: javax.swing.event.ChangeListener = evt => sc.update {
+    |  val ctx = summon[VarContext]
+    |  val m = v.getModel.nn
+    |  if (m.isArmed != wasArmed)
+    |    ctx.swingPropertyUpdated(ops.armed(v), m.isArmed)
+    |  wasArmed = m.isArmed
+    |  if (m.isEnabled != wasEnabled)
+    |    ctx.swingPropertyUpdated(ops.enabled(v), m.isEnabled)
+    |  wasEnabled = m.isEnabled
+    |  if (m.isPressed != wasPressed)
+    |    ctx.swingPropertyUpdated(ops.pressed(v), m.isPressed)
+    |  wasPressed = m.isPressed
+    |  if (m.isRollover != wasRollover)
+    |    ctx.swingPropertyUpdated(ops.rollover(v), m.isRollover)
+    |  wasRollover = m.isRollover
+    |  if (v.isSelected != wasSelected)
+    |    ctx.swingPropertyUpdated(ops.selected(v), v.isSelected)
+    |  wasSelected = v.isSelected
+    |}
+    |v.addChangeListener(cl)
+    """.stripMargin.trim.split("\n").asInstanceOf[Array[String]].toIndexedSeq,
   opsExtra = Seq(
     "def actionListeners = v.getActionListeners",
     "def changeListeners = v.getChangeListeners",

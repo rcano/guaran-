@@ -1,10 +1,11 @@
-package guarana.swing.plaf
+package guarana.swing
+package plaf
 
 import java.awt._
 import javax.swing.{JComponent, UIManager}
 import javax.swing.plaf.synth._
 
-object CssSynthLaf extends SynthStyleFactory {
+class CssSynthLaf(sceengraph: Scenegraph) extends SynthStyleFactory {
 
   private val synthLaf = new SynthLookAndFeel()
   private val defaultStyle = new sun.swing.plaf.synth.DefaultSynthStyle()

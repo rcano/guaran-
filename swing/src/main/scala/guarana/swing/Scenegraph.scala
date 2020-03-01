@@ -15,7 +15,7 @@ class Scenegraph {
   type Signal[+T] = ObsVal[T]
   private[this] var switchboard = SignalSwitchboard[Signal](reporter)
   private[this] var emittersData = Map.empty[Keyed[Emitter[_]], EmitterData[_]]
-  private[this] var stylist: Stylist = Stylist.NoOp
+  var stylist: Stylist = Stylist.NoOp
 
   private val systemEm = {
     //ideally we'd want a way to detect system configured DPI, but we can't, so...
@@ -160,7 +160,9 @@ class Scenegraph {
       }
     }
     private[guarana] def swingPropertyUpdated[T](v: Var[T], value: T)(given instance: ValueOf[v.ForInstance]): Unit = {
-      if (!reactingSwingVars(v)) switchboard(v) = value
+      if (!reactingSwingVars(v) && !switchboard.get(v).exists(_ == value)) {
+        switchboard(v) = value
+      }
     }
   }
 
@@ -197,4 +199,11 @@ class Scenegraph {
     }
   }
 
+
+  /** Read-only view of the current state of vars value in the scenegraph */
+  object stateReader {
+    def apply[T](v: ObsVal[T])(given instance: ValueOf[v.ForInstance]): T = {
+      switchboard.get(v) orElse stylist(scenegraphInfo)(v) getOrElse v.initialValue(instance.value)
+    }
+  }
 }

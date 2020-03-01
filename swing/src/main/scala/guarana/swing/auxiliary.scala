@@ -24,19 +24,18 @@ extension metrics on (d: Double | Float | Int) {
 /** Calculates the map of name→var for this node by using reflection
   */
 trait VarsMap {
+  protected var ignoreProperties = collection.mutable.Set.empty[String]
   protected lazy val VarsMap = getClass.getDeclaredMethods.asInstanceOf[Array[java.lang.reflect.Method]].iterator
-    .filter(f => classOf[Var[_]].isAssignableFrom(f.getReturnType) && f.getParameterCount == 0)
-    .map(_.invoke(this).asInstanceOf[Var[_]])
-    .map(v => v.name.toLowerCase -> v).toMap
+    .filter(f => classOf[SwingVar[_]].isAssignableFrom(f.getReturnType) && f.getParameterCount == 0)
+    .map(_.invoke(this).asInstanceOf[SwingVar[_]])
+    .map(v => v.name.toLowerCase.nn -> v).toMap
   protected inline def varsPropertyListener(instance: Any, debug: Boolean = false)(given sg: Scenegraph): java.beans.PropertyChangeListener = { evt =>
-    if (debug) println(s"Trying to update ${evt.getPropertyName.toLowerCase}")
-    VarsMap.get(evt.getPropertyName.toLowerCase) foreach {
+    val property = evt.getPropertyName.toLowerCase.nn
+    if (debug) println(s"Trying to update $property")
+    VarsMap.get(property) foreach {
       case sv: SwingVar[t] =>
         if (debug) println("  found swing var")
         sg.update(summon[VarContext].swingPropertyUpdated(sv, evt.getNewValue.asInstanceOf[t])(given ValueOf(instance.asInstanceOf[sv.ForInstance])))
-      case v: Var[t] =>
-        if (debug) println("  found regular var")
-        sg.update(v.forInstance(instance) := evt.getNewValue.asInstanceOf[t])
     }
   }: java.beans.PropertyChangeListener
 }
@@ -92,9 +91,10 @@ object Box {
   def verticalStrut(height: Binding[Double]): (given Scenegraph) =>  VarContextAction[Node] = createFiller(0.0, 0.0, height, height)
   def strut(width: Binding[Double], height: Binding[Double]): (given Scenegraph) =>  VarContextAction[Node] = createFiller(width, width, height, height)
 }
-
-def Font(name: String, style: Opt[Int] = UnsetParam, size: Opt[Double] = UnsetParam): java.awt.Font = {
-  var res = java.awt.Font.getFont(name).nn
+def Font(name: String, style: Opt[Int] = UnsetParam, size: Opt[Double] = UnsetParam)(given sc: Scenegraph): java.awt.Font = {
+  import java.awt.font.TextAttribute
+  val r = sc.stateReader(sc.emSize).toInt
+  var res = new java.awt.Font(java.util.Map.of(TextAttribute.FONT, name))
   ifSet(style, s => res = res.deriveFont(s).nn)
   ifSet(size, s => res = res.deriveFont(s.toFloat).nn)
   res
@@ -103,3 +103,8 @@ def Font(name: String, style: Opt[Int] = UnsetParam, size: Opt[Double] = UnsetPa
 type Bounds = java.awt.Rectangle
 def Bounds(x: Double = 0, y: Double = 0, width: Double = 0, height: Double = 0) =
   java.awt.Rectangle(x.toInt, y.toInt, width.toInt, height.toInt)
+
+case class Insets(top: Double = 0, right: Double = 0, bot: Double = 0, left: Double = 0)
+object Insets {
+  def all(topRightBottomLeft: Double): Insets = Insets(topRightBottomLeft, topRightBottomLeft, topRightBottomLeft, topRightBottomLeft)
+}

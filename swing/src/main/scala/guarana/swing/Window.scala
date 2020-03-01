@@ -64,7 +64,7 @@ object Window extends VarsMap {
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     glassPane: Opt[Binding[java.awt.Component | Null]] = UnsetParam,
-    iconImages: Opt[Binding[java.util.List[_ <: java.awt.Image] | Null]] = UnsetParam,
+    iconImages: Opt[Binding[Seq[java.awt.Image]]] = UnsetParam,
     layeredPane: Opt[Binding[javax.swing.JLayeredPane | Null]] = UnsetParam,
     locationByPlatform: Opt[Binding[Boolean]] = UnsetParam,
     maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,

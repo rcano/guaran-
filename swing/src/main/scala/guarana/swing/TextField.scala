@@ -18,7 +18,7 @@ object TextField extends VarsMap {
   val HorizontalAlignment: SwingVar.Aux[TextField, Int] = SwingVar[TextField, Int]("horizontalAlignment", _.getHorizontalAlignment, _.setHorizontalAlignment(_))
   val ScrollOffset: SwingVar.Aux[TextField, Int] = SwingVar[TextField, Int]("scrollOffset", _.getScrollOffset, _.setScrollOffset(_))
 
-  
+  val ActionEvents = Emitter[java.awt.event.ActionEvent]()
 
   extension ops on (v: TextField) {
     def action: Var.Aux[javax.swing.Action | Null, v.type] = TextField.Action.asInstanceOf[Var.Aux[javax.swing.Action | Null, v.type]]
@@ -26,7 +26,7 @@ object TextField extends VarsMap {
     def horizontalAlignment: Var.Aux[Int, v.type] = TextField.HorizontalAlignment.asInstanceOf[Var.Aux[Int, v.type]]
     def scrollOffset: Var.Aux[Int, v.type] = TextField.ScrollOffset.asInstanceOf[Var.Aux[Int, v.type]]
 
-    
+    def actionEvents: Emitter.Aux[java.awt.event.ActionEvent, v.type] = TextField.ActionEvents.forInstance(v)
 
     def horizontalVisibility = v.getHorizontalVisibility
     def unwrap: javax.swing.JTextField = v
@@ -36,10 +36,14 @@ object TextField extends VarsMap {
 
   def init(v: TextField): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     TextComponent.init(v)
-    
+    sc.update {
+      val ctx = summon[Emitter.Context]
+      ctx.register(v.actionEvents)
+    }
     v.addPropertyChangeListener(varsPropertyListener(v))
     
-    
+    val al: java.awt.event.ActionListener = evt => sc.update(summon[Emitter.Context].emit(v.actionEvents, evt.nn))
+    v.addActionListener(al)
   }
   def uninitialized(): TextField = {
     val res = javax.swing.JTextField().asInstanceOf[TextField]

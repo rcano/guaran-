@@ -60,7 +60,8 @@ import scala.util.chaining._
 
   val scenegraph = Scenegraph()
 
-  javax.swing.UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel")
+  com.formdev.flatlaf.FlatLightLaf.install()
+  // javax.swing.UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel")
   // javax.swing.UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel")
   // plaf.CssSynthLaf.install()
 
@@ -100,7 +101,7 @@ import scala.util.chaining._
           hgap = 1.em,
           vgap = 1.5.em,
           autoCreateContainerGaps = true,
-          border = javax.swing.BorderFactory.createTitledBorder("Center thing")
+          swingBorder = javax.swing.BorderFactory.createTitledBorder("Center thing")
         ),
         right = Vbox(nodes = Seq(Label(text = "Em Size"), emModifier)),
         left = Vbox(nodes = Seq(
@@ -114,7 +115,7 @@ import scala.util.chaining._
           Label(text = dyn { s"selected ${spinner.value()}" })
         )),
         bottom = Hbox(nodes = Seq(Box.horizontalGlue(), login)),
-        border = dyn { javax.swing.BorderFactory.createEmptyBorder(1.em.toInt, 1.em.toInt, 1.em.toInt, 1.em.toInt) }
+        swingBorder = dyn { javax.swing.BorderFactory.createEmptyBorder(1.em.toInt, 1.em.toInt, 1.em.toInt, 1.em.toInt) }
       ),
       componentB = ScrollPane(content = ListView(model = Seq.tabulate(20)(i => s"elem $i"): javax.swing.ListModel[String])),
       horizontal = false
@@ -134,6 +135,17 @@ import scala.util.chaining._
         }
       }
     }
+    case class Movie(title: String, year: String, rating: Int, watched: Boolean)
+    val td = table.immutable.TableData[Movie](IndexedSeq(
+      Movie("Castle in the Sky", "1986", 8, true),
+      Movie("Grave of the Fireflies", "1988", 10, true),
+      Movie("My Neighbor Totoro", "1988", 9, true),
+      Movie("Pom Poko", "1994", 6, false),
+    ))
+    tabs += Tab(title = "A table", content = ScrollPane(content = TableView(
+      model = td.tableModel,
+      columnModel = td.columnModel
+    )))
 
     Frame(
       title = "Guaraná test",

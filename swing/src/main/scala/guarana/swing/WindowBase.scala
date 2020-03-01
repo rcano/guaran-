@@ -17,7 +17,7 @@ object WindowBase extends VarsMap {
   val AutoRequestFocus: SwingVar.Aux[WindowBase, Boolean] = SwingVar[WindowBase, Boolean]("autoRequestFocus", _.isAutoRequestFocus, _.setAutoRequestFocus(_))
   val FocusCycleRoot: SwingVar.Aux[WindowBase, Boolean] = SwingVar[WindowBase, Boolean]("focusCycleRoot", _.isFocusCycleRoot, _.setFocusCycleRoot(_))
   val FocusableWindowState: SwingVar.Aux[WindowBase, Boolean] = SwingVar[WindowBase, Boolean]("focusableWindowState", _.getFocusableWindowState, _.setFocusableWindowState(_))
-  val IconImages: SwingVar.Aux[WindowBase, java.util.List[_ <: java.awt.Image] | Null] = SwingVar[WindowBase, java.util.List[_ <: java.awt.Image] | Null]("iconImages", _.getIconImages, _.setIconImages(_))
+  val IconImages: SwingVar.Aux[WindowBase, Seq[java.awt.Image]] = SwingVar[WindowBase, Seq[java.awt.Image]]("iconImages", _.getIconImages.nn.asScala.toSeq, (w, l) => w.setIconImages(l.asJava))
   val LocationByPlatform: SwingVar.Aux[WindowBase, Boolean] = SwingVar[WindowBase, Boolean]("locationByPlatform", _.isLocationByPlatform, _.setLocationByPlatform(_))
   val ModalExclusionType: SwingVar.Aux[WindowBase, java.awt.Dialog.ModalExclusionType] = SwingVar[WindowBase, java.awt.Dialog.ModalExclusionType]("modalExclusionType", _.getModalExclusionType.nn, _.setModalExclusionType(_))
   val Opacity: SwingVar.Aux[WindowBase, Float] = SwingVar[WindowBase, Float]("opacity", _.getOpacity, _.setOpacity(_))
@@ -32,7 +32,7 @@ object WindowBase extends VarsMap {
     def autoRequestFocus: Var.Aux[Boolean, v.type] = WindowBase.AutoRequestFocus.asInstanceOf[Var.Aux[Boolean, v.type]]
     def focusCycleRoot: Var.Aux[Boolean, v.type] = WindowBase.FocusCycleRoot.asInstanceOf[Var.Aux[Boolean, v.type]]
     def focusableWindowState: Var.Aux[Boolean, v.type] = WindowBase.FocusableWindowState.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def iconImages: Var.Aux[java.util.List[_ <: java.awt.Image] | Null, v.type] = WindowBase.IconImages.asInstanceOf[Var.Aux[java.util.List[_ <: java.awt.Image] | Null, v.type]]
+    def iconImages: Var.Aux[Seq[java.awt.Image], v.type] = WindowBase.IconImages.asInstanceOf[Var.Aux[Seq[java.awt.Image], v.type]]
     def locationByPlatform: Var.Aux[Boolean, v.type] = WindowBase.LocationByPlatform.asInstanceOf[Var.Aux[Boolean, v.type]]
     def modalExclusionType: Var.Aux[java.awt.Dialog.ModalExclusionType, v.type] = WindowBase.ModalExclusionType.asInstanceOf[Var.Aux[java.awt.Dialog.ModalExclusionType, v.type]]
     def opacity: Var.Aux[Float, v.type] = WindowBase.Opacity.asInstanceOf[Var.Aux[Float, v.type]]
@@ -99,7 +99,7 @@ object WindowBase extends VarsMap {
     focusedMut: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
-    iconImages: Opt[Binding[java.util.List[_ <: java.awt.Image] | Null]] = UnsetParam,
+    iconImages: Opt[Binding[Seq[java.awt.Image]]] = UnsetParam,
     locationByPlatform: Opt[Binding[Boolean]] = UnsetParam,
     maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,

@@ -17,7 +17,6 @@ object Frame extends VarsMap {
   val DefaultCloseOperation: SwingVar.Aux[Frame, Int] = SwingVar[Frame, Int]("defaultCloseOperation", _.getDefaultCloseOperation, _.setDefaultCloseOperation(_))
   val ExtendedState: SwingVar.Aux[Frame, Int] = SwingVar[Frame, Int]("extendedState", _.getExtendedState, _.setExtendedState(_))
   val GlassPane: SwingVar.Aux[Frame, java.awt.Component | Null] = SwingVar[Frame, java.awt.Component | Null]("glassPane", _.getGlassPane, _.setGlassPane(_))
-  val IconImage: SwingVar.Aux[Frame, java.awt.Image | Null] = SwingVar[Frame, java.awt.Image | Null]("iconImage", _.getIconImage, _.setIconImage(_))
   val LayeredPane: SwingVar.Aux[Frame, javax.swing.JLayeredPane | Null] = SwingVar[Frame, javax.swing.JLayeredPane | Null]("layeredPane", _.getLayeredPane, _.setLayeredPane(_))
   val MaximizedBounds: SwingVar.Aux[Frame, Bounds | Null] = SwingVar[Frame, Bounds | Null]("maximizedBounds", _.getMaximizedBounds, _.setMaximizedBounds(_))
   val MenuBar: SwingVar.Aux[Frame, javax.swing.JMenuBar | Null] = SwingVar[Frame, javax.swing.JMenuBar | Null]("menuBar", _.getJMenuBar, _.setJMenuBar(_))
@@ -34,7 +33,6 @@ object Frame extends VarsMap {
     def defaultCloseOperation: Var.Aux[Int, v.type] = Frame.DefaultCloseOperation.asInstanceOf[Var.Aux[Int, v.type]]
     def extendedState: Var.Aux[Int, v.type] = Frame.ExtendedState.asInstanceOf[Var.Aux[Int, v.type]]
     def glassPane: Var.Aux[java.awt.Component | Null, v.type] = Frame.GlassPane.asInstanceOf[Var.Aux[java.awt.Component | Null, v.type]]
-    def iconImage: Var.Aux[java.awt.Image | Null, v.type] = Frame.IconImage.asInstanceOf[Var.Aux[java.awt.Image | Null, v.type]]
     def layeredPane: Var.Aux[javax.swing.JLayeredPane | Null, v.type] = Frame.LayeredPane.asInstanceOf[Var.Aux[javax.swing.JLayeredPane | Null, v.type]]
     def maximizedBounds: Var.Aux[Bounds | Null, v.type] = Frame.MaximizedBounds.asInstanceOf[Var.Aux[Bounds | Null, v.type]]
     def menuBar: Var.Aux[javax.swing.JMenuBar | Null, v.type] = Frame.MenuBar.asInstanceOf[Var.Aux[javax.swing.JMenuBar | Null, v.type]]
@@ -84,8 +82,7 @@ object Frame extends VarsMap {
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     glassPane: Opt[Binding[java.awt.Component | Null]] = UnsetParam,
-    iconImage: Opt[Binding[java.awt.Image | Null]] = UnsetParam,
-    iconImages: Opt[Binding[java.util.List[_ <: java.awt.Image] | Null]] = UnsetParam,
+    iconImages: Opt[Binding[Seq[java.awt.Image]]] = UnsetParam,
     layeredPane: Opt[Binding[javax.swing.JLayeredPane | Null]] = UnsetParam,
     locationByPlatform: Opt[Binding[Boolean]] = UnsetParam,
     maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
@@ -125,7 +122,6 @@ object Frame extends VarsMap {
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
     ifSet(glassPane, Frame.ops.glassPane(res) := _)
-    ifSet(iconImage, Frame.ops.iconImage(res) := _)
     ifSet(iconImages, WindowBase.ops.iconImages(res) := _)
     ifSet(layeredPane, Frame.ops.layeredPane(res) := _)
     ifSet(locationByPlatform, WindowBase.ops.locationByPlatform(res) := _)

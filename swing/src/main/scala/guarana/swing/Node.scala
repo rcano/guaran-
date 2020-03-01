@@ -89,6 +89,13 @@ object Node extends VarsMap {
         summon[Emitter.Context].emit(v.focusEvents, (evt.nn -> false))
       }
     }
+    v addComponentListener new ComponentAdapter {
+      override def componentMoved(e: ComponentEvent | UncheckedNull): Unit = updateBounds()
+      override def componentResized(e: ComponentEvent | UncheckedNull): Unit = updateBounds()
+      def updateBounds(): Unit = sc.update {
+        summon[VarContext].swingPropertyUpdated(ops.bounds(v), v.getBounds.nn)
+      }
+    }
     
   }
   def uninitialized(): Node = {

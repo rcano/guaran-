@@ -100,9 +100,6 @@ object ButtonBase extends VarsMap {
       ctx.register(v.actionEvents)
     }
     v.addPropertyChangeListener(varsPropertyListener(v))
-    
-    val al: java.awt.event.ActionListener = evt => sc.update(summon[Emitter.Context].emit(v.actionEvents, evt.nn))
-    v.addActionListener(al)
     val m = v.getModel.nn
     var wasArmed = m.isArmed
     var wasEnabled = m.isEnabled
@@ -129,6 +126,8 @@ object ButtonBase extends VarsMap {
       wasSelected = v.isSelected
     }
     v.addChangeListener(cl)
+    val al: java.awt.event.ActionListener = evt => sc.update(summon[Emitter.Context].emit(v.actionEvents, evt.nn))
+    v.addActionListener(al)
   }
   
   
