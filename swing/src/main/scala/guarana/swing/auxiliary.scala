@@ -3,15 +3,6 @@ package guarana.swing
 import language.implicitConversions
 import util._
 
-extension metricsBinding on (d: Double | Float | Int) {
-  inline def em(given sc: Scenegraph) = Binding.dyn {
-    (inline d match {
-      case i: Int => i.toDouble
-      case d: Double => d
-      case f: Float => f.toDouble
-    }) * sc.emSize()
-  }
-}
 extension metrics on (d: Double | Float | Int) {
   inline def em(given sc: Scenegraph, vc: VarContext) = 
     (inline d match {

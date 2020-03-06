@@ -101,7 +101,7 @@ import scala.util.chaining._
           hgap = 1.em,
           vgap = 1.5.em,
           autoCreateContainerGaps = true,
-          swingBorder = javax.swing.BorderFactory.createTitledBorder("Center thing")
+          border = javax.swing.BorderFactory.createTitledBorder("Center thing")
         ),
         right = Vbox(nodes = Seq(Label(text = "Em Size"), emModifier)),
         left = Vbox(nodes = Seq(
@@ -115,7 +115,7 @@ import scala.util.chaining._
           Label(text = dyn { s"selected ${spinner.value()}" })
         )),
         bottom = Hbox(nodes = Seq(Box.horizontalGlue(), login)),
-        swingBorder = dyn { javax.swing.BorderFactory.createEmptyBorder(1.em.toInt, 1.em.toInt, 1.em.toInt, 1.em.toInt) }
+        border = dyn { javax.swing.BorderFactory.createEmptyBorder(1.em.toInt, 1.em.toInt, 1.em.toInt, 1.em.toInt) }
       ),
       componentB = ScrollPane(content = ListView(model = Seq.tabulate(20)(i => s"elem $i"): javax.swing.ListModel[String])),
       horizontal = false
