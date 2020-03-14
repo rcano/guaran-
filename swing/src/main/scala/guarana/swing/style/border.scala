@@ -36,7 +36,7 @@ object BorderWidths​ {
   def all(size: Double) = BorderWidths​(size, size, size, size)
 }
 
-case class BorderImage(image: Image, widths: BorderWidths​, insets: Insets, slices: BorderWidths​, repeatX: BorderRepeat, repeatY: BorderRepeat)
-enum BorderRepeat extends java.lang.Enum[BorderRepeat] {
+case class BorderImage(image: Image, widths: BorderWidths​, insets: Insets, slices: BorderWidths​, filled: Boolean, repeatX: BorderRepeat, repeatY: BorderRepeat)
+enum BorderRepeat {
   case Repeat, Round, Spaces, Stretch
 }
