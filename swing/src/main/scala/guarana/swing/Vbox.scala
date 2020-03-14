@@ -26,7 +26,7 @@ object Vbox extends VarsMap {
     def unwrap: javax.swing.JPanel = v
   }
 
-  def apply(v: javax.swing.JPanel) = v.asInstanceOf[Vbox]
+  def wrap(v: javax.swing.JPanel) = v.asInstanceOf[Vbox]
 
   def init(v: Vbox): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     Pane.init(v)

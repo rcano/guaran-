@@ -26,7 +26,7 @@ object CheckBox extends VarsMap {
     def unwrap: javax.swing.JCheckBox = v
   }
 
-  def apply(v: javax.swing.JCheckBox) = v.asInstanceOf[CheckBox]
+  def wrap(v: javax.swing.JCheckBox) = v.asInstanceOf[CheckBox]
 
   def init(v: CheckBox): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     ToggleButton.init(v)

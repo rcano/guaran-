@@ -44,7 +44,7 @@ object ScrollBar extends VarsMap {
     def unwrap: javax.swing.JScrollBar = v
   }
 
-  def apply(v: javax.swing.JScrollBar) = v.asInstanceOf[ScrollBar]
+  def wrap(v: javax.swing.JScrollBar) = v.asInstanceOf[ScrollBar]
 
   def init(v: ScrollBar): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     Component.init(v)

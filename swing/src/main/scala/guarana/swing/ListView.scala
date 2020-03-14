@@ -71,7 +71,7 @@ object ListView extends VarsMap {
     def unwrap: javax.swing.JList[_ <: E] = v
   }
 
-  def apply[E](v: javax.swing.JList[_ <: E]) = v.asInstanceOf[ListView[E]]
+  def wrap[E](v: javax.swing.JList[_ <: E]) = v.asInstanceOf[ListView[E]]
 
   def init[E](v: ListView[E]): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     Component.init(v)

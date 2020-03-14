@@ -66,7 +66,7 @@ object Component extends VarsMap {
     def unwrap: javax.swing.JComponent = v
   }
 
-  def apply(v: javax.swing.JComponent) = v.asInstanceOf[Component]
+  def wrap(v: javax.swing.JComponent) = v.asInstanceOf[Component]
 
   def init(v: Component): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     Node.init(v)

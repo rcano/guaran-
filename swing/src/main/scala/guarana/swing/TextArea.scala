@@ -34,7 +34,7 @@ object TextArea extends VarsMap {
     def unwrap: javax.swing.JTextArea = v
   }
 
-  def apply(v: javax.swing.JTextArea) = v.asInstanceOf[TextArea]
+  def wrap(v: javax.swing.JTextArea) = v.asInstanceOf[TextArea]
 
   def init(v: TextArea): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     TextComponent.init(v)

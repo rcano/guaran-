@@ -32,7 +32,7 @@ object TextField extends VarsMap {
     def unwrap: javax.swing.JTextField = v
   }
 
-  def apply(v: javax.swing.JTextField) = v.asInstanceOf[TextField]
+  def wrap(v: javax.swing.JTextField) = v.asInstanceOf[TextField]
 
   def init(v: TextField): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     TextComponent.init(v)

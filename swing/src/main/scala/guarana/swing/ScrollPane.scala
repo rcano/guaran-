@@ -54,7 +54,7 @@ object ScrollPane extends VarsMap {
     def unwrap: javax.swing.JScrollPane = v
   }
 
-  def apply(v: javax.swing.JScrollPane) = v.asInstanceOf[ScrollPane]
+  def wrap(v: javax.swing.JScrollPane) = v.asInstanceOf[ScrollPane]
 
   def init(v: ScrollPane): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     Component.init(v)

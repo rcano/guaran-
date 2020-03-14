@@ -26,7 +26,7 @@ object AbsolutePositioningPane extends VarsMap {
     def unwrap: javax.swing.JPanel = v
   }
 
-  def apply(v: javax.swing.JPanel) = v.asInstanceOf[AbsolutePositioningPane]
+  def wrap(v: javax.swing.JPanel) = v.asInstanceOf[AbsolutePositioningPane]
 
   def init(v: AbsolutePositioningPane): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     Pane.init(v)

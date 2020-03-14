@@ -28,7 +28,7 @@ object Separator extends VarsMap {
     def unwrap: javax.swing.JSeparator = v
   }
 
-  def apply(v: javax.swing.JSeparator) = v.asInstanceOf[Separator]
+  def wrap(v: javax.swing.JSeparator) = v.asInstanceOf[Separator]
 
   def init(v: Separator): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     Component.init(v)

@@ -40,7 +40,7 @@ object TabbedPane extends VarsMap {
     def unwrap: javax.swing.JTabbedPane = v
   }
 
-  def apply(v: javax.swing.JTabbedPane) = v.asInstanceOf[TabbedPane]
+  def wrap(v: javax.swing.JTabbedPane) = v.asInstanceOf[TabbedPane]
 
   def init(v: TabbedPane): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     Component.init(v)

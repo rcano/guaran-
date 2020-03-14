@@ -45,7 +45,7 @@ object ProgressBar extends VarsMap {
     def unwrap: javax.swing.JProgressBar = v
   }
 
-  def apply(v: javax.swing.JProgressBar) = v.asInstanceOf[ProgressBar]
+  def wrap(v: javax.swing.JProgressBar) = v.asInstanceOf[ProgressBar]
 
   def init(v: ProgressBar): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     Component.init(v)

@@ -34,7 +34,7 @@ object GridPane extends VarsMap {
     def unwrap: javax.swing.JPanel = v
   }
 
-  def apply(v: javax.swing.JPanel) = v.asInstanceOf[GridPane]
+  def wrap(v: javax.swing.JPanel) = v.asInstanceOf[GridPane]
 
   def init(v: GridPane): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     Pane.init(v)

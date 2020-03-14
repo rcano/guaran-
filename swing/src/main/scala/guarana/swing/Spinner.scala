@@ -32,7 +32,7 @@ object Spinner extends VarsMap {
     def unwrap: javax.swing.JSpinner = v
   }
 
-  def apply[E](v: javax.swing.JSpinner) = v.asInstanceOf[Spinner[E]]
+  def wrap[E](v: javax.swing.JSpinner) = v.asInstanceOf[Spinner[E]]
 
   def init[E](v: Spinner[E]): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     Component.init(v)

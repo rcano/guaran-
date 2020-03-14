@@ -56,7 +56,7 @@ object Slider extends VarsMap {
     def unwrap: javax.swing.JSlider = v
   }
 
-  def apply(v: javax.swing.JSlider) = v.asInstanceOf[Slider]
+  def wrap(v: javax.swing.JSlider) = v.asInstanceOf[Slider]
 
   def init(v: Slider): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     Component.init(v)

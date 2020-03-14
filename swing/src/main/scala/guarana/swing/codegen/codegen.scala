@@ -176,7 +176,7 @@ case object WindowBase extends NodeDescr(
     SwingProp("opacity", "Float"),
     SwingProp("shape", "java.awt.Shape | Null"),
     SwingProp("tpe", "java.awt.Window.Type", "_.getType.nn", "_.setType(_)"),
-    SwingProp("root", "Node", "c => Node(c.getComponent(0).asInstanceOf[Container])", "(w, n) => w.add(n.unwrap, 0)"),
+    SwingProp("root", "Node", "c => Node.wrap(c.getComponent(0).asInstanceOf[Container])", "(w, n) => w.add(n.unwrap, 0)"),
   ),
   opsExtra = Seq(
     "def accessibleContext = v.getAccessibleContext",
@@ -1113,7 +1113,7 @@ def genCode(n: NodeDescr): String = {
      |    def unwrap: ${n.underlying} = v
      |  }
      |
-     |  def apply$tpeParams(v: ${n.underlying}) = v.asInstanceOf[${n.name}$tpeParams]
+     |  def wrap$tpeParams(v: ${n.underlying}) = v.asInstanceOf[${n.name}$tpeParams]
      |
      |  def init$tpeParams(v: ${n.name}$tpeParams): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
      |    ${n.parents.headOption.map(p => s"$p.init(v)").getOrElse("")}

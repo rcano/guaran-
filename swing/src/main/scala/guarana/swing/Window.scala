@@ -32,7 +32,7 @@ object Window extends VarsMap {
     def unwrap: javax.swing.JWindow = v
   }
 
-  def apply(v: javax.swing.JWindow) = v.asInstanceOf[Window]
+  def wrap(v: javax.swing.JWindow) = v.asInstanceOf[Window]
 
   def init(v: Window): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     WindowBase.init(v)

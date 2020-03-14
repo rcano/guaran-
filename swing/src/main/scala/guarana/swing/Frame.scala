@@ -48,7 +48,7 @@ object Frame extends VarsMap {
     def unwrap: javax.swing.JFrame = v
   }
 
-  def apply(v: javax.swing.JFrame) = v.asInstanceOf[Frame]
+  def wrap(v: javax.swing.JFrame) = v.asInstanceOf[Frame]
 
   def init(v: Frame): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     WindowBase.init(v)

@@ -58,7 +58,7 @@ object ComboBox extends VarsMap {
     def unwrap: javax.swing.JComboBox[_ <: E] = v
   }
 
-  def apply[E](v: javax.swing.JComboBox[_ <: E]) = v.asInstanceOf[ComboBox[E]]
+  def wrap[E](v: javax.swing.JComboBox[_ <: E]) = v.asInstanceOf[ComboBox[E]]
 
   def init[E](v: ComboBox[E]): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     Component.init(v)

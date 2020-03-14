@@ -62,7 +62,7 @@ object TextComponent extends VarsMap {
     def unwrap: javax.swing.text.JTextComponent = v
   }
 
-  def apply(v: javax.swing.text.JTextComponent) = v.asInstanceOf[TextComponent]
+  def wrap(v: javax.swing.text.JTextComponent) = v.asInstanceOf[TextComponent]
 
   def init(v: TextComponent): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     Component.init(v)

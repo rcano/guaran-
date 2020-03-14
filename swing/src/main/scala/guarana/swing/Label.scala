@@ -48,7 +48,7 @@ object Label extends VarsMap {
     def unwrap: javax.swing.JLabel = v
   }
 
-  def apply(v: javax.swing.JLabel) = v.asInstanceOf[Label]
+  def wrap(v: javax.swing.JLabel) = v.asInstanceOf[Label]
 
   def init(v: Label): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     Component.init(v)

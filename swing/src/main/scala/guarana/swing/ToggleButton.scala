@@ -26,7 +26,7 @@ object ToggleButton extends VarsMap {
     def unwrap: javax.swing.JToggleButton = v
   }
 
-  def apply(v: javax.swing.JToggleButton) = v.asInstanceOf[ToggleButton]
+  def wrap(v: javax.swing.JToggleButton) = v.asInstanceOf[ToggleButton]
 
   def init(v: ToggleButton): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     ButtonBase.init(v)

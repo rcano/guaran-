@@ -26,7 +26,7 @@ object Button extends VarsMap {
     def unwrap: javax.swing.JButton = v
   }
 
-  def apply(v: javax.swing.JButton) = v.asInstanceOf[Button]
+  def wrap(v: javax.swing.JButton) = v.asInstanceOf[Button]
 
   def init(v: Button): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     ButtonBase.init(v)

@@ -67,7 +67,7 @@ object Box {
     minHeight: Binding[Double],
     maxHeight: Binding[Double]): (given Scenegraph) =>  VarContextAction[Node] = {
 
-    val res = Node(javax.swing.Box.createGlue().nn.asInstanceOf[java.awt.Container])
+    val res = Node.wrap(javax.swing.Box.createGlue().nn.asInstanceOf[java.awt.Container])
     Node.init(res)
     res.minSize := Binding.dyn((minWidth(), minHeight()))
     res.prefSize := Binding.dyn(res.minSize())

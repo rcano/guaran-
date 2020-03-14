@@ -94,7 +94,7 @@ object TableView extends VarsMap {
     def unwrap: javax.swing.JTable = v
   }
 
-  def apply(v: javax.swing.JTable) = v.asInstanceOf[TableView]
+  def wrap(v: javax.swing.JTable) = v.asInstanceOf[TableView]
 
   def init(v: TableView): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     Component.init(v)

@@ -26,7 +26,7 @@ object PasswordField extends VarsMap {
     def unwrap: javax.swing.JPasswordField = v
   }
 
-  def apply(v: javax.swing.JPasswordField) = v.asInstanceOf[PasswordField]
+  def wrap(v: javax.swing.JPasswordField) = v.asInstanceOf[PasswordField]
 
   def init(v: PasswordField): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     TextField.init(v)

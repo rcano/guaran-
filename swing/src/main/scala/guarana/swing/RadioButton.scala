@@ -26,7 +26,7 @@ object RadioButton extends VarsMap {
     def unwrap: javax.swing.JRadioButton = v
   }
 
-  def apply(v: javax.swing.JRadioButton) = v.asInstanceOf[RadioButton]
+  def wrap(v: javax.swing.JRadioButton) = v.asInstanceOf[RadioButton]
 
   def init(v: RadioButton): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     ToggleButton.init(v)

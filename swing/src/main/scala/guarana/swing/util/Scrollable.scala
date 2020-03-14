@@ -34,7 +34,7 @@ enum Scrollable {
       }
     }
     scrollable.add(n.unwrap, BorderLayout.CENTER)
-    Node(scrollable)
+    Node.wrap(scrollable)
   }
 
 }

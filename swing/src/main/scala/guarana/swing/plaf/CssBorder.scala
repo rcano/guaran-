@@ -9,7 +9,7 @@ class CssBorder(scenegraph: Scenegraph) extends javax.swing.border.Border {
 
   private var lastComputedInsets: Option[java.awt.Insets] = None
   def getBorderInsets(awtc: AwtComponent | UncheckedNull): java.awt.Insets | UncheckedNull = {
-    val c = Component(awtc.asInstanceOf)
+    val c = Component.wrap(awtc.asInstanceOf)
     val border = style.CssProperties.Border.forInstance(c) pipe (scenegraph.stateReader(_))
     val res = (border.strokes.iterator.map(_.insets) ++ border.images.iterator.map(_.insets)).foldLeft(java.awt.Insets(0, 0, 0, 0)) { (res, i) =>
       res.top = i.top.round.toInt max res.top
@@ -24,7 +24,7 @@ class CssBorder(scenegraph: Scenegraph) extends javax.swing.border.Border {
   def isBorderOpaque(): Boolean = true
   def paintBorder(awtc: AwtComponent | UncheckedNull, g: Graphics | UncheckedNull, x: Int, y: Int, width: Int, height: Int): Unit = {
     val g2 = g.create().asInstanceOf[Graphics2D]
-    val c = Component(awtc.asInstanceOf)
+    val c = Component.wrap(awtc.asInstanceOf)
     val borderSpec = style.CssProperties.Border.forInstance(c) pipe (scenegraph.stateReader(_))
 
     val insets = lastComputedInsets.get

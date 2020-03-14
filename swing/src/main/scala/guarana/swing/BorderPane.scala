@@ -38,7 +38,7 @@ object BorderPane extends VarsMap {
     def unwrap: javax.swing.JPanel = v
   }
 
-  def apply(v: javax.swing.JPanel) = v.asInstanceOf[BorderPane]
+  def wrap(v: javax.swing.JPanel) = v.asInstanceOf[BorderPane]
 
   def init(v: BorderPane): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     Pane.init(v)

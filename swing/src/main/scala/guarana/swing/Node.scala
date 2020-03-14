@@ -63,7 +63,7 @@ object Node extends VarsMap {
     def unwrap: java.awt.Container = v
   }
 
-  def apply(v: java.awt.Container) = v.asInstanceOf[Node]
+  def wrap(v: java.awt.Container) = v.asInstanceOf[Node]
 
   def init(v: Node): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     

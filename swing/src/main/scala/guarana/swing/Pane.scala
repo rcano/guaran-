@@ -26,7 +26,7 @@ object Pane extends VarsMap {
     def unwrap: javax.swing.JPanel = v
   }
 
-  def apply(v: javax.swing.JPanel) = v.asInstanceOf[Pane]
+  def wrap(v: javax.swing.JPanel) = v.asInstanceOf[Pane]
 
   def init(v: Pane): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
     Component.init(v)
