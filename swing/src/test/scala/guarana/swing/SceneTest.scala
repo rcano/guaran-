@@ -67,6 +67,8 @@ import scala.util.chaining._
 
   scenegraph.update {
 
+    plaf.CssLaf.install()
+
     val userTf = TextField(columns = 5)
     val passwordTf = PasswordField(columns = 5)
     val login = Button(
@@ -79,7 +81,7 @@ import scala.util.chaining._
       min = 5,
       max = 30,
       majorTickSpacing = 5,
-      value = 5,
+      value = scenegraph.emSize().toInt,
       paintTicks = true,
       paintLabels = true,
       orientation = javax.swing.SwingConstants.VERTICAL
@@ -98,8 +100,8 @@ import scala.util.chaining._
             Seq(Label(text = "User:"), userTf),
             Seq(Label(text = "Password:"), passwordTf),
           ),
-          hgap = 1.em,
-          vgap = 1.5.em,
+          hgap = dyn(1.em),
+          vgap = dyn(1.5.em),
           autoCreateContainerGaps = true,
           border = javax.swing.BorderFactory.createTitledBorder("Center thing")
         ),

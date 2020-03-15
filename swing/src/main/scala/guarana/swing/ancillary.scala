@@ -33,6 +33,7 @@ trait VarsMap {
 
 def [T, U](e: T | Null) ? (f: T => U): U | Null = if (e != null) f(e) else null
 def [T](e: T | Null) toOption: Option[T] = if (e != null) Some(e) else None
+def [F[_], T](e: F[T | Null] | Null) nnn: F[T] = e.asInstanceOf[F[T]]
 
 extension documentOps on (d: javax.swing.text.Document) {
   def defaultRootElement = d.getDefaultRootElement

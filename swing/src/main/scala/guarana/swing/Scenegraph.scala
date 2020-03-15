@@ -17,10 +17,7 @@ class Scenegraph {
   private[this] var emittersData = Map.empty[Keyed[Emitter[_]], EmitterData[_]]
   var stylist: Stylist = Stylist.NoOp
 
-  private val systemEm = {
-    //ideally we'd want a way to detect system configured DPI, but we can't, so...
-    14
-  }
+  private val systemEm: Double = plaf.CssLaf.fontDeterminedByOs.map(_.getSize2D.toDouble).getOrElse(14)
 
   val emSize = Var[Double]("emSize", systemEm).forInstance(Scenegraph.this) 
 
