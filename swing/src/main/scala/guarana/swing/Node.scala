@@ -37,12 +37,10 @@ object Node extends VarsMap {
     def cursor: Var.Aux[java.awt.Cursor | Null, v.type] = Node.Cursor.asInstanceOf[Var.Aux[java.awt.Cursor | Null, v.type]]
     def enabled: Var.Aux[Boolean, v.type] = Node.Enabled.asInstanceOf[Var.Aux[Boolean, v.type]]
     def focusable: Var.Aux[Boolean, v.type] = Node.Focusable.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def focusedMut: Var.Aux[Boolean, v.type] = Node.FocusedMut.asInstanceOf[Var.Aux[Boolean, v.type]]
     def font: Var.Aux[java.awt.Font | Null, v.type] = Node.Font.asInstanceOf[Var.Aux[java.awt.Font | Null, v.type]]
     def foreground: Var.Aux[java.awt.Color | Null, v.type] = Node.Foreground.asInstanceOf[Var.Aux[java.awt.Color | Null, v.type]]
     def maxSize: Var.Aux[(Double, Double) | Null, v.type] = Node.MaxSize.asInstanceOf[Var.Aux[(Double, Double) | Null, v.type]]
     def minSize: Var.Aux[(Double, Double) | Null, v.type] = Node.MinSize.asInstanceOf[Var.Aux[(Double, Double) | Null, v.type]]
-    def mouseLocationMut: Var.Aux[(Int, Int), v.type] = Node.MouseLocationMut.asInstanceOf[Var.Aux[(Int, Int), v.type]]
     def prefSize: Var.Aux[(Double, Double) | Null, v.type] = Node.PrefSize.asInstanceOf[Var.Aux[(Double, Double) | Null, v.type]]
     def visible: Var.Aux[Boolean, v.type] = Node.Visible.asInstanceOf[Var.Aux[Boolean, v.type]]
 
@@ -112,12 +110,10 @@ object Node extends VarsMap {
     cursor: Opt[Binding[java.awt.Cursor | Null]] = UnsetParam,
     enabled: Opt[Binding[Boolean]] = UnsetParam,
     focusable: Opt[Binding[Boolean]] = UnsetParam,
-    focusedMut: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
-    mouseLocationMut: Opt[Binding[(Int, Int)]] = UnsetParam,
     prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): (given Scenegraph) => VarContextAction[Node] = {
@@ -129,12 +125,10 @@ object Node extends VarsMap {
     ifSet(cursor, Node.ops.cursor(res) := _)
     ifSet(enabled, Node.ops.enabled(res) := _)
     ifSet(focusable, Node.ops.focusable(res) := _)
-    ifSet(focusedMut, Node.ops.focusedMut(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
     ifSet(maxSize, Node.ops.maxSize(res) := _)
     ifSet(minSize, Node.ops.minSize(res) := _)
-    ifSet(mouseLocationMut, Node.ops.mouseLocationMut(res) := _)
     ifSet(prefSize, Node.ops.prefSize(res) := _)
     ifSet(visible, Node.ops.visible(res) := _)
     res

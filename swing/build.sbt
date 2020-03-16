@@ -48,5 +48,5 @@ javaOptions ++= {
   )
 }
 
-javaOptions ++= Seq("-Dsun.java2d.uiScale.enabled=true", "-Dsun.java2d.uiScale=2")
+// javaOptions ++= Seq("-Dsun.java2d.uiScale.enabled=true", "-Dsun.java2d.uiScale=2")
 outputStrategy := Some(StdoutOutput)

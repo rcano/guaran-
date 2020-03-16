@@ -138,7 +138,6 @@ object TableView extends VarsMap {
     enabled: Opt[Binding[Boolean]] = UnsetParam,
     fillsViewportHeight: Opt[Binding[Boolean]] = UnsetParam,
     focusable: Opt[Binding[Boolean]] = UnsetParam,
-    focusedMut: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     gridColor: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
@@ -148,7 +147,6 @@ object TableView extends VarsMap {
     maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     model: Opt[Binding[javax.swing.table.TableModel]] = UnsetParam,
-    mouseLocationMut: Opt[Binding[(Int, Int)]] = UnsetParam,
     opaque: Opt[Binding[Boolean]] = UnsetParam,
     prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     preferredScrollableViewportSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
@@ -199,7 +197,6 @@ object TableView extends VarsMap {
     ifSet(enabled, Node.ops.enabled(res) := _)
     ifSet(fillsViewportHeight, TableView.ops.fillsViewportHeight(res) := _)
     ifSet(focusable, Node.ops.focusable(res) := _)
-    ifSet(focusedMut, Node.ops.focusedMut(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
     ifSet(gridColor, TableView.ops.gridColor(res) := _)
@@ -209,7 +206,6 @@ object TableView extends VarsMap {
     ifSet(maxSize, Node.ops.maxSize(res) := _)
     ifSet(minSize, Node.ops.minSize(res) := _)
     ifSet(model, TableView.ops.model(res) := _)
-    ifSet(mouseLocationMut, Node.ops.mouseLocationMut(res) := _)
     ifSet(opaque, Component.ops.opaque(res) := _)
     ifSet(prefSize, Node.ops.prefSize(res) := _)
     ifSet(preferredScrollableViewportSize, TableView.ops.preferredScrollableViewportSize(res) := _)

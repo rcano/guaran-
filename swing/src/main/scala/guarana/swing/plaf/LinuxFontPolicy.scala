@@ -61,12 +61,6 @@ object LinuxFontPolicy {
         val kdeGlobals = readConfFile(configDir / "kdeglobals")
         val kcmfonts = readConfFile(configDir / "kcmfonts")
 
-        println("kcmfonts:")
-        kcmfonts foreach { (k, v) =>
-          println("[" + k + "]")
-          v foreach println
-        }
-
         var family: String = "sansserif"
         var style = Font.PLAIN
         var size = 10

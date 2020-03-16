@@ -16,6 +16,7 @@ object TextComponent extends VarsMap {
   val UI: SwingVar.Aux[TextComponent, javax.swing.plaf.TextUI] = SwingVar[TextComponent, javax.swing.plaf.TextUI]("UI", _.getUI.nn, _.setUI(_))
   val Caret: SwingVar.Aux[TextComponent, javax.swing.text.Caret] = SwingVar[TextComponent, javax.swing.text.Caret]("caret", _.getCaret.nn, _.setCaret(_))
   val CaretColor: SwingVar.Aux[TextComponent, java.awt.Color | Null] = SwingVar[TextComponent, java.awt.Color | Null]("caretColor", _.getCaretColor, _.setCaretColor(_))
+  private val CurrentText: Var[String] = Var[String]("currentText", "", false)
   val DisabledTextColor: SwingVar.Aux[TextComponent, java.awt.Color | Null] = SwingVar[TextComponent, java.awt.Color | Null]("disabledTextColor", _.getDisabledTextColor, _.setDisabledTextColor(_))
   val Document: SwingVar.Aux[TextComponent, javax.swing.text.Document] = SwingVar[TextComponent, javax.swing.text.Document]("document", _.getDocument.nn, _.setDocument(_))
   val DragEnabled: SwingVar.Aux[TextComponent, Boolean] = SwingVar[TextComponent, Boolean]("dragEnabled", _.getDragEnabled, _.setDragEnabled(_))
@@ -57,8 +58,9 @@ object TextComponent extends VarsMap {
     def scrollableTracksViewportHeight = v.getScrollableTracksViewportHeight
     def scrollableTracksViewportWidth = v.getScrollableTracksViewportWidth
     def selectedText = v.getSelectedText
-    def text = v.getText
+    def text = v.getText.nn
     def text_=(s: String) = v.setText(s)
+    def currentText: ObsVal.Aux[String, v.type] = TextComponent.CurrentText.asInstanceOf[ObsVal.Aux[String, v.type]]
     def unwrap: javax.swing.text.JTextComponent = v
   }
 
@@ -72,7 +74,7 @@ object TextComponent extends VarsMap {
       def changedUpdate(evt: DocumentEvent | Null) = notifyChange()
       def insertUpdate(evt: DocumentEvent | Null) = notifyChange()
       def removeUpdate(evt: DocumentEvent | Null) = notifyChange()
-      def notifyChange() = summon[Scenegraph].update(summon[VarContext].swingPropertyUpdated(ops.document(v), v.getDocument.nn))
+      def notifyChange() = summon[Scenegraph].update(TextComponent.CurrentText.forInstance(v) := v.text)
     })
     
   }

@@ -116,7 +116,6 @@ object ListView extends VarsMap {
     fixedCellHeight: Opt[Binding[Int]] = UnsetParam,
     fixedCellWidth: Opt[Binding[Int]] = UnsetParam,
     focusable: Opt[Binding[Boolean]] = UnsetParam,
-    focusedMut: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     inheritsPopupMenu: Opt[Binding[Boolean]] = UnsetParam,
@@ -125,7 +124,6 @@ object ListView extends VarsMap {
     maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     model: Opt[Binding[javax.swing.ListModel[E]]] = UnsetParam,
-    mouseLocationMut: Opt[Binding[(Int, Int)]] = UnsetParam,
     opaque: Opt[Binding[Boolean]] = UnsetParam,
     prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     prototypeCellValue: Opt[Binding[E | Null]] = UnsetParam,
@@ -165,7 +163,6 @@ object ListView extends VarsMap {
     ifSet(fixedCellHeight, ListView.ops.fixedCellHeight(res) := _)
     ifSet(fixedCellWidth, ListView.ops.fixedCellWidth(res) := _)
     ifSet(focusable, Node.ops.focusable(res) := _)
-    ifSet(focusedMut, Node.ops.focusedMut(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
     ifSet(inheritsPopupMenu, Component.ops.inheritsPopupMenu(res) := _)
@@ -174,7 +171,6 @@ object ListView extends VarsMap {
     ifSet(maxSize, Node.ops.maxSize(res) := _)
     ifSet(minSize, Node.ops.minSize(res) := _)
     ifSet(model, ListView.ops.model(res) := _)
-    ifSet(mouseLocationMut, Node.ops.mouseLocationMut(res) := _)
     ifSet(opaque, Component.ops.opaque(res) := _)
     ifSet(prefSize, Node.ops.prefSize(res) := _)
     ifSet(prototypeCellValue, ListView.ops.prototypeCellValue(res) := _)

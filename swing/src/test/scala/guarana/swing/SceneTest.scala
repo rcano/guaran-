@@ -60,7 +60,7 @@ import scala.util.chaining._
 
   val scenegraph = Scenegraph()
 
-  com.formdev.flatlaf.FlatLightLaf.install()
+  // com.formdev.flatlaf.FlatLightLaf.install()
   // javax.swing.UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel")
   // javax.swing.UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel")
   // plaf.CssSynthLaf.install()
@@ -73,7 +73,7 @@ import scala.util.chaining._
     val passwordTf = PasswordField(columns = 5)
     val login = Button(
       text = "Login",
-      enabled = dyn { userTf.document().nonEmpty && passwordTf.document().nonEmpty },
+      enabled = dyn { userTf.currentText().nonEmpty && passwordTf.currentText().nonEmpty },
       defaultCapable = true
     )
 

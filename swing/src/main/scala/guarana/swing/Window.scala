@@ -60,7 +60,6 @@ object Window extends VarsMap {
     focusCycleRoot: Opt[Binding[Boolean]] = UnsetParam,
     focusable: Opt[Binding[Boolean]] = UnsetParam,
     focusableWindowState: Opt[Binding[Boolean]] = UnsetParam,
-    focusedMut: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     glassPane: Opt[Binding[java.awt.Component | Null]] = UnsetParam,
@@ -70,7 +69,6 @@ object Window extends VarsMap {
     maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     modalExclusionType: Opt[Binding[java.awt.Dialog.ModalExclusionType]] = UnsetParam,
-    mouseLocationMut: Opt[Binding[(Int, Int)]] = UnsetParam,
     opacity: Opt[Binding[Float]] = UnsetParam,
     prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     root: Opt[Binding[Node]] = UnsetParam,
@@ -92,7 +90,6 @@ object Window extends VarsMap {
     ifSet(focusCycleRoot, WindowBase.ops.focusCycleRoot(res) := _)
     ifSet(focusable, Node.ops.focusable(res) := _)
     ifSet(focusableWindowState, WindowBase.ops.focusableWindowState(res) := _)
-    ifSet(focusedMut, Node.ops.focusedMut(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
     ifSet(glassPane, Window.ops.glassPane(res) := _)
@@ -102,7 +99,6 @@ object Window extends VarsMap {
     ifSet(maxSize, Node.ops.maxSize(res) := _)
     ifSet(minSize, Node.ops.minSize(res) := _)
     ifSet(modalExclusionType, WindowBase.ops.modalExclusionType(res) := _)
-    ifSet(mouseLocationMut, Node.ops.mouseLocationMut(res) := _)
     ifSet(opacity, WindowBase.ops.opacity(res) := _)
     ifSet(prefSize, Node.ops.prefSize(res) := _)
     ifSet(root, WindowBase.ops.root(res) := _)

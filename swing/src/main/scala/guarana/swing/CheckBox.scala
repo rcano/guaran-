@@ -68,7 +68,6 @@ object CheckBox extends VarsMap {
     enabled: Opt[Binding[Boolean]] = UnsetParam,
     focusPainted: Opt[Binding[Boolean]] = UnsetParam,
     focusable: Opt[Binding[Boolean]] = UnsetParam,
-    focusedMut: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     hideActionText: Opt[Binding[Boolean]] = UnsetParam,
@@ -84,7 +83,6 @@ object CheckBox extends VarsMap {
     minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     mnemonic: Opt[Binding[Int]] = UnsetParam,
     model: Opt[Binding[javax.swing.ButtonModel | Null]] = UnsetParam,
-    mouseLocationMut: Opt[Binding[(Int, Int)]] = UnsetParam,
     multiClickThreshhold: Opt[Binding[Long]] = UnsetParam,
     opaque: Opt[Binding[Boolean]] = UnsetParam,
     prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
@@ -132,7 +130,6 @@ object CheckBox extends VarsMap {
     ifSet(enabled, ButtonBase.ops.enabled(res) := _)
     ifSet(focusPainted, ButtonBase.ops.focusPainted(res) := _)
     ifSet(focusable, Node.ops.focusable(res) := _)
-    ifSet(focusedMut, Node.ops.focusedMut(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
     ifSet(hideActionText, ButtonBase.ops.hideActionText(res) := _)
@@ -148,7 +145,6 @@ object CheckBox extends VarsMap {
     ifSet(minSize, Node.ops.minSize(res) := _)
     ifSet(mnemonic, ButtonBase.ops.mnemonic(res) := _)
     ifSet(model, ButtonBase.ops.model(res) := _)
-    ifSet(mouseLocationMut, Node.ops.mouseLocationMut(res) := _)
     ifSet(multiClickThreshhold, ButtonBase.ops.multiClickThreshhold(res) := _)
     ifSet(opaque, Component.ops.opaque(res) := _)
     ifSet(prefSize, Node.ops.prefSize(res) := _)

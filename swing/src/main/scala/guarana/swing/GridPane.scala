@@ -103,7 +103,6 @@ object GridPane extends VarsMap {
     doubleBuffered: Opt[Binding[Boolean]] = UnsetParam,
     enabled: Opt[Binding[Boolean]] = UnsetParam,
     focusable: Opt[Binding[Boolean]] = UnsetParam,
-    focusedMut: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     hgap: Opt[Binding[Double]] = UnsetParam,
@@ -112,7 +111,6 @@ object GridPane extends VarsMap {
     layoutVar: Opt[Binding[Unit]] = UnsetParam,
     maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
-    mouseLocationMut: Opt[Binding[(Int, Int)]] = UnsetParam,
     opaque: Opt[Binding[Boolean]] = UnsetParam,
     prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     requestFocusEnabled: Opt[Binding[Boolean]] = UnsetParam,
@@ -141,7 +139,6 @@ object GridPane extends VarsMap {
     ifSet(doubleBuffered, Component.ops.doubleBuffered(res) := _)
     ifSet(enabled, Node.ops.enabled(res) := _)
     ifSet(focusable, Node.ops.focusable(res) := _)
-    ifSet(focusedMut, Node.ops.focusedMut(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
     ifSet(hgap, GridPane.ops.hgap(res) := _)
@@ -150,7 +147,6 @@ object GridPane extends VarsMap {
     ifSet(layoutVar, GridPane.ops.layoutVar(res) := _)
     ifSet(maxSize, Node.ops.maxSize(res) := _)
     ifSet(minSize, Node.ops.minSize(res) := _)
-    ifSet(mouseLocationMut, Node.ops.mouseLocationMut(res) := _)
     ifSet(opaque, Component.ops.opaque(res) := _)
     ifSet(prefSize, Node.ops.prefSize(res) := _)
     ifSet(requestFocusEnabled, Component.ops.requestFocusEnabled(res) := _)

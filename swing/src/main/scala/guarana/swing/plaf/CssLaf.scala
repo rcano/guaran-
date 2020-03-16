@@ -21,8 +21,6 @@ class CssLaf(val scenegraph: Scenegraph) extends MetalLookAndFeel {
   override def getDefaults: UIDefaults = {
     val defaults = super.getDefaults().nn
 
-    // init fonts - this is based on the settings from FlatLAF
-
     CssLaf.fontDeterminedByOs foreach { font =>
       val smallerFont = FontUIResource(font.deriveFont(font.getSize2D * 0.8f))
       defaults.keySet.nn.asScala foreach {
@@ -31,10 +29,15 @@ class CssLaf(val scenegraph: Scenegraph) extends MetalLookAndFeel {
         case _ =>
       }
     }
+    defaults.put(CssLaf, this)
 
     defaults
   }
 
+  override protected def initClassDefaults(defaults: UIDefaults | UncheckedNull) = {
+    super.initClassDefaults(defaults)
+    // defaults.put("ButtonUI", classOf[CssButtonUi].getCanonicalName)
+  }
 
 }
 

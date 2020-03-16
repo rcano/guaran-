@@ -78,7 +78,6 @@ object TextField extends VarsMap {
     enabled: Opt[Binding[Boolean]] = UnsetParam,
     focusAccelerator: Opt[Binding[Char]] = UnsetParam,
     focusable: Opt[Binding[Boolean]] = UnsetParam,
-    focusedMut: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     highlighter: Opt[Binding[javax.swing.text.Highlighter | Null]] = UnsetParam,
@@ -89,7 +88,6 @@ object TextField extends VarsMap {
     margin: Opt[Binding[java.awt.Insets | Null]] = UnsetParam,
     maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
-    mouseLocationMut: Opt[Binding[(Int, Int)]] = UnsetParam,
     navigationFilter: Opt[Binding[javax.swing.text.NavigationFilter | Null]] = UnsetParam,
     opaque: Opt[Binding[Boolean]] = UnsetParam,
     prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
@@ -129,7 +127,6 @@ object TextField extends VarsMap {
     ifSet(enabled, Node.ops.enabled(res) := _)
     ifSet(focusAccelerator, TextComponent.ops.focusAccelerator(res) := _)
     ifSet(focusable, Node.ops.focusable(res) := _)
-    ifSet(focusedMut, Node.ops.focusedMut(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
     ifSet(highlighter, TextComponent.ops.highlighter(res) := _)
@@ -140,7 +137,6 @@ object TextField extends VarsMap {
     ifSet(margin, TextComponent.ops.margin(res) := _)
     ifSet(maxSize, Node.ops.maxSize(res) := _)
     ifSet(minSize, Node.ops.minSize(res) := _)
-    ifSet(mouseLocationMut, Node.ops.mouseLocationMut(res) := _)
     ifSet(navigationFilter, TextComponent.ops.navigationFilter(res) := _)
     ifSet(opaque, Component.ops.opaque(res) := _)
     ifSet(prefSize, Node.ops.prefSize(res) := _)

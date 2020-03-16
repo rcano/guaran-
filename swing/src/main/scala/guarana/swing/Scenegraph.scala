@@ -152,8 +152,7 @@ class Scenegraph {
     def update[T](v: Var[T], binding: Binding[T])(given instance: ValueOf[v.ForInstance]): Unit = {
       binding match {
         case Binding.Const(c) => switchboard(v) = c()
-        case Binding.Compute(c) => switchboard.bind(v)(sb =>
-            c(new SwitchboardAsVarContext(sb)))
+        case Binding.Compute(c) => switchboard.bind(v)(sb => c(new SwitchboardAsVarContext(sb)))
       }
     }
     private[guarana] def swingPropertyUpdated[T](v: Var[T], value: T)(given instance: ValueOf[v.ForInstance]): Unit = {

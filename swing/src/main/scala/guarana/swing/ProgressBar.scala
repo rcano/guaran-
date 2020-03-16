@@ -79,7 +79,6 @@ object ProgressBar extends VarsMap {
     doubleBuffered: Opt[Binding[Boolean]] = UnsetParam,
     enabled: Opt[Binding[Boolean]] = UnsetParam,
     focusable: Opt[Binding[Boolean]] = UnsetParam,
-    focusedMut: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     indeterminate: Opt[Binding[Boolean]] = UnsetParam,
@@ -90,7 +89,6 @@ object ProgressBar extends VarsMap {
     min: Opt[Binding[Int]] = UnsetParam,
     minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     model: Opt[Binding[javax.swing.BoundedRangeModel | Null]] = UnsetParam,
-    mouseLocationMut: Opt[Binding[(Int, Int)]] = UnsetParam,
     opaque: Opt[Binding[Boolean]] = UnsetParam,
     orientation: Opt[Binding[Int]] = UnsetParam,
     prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
@@ -121,7 +119,6 @@ object ProgressBar extends VarsMap {
     ifSet(doubleBuffered, Component.ops.doubleBuffered(res) := _)
     ifSet(enabled, Node.ops.enabled(res) := _)
     ifSet(focusable, Node.ops.focusable(res) := _)
-    ifSet(focusedMut, Node.ops.focusedMut(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
     ifSet(indeterminate, ProgressBar.ops.indeterminate(res) := _)
@@ -132,7 +129,6 @@ object ProgressBar extends VarsMap {
     ifSet(min, ProgressBar.ops.min(res) := _)
     ifSet(minSize, Node.ops.minSize(res) := _)
     ifSet(model, ProgressBar.ops.model(res) := _)
-    ifSet(mouseLocationMut, Node.ops.mouseLocationMut(res) := _)
     ifSet(opaque, Component.ops.opaque(res) := _)
     ifSet(orientation, ProgressBar.ops.orientation(res) := _)
     ifSet(prefSize, Node.ops.prefSize(res) := _)

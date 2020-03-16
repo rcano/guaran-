@@ -42,7 +42,6 @@ abstract class NodeDescr(
   val tpeParams: Seq[String] = Seq.empty,
   val parents: Seq[NodeDescr] = Seq.empty,
   val props: Seq[Property] = Seq.empty,
-  val fieldsExtra: Seq[String] = Seq.empty,
   val opsExtra: Seq[String] = Seq.empty,
   val emitters: Seq[EmitterDescr] = Seq.empty,
   val initExtra: Seq[String] = Seq.empty,
@@ -78,7 +77,6 @@ case object Node extends NodeDescr(
     SwingProp("visible", "Boolean"),
     VarProp("mouseLocationMut", "(Int, Int)", "(0, 0)", Some("private")),
   ),
-  fieldsExtra = Seq("val MouseLocation = mouseLocationMut.asObsValIn()"),
   opsExtra = """
     |def focused = Node.FocusedMut.asObsValIn(v)
     |def mouseLocation = Node.MouseLocationMut.asObsValIn(v)
@@ -405,6 +403,7 @@ case object TextComponent extends NodeDescr(
     SwingProp("navigationFilter", "javax.swing.text.NavigationFilter | Null"),
     SwingProp("selectedTextColor", "java.awt.Color | Null"),
     SwingProp("selectionColor", "java.awt.Color | Null"),
+    VarProp("currentText", "String", "\"\"", Some("private"))
   ),
   opsExtra = Seq(
     "def actions = v.getActions",
@@ -414,8 +413,9 @@ case object TextComponent extends NodeDescr(
     "def scrollableTracksViewportHeight = v.getScrollableTracksViewportHeight",
     "def scrollableTracksViewportWidth = v.getScrollableTracksViewportWidth",
     "def selectedText = v.getSelectedText",
-    "def text = v.getText",
-    "def text_=(s: String) = v.setText(s)"
+    "def text = v.getText.nn",
+    "def text_=(s: String) = v.setText(s)",
+    "def currentText: ObsVal.Aux[String, v.type] = TextComponent.CurrentText.asInstanceOf[ObsVal.Aux[String, v.type]]"
   ),
   isAbstract = true,
   initExtra = """
@@ -423,7 +423,7 @@ case object TextComponent extends NodeDescr(
    |  def changedUpdate(evt: DocumentEvent | Null) = notifyChange()
    |  def insertUpdate(evt: DocumentEvent | Null) = notifyChange()
    |  def removeUpdate(evt: DocumentEvent | Null) = notifyChange()
-   |  def notifyChange() = summon[Scenegraph].update(summon[VarContext].swingPropertyUpdated(ops.document(v), v.getDocument.nn))
+   |  def notifyChange() = summon[Scenegraph].update(TextComponent.CurrentText.forInstance(v) := v.text)
    |})
   """.stripMargin.trim.split("\n").asInstanceOf[Array[String]].toIndexedSeq
 )
@@ -1070,7 +1070,7 @@ def genCode(n: NodeDescr): String = {
   val allVars: Vector[(NodeDescr, Property)] = Iterator.unfold(Seq(n)) {
     case Seq() => None
     case parents => 
-      val allParentVars = parents.flatMap(p => p.props.filterNot(prop => seenVars(prop.name)).map(p -> _))
+      val allParentVars = parents.flatMap(p => p.props.filterNot(prop => seenVars(prop.name) || prop.visibility.exists("private".==)).map(p -> _))
       seenVars ++= allParentVars.map(_._2.name)
       Some(allParentVars -> parents.flatMap(_.parents))
   }.flatten.toVector.sortBy(_._2.name)
@@ -1096,6 +1096,7 @@ def genCode(n: NodeDescr): String = {
     else Seq.empty 
 
   val sortedProps = n.props.sortBy(_.name)
+  val nonPrivateSortedProps = sortedProps.filterNot(_.visibility.exists("private".==))
   val sortedEmitters = n.emitters.sortBy(_.name)
 
   s"""opaque type ${n.name}$tpeParamsDecls ${if (n.parents.nonEmpty) n.parents.mkString("<: ", " & ", "") else ""} = ${(n.underlying +: n.parents).mkString(" & ")}
@@ -1105,7 +1106,7 @@ def genCode(n: NodeDescr): String = {
      |  ${sortedEmitters.map(e => s"val ${e.name.capitalize} = Emitter[${e.tpe}]()").mkString("\n  ")}
      |
      |  extension ops on $tpeParams(v: ${n.name}$tpeParams) {
-     |    ${sortedProps.map(p => s"def ${p.name}: Var.Aux[${p.tpe}, v.type] = ${n.name}.${p.name.capitalize}.asInstanceOf[Var.Aux[${p.tpe}, v.type]]").mkString("\n    ")}
+     |    ${nonPrivateSortedProps.map(p => s"def ${p.name}: Var.Aux[${p.tpe}, v.type] = ${n.name}.${p.name.capitalize}.asInstanceOf[Var.Aux[${p.tpe}, v.type]]").mkString("\n    ")}
 
      |    ${sortedEmitters.map(e => s"def ${e.name}: Emitter.Aux[${e.tpe}, v.type] = ${n.name}.${e.name.capitalize}.forInstance(v)").mkString("\n    ")}
 

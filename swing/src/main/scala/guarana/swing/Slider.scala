@@ -90,7 +90,6 @@ object Slider extends VarsMap {
     enabled: Opt[Binding[Boolean]] = UnsetParam,
     extent: Opt[Binding[Int]] = UnsetParam,
     focusable: Opt[Binding[Boolean]] = UnsetParam,
-    focusedMut: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     inheritsPopupMenu: Opt[Binding[Boolean]] = UnsetParam,
@@ -104,7 +103,6 @@ object Slider extends VarsMap {
     minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     minorTickSpacing: Opt[Binding[Int]] = UnsetParam,
     model: Opt[Binding[javax.swing.BoundedRangeModel | Null]] = UnsetParam,
-    mouseLocationMut: Opt[Binding[(Int, Int)]] = UnsetParam,
     opaque: Opt[Binding[Boolean]] = UnsetParam,
     orientation: Opt[Binding[Int]] = UnsetParam,
     paintLabels: Opt[Binding[Boolean]] = UnsetParam,
@@ -138,7 +136,6 @@ object Slider extends VarsMap {
     ifSet(enabled, Node.ops.enabled(res) := _)
     ifSet(extent, Slider.ops.extent(res) := _)
     ifSet(focusable, Node.ops.focusable(res) := _)
-    ifSet(focusedMut, Node.ops.focusedMut(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
     ifSet(inheritsPopupMenu, Component.ops.inheritsPopupMenu(res) := _)
@@ -152,7 +149,6 @@ object Slider extends VarsMap {
     ifSet(minSize, Node.ops.minSize(res) := _)
     ifSet(minorTickSpacing, Slider.ops.minorTickSpacing(res) := _)
     ifSet(model, Slider.ops.model(res) := _)
-    ifSet(mouseLocationMut, Node.ops.mouseLocationMut(res) := _)
     ifSet(opaque, Component.ops.opaque(res) := _)
     ifSet(orientation, Slider.ops.orientation(res) := _)
     ifSet(paintLabels, Slider.ops.paintLabels(res) := _)
