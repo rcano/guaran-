@@ -29,9 +29,8 @@ abstract class TableData[T <: Product](val prodFields: util.ProductFields[T]) ex
 }
 
 package immutable {
-  class TableData[T <: Product](val elements: IndexedSeq[T])(
-    given productFields: util.ProductFields[T]
-  ) extends guarana.swing.table.TableData[T](productFields) {
+  class TableData[T <: Product](val elements: IndexedSeq[T])(using productFields: util.ProductFields[T])
+      extends guarana.swing.table.TableData[T](productFields) {
     def apply(i: Int) = elements(i)
     def length = elements.length
   }

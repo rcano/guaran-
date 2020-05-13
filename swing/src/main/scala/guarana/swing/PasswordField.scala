@@ -28,7 +28,7 @@ object PasswordField extends VarsMap {
 
   def wrap(v: javax.swing.JPasswordField) = v.asInstanceOf[PasswordField]
 
-  def init(v: PasswordField): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
+  def init(v: PasswordField): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     TextField.init(v)
     
     v.addPropertyChangeListener(varsPropertyListener(v))
@@ -90,7 +90,7 @@ object PasswordField extends VarsMap {
     transferHandler: Opt[Binding[javax.swing.TransferHandler | Null]] = UnsetParam,
     verifyInputWhenFocusTarget: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): (given Scenegraph) => VarContextAction[PasswordField] = {
+  ): Scenegraph ?=> VarContextAction[PasswordField] = {
     val res = uninitialized()
     PasswordField.init(res)
     ifSet(UI, TextComponent.ops.UI(res) := _)

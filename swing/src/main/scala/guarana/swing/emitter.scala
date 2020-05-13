@@ -23,7 +23,7 @@ object Emitter {
     def dispose(emitter: Emitter[_])(implicit instance: ValueOf[emitter.ForInstance]): Unit
   }
 
-  implicit def emitter2Keyed[T](e: Emitter[T])(given instance: ValueOf[e.ForInstance]): Keyed[e.type] = Keyed(e, instance.value)
+  implicit def emitter2Keyed[T](e: Emitter[T])(using instance: ValueOf[e.ForInstance]): Keyed[e.type] = Keyed(e, instance.value)
 }
 
 sealed trait EventIterator[-T] {
@@ -70,15 +70,15 @@ object EventIterator extends EventIterator[Any] {
 
     def foreach[U <: T](f: Scenegraph.ContextAction[U => Any]): EventIterator[U] = {
       lazy val step: Step[U] = new Step[U] {
-        def apply(ctx: VarContext & Emitter.Context, u: U) = { f(given ctx)(u); StepResult(Some(step), false, true) }
+        def apply(ctx: VarContext & Emitter.Context, u: U) = { f(using ctx)(u); StepResult(Some(step), false, true) }
         override def toString = "foreach"
       }
       EventIteratorImpl[U](opsChain :+ step)
     }
     def filter[U <: T](pred: Scenegraph.ContextAction[U => Boolean]): EventIterator[U] = {
       lazy val step: Step[U] = new Step[U] {
-        def apply(ctx: VarContext & Emitter.Context, u: U) = StepResult(Some(step), false, pred(given ctx)(u))
-        override def toString = s"filter(${pred(given null.asInstanceOf)})"
+        def apply(ctx: VarContext & Emitter.Context, u: U) = StepResult(Some(step), false, pred(using ctx)(u))
+        override def toString = s"filter(${pred(using null.asInstanceOf)})"
       }
       EventIteratorImpl[U](opsChain :+ step)
     }
@@ -91,8 +91,8 @@ object EventIterator extends EventIterator[Any] {
     }
     def takeWhile[U <: T](pred: Scenegraph.ContextAction[U => Boolean]): EventIterator[U] = {
       lazy val step: Step[U] = new Step[U] {
-        def apply(ctx: VarContext & Emitter.Context, t: U) = if (pred(given ctx)(t)) StepResult(Some(step), false, true) else StepResult[Any](None, true, false)
-        override def toString = s"takeWhile(${pred(given null.asInstanceOf)})"
+        def apply(ctx: VarContext & Emitter.Context, t: U) = if (pred(using ctx)(t)) StepResult(Some(step), false, true) else StepResult[Any](None, true, false)
+        override def toString = s"takeWhile(${pred(using null.asInstanceOf)})"
       }
       EventIteratorImpl(opsChain :+ step)
     }
@@ -105,8 +105,8 @@ object EventIterator extends EventIterator[Any] {
     }
     def dropWhile[U <: T](pred: Scenegraph.ContextAction[U => Boolean]): EventIterator[U] = {
       lazy val step: Step[U] = new Step[U] {
-        def apply(ctx: VarContext & Emitter.Context, t: U) = if (pred(given ctx)(t)) StepResult(Some(step), false, false) else StepResult[Any](None, false, true)
-        override def toString = s"dropWhile(${pred(given null.asInstanceOf)})"
+        def apply(ctx: VarContext & Emitter.Context, t: U) = if (pred(using ctx)(t)) StepResult(Some(step), false, false) else StepResult[Any](None, false, true)
+        override def toString = s"dropWhile(${pred(using null.asInstanceOf)})"
       }
       EventIteratorImpl(opsChain :+ step)
     }

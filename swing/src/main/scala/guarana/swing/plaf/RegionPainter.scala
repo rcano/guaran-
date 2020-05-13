@@ -7,8 +7,7 @@ import javax.swing.plaf.synth._
 import scala.util.chaining._
 
 object RegionPainter {
-  def paintRegion(sg: Scenegraph, comp: javax.swing.JComponent, g2: Graphics2D, x: Double, y: Double, w: Double, h: Double): Unit = {
-    val background = style.CssProperties.Background.forInstance(comp) pipe (sg.stateReader(_))
+  def paintRegion(background: style.Background, g2: Graphics2D, x: Double, y: Double, w: Double, h: Double): Unit = {
     for (bf <- background.fills) {
       val style.BackgroundFill(fill, radii, insets) = bf
       g2.setPaint(fill)

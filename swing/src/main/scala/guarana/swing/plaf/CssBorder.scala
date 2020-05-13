@@ -9,25 +9,34 @@ class CssBorder(scenegraph: Scenegraph) extends javax.swing.border.Border {
 
   private var lastComputedInsets: Option[java.awt.Insets] = None
   def getBorderInsets(awtc: AwtComponent | UncheckedNull): java.awt.Insets | UncheckedNull = {
-    val c = Component.wrap(awtc.asInstanceOf)
-    val border = style.CssProperties.Border.forInstance(c) pipe (scenegraph.stateReader(_))
-    val res = (border.strokes.iterator.map(_.insets) ++ border.images.iterator.map(_.insets)).foldLeft(java.awt.Insets(0, 0, 0, 0)) { (res, i) =>
+    val border = style.CssProperties.Border.forInstance(awtc) pipe (scenegraph.stateReader(_))
+    val res = CssBorder.getBorderInsets(border)
+    lastComputedInsets = Some(res)
+    res
+  }
+  def isBorderOpaque(): Boolean = true
+  def paintBorder(awtc: AwtComponent | UncheckedNull, g: Graphics | UncheckedNull, x: Int, y: Int, width: Int, height: Int): Unit = {
+    val g2 = g.create().upgrade.withAliasing
+    val borderSpec = style.CssProperties.Border.forInstance(awtc) pipe (scenegraph.stateReader(_))
+
+    val insets = lastComputedInsets.get
+    CssBorder.paintBorder(borderSpec, lastComputedInsets.get, g.nn, x, y, width, height)
+  }
+}
+object CssBorder {
+
+  def getBorderInsets(border: style.Border): java.awt.Insets = {
+    (border.strokes.iterator.map(_.insets) ++ border.images.iterator.map(_.insets)).foldLeft(java.awt.Insets(0, 0, 0, 0)) { (res, i) =>
       res.top = i.top.round.toInt max res.top
       res.left = i.left.round.toInt max res.left
       res.bottom = i.bot.round.toInt max res.bottom
       res.right = i.right.round.toInt max res.right
       res
     }
-    lastComputedInsets = Some(res)
-    res
   }
-  def isBorderOpaque(): Boolean = true
-  def paintBorder(awtc: AwtComponent | UncheckedNull, g: Graphics | UncheckedNull, x: Int, y: Int, width: Int, height: Int): Unit = {
-    val g2 = g.create().asInstanceOf[Graphics2D]
-    val c = Component.wrap(awtc.asInstanceOf)
-    val borderSpec = style.CssProperties.Border.forInstance(c) pipe (scenegraph.stateReader(_))
 
-    val insets = lastComputedInsets.get
+  def paintBorder(borderSpec: style.Border, insets: java.awt.Insets, g: Graphics, x: Int, y: Int, width: Int, height: Int): Unit = {
+    val g2 = g.create().upgrade.withAliasing
 
     /** helper function to relocate x, y, width and height accordingly to its insets */
     inline def atBorder(strokeInsets: Insets)(f: (Double, Double, Double, Double) => Unit): Unit = {

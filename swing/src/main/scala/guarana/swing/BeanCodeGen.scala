@@ -182,7 +182,7 @@ import scala.util.control.NonFatal
         //   |
         //   |  def apply(
         //   |    ${ctrParams.mkString(",\n    ")}
-        //   |  ): (given Scenegraph) => VarContextAction[$nodeName] = {
+        //   |  ): Scenegraph ?=> VarContextAction[$nodeName] = {
         //   |    val res = uninitialized()
         //   |    init(res)
         //   |    ${ctrInitializers.mkString("\n    ")}

@@ -73,7 +73,7 @@ object ListView extends VarsMap {
 
   def wrap[E](v: javax.swing.JList[_ <: E]) = v.asInstanceOf[ListView[E]]
 
-  def init[E](v: ListView[E]): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
+  def init[E](v: ListView[E]): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     Component.init(v)
     
     v.addPropertyChangeListener(varsPropertyListener(v))
@@ -140,7 +140,7 @@ object ListView extends VarsMap {
     verifyInputWhenFocusTarget: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam,
     visibleRowCount: Opt[Binding[Int]] = UnsetParam
-  ): (given Scenegraph) => VarContextAction[ListView[E]] = {
+  ): Scenegraph ?=> VarContextAction[ListView[E]] = {
     val res = uninitialized[E]()
     ListView.init(res)
     ifSet(UI, ListView.ops.UI(res) := _)

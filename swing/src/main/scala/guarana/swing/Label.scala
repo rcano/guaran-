@@ -50,7 +50,7 @@ object Label extends VarsMap {
 
   def wrap(v: javax.swing.JLabel) = v.asInstanceOf[Label]
 
-  def init(v: Label): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
+  def init(v: Label): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     Component.init(v)
     
     v.addPropertyChangeListener(varsPropertyListener(v))
@@ -104,7 +104,7 @@ object Label extends VarsMap {
     verticalAlignment: Opt[Binding[Int]] = UnsetParam,
     verticalTextPosition: Opt[Binding[Int]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): (given Scenegraph) => VarContextAction[Label] = {
+  ): Scenegraph ?=> VarContextAction[Label] = {
     val res = uninitialized()
     Label.init(res)
     ifSet(UI, Label.ops.UI(res) := _)

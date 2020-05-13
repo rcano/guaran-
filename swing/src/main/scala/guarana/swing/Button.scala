@@ -28,7 +28,7 @@ object Button extends VarsMap {
 
   def wrap(v: javax.swing.JButton) = v.asInstanceOf[Button]
 
-  def init(v: Button): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
+  def init(v: Button): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     ButtonBase.init(v)
     
     v.addPropertyChangeListener(varsPropertyListener(v))
@@ -102,7 +102,7 @@ object Button extends VarsMap {
     verticalAlignment: Opt[Binding[Int]] = UnsetParam,
     verticalTextPosition: Opt[Binding[Int]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): (given Scenegraph) => VarContextAction[Button] = {
+  ): Scenegraph ?=> VarContextAction[Button] = {
     val res = uninitialized()
     Button.init(res)
     ifSet(UI, ButtonBase.ops.UI(res) := _)

@@ -50,7 +50,7 @@ object Frame extends VarsMap {
 
   def wrap(v: javax.swing.JFrame) = v.asInstanceOf[Frame]
 
-  def init(v: Frame): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
+  def init(v: Frame): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     WindowBase.init(v)
     
     v.addPropertyChangeListener(varsPropertyListener(v))
@@ -100,7 +100,7 @@ object Frame extends VarsMap {
     transferHandler: Opt[Binding[javax.swing.TransferHandler | Null]] = UnsetParam,
     undecorated: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): (given Scenegraph) => VarContextAction[Frame] = {
+  ): Scenegraph ?=> VarContextAction[Frame] = {
     val res = uninitialized()
     Frame.init(res)
     ifSet(alwaysOnTop, WindowBase.ops.alwaysOnTop(res) := _)

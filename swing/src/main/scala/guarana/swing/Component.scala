@@ -62,13 +62,13 @@ object Component extends VarsMap {
     def topLevelAncestor = v.getTopLevelAncestor
     def vetoableChangeListeners = v.getVetoableChangeListeners
     def visibleRect = v.getVisibleRect
-    def uiPrefSize: (Double, Double) | Null = UI(v).?(_.getPreferredSize(v)).?(d => (d.getWidth, d.getHeight))
+    def uiPrefSize: (Double, Double) | Null = ops.UI(v).?(_.getPreferredSize(v)).?(d => (d.getWidth, d.getHeight))
     def unwrap: javax.swing.JComponent = v
   }
 
   def wrap(v: javax.swing.JComponent) = v.asInstanceOf[Component]
 
-  def init(v: Component): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
+  def init(v: Component): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     Node.init(v)
     
     v.addPropertyChangeListener(varsPropertyListener(v))

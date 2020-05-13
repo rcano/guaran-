@@ -93,7 +93,7 @@ object ButtonBase extends VarsMap {
 
   def wrap(v: javax.swing.AbstractButton) = v.asInstanceOf[ButtonBase]
 
-  def init(v: ButtonBase): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
+  def init(v: ButtonBase): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     Component.init(v)
     sc.update {
       val ctx = summon[Emitter.Context]

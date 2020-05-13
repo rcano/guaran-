@@ -31,4 +31,5 @@ case class CornerRadii(
 object CornerRadii {
   def simple(topLeft: Double, topRight: Double, botRight: Double, botLeft: Double, percentage: Boolean = false) =
     CornerRadii(topLeft, topLeft, topRight, topRight, botRight, botRight, botLeft, botLeft, percentage, percentage, percentage, percentage, percentage, percentage, percentage, percentage)
+  def all(radii: Double) = simple(radii, radii, radii, radii)
 }

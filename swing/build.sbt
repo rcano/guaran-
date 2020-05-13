@@ -1,13 +1,16 @@
 name := "guaraná-swing"
-version := "0.1.0"
+version := "0.1.0-SNAPSHOT"
 
-// scalaVersion := "0.21.0-RC1"
-// scalaVersion := "0.22.0-bin-20200125-c8371e4-NIGHTLY"
-scalaVersion := "0.23.0-bin-20200205-3f919dd-NIGHTLY"
+Global / onChangedBuildSource := ReloadOnSourceChanges
+
+// scalaVersion := "0.24.0-RC1"
+scalaVersion := "0.25.0-bin-20200511-5fb865b-NIGHTLY"
 
 scalacOptions ++= Seq(
   "-Yexplicit-nulls",
    "-deprecation", "-unchecked")
+
+Compile / packageDoc / publishArtifact := false
 
 fork := true
 
@@ -48,5 +51,6 @@ javaOptions ++= {
   )
 }
 
+javaOptions += "-Xmx100m"
 // javaOptions ++= Seq("-Dsun.java2d.uiScale.enabled=true", "-Dsun.java2d.uiScale=2")
 outputStrategy := Some(StdoutOutput)

@@ -16,7 +16,7 @@ object ProductFields {
     case _: (t *: ts) => summonFrom { case m: scala.reflect.ClassTag[`t`] => m } :: summonAllTypes[ts]
   }
 
-  inline given productFields[P <: Product](given mirror: deriving.Mirror.ProductOf[P]) as ProductFields[P] = {
+  inline given productFields[P <: Product](using mirror: deriving.Mirror.ProductOf[P]) as ProductFields[P] = {
     val allValues = summonAllValues[mirror.MirroredElemLabels].asInstanceOf[Seq[String]]
     val allTypes = summonAllTypes[mirror.MirroredElemTypes]
     new ProductFields[P] {
@@ -36,16 +36,16 @@ object ProductLenses {
     case _: (t *: ts) => lense[P](compiletime.constValue[t]) :: lenseForLabels[ts, P]
   }
 
-  inline given productLenses[P <: Product](given inline mirror: deriving.Mirror.ProductOf[P]) as ProductLenses[P] = {
+  inline given productLenses[P <: Product](using inline mirror: deriving.Mirror.ProductOf[P]) as ProductLenses[P] = {
     val lenses = lenseForLabels[mirror.MirroredElemLabels, P]
     // val allLabels = ProductFields.summonAllValues[mirror.MirroredElemLabels].asInstanceOf[Seq[String]]
     // allLabels.map(l => lense[P](l))
     ???
   }
-  import scala.quoted._, matching.{summonExpr}
+  import scala.quoted._
   inline def lense[P <: Product](inline label: Any) = ${lenseMacro[P]('label)}
-  private def lenseMacro[P <: Product](labelNameExpr: Expr[Any])(given ctx: QuoteContext, pt: Type[P]) = {
-    import ctx.tasty.{_, given}
+  private def lenseMacro[P <: Product](labelNameExpr: Expr[Any])(using ctx: QuoteContext, pt: Type[P]) = {
+    import ctx.tasty.{_, given _}
     
     val labelName = labelNameExpr.asInstanceOf[Expr[String]].value
     // TypeApply(Select("", ???), Nil)

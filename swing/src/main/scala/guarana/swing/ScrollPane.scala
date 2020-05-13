@@ -56,7 +56,7 @@ object ScrollPane extends VarsMap {
 
   def wrap(v: javax.swing.JScrollPane) = v.asInstanceOf[ScrollPane]
 
-  def init(v: ScrollPane): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
+  def init(v: ScrollPane): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     Component.init(v)
     
     v.addPropertyChangeListener(varsPropertyListener(v))
@@ -113,7 +113,7 @@ object ScrollPane extends VarsMap {
     viewportBorder: Opt[Binding[javax.swing.border.Border | Null]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam,
     wheelScrollingEnabled: Opt[Binding[Boolean]] = UnsetParam
-  ): (given Scenegraph) => VarContextAction[ScrollPane] = {
+  ): Scenegraph ?=> VarContextAction[ScrollPane] = {
     val res = uninitialized()
     ScrollPane.init(res)
     ifSet(UI, ScrollPane.ops.UI(res) := _)

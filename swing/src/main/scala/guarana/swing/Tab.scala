@@ -27,7 +27,7 @@ object Tab {
     tip: Opt[Binding[String | Null]] = UnsetParam,
     enabled: Opt[Binding[Boolean]] = UnsetParam,
     tabNode: Opt[Binding[Node | Null]] = UnsetParam,
-  ): (given Scenegraph) => VarContextAction[Tab] = {
+  ): Scenegraph ?=> VarContextAction[Tab] = {
     val res = new Tab()
     ifSet(title, res.title := _)
     ifSet(icon, res.icon := _)

@@ -28,16 +28,15 @@ object AbsolutePositioningPane extends VarsMap {
 
   def wrap(v: javax.swing.JPanel) = v.asInstanceOf[AbsolutePositioningPane]
 
-  def init(v: AbsolutePositioningPane): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
+  def init(v: AbsolutePositioningPane): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     Pane.init(v)
-    
+    v.asInstanceOf[JPanel].setLayout(null)
     v.addPropertyChangeListener(varsPropertyListener(v))
     
     
   }
   def uninitialized(): AbsolutePositioningPane = {
     val res = javax.swing.JPanel().asInstanceOf[AbsolutePositioningPane]
-    res.asInstanceOf[JPanel].setLayout(null)
     res
   }
   
@@ -72,7 +71,7 @@ object AbsolutePositioningPane extends VarsMap {
     transferHandler: Opt[Binding[javax.swing.TransferHandler | Null]] = UnsetParam,
     verifyInputWhenFocusTarget: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): (given Scenegraph) => VarContextAction[AbsolutePositioningPane] = {
+  ): Scenegraph ?=> VarContextAction[AbsolutePositioningPane] = {
     val res = uninitialized()
     AbsolutePositioningPane.init(res)
     ifSet(UI, Pane.ops.UI(res) := _)

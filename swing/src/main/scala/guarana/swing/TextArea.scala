@@ -36,7 +36,7 @@ object TextArea extends VarsMap {
 
   def wrap(v: javax.swing.JTextArea) = v.asInstanceOf[TextArea]
 
-  def init(v: TextArea): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
+  def init(v: TextArea): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     TextComponent.init(v)
     
     v.addPropertyChangeListener(varsPropertyListener(v))
@@ -98,7 +98,7 @@ object TextArea extends VarsMap {
     verifyInputWhenFocusTarget: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam,
     wrapStyleWord: Opt[Binding[Boolean]] = UnsetParam
-  ): (given Scenegraph) => VarContextAction[TextArea] = {
+  ): Scenegraph ?=> VarContextAction[TextArea] = {
     val res = uninitialized()
     TextArea.init(res)
     ifSet(UI, TextComponent.ops.UI(res) := _)

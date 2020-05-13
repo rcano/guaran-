@@ -28,7 +28,7 @@ object Pane extends VarsMap {
 
   def wrap(v: javax.swing.JPanel) = v.asInstanceOf[Pane]
 
-  def init(v: Pane): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
+  def init(v: Pane): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     Component.init(v)
     
     v.addPropertyChangeListener(varsPropertyListener(v))
@@ -71,7 +71,7 @@ object Pane extends VarsMap {
     transferHandler: Opt[Binding[javax.swing.TransferHandler | Null]] = UnsetParam,
     verifyInputWhenFocusTarget: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): (given Scenegraph) => VarContextAction[Pane] = {
+  ): Scenegraph ?=> VarContextAction[Pane] = {
     val res = uninitialized()
     Pane.init(res)
     ifSet(UI, Pane.ops.UI(res) := _)

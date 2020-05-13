@@ -46,7 +46,7 @@ object ScrollBar extends VarsMap {
 
   def wrap(v: javax.swing.JScrollBar) = v.asInstanceOf[ScrollBar]
 
-  def init(v: ScrollBar): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
+  def init(v: ScrollBar): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     Component.init(v)
     
     v.addPropertyChangeListener(varsPropertyListener(v))
@@ -98,7 +98,7 @@ object ScrollBar extends VarsMap {
     verifyInputWhenFocusTarget: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam,
     visibleAmount: Opt[Binding[Int]] = UnsetParam
-  ): (given Scenegraph) => VarContextAction[ScrollBar] = {
+  ): Scenegraph ?=> VarContextAction[ScrollBar] = {
     val res = uninitialized()
     ScrollBar.init(res)
     ifSet(UI, ScrollBar.ops.UI(res) := _)

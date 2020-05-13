@@ -13,7 +13,7 @@ enum Scrollable {
     verticalScrollUnit: Opt[Double] = UnsetParam,
     horizontalScrollBlock: Opt[Double] = UnsetParam,
     verticalScrollBlock: Opt[Double] = UnsetParam,
-  )(given sc: Scenegraph): Node = {
+  )(using sc: Scenegraph): Node = {
     val scrollable = new JPanel(BorderLayout()) with javax.swing.Scrollable {
       def getPreferredScrollableViewportSize() = getPreferredSize
       def getScrollableBlockIncrement(rect: java.awt.Rectangle | UncheckedNull, orientation: Int, direction: Int): Int = {

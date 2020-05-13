@@ -6,13 +6,13 @@ import scala.annotation.compileTimeOnly
 
 case class Keyed[+T](keyed: T, instance: Any)
 
-type VarContextAction[+T] = (given VarContext) => T
+type VarContextAction[+T] = VarContext ?=> T
 
 trait VarContext {
-  def update[T](v: Var[T], binding: Binding[T])(given instance: ValueOf[v.ForInstance]): Unit
-  def apply[T](v: ObsVal[T])(given instance: ValueOf[v.ForInstance]): T
+  def update[T](v: Var[T], binding: Binding[T])(using instance: ValueOf[v.ForInstance]): Unit
+  def apply[T](v: ObsVal[T])(using instance: ValueOf[v.ForInstance]): T
 
-  private[guarana] def swingPropertyUpdated[T](v: Var[T], value: T)(given instance: ValueOf[v.ForInstance]): Unit
+  private[guarana] def swingPropertyUpdated[T](v: Var[T], value: T)(using instance: ValueOf[v.ForInstance]): Unit
 }
 object VarContext {
   @compileTimeOnly("No VarContext available")
@@ -28,13 +28,13 @@ sealed trait ObsVal[+T] {
     * is of type object and no ClassCastExceptionOcurrs, because otherwise when creating actual instances of ObsVal and setting ForInstance to something,
     * it will reify the parameter instead of keeping the generic version defined in this trait.
     */
-  def initialValue(v: Any)(given v.type <:< ForInstance): T
+  def initialValue(v: Any)(using v.type <:< ForInstance): T
 
-  def apply()(given instance: ValueOf[ForInstance]): VarContextAction[T] = (given c) => c(this)
+  def apply()(using instance: ValueOf[ForInstance]): VarContextAction[T] = (using c) => c(this)
 
   override def toString = s"ObsVal($name)"
 
-  def unapply(evt: Scenegraph#VarValueChanged)(given instance: ValueOf[ForInstance]): Option[(Option[T], T)] = {
+  def unapply(evt: Scenegraph#VarValueChanged)(using instance: ValueOf[ForInstance]): Option[(Option[T], T)] = {
     if (evt.key.instance == instance.value && evt.key.keyed == this) Some((evt.prev.asInstanceOf[Option[T]], evt.curr.asInstanceOf[T]))
     else None
   }
@@ -53,8 +53,8 @@ object ObsVal {
 
 sealed trait Var[T] extends ObsVal[T] {
   @alpha("assign")
-  def :=(b: Binding[T])(given instance: ValueOf[ForInstance]): VarContextAction[this.type] = (given ctx) => { ctx(this) = b; this }
-  // final def :=(n: Null)(given instance: ValueOf[ForInstance], nullEv: Null <:< T): VarContextAction[this.type] = (given ctx) => { ctx(this) = Binding.Const(() => nullEv(null)); this }
+  def :=(b: Binding[T])(using instance: ValueOf[ForInstance]): VarContextAction[this.type] = (using ctx) => { ctx(this) = b; this }
+  // final def :=(n: Null)(using instance: ValueOf[ForInstance], nullEv: Null <:< T): VarContextAction[this.type] = (using ctx) => { ctx(this) = Binding.Const(() => nullEv(null)); this }
   def eagerEvaluation: Boolean
 
   def forInstance[S <: Singleton](s: S): Var.Aux[T, S] = this.asInstanceOf[Var.Aux[T, S]]
@@ -67,7 +67,7 @@ object Var {
   def apply[T](varName: => String, initValue: => T, eagerEvaluation: Boolean = false) = {
     val ev = eagerEvaluation
     new Var[T] {
-      def initialValue(v: Any)(given v.type <:< ForInstance): T = initValue
+      def initialValue(v: Any)(using v.type <:< ForInstance): T = initValue
       def eagerEvaluation = ev
       lazy val name = varName
       type ForInstance = this.type
@@ -75,8 +75,8 @@ object Var {
   }
   // inline def autoName[T] = ${autoNameMacro[T]}
 
-  // def autoNameMacro[T](given ctx: scala.quoted.QuoteContext, t: scala.quoted.Type[T])/*: scala.quoted.Expr[Var[T]]*/ = {
-  //   import ctx.tasty.given
+  // def autoNameMacro[T](using ctx: scala.quoted.QuoteContext, t: scala.quoted.Type[T])/*: scala.quoted.Expr[Var[T]]*/ = {
+  //   import ctx.tasty.using
   //   val inferredName = scala.quoted.Expr(ctx.tasty.rootPosition.sourceCode)
   //   '{
   //     $inferredName
@@ -99,17 +99,17 @@ enum Binding[+T] {
     case Compute(compute) => Compute(ctx => f(compute(ctx)))
   }
 
-  def apply()(given ctx: VarContext): T = this match {
+  def apply()(using ctx: VarContext): T = this match {
     case Const(v) => v() 
     case Compute(compute) => compute(ctx)
   }
 }
 
 object Binding {
-  given const[T]: Conversion[T, Const[T]] = t => new Const(() => t)
+  given const[T] as Conversion[T, Const[T]] = t => new Const(() => t)
   def bind[T](compute: VarContext => T): Compute[T] = new Compute(compute)
 
-  inline def dyn[T](f: VarContextAction[T]) = Compute(c => f(given c))
+  inline def dyn[T](f: VarContextAction[T]) = Compute(c => f(using c))
 
   val Null = Const[Null](() => null)
 }
@@ -117,13 +117,13 @@ object Binding {
 trait SwingObsVal[+T] extends ObsVal[T] {
   type ForInstance <: Node with Singleton
   private[swing] def get(n: ForInstance): T
-  def initialValue(v: Any)(given ev: v.type <:< ForInstance) = get(ev(v))
+  def initialValue(v: Any)(using ev: v.type <:< ForInstance) = get(ev(v))
 }
 
 trait SwingVar[T] extends Var[T] with SwingObsVal[T] {
   private[swing] def set(n: ForInstance, v: T): Unit
   @alpha("assign")
-  override def :=(b: Binding[T])(given instance: ValueOf[ForInstance]): VarContextAction[this.type] = {
+  override def :=(b: Binding[T])(using instance: ValueOf[ForInstance]): VarContextAction[this.type] = {
     val ctx = summon[VarContext]
     b match {
       case Binding.Const(v) => 

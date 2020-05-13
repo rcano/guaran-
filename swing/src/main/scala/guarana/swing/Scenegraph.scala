@@ -8,7 +8,7 @@ import scala.util.Try
 import guarana.swing.impl.SignalSwitchboard
 
 object Scenegraph {
-  type ContextAction[+R] =  (given VarContext & Emitter.Context) => R
+  type ContextAction[+R] =  VarContext & Emitter.Context ?=> R
 }
 class Scenegraph {
 
@@ -47,12 +47,12 @@ class Scenegraph {
   val varUpdates = Emitter[VarValueChanged]().forInstance(this)
 
   {
-    emittersData = emitterRegister(emittersData, varUpdates)(given ValueOf(this))
+    emittersData = emitterRegister(emittersData, varUpdates)(using ValueOf(this))
   }
 
 
-  def update[R](f: (given Scenegraph) => Scenegraph.ContextAction[R]): R = Await.result(updateAsync(f), Duration.Inf)
-  def updateAsync[R](f: (given Scenegraph) => Scenegraph.ContextAction[R]): Future[R] = {
+  def update[R](f: Scenegraph ?=> Scenegraph.ContextAction[R]): R = Await.result(updateAsync(f), Duration.Inf)
+  def updateAsync[R](f: Scenegraph ?=> Scenegraph.ContextAction[R]): Future[R] = {
     val res = Promise[R]()
     def impl = res.complete(Try {
       var locallyCreatedContext = false
@@ -62,7 +62,7 @@ class Scenegraph {
         threadLocalContext.set(ctx)
         locallyCreatedContext = true
       }
-      val res = f(given this)(given ctx)
+      val res = f(using this)(using ctx)
       if (locallyCreatedContext) {
         switchboard = ctx.switchboard
         emittersData = ctx.emittersData
@@ -112,29 +112,29 @@ class Scenegraph {
 
     def signalUpdated[T](sb: SignalSwitchboard[Signal], s: Keyed[Signal[T]], oldValue: Option[T], newValue: T, dependencies: collection.Set[Keyed[Signal[_]]], dependents: collection.Set[Keyed[Signal[_]]]): Unit = {
       withContext { ctx =>
-        ctx.emit(varUpdates, VarValueChanged(s, oldValue, newValue))(given ValueOf(Scenegraph.this))
+        ctx.emit(varUpdates, VarValueChanged(s, oldValue, newValue))(using ValueOf(Scenegraph.this))
       }
     }
   }
 
-  private def emitterDispose[A](emittersData: Map[Keyed[Emitter[_]], EmitterData[_]], emitter: Emitter[A])(given instance: ValueOf[emitter.ForInstance]): Map[Keyed[Emitter[_]], EmitterData[_]] = {
+  private def emitterDispose[A](emittersData: Map[Keyed[Emitter[_]], EmitterData[_]], emitter: Emitter[A])(using instance: ValueOf[emitter.ForInstance]): Map[Keyed[Emitter[_]], EmitterData[_]] = {
     emittersData.removed(emitter)
   }
-  private def emitterEmit[A](emittersData: Map[Keyed[Emitter[_]], EmitterData[_]], emitter: Emitter[A], evt: A)(given instance: ValueOf[emitter.ForInstance], ctx: VarContext & Emitter.Context): Map[Keyed[Emitter[_]], EmitterData[_]] = {
+  private def emitterEmit[A](emittersData: Map[Keyed[Emitter[_]], EmitterData[_]], emitter: Emitter[A], evt: A)(using instance: ValueOf[emitter.ForInstance], ctx: VarContext & Emitter.Context): Map[Keyed[Emitter[_]], EmitterData[_]] = {
     val key: Keyed[Emitter[_]] = emitter
     emittersData.get(key) match {
       case Some(data) => emittersData.updated(key, data.asInstanceOf[EmitterData[A]].emit(evt))
       case _ => emittersData
     }
   }
-  private def emitterListen[A](emittersData: Map[Keyed[Emitter[_]], EmitterData[_]], emitter: Emitter[A])(f: EventIterator[A])(given instance: ValueOf[emitter.ForInstance]): Map[Keyed[Emitter[_]], EmitterData[_]] = {
+  private def emitterListen[A](emittersData: Map[Keyed[Emitter[_]], EmitterData[_]], emitter: Emitter[A])(f: EventIterator[A])(using instance: ValueOf[emitter.ForInstance]): Map[Keyed[Emitter[_]], EmitterData[_]] = {
     val key: Keyed[Emitter[_]] = Keyed(emitter, instance.value)
     emittersData.get(key) match {
       case Some(data) => emittersData.updated(key, data.asInstanceOf[EmitterData[A]].addListener(f))
       case _ => throw new IllegalStateException("Can't listen to a non registered Emitter")
     }
   }
-  private def emitterRegister(emittersData: Map[Keyed[Emitter[_]], EmitterData[_]], emitter: Emitter[_])(given instance: ValueOf[emitter.ForInstance]): Map[Keyed[Emitter[_]], EmitterData[_]] = {
+  private def emitterRegister(emittersData: Map[Keyed[Emitter[_]], EmitterData[_]], emitter: Emitter[_])(using instance: ValueOf[emitter.ForInstance]): Map[Keyed[Emitter[_]], EmitterData[_]] = {
     val key: Keyed[Emitter[_]] = Keyed(emitter, instance.value)
     if (emittersData.get(key).isEmpty) emittersData.updated(key, EmitterData())
     else emittersData
@@ -146,16 +146,16 @@ class Scenegraph {
   }
 
   private class SwitchboardAsVarContext(switchboard: SignalSwitchboard[Signal]) extends VarContext {
-    def apply[T](v: ObsVal[T])(given instance: ValueOf[v.ForInstance]): T = {
+    def apply[T](v: ObsVal[T])(using instance: ValueOf[v.ForInstance]): T = {
       switchboard.get(v) orElse stylist(scenegraphInfo)(v) getOrElse v.initialValue(instance.value)
     }
-    def update[T](v: Var[T], binding: Binding[T])(given instance: ValueOf[v.ForInstance]): Unit = {
+    def update[T](v: Var[T], binding: Binding[T])(using instance: ValueOf[v.ForInstance]): Unit = {
       binding match {
         case Binding.Const(c) => switchboard(v) = c()
         case Binding.Compute(c) => switchboard.bind(v)(sb => c(new SwitchboardAsVarContext(sb)))
       }
     }
-    private[guarana] def swingPropertyUpdated[T](v: Var[T], value: T)(given instance: ValueOf[v.ForInstance]): Unit = {
+    private[guarana] def swingPropertyUpdated[T](v: Var[T], value: T)(using instance: ValueOf[v.ForInstance]): Unit = {
       if (!reactingSwingVars(v) && !switchboard.get(v).exists(_ == value)) {
         switchboard(v) = value
       }
@@ -173,13 +173,13 @@ class Scenegraph {
 
     //Emitter.Context
 
-    def dispose(emitter: Emitter[_])(given instance: ValueOf[emitter.ForInstance]): Unit =
+    def dispose(emitter: Emitter[_])(using instance: ValueOf[emitter.ForInstance]): Unit =
       emittersData = emitterDispose(emittersData, emitter)
-    def emit[A](emitter: Emitter[A], evt: A)(given instance: ValueOf[emitter.ForInstance]): Unit =
-      emittersData = emitterEmit(emittersData, emitter, evt)(given summon, this)
-    def listen[A](emitter: Emitter[A])(f: EventIterator[A])(given instance: ValueOf[emitter.ForInstance]): Unit =
+    def emit[A](emitter: Emitter[A], evt: A)(using instance: ValueOf[emitter.ForInstance]): Unit =
+      emittersData = emitterEmit(emittersData, emitter, evt)(using summon, this)
+    def listen[A](emitter: Emitter[A])(f: EventIterator[A])(using instance: ValueOf[emitter.ForInstance]): Unit =
       emittersData = emitterListen(emittersData, emitter)(f)
-    def register(emitter: Emitter[_])(given instance: ValueOf[emitter.ForInstance]): Unit =
+    def register(emitter: Emitter[_])(using instance: ValueOf[emitter.ForInstance]): Unit =
       emittersData = emitterRegister(emittersData, emitter)
   }
 
@@ -198,7 +198,7 @@ class Scenegraph {
 
   /** Read-only view of the current state of vars value in the scenegraph */
   object stateReader {
-    def apply[T](v: ObsVal[T])(given instance: ValueOf[v.ForInstance]): T = {
+    def apply[T](v: ObsVal[T])(using instance: ValueOf[v.ForInstance]): T = {
       switchboard.get(v) orElse stylist(scenegraphInfo)(v) getOrElse v.initialValue(instance.value)
     }
   }

@@ -60,7 +60,7 @@ object ComboBox extends VarsMap {
 
   def wrap[E](v: javax.swing.JComboBox[_ <: E]) = v.asInstanceOf[ComboBox[E]]
 
-  def init[E](v: ComboBox[E]): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
+  def init[E](v: ComboBox[E]): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     Component.init(v)
     
     v.addPropertyChangeListener(varsPropertyListener(v))
@@ -123,7 +123,7 @@ object ComboBox extends VarsMap {
     transferHandler: Opt[Binding[javax.swing.TransferHandler | Null]] = UnsetParam,
     verifyInputWhenFocusTarget: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): (given Scenegraph) => VarContextAction[ComboBox[E]] = {
+  ): Scenegraph ?=> VarContextAction[ComboBox[E]] = {
     val res = uninitialized[E]()
     ComboBox.init(res)
     ifSet(UI, ComboBox.ops.UI(res) := _)

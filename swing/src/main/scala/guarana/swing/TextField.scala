@@ -34,7 +34,7 @@ object TextField extends VarsMap {
 
   def wrap(v: javax.swing.JTextField) = v.asInstanceOf[TextField]
 
-  def init(v: TextField): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
+  def init(v: TextField): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     TextComponent.init(v)
     sc.update {
       val ctx = summon[Emitter.Context]
@@ -99,7 +99,7 @@ object TextField extends VarsMap {
     transferHandler: Opt[Binding[javax.swing.TransferHandler | Null]] = UnsetParam,
     verifyInputWhenFocusTarget: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): (given Scenegraph) => VarContextAction[TextField] = {
+  ): Scenegraph ?=> VarContextAction[TextField] = {
     val res = uninitialized()
     TextField.init(res)
     ifSet(UI, TextComponent.ops.UI(res) := _)

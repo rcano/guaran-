@@ -40,7 +40,7 @@ object BorderPane extends VarsMap {
 
   def wrap(v: javax.swing.JPanel) = v.asInstanceOf[BorderPane]
 
-  def init(v: BorderPane): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
+  def init(v: BorderPane): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     Pane.init(v)
     
     v.addPropertyChangeListener(varsPropertyListener(v))
@@ -90,7 +90,7 @@ object BorderPane extends VarsMap {
     verifyInputWhenFocusTarget: Opt[Binding[Boolean]] = UnsetParam,
     vgap: Opt[Binding[Double]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): (given Scenegraph) => VarContextAction[BorderPane] = {
+  ): Scenegraph ?=> VarContextAction[BorderPane] = {
     val res = uninitialized()
     BorderPane.init(res)
     ifSet(UI, Pane.ops.UI(res) := _)

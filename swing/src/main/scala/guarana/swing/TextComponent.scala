@@ -66,7 +66,7 @@ object TextComponent extends VarsMap {
 
   def wrap(v: javax.swing.text.JTextComponent) = v.asInstanceOf[TextComponent]
 
-  def init(v: TextComponent): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
+  def init(v: TextComponent): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     Component.init(v)
     
     v.addPropertyChangeListener(varsPropertyListener(v))

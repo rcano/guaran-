@@ -31,12 +31,19 @@ class CssLaf(val scenegraph: Scenegraph) extends MetalLookAndFeel {
     }
     defaults.put(CssLaf, this)
 
+    defaults.keySet.nn.asScala.filter(_.toString endsWith "border") foreach (k => defaults.put(k, CssBorder(scenegraph)))
+
     defaults
   }
 
   override protected def initClassDefaults(defaults: UIDefaults | UncheckedNull) = {
     super.initClassDefaults(defaults)
-    // defaults.put("ButtonUI", classOf[CssButtonUi].getCanonicalName)
+    defaults.put("RootPaneUI", classOf[CssRootPaneUi].getCanonicalName)
+    defaults.put("PanelUI", classOf[CssPanelUi].getCanonicalName)
+    defaults.put("ButtonUI", classOf[CssButtonUi].getCanonicalName)
+    defaults.put("ToggleButtonUI", classOf[CssButtonUi].getCanonicalName)
+    defaults.put("ScrollBarUI", classOf[CssScrollBarUi].getCanonicalName)
+    defaults.put("ProgressBarUI", classOf[CssProgressBarUi].getCanonicalName)
   }
 
 }
@@ -63,5 +70,20 @@ object CssLaf {
       case DesktopEnvironment.Kde => Some(FontUIResource(LinuxFontPolicy.getKdeFont()))
       case DesktopEnvironment.Gtk => Some(FontUIResource(LinuxFontPolicy.getGnomeFont(tk)))
     }
+  }
+}
+
+trait CssUi {
+  def scenegraph = UIManager.getDefaults.get(CssLaf).toOption.fold(
+    throw new IllegalStateException("RUnning CssLaf without a Scenegraph?")
+  )(_.asInstanceOf[CssLaf].scenegraph)
+
+  inline protected def withinRegion(c: javax.swing.JComponent)(inline f: (Int, Int, Int, Int) => Unit): Unit = {
+    val insets = c.getInsets.nn
+    val x = insets.left
+    val y = insets.top
+    val width = c.getWidth - insets.right - insets.left
+    val height = c.getHeight - insets.top - insets.bottom
+    f(x, y, width, height)
   }
 }

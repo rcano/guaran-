@@ -28,7 +28,7 @@ object CheckBox extends VarsMap {
 
   def wrap(v: javax.swing.JCheckBox) = v.asInstanceOf[CheckBox]
 
-  def init(v: CheckBox): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
+  def init(v: CheckBox): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     ToggleButton.init(v)
     
     v.addPropertyChangeListener(varsPropertyListener(v))
@@ -102,7 +102,7 @@ object CheckBox extends VarsMap {
     verticalAlignment: Opt[Binding[Int]] = UnsetParam,
     verticalTextPosition: Opt[Binding[Int]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): (given Scenegraph) => VarContextAction[CheckBox] = {
+  ): Scenegraph ?=> VarContextAction[CheckBox] = {
     val res = uninitialized()
     CheckBox.init(res)
     ifSet(UI, ButtonBase.ops.UI(res) := _)

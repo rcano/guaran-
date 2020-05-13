@@ -96,7 +96,7 @@ object TableView extends VarsMap {
 
   def wrap(v: javax.swing.JTable) = v.asInstanceOf[TableView]
 
-  def init(v: TableView): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
+  def init(v: TableView): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     Component.init(v)
     
     v.addPropertyChangeListener(varsPropertyListener(v))
@@ -167,7 +167,7 @@ object TableView extends VarsMap {
     updateSelectionOnSort: Opt[Binding[Boolean]] = UnsetParam,
     verifyInputWhenFocusTarget: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): (given Scenegraph) => VarContextAction[TableView] = {
+  ): Scenegraph ?=> VarContextAction[TableView] = {
     val res = uninitialized()
     TableView.init(res)
     ifSet(UI, TableView.ops.UI(res) := _)

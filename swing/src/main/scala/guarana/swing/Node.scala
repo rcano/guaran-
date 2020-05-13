@@ -63,7 +63,7 @@ object Node extends VarsMap {
 
   def wrap(v: java.awt.Container) = v.asInstanceOf[Node]
 
-  def init(v: Node): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
+  def init(v: Node): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     
     sc.update {
       val ctx = summon[Emitter.Context]
@@ -116,7 +116,7 @@ object Node extends VarsMap {
     minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): (given Scenegraph) => VarContextAction[Node] = {
+  ): Scenegraph ?=> VarContextAction[Node] = {
     val res = uninitialized()
     Node.init(res)
     ifSet(background, Node.ops.background(res) := _)

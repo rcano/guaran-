@@ -47,7 +47,7 @@ object SplitPane extends VarsMap {
 
   def wrap(v: javax.swing.JSplitPane) = v.asInstanceOf[SplitPane]
 
-  def init(v: SplitPane): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
+  def init(v: SplitPane): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     Component.init(v)
     
     v.addPropertyChangeListener(varsPropertyListener(v))
@@ -99,7 +99,7 @@ object SplitPane extends VarsMap {
     transferHandler: Opt[Binding[javax.swing.TransferHandler | Null]] = UnsetParam,
     verifyInputWhenFocusTarget: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): (given Scenegraph) => VarContextAction[SplitPane] = {
+  ): Scenegraph ?=> VarContextAction[SplitPane] = {
     val res = uninitialized()
     SplitPane.init(res)
     ifSet(UI, SplitPane.ops.UI(res) := _)

@@ -42,7 +42,7 @@ object TabbedPane extends VarsMap {
 
   def wrap(v: javax.swing.JTabbedPane) = v.asInstanceOf[TabbedPane]
 
-  def init(v: TabbedPane): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
+  def init(v: TabbedPane): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     Component.init(v)
     
     v.addPropertyChangeListener(varsPropertyListener(v))
@@ -77,7 +77,7 @@ object TabbedPane extends VarsMap {
     }
     
     object LocatedTab {
-      def unapply(t: Any)(given VarContext): Option[(Tab, Int)] = t match {
+      def unapply(t: Any)(using VarContext): Option[(Tab, Int)] = t match {
         case t: Tab =>  v.tabs().indexOf(t) match {
           case -1 => None
           case i => Some(t -> i)
@@ -158,7 +158,7 @@ object TabbedPane extends VarsMap {
     transferHandler: Opt[Binding[javax.swing.TransferHandler | Null]] = UnsetParam,
     verifyInputWhenFocusTarget: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): (given Scenegraph) => VarContextAction[TabbedPane] = {
+  ): Scenegraph ?=> VarContextAction[TabbedPane] = {
     val res = uninitialized()
     TabbedPane.init(res)
     ifSet(UI, TabbedPane.ops.UI(res) := _)

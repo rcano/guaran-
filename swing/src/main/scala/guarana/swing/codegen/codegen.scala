@@ -154,7 +154,7 @@ case object Component extends NodeDescr(
     "def topLevelAncestor = v.getTopLevelAncestor",
     "def vetoableChangeListeners = v.getVetoableChangeListeners",
     "def visibleRect = v.getVisibleRect",
-    "def uiPrefSize: (Double, Double) | Null = UI(v).?(_.getPreferredSize(v)).?(d => (d.getWidth, d.getHeight))",
+    "def uiPrefSize: (Double, Double) | Null = ops.UI(v).?(_.getPreferredSize(v)).?(d => (d.getWidth, d.getHeight))",
   ),
   isAbstract = true,
 )
@@ -297,7 +297,7 @@ case object BorderPane extends NodeDescr(
       "c => c.getLayout.asInstanceOf[BorderLayout].getVgap",
       "(p, g) => p.getLayout.asInstanceOf[BorderLayout].setVgap(g.toInt)"),
   ),
-  uninitExtra = Seq("res.asInstanceOf[JPanel].setLayout(BorderLayout())"),
+  initExtra = Seq("res.asInstanceOf[JPanel].setLayout(BorderLayout())"),
 )
 
 case object GridPane extends NodeDescr(
@@ -1085,7 +1085,7 @@ def genCode(n: NodeDescr): String = {
          |def apply$tpeParams(
          |  ${if (n.uninitExtraParams.nonEmpty) n.uninitExtraParams.map(t => s"${t._1}: ${t._2}").mkString(", ") + "," else ""}
          |  ${allVars.map(v => s"${v._2.name}: Opt[Binding[${v._2.tpe}]] = UnsetParam").mkString(",\n  ")}
-         |): (given Scenegraph) => VarContextAction[${n.name}$tpeParams] = {
+         |): Scenegraph ?=> VarContextAction[${n.name}$tpeParams] = {
          |  val res = uninitialized$tpeParams()
          |  ${n.name}.init(res)
          |  ${allVars.map(v => s"ifSet(${v._2.name}, ${v._1.name}.ops.${v._2.name}(res) := _)").mkString("\n  ")}
@@ -1116,7 +1116,7 @@ def genCode(n: NodeDescr): String = {
      |
      |  def wrap$tpeParams(v: ${n.underlying}) = v.asInstanceOf[${n.name}$tpeParams]
      |
-     |  def init$tpeParams(v: ${n.name}$tpeParams): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
+     |  def init$tpeParams(v: ${n.name}$tpeParams): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
      |    ${n.parents.headOption.map(p => s"$p.init(v)").getOrElse("")}
      |    ${if (sortedEmitters.nonEmpty) {
               val registeredEmitters = sortedEmitters.map(e => s"  ctx.register(v.${e.name})")

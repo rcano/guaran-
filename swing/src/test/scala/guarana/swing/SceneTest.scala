@@ -3,6 +3,7 @@ package guarana.swing
 import language.implicitConversions
 import Binding.dyn
 import scala.util.chaining._
+import util.UnsetParam
 
 @main def Test: Unit = {
   val scenegraph = Scenegraph()
@@ -36,10 +37,10 @@ import scala.util.chaining._
     )
 
     Frame(
-      title = "Guarná test",
       bounds = Bounds(1300, 300, 300, 300),
-      visible = true,
       root = root,
+      title = "Guarná test",
+      visible = true,
     )
   }
 }
@@ -59,6 +60,56 @@ import scala.util.chaining._
   // } pipe System.setProperties
 
   val scenegraph = Scenegraph()
+
+  scenegraph.stylist = new Stylist {
+    import java.awt.BasicStroke
+    val corners = style.CornerRadii.all(4)
+    val rootBackground = style.Background(fills = IArray(style.BackgroundFill(Color.WhiteSmoke, corners, Insets.all(0))))
+    val bck = style.Background(fills = IArray(style.BackgroundFill(Color.LightSalmon, style.CornerRadii.all(0), Insets.all(0))))
+    val hoverBck = style.Background(fills = IArray(style.BackgroundFill(Color.LightPink, style.CornerRadii.all(0), Insets.all(0))))
+    val pressedBck = style.Background(fills = IArray(style.BackgroundFill(Color.DarkSalmon, style.CornerRadii.all(0), Insets.all(0))))
+    def apply[T](info: Stylist.ScenegraphInfo)(prop: Keyed[ObsVal[T]]) = {
+      lazy val emSize = scenegraph.stateReader(scenegraph.emSize)
+      prop match {
+        case Keyed(style.CssProperties.Border, jb: javax.swing.AbstractButton) =>
+          val h = jb.getBounds.getHeight
+          Some(
+            style.Border(strokes = IArray(
+              // border,
+              style.BorderStroke.simple(
+                java.awt.LinearGradientPaint(0, 0, 0, h.toFloat.max(1), Array[Float](0, 1), Array[Color | UncheckedNull](Color.LavenderBlush, Color.LavenderBlush.darker.nn)),
+                BasicStroke((emSize / 10).toInt), corners, Insets.all(emSize / 10))
+            ))
+          ).asInstanceOf[Option[T]]
+        case Keyed(style.CssProperties.Background, b: javax.swing.AbstractButton) => Some(
+          if (b.getModel.isPressed || b.isSelected) pressedBck 
+          else if (b.getModel.isRollover) hoverBck
+          else bck
+        ).asInstanceOf[Option[T]]
+        case Keyed(style.CssProperties.Background, rp: javax.swing.JRootPane) => Some(
+          rootBackground
+        ).asInstanceOf[Option[T]]
+        case Keyed(style.CssProperties.Background, sb: javax.swing.JScrollBar) => Some(
+          style.Background(fills = IArray(style.BackgroundFill(Color.LavenderBlush, corners, Insets.all(0))))
+        ).asInstanceOf[Option[T]]
+        case Keyed(style.CssProperties.ScrollbarThumbBackground, jb: javax.swing.JScrollBar) => Some(
+          style.Background(fills = IArray(style.BackgroundFill(Color.LightSalmon, style.CornerRadii.simple(emSize / 2, emSize / 4, emSize / 2,  emSize / 4), Insets.all(0))))
+        ).asInstanceOf[Option[T]]
+        case Keyed(style.CssProperties.Background, sb: javax.swing.JProgressBar) => Some(
+          style.Background(fills = IArray(style.BackgroundFill(Color.LavenderBlush, corners, Insets.all(0))))
+        ).asInstanceOf[Option[T]]
+        case Keyed(style.CssProperties.ProgressBarBarBackground, sb: javax.swing.JProgressBar) => Some(
+          style.Background(fills = IArray(style.BackgroundFill(Color.LightSalmon, style.CornerRadii.all(0), Insets.all(0))))
+        ).asInstanceOf[Option[T]]
+        case Keyed(style.CssProperties.ProgressBarBarBorder, sb: javax.swing.JProgressBar) => Some(
+          style.Border(strokes = IArray(style.BorderStroke.simple(Color.DarkSalmon.darker.nn, BasicStroke(3), corners, Insets(0, 0, 3, 0))))
+        ).asInstanceOf[Option[T]]
+        case _ => 
+          None
+      }
+    }
+    def invalidateCache(node: Any) = ()
+  }
 
   // com.formdev.flatlaf.FlatLightLaf.install()
   // javax.swing.UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel")
@@ -120,7 +171,8 @@ import scala.util.chaining._
         border = dyn { javax.swing.BorderFactory.createEmptyBorder(1.em.toInt, 1.em.toInt, 1.em.toInt, 1.em.toInt) }
       ),
       componentB = ScrollPane(content = ListView(model = Seq.tabulate(20)(i => s"elem $i"): javax.swing.ListModel[String])),
-      horizontal = false
+      horizontal = false,
+      background = Color.WhiteSmoke
     )
 
 
@@ -154,6 +206,7 @@ import scala.util.chaining._
       // bounds = Rect(1300, 300, 300, 300),
       locationByPlatform = true,
       visible = true,
+      defaultCloseOperation = 3, //exit on close
       root = TabbedPane(tabs = tabs)
     ).pack()
   }

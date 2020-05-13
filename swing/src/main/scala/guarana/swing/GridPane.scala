@@ -36,7 +36,7 @@ object GridPane extends VarsMap {
 
   def wrap(v: javax.swing.JPanel) = v.asInstanceOf[GridPane]
 
-  def init(v: GridPane): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
+  def init(v: GridPane): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     Pane.init(v)
     
     v.addPropertyChangeListener(varsPropertyListener(v))
@@ -120,7 +120,7 @@ object GridPane extends VarsMap {
     verifyInputWhenFocusTarget: Opt[Binding[Boolean]] = UnsetParam,
     vgap: Opt[Binding[Double]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): (given Scenegraph) => VarContextAction[GridPane] = {
+  ): Scenegraph ?=> VarContextAction[GridPane] = {
     val res = uninitialized()
     GridPane.init(res)
     ifSet(UI, Pane.ops.UI(res) := _)

@@ -28,7 +28,7 @@ object RadioButton extends VarsMap {
 
   def wrap(v: javax.swing.JRadioButton) = v.asInstanceOf[RadioButton]
 
-  def init(v: RadioButton): (given Scenegraph) => Unit = (given sc: Scenegraph) => {
+  def init(v: RadioButton): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     ToggleButton.init(v)
     
     v.addPropertyChangeListener(varsPropertyListener(v))
@@ -101,7 +101,7 @@ object RadioButton extends VarsMap {
     verticalAlignment: Opt[Binding[Int]] = UnsetParam,
     verticalTextPosition: Opt[Binding[Int]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): (given Scenegraph) => VarContextAction[RadioButton] = {
+  ): Scenegraph ?=> VarContextAction[RadioButton] = {
     val res = uninitialized()
     RadioButton.init(res)
     ifSet(UI, ButtonBase.ops.UI(res) := _)
