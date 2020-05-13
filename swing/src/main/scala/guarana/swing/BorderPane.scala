@@ -44,12 +44,12 @@ object BorderPane extends VarsMap {
     Pane.init(v)
     
     v.addPropertyChangeListener(varsPropertyListener(v))
-    
+    v.asInstanceOf[JPanel].setLayout(BorderLayout())
     
   }
   def uninitialized(): BorderPane = {
     val res = javax.swing.JPanel().asInstanceOf[BorderPane]
-    res.asInstanceOf[JPanel].setLayout(BorderLayout())
+    
     res
   }
   

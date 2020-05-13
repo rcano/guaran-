@@ -267,7 +267,7 @@ case object AbsolutePositioningPane extends NodeDescr(
       "c => (0 until c.getComponentCount).map(c.getComponent(_).asInstanceOf[Node])",
       "(p, children) => { p.removeAll(); children foreach (n => p.add(n.unwrap)) }"),
   ),
-  uninitExtra = Seq("res.asInstanceOf[JPanel].setLayout(null)"),
+  initExtra = Seq("v.asInstanceOf[JPanel].setLayout(null)"),
 )
 
 case object BorderPane extends NodeDescr(
@@ -297,7 +297,7 @@ case object BorderPane extends NodeDescr(
       "c => c.getLayout.asInstanceOf[BorderLayout].getVgap",
       "(p, g) => p.getLayout.asInstanceOf[BorderLayout].setVgap(g.toInt)"),
   ),
-  initExtra = Seq("res.asInstanceOf[JPanel].setLayout(BorderLayout())"),
+  initExtra = Seq("v.asInstanceOf[JPanel].setLayout(BorderLayout())"),
 )
 
 case object GridPane extends NodeDescr(
@@ -929,7 +929,7 @@ case object TabbedPane extends NodeDescr(
     |}
 
     |object LocatedTab {
-    |  def unapply(t: Any)(given VarContext): Option[(Tab, Int)] = t match {
+    |  def unapply(t: Any)(using VarContext): Option[(Tab, Int)] = t match {
     |    case t: Tab =>  v.tabs().indexOf(t) match {
     |      case -1 => None
     |      case i => Some(t -> i)
