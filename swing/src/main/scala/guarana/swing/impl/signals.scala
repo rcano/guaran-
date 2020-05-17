@@ -56,19 +56,19 @@ trait SignalSwitchboard[Signal[+T]] {
 
 private[impl] class SignalSwitchboardImpl[Signal[+T]](val reporter: Reporter[Signal]) extends SignalSwitchboard[Signal] {
   import State._, Eval._
-  private val signalStates = collection.mutable.Map.empty[Keyed[Signal[Any]], State]
+  private val signalStates = KeyedWeakHashMap[Signal[Any], State]
 
   /**
    * Stores signals that should be updated when the key signal changes
    */
-  private val signalDeps = collection.mutable.Map.empty[Keyed[Signal[Any]], Set[Keyed[Signal[Any]]]].withDefaultValue(Set.empty)
+  private val signalDeps = KeyedWeakHashMap[Signal[Any], Set[Keyed[Signal[Any]]]].withDefaultValue(Set.empty)
 
   /**
    * Stores signals whose current binding is dependent on the binding of the key Signal.
    */
-  private val signalRels = collection.mutable.Map.empty[Keyed[Signal[Any]], Relationships[Signal]]
+  private val signalRels = KeyedWeakHashMap[Signal[Any], Relationships[Signal]]
   
-  private val signalEvaluator = collection.mutable.Map.empty[Keyed[Signal[Any]], Eval]
+  private val signalEvaluator = KeyedWeakHashMap[Signal[Any], Eval]
 
   def get[T](s: Keyed[Signal[T]]): Option[T] = {
     signalStates.get(s) map {

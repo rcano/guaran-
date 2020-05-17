@@ -31,9 +31,9 @@ trait VarsMap {
   }: java.beans.PropertyChangeListener
 }
 
-def [T, U](e: T | Null) ? (f: T => U): U | Null = if (e != null) f(e) else null
-def [T](e: T | Null) toOption: Option[T] = if (e != null) Some(e) else None
-def [F[_], T](e: F[T | Null] | Null) nnn: F[T] = e.asInstanceOf[F[T]]
+inline def [T, U](e: T | Null) ? (inline f: T => U): U | Null = if (e != null) f(e) else null
+inline def [T](e: T | Null) toOption: Option[T] = if (e != null) Some(e) else None
+inline def [F[_], T](e: F[T | Null] | Null) nnn: F[T] = e.asInstanceOf[F[T]]
 
 extension documentOps on (d: javax.swing.text.Document) {
   def defaultRootElement = d.getDefaultRootElement
