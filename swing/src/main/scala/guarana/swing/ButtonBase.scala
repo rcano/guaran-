@@ -95,10 +95,6 @@ object ButtonBase extends VarsMap {
 
   def init(v: ButtonBase): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     Component.init(v)
-    sc.update {
-      val ctx = summon[Emitter.Context]
-      ctx.register(v.actionEvents)
-    }
     v.addPropertyChangeListener(varsPropertyListener(v))
     val m = v.getModel.nn
     var wasArmed = m.isArmed

@@ -100,3 +100,8 @@ case class Insets(top: Double = 0, right: Double = 0, bot: Double = 0, left: Dou
 object Insets {
   def all(topRightBottomLeft: Double): Insets = Insets(topRightBottomLeft, topRightBottomLeft, topRightBottomLeft, topRightBottomLeft)
 }
+
+  /** Emitter for updates to var for this object.
+    * The extension method is only available if a Emitter.Context is present, because it is otherwise useless to use it
+    */
+def (a: Any).varUpdates(using Emitter.Context) = ObsVal.VarUpdates.forInstance(a)

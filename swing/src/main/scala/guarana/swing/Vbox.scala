@@ -30,7 +30,6 @@ object Vbox extends VarsMap {
 
   def init(v: Vbox): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     Pane.init(v)
-    
     v.addPropertyChangeListener(varsPropertyListener(v))
     
     

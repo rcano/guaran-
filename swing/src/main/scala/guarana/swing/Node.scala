@@ -25,10 +25,15 @@ object Node extends VarsMap {
   val MaxSize: SwingVar.Aux[Node, (Double, Double) | Null] = SwingVar[Node, (Double, Double) | Null]("maxSize", {n => val d = n.getMaximumSize; if (d != null) (d.getWidth, d.getHeight) else null}, {(n, d) => n.setMaximumSize(if (d == null) null else java.awt.Dimension(d._1.toInt, d._2.toInt))})
   val MinSize: SwingVar.Aux[Node, (Double, Double) | Null] = SwingVar[Node, (Double, Double) | Null]("minSize", {n => val d = n.getMinimumSize; if (d != null) (d.getWidth, d.getHeight) else null}, {(n, d) => n.setMinimumSize(if (d == null) null else java.awt.Dimension(d._1.toInt, d._2.toInt))})
   private val MouseLocationMut: Var[(Int, Int)] = Var[(Int, Int)]("mouseLocationMut", (0, 0), false)
+  val MouseLocation: ObsVal[(Int, Int)] = MouseLocationMut
   val PrefSize: SwingVar.Aux[Node, (Double, Double) | Null] = SwingVar[Node, (Double, Double) | Null]("prefSize", {n => val d = n.getPreferredSize; if (d != null) (d.getWidth, d.getHeight) else null}, {(n, d) => n.setPreferredSize(if (d == null) null else java.awt.Dimension(d._1.toInt, d._2.toInt))})
   val Visible: SwingVar.Aux[Node, Boolean] = SwingVar[Node, Boolean]("visible", _.isVisible, _.setVisible(_))
+  private[guarana] val MouseDragMut: Var[Option[MouseDrag]] = Var("mouseDragMut", None)
+  val MouseDrag: ObsVal[Option[MouseDrag]] = MouseDragMut
 
   val FocusEvents = Emitter[(FocusEvent, Boolean)]()
+  val MouseEvents = Emitter[guarana.swing.MouseEvent]()
+  val KeyEvents = Emitter[guarana.swing.KeyEvent]()
 
   extension ops on (v: Node) {
     def background: Var.Aux[java.awt.Color | Null, v.type] = Node.Background.asInstanceOf[Var.Aux[java.awt.Color | Null, v.type]]
@@ -45,9 +50,12 @@ object Node extends VarsMap {
     def visible: Var.Aux[Boolean, v.type] = Node.Visible.asInstanceOf[Var.Aux[Boolean, v.type]]
 
     def focusEvents: Emitter.Aux[(FocusEvent, Boolean), v.type] = Node.FocusEvents.forInstance(v)
+    def mouseEvents: Emitter.Aux[guarana.swing.MouseEvent, v.type] = Node.MouseEvents.forInstance(v)
+    def keyEvents: Emitter.Aux[guarana.swing.KeyEvent, v.type] = Node.KeyEvents.forInstance(v)
 
     def focused = Node.FocusedMut.asObsValIn(v)
     def mouseLocation = Node.MouseLocationMut.asObsValIn(v)
+    def mouseDrag = Node.MouseDragMut.asObsValIn(v)
     def alignmentX = v.getAlignmentX
     def alignmentY = v.getAlignmentY
     def insets = v.getInsets
@@ -57,6 +65,7 @@ object Node extends VarsMap {
     def requestFocus() = v.requestFocus()
     def requestFocusInWindow() = v.requestFocusInWindow()
     def size(x: Int, y: Int) = v.setSize(x, y)
+    def showing = v.isShowing
     def children: Seq[Node] = (0 until v.getComponentCount).map(i => v.getComponent(i).asInstanceOf[Container])
     def unwrap: java.awt.Container = v
   }
@@ -65,10 +74,6 @@ object Node extends VarsMap {
 
   def init(v: Node): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     
-    sc.update {
-      val ctx = summon[Emitter.Context]
-      ctx.register(v.focusEvents)
-    }
     v.addPropertyChangeListener(varsPropertyListener(v))
     v addMouseMotionListener new java.awt.event.MouseMotionListener {
       def mouseDragged(evt: java.awt.event.MouseEvent | Null) = ()
@@ -95,6 +100,9 @@ object Node extends VarsMap {
       }
     }
     
+    v.addKeyListener(sc.awtInputListener)
+    v.addMouseListener(sc.awtInputListener)
+    v.addMouseMotionListener(sc.awtInputListener)
   }
   def uninitialized(): Node = {
     val res = java.awt.Container().asInstanceOf[Node]

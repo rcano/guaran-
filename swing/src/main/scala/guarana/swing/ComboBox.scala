@@ -62,7 +62,6 @@ object ComboBox extends VarsMap {
 
   def init[E](v: ComboBox[E]): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     Component.init(v)
-    
     v.addPropertyChangeListener(varsPropertyListener(v))
     val il: ItemListener = evt => sc.update {
       val vc = summon[VarContext]

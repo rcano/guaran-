@@ -30,7 +30,6 @@ object Hbox extends VarsMap {
 
   def init(v: Hbox): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     Pane.init(v)
-    
     v.addPropertyChangeListener(varsPropertyListener(v))
     
     

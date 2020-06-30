@@ -52,7 +52,6 @@ object Label extends VarsMap {
 
   def init(v: Label): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     Component.init(v)
-    
     v.addPropertyChangeListener(varsPropertyListener(v))
     
     

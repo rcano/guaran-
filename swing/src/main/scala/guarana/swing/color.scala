@@ -893,3 +893,7 @@ object Color {
   val YellowGreen = Color(0.6039216f, 0.8039216f, 0.19607843f)
 }
 type Paint = java.awt.Paint
+
+def (c: Color).withOpacity(d: Double): Color = {
+  Color.rgba(c.getRed, c.getGreen, c.getBlue, (255 * d).toInt)
+}

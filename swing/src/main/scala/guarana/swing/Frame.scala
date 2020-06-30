@@ -52,7 +52,6 @@ object Frame extends VarsMap {
 
   def init(v: Frame): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     WindowBase.init(v)
-    
     v.addPropertyChangeListener(varsPropertyListener(v))
     
     

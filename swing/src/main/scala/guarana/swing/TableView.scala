@@ -98,7 +98,6 @@ object TableView extends VarsMap {
 
   def init(v: TableView): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     Component.init(v)
-    
     v.addPropertyChangeListener(varsPropertyListener(v))
     
     

@@ -68,7 +68,6 @@ object TextComponent extends VarsMap {
 
   def init(v: TextComponent): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     Component.init(v)
-    
     v.addPropertyChangeListener(varsPropertyListener(v))
     v.getDocument.addDocumentListener(new DocumentListener {
       def changedUpdate(evt: DocumentEvent | Null) = notifyChange()

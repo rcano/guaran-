@@ -38,7 +38,6 @@ object GridPane extends VarsMap {
 
   def init(v: GridPane): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     Pane.init(v)
-    
     v.addPropertyChangeListener(varsPropertyListener(v))
     sc.update(LayoutVar.forInstance(v) := Binding.dyn {
     val rows = v.rows()

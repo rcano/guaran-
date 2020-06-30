@@ -30,7 +30,6 @@ object RadioButton extends VarsMap {
 
   def init(v: RadioButton): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     ToggleButton.init(v)
-    
     v.addPropertyChangeListener(varsPropertyListener(v))
     
     

@@ -48,7 +48,6 @@ object ScrollBar extends VarsMap {
 
   def init(v: ScrollBar): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     Component.init(v)
-    
     v.addPropertyChangeListener(varsPropertyListener(v))
     
     

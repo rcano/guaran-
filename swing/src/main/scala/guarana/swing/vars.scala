@@ -34,18 +34,19 @@ sealed trait ObsVal[+T] {
 
   override def toString = s"ObsVal($name)"
 
-  def unapply(evt: Scenegraph#VarValueChanged)(using instance: ValueOf[ForInstance]): Option[(Option[T], T)] = {
+  def unapply(evt: VarValueChanged[ObsVal])(using instance: ValueOf[ForInstance]): Option[(Option[T], T)] = {
     if (evt.key.instance == instance.value && evt.key.keyed == this) Some((evt.prev.asInstanceOf[Option[T]], evt.curr.asInstanceOf[T]))
     else None
   }
   object generic {
-    def unapply(evt: Scenegraph#VarValueChanged): Option[(ForInstance, Option[T], T)] = {
-      if (evt.key.keyed == ObsVal.this) Some((evt.key.instance.asInstanceOf[ForInstance], evt.prev.asInstanceOf[Option[T]], evt.curr.asInstanceOf[T]))
+    def unapply(evt: VarValueChanged[ObsVal]): Option[(evt.key.keyed.ForInstance, Option[T], T)] = {
+      if (evt.key.keyed == ObsVal.this) Some((evt.key.instance.asInstanceOf[evt.key.keyed.ForInstance], evt.prev.asInstanceOf[Option[T]], evt.curr.asInstanceOf[T]))
       else None
     }
   }
 }
 object ObsVal {
+  val VarUpdates = Emitter[VarValueChanged[ObsVal]]()
   type Aux[T, Instance <: Singleton] = ObsVal[T] { type ForInstance = Instance }
 
   implicit def obs2Keyed[T](v: ObsVal[T])(implicit instance: ValueOf[v.ForInstance]): Keyed[v.type] = Keyed(v, instance.value)
@@ -73,17 +74,19 @@ object Var {
       type ForInstance = this.type
     }
   }
+  inline def autoName[T](initValue: => T, eagerEvaluation: Boolean = false)(using inline inferredName: guarana.swing.util.DeclaringVal) = {
+    apply(inferredName.name, initValue, eagerEvaluation)
+  }
   // inline def autoName[T] = ${autoNameMacro[T]}
 
   // def autoNameMacro[T](using ctx: scala.quoted.QuoteContext, t: scala.quoted.Type[T])/*: scala.quoted.Expr[Var[T]]*/ = {
-  //   import ctx.tasty.using
   //   val inferredName = scala.quoted.Expr(ctx.tasty.rootPosition.sourceCode)
   //   '{
   //     $inferredName
-  //     // new _root_.guarana.swing.Var[T] {
-  //     //   lazy val name = $inferredName
-  //     //   type ForInstance = this.type
-  //     // }
+  //     new _root_.guarana.swing.Var[T] {
+  //       lazy val name = $inferredName
+  //       type ForInstance = this.type
+  //     }
   //   }
   // }
 }

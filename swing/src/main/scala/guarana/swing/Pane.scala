@@ -30,7 +30,6 @@ object Pane extends VarsMap {
 
   def init(v: Pane): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     Component.init(v)
-    
     v.addPropertyChangeListener(varsPropertyListener(v))
     
     

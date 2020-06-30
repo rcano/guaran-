@@ -5,16 +5,16 @@ import javax.swing.SwingUtilities
 import scala.concurrent.{Await, Future, Promise}
 import scala.concurrent.duration.Duration
 import scala.util.Try
-import guarana.swing.impl.SignalSwitchboard
+import guarana.swing.impl.{CopyOnWriteEmitterStation, CopyOnWriteSignalSwitchboard, EmitterStation, SignalSwitchboard}
 
 object Scenegraph {
-  type ContextAction[+R] =  VarContext & Emitter.Context ?=> R
+  type ContextAction[+R] = VarContext & Emitter.Context ?=> R
 }
 class Scenegraph {
 
   type Signal[+T] = ObsVal[T]
   private[this] var switchboard = SignalSwitchboard[Signal](reporter)
-  private[this] var emittersData = Map.empty[Keyed[Emitter[_]], EmitterData[_]]
+  private[this] var emitterStation = EmitterStation()
   var stylist: Stylist = Stylist.NoOp
 
   private val systemEm: Double = plaf.CssLaf.fontDeterminedByOs.map(_.getSize2D.toDouble).getOrElse(14)
@@ -25,32 +25,6 @@ class Scenegraph {
     override def initialValue = null
   }
 
-  trait VarValueChanged {
-    type T
-    val key: Keyed[Signal[T]]
-    val prev: Option[T]
-    val curr: T
-
-    override def toString = s"VarValueChanged($key, $prev, $curr)"
-  }
-  object VarValueChanged {
-    def apply[U](k: Keyed[Signal[U]], p: Option[U], c: U) = new VarValueChanged {
-      type T = U
-      val key = k
-      val prev = p
-      val curr = c
-    }
-    def unapply(v: VarValueChanged) = (v.key.keyed, v.key.instance, v.prev, v.curr)
-  }
-
-  //emitters
-  val varUpdates = Emitter[VarValueChanged]().forInstance(this)
-
-  {
-    emittersData = emitterRegister(emittersData, varUpdates)(using ValueOf(this))
-  }
-
-
   def update[R](f: Scenegraph ?=> Scenegraph.ContextAction[R]): R = Await.result(updateAsync(f), Duration.Inf)
   def updateAsync[R](f: Scenegraph ?=> Scenegraph.ContextAction[R]): Future[R] = {
     val res = Promise[R]()
@@ -58,14 +32,14 @@ class Scenegraph {
       var locallyCreatedContext = false
       var ctx = threadLocalContext.get()
       if (ctx == null) {
-        ctx = new ContextImpl(switchboard.snapshot(reporter), emittersData)
+        ctx = new ContextImpl(CopyOnWriteSignalSwitchboard(switchboard, reporter), CopyOnWriteEmitterStation(emitterStation))
         threadLocalContext.set(ctx)
         locallyCreatedContext = true
       }
       val res = f(using this)(using ctx)
       if (locallyCreatedContext) {
-        switchboard = ctx.switchboard
-        emittersData = ctx.emittersData
+        switchboard = ctx.switchboard.theInstance
+        emitterStation = ctx.emitterStation.theInstance
         threadLocalContext.set(null)
       }
       res
@@ -112,34 +86,11 @@ class Scenegraph {
 
     def signalUpdated[T](sb: SignalSwitchboard[Signal], s: Keyed[Signal[T]], oldValue: Option[T], newValue: T, dependencies: collection.Set[Keyed[Signal[_]]], dependents: collection.Set[Keyed[Signal[_]]]): Unit = {
       withContext { ctx =>
-        ctx.emit(varUpdates, VarValueChanged(s, oldValue, newValue))(using ValueOf(Scenegraph.this))
+        given Emitter.Context = ctx
+        ctx.emit(s.instance.varUpdates, VarValueChanged(s, oldValue, newValue))
       }
     }
   }
-
-  private def emitterDispose[A](emittersData: Map[Keyed[Emitter[_]], EmitterData[_]], emitter: Emitter[A])(using instance: ValueOf[emitter.ForInstance]): Map[Keyed[Emitter[_]], EmitterData[_]] = {
-    emittersData.removed(emitter)
-  }
-  private def emitterEmit[A](emittersData: Map[Keyed[Emitter[_]], EmitterData[_]], emitter: Emitter[A], evt: A)(using instance: ValueOf[emitter.ForInstance], ctx: VarContext & Emitter.Context): Map[Keyed[Emitter[_]], EmitterData[_]] = {
-    val key: Keyed[Emitter[_]] = emitter
-    emittersData.get(key) match {
-      case Some(data) => emittersData.updated(key, data.asInstanceOf[EmitterData[A]].emit(evt))
-      case _ => emittersData
-    }
-  }
-  private def emitterListen[A](emittersData: Map[Keyed[Emitter[_]], EmitterData[_]], emitter: Emitter[A])(f: EventIterator[A])(using instance: ValueOf[emitter.ForInstance]): Map[Keyed[Emitter[_]], EmitterData[_]] = {
-    val key: Keyed[Emitter[_]] = Keyed(emitter, instance.value)
-    emittersData.get(key) match {
-      case Some(data) => emittersData.updated(key, data.asInstanceOf[EmitterData[A]].addListener(f))
-      case _ => throw new IllegalStateException("Can't listen to a non registered Emitter")
-    }
-  }
-  private def emitterRegister(emittersData: Map[Keyed[Emitter[_]], EmitterData[_]], emitter: Emitter[_])(using instance: ValueOf[emitter.ForInstance]): Map[Keyed[Emitter[_]], EmitterData[_]] = {
-    val key: Keyed[Emitter[_]] = Keyed(emitter, instance.value)
-    if (emittersData.get(key).isEmpty) emittersData.updated(key, EmitterData())
-    else emittersData
-  }
-
 
   private val scenegraphInfo = new Stylist.ScenegraphInfo {
     def get[T](property: Keyed[ObsVal[T]]): Option[T] = switchboard.get(property)
@@ -167,39 +118,92 @@ class Scenegraph {
    * After the lambda that uses this context is done, the updated switchboard replaces the old one, and we update our tracking.
    */
   private class ContextImpl(
-    val switchboard: SignalSwitchboard[Signal],
-    var emittersData: Map[Keyed[Emitter[_]], EmitterData[_]],
+    val switchboard: CopyOnWriteSignalSwitchboard[Signal],
+    var emitterStation: CopyOnWriteEmitterStation,
   ) extends SwitchboardAsVarContext(switchboard) with Emitter.Context {
 
     //Emitter.Context
 
-    def dispose(emitter: Emitter[_])(using instance: ValueOf[emitter.ForInstance]): Unit =
-      emittersData = emitterDispose(emittersData, emitter)
     def emit[A](emitter: Emitter[A], evt: A)(using instance: ValueOf[emitter.ForInstance]): Unit =
-      emittersData = emitterEmit(emittersData, emitter, evt)(using summon, this)
+      emitterStation.emit(emitter, evt)(using summon, this)
     def listen[A](emitter: Emitter[A])(f: EventIterator[A])(using instance: ValueOf[emitter.ForInstance]): Unit =
-      emittersData = emitterListen(emittersData, emitter)(f)
-    def register(emitter: Emitter[_])(using instance: ValueOf[emitter.ForInstance]): Unit =
-      emittersData = emitterRegister(emittersData, emitter)
+      emitterStation.listen(emitter)(f)
   }
-
-  private case class EmitterData[T](itIdx: Int = 0, listeners: collection.immutable.IntMap[EventIterator[T]] = collection.immutable.IntMap.empty[EventIterator[T]]) {
-    def addListener(listener: EventIterator[T]): EmitterData[T] = copy(itIdx + 1, listeners.updated(itIdx, listener))
-
-    def emit(evt: T): Scenegraph.ContextAction[EmitterData[T]] = {
-      var updatedListeners = collection.immutable.IntMap.empty[EventIterator[T]]
-      for ((key, listener) <- listeners) {
-        listener.step(evt) foreach (newState => updatedListeners = updatedListeners.updated(key, newState))
-      }
-      copy(itIdx, updatedListeners)
-    }
-  }
-
 
   /** Read-only view of the current state of vars value in the scenegraph */
   object stateReader {
     def apply[T](v: ObsVal[T])(using instance: ValueOf[v.ForInstance]): T = {
       switchboard.get(v) orElse stylist(scenegraphInfo)(v) getOrElse v.initialValue(instance.value)
     }
+  }
+
+  object awtInputListener extends javax.swing.event.MouseInputListener, java.awt.event.KeyListener {
+    // Members declared in java.awt.event.KeyListener
+    private def keyEvent(rawEvent: java.awt.event.KeyEvent, evt: KeyEvent): Unit = {
+      val source = rawEvent.getSource()
+      val emitter = Node.KeyEvents.forInstance(source)
+      if (emitterStation.hasEmitter(emitter)) update(summon[Emitter.Context].emit(emitter, evt))
+    }
+    def keyPressed(evt: java.awt.event.KeyEvent | UncheckedNull): Unit = keyEvent(evt.nn, KeyPressed(evt.nn))
+    def keyReleased(evt: java.awt.event.KeyEvent | UncheckedNull): Unit = keyEvent(evt.nn, KeyReleased(evt.nn))
+    def keyTyped(evt: java.awt.event.KeyEvent | UncheckedNull): Unit = keyEvent(evt.nn, KeyTyped(evt.nn))
+    
+    // Members declared in java.awt.event.MouseListener
+    private def mouseEvent(rawEvent: java.awt.event.MouseEvent, evt: MouseEvent): Unit = {
+      val source = rawEvent.getSource()
+      val emitter = Node.MouseEvents.forInstance(source)
+      if (emitterStation.hasEmitter(emitter)) update(summon[Emitter.Context].emit(emitter, evt))
+    }
+    def mouseClicked(evt: java.awt.event.MouseEvent | UncheckedNull): Unit = mouseEvent(evt.nn, MouseClicked(evt.nn))
+    def mouseEntered(evt: java.awt.event.MouseEvent | UncheckedNull): Unit = mouseEvent(evt.nn, MouseEntered(evt.nn))
+    def mouseExited(evt: java.awt.event.MouseEvent | UncheckedNull): Unit = mouseEvent(evt.nn, MouseExited(evt.nn))
+    def mousePressed(evt: java.awt.event.MouseEvent | UncheckedNull): Unit = mouseEvent(evt.nn, MousePressed(evt.nn))
+
+    /** variable for tracking dragging. Only one is needed because only one node can be
+        dragged at any given time */
+    private var dragStart: Option[java.awt.event.MouseEvent] = None
+
+    // Members declared in java.awt.event.MouseMotionListener
+    def mouseDragged(evt: java.awt.event.MouseEvent | UncheckedNull): Unit = update {
+      // manually inline mouseEvent since we are running update anyway 
+      val source = evt.getSource()
+      val emitter = Node.MouseEvents.forInstance(source)
+      if (emitterStation.hasEmitter(emitter)) summon[Emitter.Context].emit(emitter, MouseDragged(evt.nn))
+      dragStart match {
+        case None => dragStart = Some(evt.nn)
+        case Some(origin) => Node.MouseDragMut.forInstance(source) :=
+          Some(MouseDrag(MouseButton.from(2),
+            MousePosition(origin.getX, origin.getY, origin.getXOnScreen, origin.getYOnScreen),
+            MousePosition(evt.getX, evt.getY, evt.getXOnScreen, evt.getYOnScreen),
+            false)
+          )
+      }
+    }
+
+    def mouseReleased(evt: java.awt.event.MouseEvent | UncheckedNull): Unit = update {
+      // manually inline mouseEvent since we are running update anyway 
+      val source = evt.getSource()
+      val emitter = Node.MouseEvents.forInstance(source)
+      if (emitterStation.hasEmitter(emitter)) summon[Emitter.Context].emit(emitter, MouseReleased(evt.nn))
+      dragStart match {
+        case None =>
+        case Some(origin) => 
+          Node.MouseDragMut.forInstance(source) :=
+            Some(MouseDrag(MouseButton.from(2),
+              MousePosition(origin.getX, origin.getY, origin.getXOnScreen, origin.getYOnScreen),
+              MousePosition(evt.getX, evt.getY, evt.getXOnScreen, evt.getYOnScreen),
+              true)
+            )
+          dragStart = None
+      }
+    }
+    def mouseMoved(evt: java.awt.event.MouseEvent | UncheckedNull): Unit = update {
+      // manually inline mouseEvent since we are running update anyway 
+      val source = evt.getSource()
+      val emitter = Node.MouseEvents.forInstance(source)
+      if (emitterStation.hasEmitter(emitter)) summon[Emitter.Context].emit(emitter, MouseReleased(evt.nn))
+      Node.MouseDragMut.forInstance(source) := None
+    }
+
   }
 }

@@ -38,7 +38,6 @@ object TextArea extends VarsMap {
 
   def init(v: TextArea): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     TextComponent.init(v)
-    
     v.addPropertyChangeListener(varsPropertyListener(v))
     
     

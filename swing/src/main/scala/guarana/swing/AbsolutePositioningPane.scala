@@ -30,7 +30,6 @@ object AbsolutePositioningPane extends VarsMap {
 
   def init(v: AbsolutePositioningPane): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     Pane.init(v)
-    
     v.addPropertyChangeListener(varsPropertyListener(v))
     v.asInstanceOf[JPanel].setLayout(null)
     

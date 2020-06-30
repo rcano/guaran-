@@ -16,11 +16,9 @@ object Emitter {
     type ForInstance = this.type
   }
 
-  private[guarana] trait Context {
-    def register(emitter: Emitter[_])(implicit instance: ValueOf[emitter.ForInstance]): Unit
+  trait Context {
     def listen[A](emitter: Emitter[A])(f: EventIterator[A])(implicit instance: ValueOf[emitter.ForInstance]): Unit
     def emit[A](emitter: Emitter[A], evt: A)(implicit instance: ValueOf[emitter.ForInstance]): Unit
-    def dispose(emitter: Emitter[_])(implicit instance: ValueOf[emitter.ForInstance]): Unit
   }
 
   implicit def emitter2Keyed[T](e: Emitter[T])(using instance: ValueOf[e.ForInstance]): Keyed[e.type] = Keyed(e, instance.value)

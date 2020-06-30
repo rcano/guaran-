@@ -105,7 +105,10 @@ private[impl] class SignalSwitchboardImpl[Signal[+T]](val reporter: Reporter[Sig
     
   def update[T](s: Keyed[Signal[T]], value: T): Unit = {
     val oldv = signalStates.get(s)
-    if (!oldv.exists(_ == value)) {
+    if (!oldv.exists {
+      case Value(`value`) => true
+      case _ => false
+    }) {
       unbindPrev(s)
       signalStates(s) = Value(value)
       signalEvaluator(s) = GetState
@@ -205,4 +208,26 @@ object SignalSwitchboard {
   }
 
   def apply[Signal[+T]](reporter: Reporter[Signal]): SignalSwitchboard[Signal] = new SignalSwitchboardImpl[Signal](reporter)
+}
+
+/** Specialized SignalSwitchboard that doesn't copy the original one until a write is performed. */
+class CopyOnWriteSignalSwitchboard[Signal[+T]](val copy: SignalSwitchboard[Signal], val reporter: SignalSwitchboard.Reporter[Signal]) extends SignalSwitchboard[Signal] {
+  var copied: SignalSwitchboard[Signal] | Null = null
+  inline def theInstance = if (copied != null) copied.asInstanceOf[SignalSwitchboard[Signal]] else copy
+  private def createCopy() = if (copied == null) copied = copy.snapshot(reporter)
+  def get[T](s: Keyed[Signal[T]]) = theInstance.get(s)
+  def update[T](s: Keyed[Signal[T]], value: T) = {
+    createCopy()
+    theInstance.update(s, value)
+  }
+  def bind[T](s: Keyed[Signal[T]])(compute: SignalSwitchboard[Signal] => T) = {
+    createCopy()
+    theInstance.bind(s)(compute)
+  }
+  def relationships(s: Keyed[Signal[Any]]) = theInstance.relationships(s)
+  def remove(s: Keyed[Signal[Any]]) = {
+    createCopy()
+    theInstance.remove(s)
+  }
+  def snapshot(newReporter: SignalSwitchboard.Reporter[Signal]) = CopyOnWriteSignalSwitchboard(theInstance, newReporter)
 }

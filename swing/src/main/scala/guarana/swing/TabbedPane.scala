@@ -44,7 +44,6 @@ object TabbedPane extends VarsMap {
 
   def init(v: TabbedPane): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     Component.init(v)
-    
     v.addPropertyChangeListener(varsPropertyListener(v))
     //helper methods to add tabs and react to their changes
     def addTab(t: Tab): Unit = sc.update {

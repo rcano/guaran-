@@ -36,10 +36,6 @@ object TextField extends VarsMap {
 
   def init(v: TextField): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     TextComponent.init(v)
-    sc.update {
-      val ctx = summon[Emitter.Context]
-      ctx.register(v.actionEvents)
-    }
     v.addPropertyChangeListener(varsPropertyListener(v))
     
     val al: java.awt.event.ActionListener = evt => sc.update(summon[Emitter.Context].emit(v.actionEvents, evt.nn))

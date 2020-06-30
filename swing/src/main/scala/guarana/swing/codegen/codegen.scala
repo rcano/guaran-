@@ -89,6 +89,7 @@ case object Node extends NodeDescr(
     |def requestFocus() = v.requestFocus()
     |def requestFocusInWindow() = v.requestFocusInWindow()
     |def size(x: Int, y: Int) = v.setSize(x, y)
+    |def showing = v.isShowing
     |def children: Seq[Node] = (0 until v.getComponentCount).map(i => v.getComponent(i).asInstanceOf[Container])
     """.stripMargin.trim.split("\n").asInstanceOf[Array[String]].toIndexedSeq,
   emitters = Seq(EmitterDescr("focusEvents", "(FocusEvent, Boolean)", Nil)),
@@ -1118,11 +1119,6 @@ def genCode(n: NodeDescr): String = {
      |
      |  def init$tpeParams(v: ${n.name}$tpeParams): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
      |    ${n.parents.headOption.map(p => s"$p.init(v)").getOrElse("")}
-     |    ${if (sortedEmitters.nonEmpty) {
-              val registeredEmitters = sortedEmitters.map(e => s"  ctx.register(v.${e.name})")
-              (("sc.update {" +: "  val ctx = summon[Emitter.Context]" +: registeredEmitters) :+ "}").mkString("\n    ")
-            } else ""
-          }
      |    ${if (n.addsPropertySwingListener) "v.addPropertyChangeListener(varsPropertyListener(v))" else ""}
      |    ${n.initExtra.mkString("\n    ")}
      |    ${sortedEmitters.flatMap(_.initializer).mkString("\n    ")}

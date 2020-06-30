@@ -75,7 +75,6 @@ object ListView extends VarsMap {
 
   def init[E](v: ListView[E]): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     Component.init(v)
-    
     v.addPropertyChangeListener(varsPropertyListener(v))
     
     val lsl: ListSelectionListener = (evt) => sc.update{

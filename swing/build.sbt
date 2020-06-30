@@ -4,7 +4,8 @@ version := "0.1.0-SNAPSHOT"
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
 // scalaVersion := "0.24.0-RC1"
-scalaVersion := "0.25.0-bin-20200511-5fb865b-NIGHTLY"
+//scalaVersion := "0.25.0-bin-20200511-5fb865b-NIGHTLY"
+scalaVersion := "0.25.0-RC1"
 
 scalacOptions ++= Seq(
   "-Yexplicit-nulls",
@@ -23,9 +24,12 @@ libraryDependencies ++= Seq(
   ("com.github.pathikrit" % "better-files_2.13" % "3.8.0"), //.withDottyCompat(scalaVersion.value),
   "org.codehaus.griffon.plugins" % "griffon-lookandfeel-napkin" % "2.0.0",
   "com.formdev" % "flatlaf" % "0.26",
+
   //"de.vandermeer" % "asciitable" % "0.3.2",
   //"io.github.classgraph" % "classgraph" % "4.8.60",
+  // "org.scalameta" % "munit_0.24" % "0.7.7" % Test,
 )
+// testFrameworks += new TestFramework("munit.Framework")
 
 (reStart/mainClass) := Some("guarana.swing.ShapesTest")
 

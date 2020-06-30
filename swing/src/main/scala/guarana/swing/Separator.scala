@@ -32,7 +32,6 @@ object Separator extends VarsMap {
 
   def init(v: Separator): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     Component.init(v)
-    
     v.addPropertyChangeListener(varsPropertyListener(v))
     
     

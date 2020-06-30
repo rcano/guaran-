@@ -30,7 +30,6 @@ object CheckBox extends VarsMap {
 
   def init(v: CheckBox): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     ToggleButton.init(v)
-    
     v.addPropertyChangeListener(varsPropertyListener(v))
     
     

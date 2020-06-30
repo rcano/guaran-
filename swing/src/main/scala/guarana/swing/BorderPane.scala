@@ -42,7 +42,6 @@ object BorderPane extends VarsMap {
 
   def init(v: BorderPane): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     Pane.init(v)
-    
     v.addPropertyChangeListener(varsPropertyListener(v))
     v.asInstanceOf[JPanel].setLayout(BorderLayout())
     

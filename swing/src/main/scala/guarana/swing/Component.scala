@@ -70,7 +70,6 @@ object Component extends VarsMap {
 
   def init(v: Component): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     Node.init(v)
-    
     v.addPropertyChangeListener(varsPropertyListener(v))
     
     

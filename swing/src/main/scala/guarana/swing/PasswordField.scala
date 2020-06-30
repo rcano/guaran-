@@ -30,7 +30,6 @@ object PasswordField extends VarsMap {
 
   def init(v: PasswordField): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     TextField.init(v)
-    
     v.addPropertyChangeListener(varsPropertyListener(v))
     
     

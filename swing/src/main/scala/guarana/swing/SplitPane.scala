@@ -49,7 +49,6 @@ object SplitPane extends VarsMap {
 
   def init(v: SplitPane): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     Component.init(v)
-    
     v.addPropertyChangeListener(varsPropertyListener(v))
     
     

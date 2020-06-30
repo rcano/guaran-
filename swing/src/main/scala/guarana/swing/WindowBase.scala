@@ -73,7 +73,6 @@ object WindowBase extends VarsMap {
 
   def init(v: WindowBase): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     Node.init(v)
-    
     v.addPropertyChangeListener(varsPropertyListener(v))
     
     
