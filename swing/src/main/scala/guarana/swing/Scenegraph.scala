@@ -172,11 +172,12 @@ class Scenegraph {
       dragStart match {
         case None => dragStart = Some(evt.nn)
         case Some(origin) => Node.MouseDragMut.forInstance(source) :=
-          Some(MouseDrag(MouseButton.from(2),
+          Some(MouseDrag(
             MousePosition(origin.getX, origin.getY, origin.getXOnScreen, origin.getYOnScreen),
             MousePosition(evt.getX, evt.getY, evt.getXOnScreen, evt.getYOnScreen),
-            false)
-          )
+            false,
+            evt.nn
+          ))
       }
     }
 
@@ -189,11 +190,12 @@ class Scenegraph {
         case None =>
         case Some(origin) => 
           Node.MouseDragMut.forInstance(source) :=
-            Some(MouseDrag(MouseButton.from(2),
+            Some(MouseDrag(
               MousePosition(origin.getX, origin.getY, origin.getXOnScreen, origin.getYOnScreen),
               MousePosition(evt.getX, evt.getY, evt.getXOnScreen, evt.getYOnScreen),
-              true)
-            )
+              true,
+              evt.nn
+            ))
           dragStart = None
       }
     }
@@ -201,7 +203,7 @@ class Scenegraph {
       // manually inline mouseEvent since we are running update anyway 
       val source = evt.getSource()
       val emitter = Node.MouseEvents.forInstance(source)
-      if (emitterStation.hasEmitter(emitter)) summon[Emitter.Context].emit(emitter, MouseReleased(evt.nn))
+      if (emitterStation.hasEmitter(emitter)) summon[Emitter.Context].emit(emitter, MouseMoved(evt.nn))
       Node.MouseDragMut.forInstance(source) := None
     }
 

@@ -61,7 +61,7 @@ object ProductLenses {
 
 case class DeclaringVal(name: String)
 object DeclaringVal {
-  inline def declaringVal: DeclaringVal = ${declaringValMacro}
+  inline given declaringVal as DeclaringVal = ${declaringValMacro}
   import scala.quoted._
   def declaringValMacro(using ctx: QuoteContext): Expr[DeclaringVal] = {
     def isSynthetic(name: String) = name == "<init>" || (name.startsWith("<local ") && name.endsWith(">"))

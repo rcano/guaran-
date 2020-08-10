@@ -3,9 +3,7 @@ version := "0.1.0-SNAPSHOT"
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
-// scalaVersion := "0.24.0-RC1"
-//scalaVersion := "0.25.0-bin-20200511-5fb865b-NIGHTLY"
-scalaVersion := "0.25.0-RC1"
+scalaVersion := "0.25.0-RC2"
 
 scalacOptions ++= Seq(
   "-Yexplicit-nulls",
