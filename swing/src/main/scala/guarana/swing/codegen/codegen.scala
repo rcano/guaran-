@@ -76,10 +76,12 @@ case object Node extends NodeDescr(
       "{(n, d) => n.setPreferredSize(if (d == null) null else java.awt.Dimension(d._1.toInt, d._2.toInt))}"),
     SwingProp("visible", "Boolean"),
     VarProp("mouseLocationMut", "(Int, Int)", "(0, 0)", Some("private")),
+    VarProp("mouseDragMut", "Option[MouseDrag]", "None", Some("private[guarana]")),
   ),
   opsExtra = """
     |def focused = Node.FocusedMut.asObsValIn(v)
     |def mouseLocation = Node.MouseLocationMut.asObsValIn(v)
+    |def mouseDrag = Node.MouseDragMut.asObsValIn(v)
     |def alignmentX = v.getAlignmentX
     |def alignmentY = v.getAlignmentY
     |def insets = v.getInsets
@@ -92,7 +94,11 @@ case object Node extends NodeDescr(
     |def showing = v.isShowing
     |def children: Seq[Node] = (0 until v.getComponentCount).map(i => v.getComponent(i).asInstanceOf[Container])
     """.stripMargin.trim.split("\n").asInstanceOf[Array[String]].toIndexedSeq,
-  emitters = Seq(EmitterDescr("focusEvents", "(FocusEvent, Boolean)", Nil)),
+  emitters = Seq(
+    EmitterDescr("focusEvents", "(FocusEvent, Boolean)", Nil),
+    EmitterDescr("mouseEvents", "guarana.swing.MouseEvent", Nil),
+    EmitterDescr("keyEvents", "guarana.swing.KeyEvent", Nil),
+  ),
   initExtra = """
   |v addMouseMotionListener new java.awt.event.MouseMotionListener {
   |  def mouseDragged(evt: java.awt.event.MouseEvent | Null) = ()
@@ -115,10 +121,19 @@ case object Node extends NodeDescr(
   |  override def componentMoved(e: ComponentEvent | UncheckedNull): Unit = updateBounds()
   |  override def componentResized(e: ComponentEvent | UncheckedNull): Unit = updateBounds()
   |  def updateBounds(): Unit = sc.update {
-  |    summon[VarContext].swingPropertyUpdated(ops.bounds(v), v.getBounds.nn)
+  |    summon[VarContext].swingPropertyUpdated(ops.extension_bounds(v), v.getBounds.nn)
   |  }
+
+
+  |  v.addKeyListener(sc.awtInputListener)
+  |  v.addMouseListener(sc.awtInputListener)
+  |  v.addMouseMotionListener(sc.awtInputListener)
   |}
-  """.stripMargin.trim.split("\n").asInstanceOf[Array[String]].toIndexedSeq
+  """.stripMargin.trim.split("\n").asInstanceOf[Array[String]].toIndexedSeq,
+  companionObjectExtras = Seq(
+    "val MouseLocation: ObsVal[(Int, Int)] = MouseLocationMut",
+    "val MouseDrag: ObsVal[Option[MouseDrag]] = MouseDragMut"
+  )
 )
 
 case object Component extends NodeDescr(
@@ -155,7 +170,7 @@ case object Component extends NodeDescr(
     "def topLevelAncestor = v.getTopLevelAncestor",
     "def vetoableChangeListeners = v.getVetoableChangeListeners",
     "def visibleRect = v.getVisibleRect",
-    "def uiPrefSize: (Double, Double) | Null = ops.UI(v).?(_.getPreferredSize(v)).?(d => (d.getWidth, d.getHeight))",
+    "def uiPrefSize: (Double, Double) | Null = ops.extension_UI(v).?(_.getPreferredSize(v)).?(d => (d.getWidth, d.getHeight))",
   ),
   isAbstract = true,
 )
@@ -555,19 +570,19 @@ case object ButtonBase extends NodeDescr(
     |  val ctx = summon[VarContext]
     |  val m = v.getModel.nn
     |  if (m.isArmed != wasArmed)
-    |    ctx.swingPropertyUpdated(ops.armed(v), m.isArmed)
+    |    ctx.swingPropertyUpdated(ops.extension_armed(v), m.isArmed)
     |  wasArmed = m.isArmed
     |  if (m.isEnabled != wasEnabled)
-    |    ctx.swingPropertyUpdated(ops.enabled(v), m.isEnabled)
+    |    ctx.swingPropertyUpdated(ops.extension_enabled(v), m.isEnabled)
     |  wasEnabled = m.isEnabled
     |  if (m.isPressed != wasPressed)
-    |    ctx.swingPropertyUpdated(ops.pressed(v), m.isPressed)
+    |    ctx.swingPropertyUpdated(ops.extension_pressed(v), m.isPressed)
     |  wasPressed = m.isPressed
     |  if (m.isRollover != wasRollover)
-    |    ctx.swingPropertyUpdated(ops.rollover(v), m.isRollover)
+    |    ctx.swingPropertyUpdated(ops.extension_rollover(v), m.isRollover)
     |  wasRollover = m.isRollover
     |  if (v.isSelected != wasSelected)
-    |    ctx.swingPropertyUpdated(ops.selected(v), v.isSelected)
+    |    ctx.swingPropertyUpdated(ops.extension_selected(v), v.isSelected)
     |  wasSelected = v.isSelected
     |}
     |v.addChangeListener(cl)
@@ -644,7 +659,7 @@ case object Slider extends NodeDescr(
     "def changeListeners = v.getChangeListeners",
   ),
   initExtra = 
-    "val l: ChangeListener = (e: ChangeEvent | UncheckedNull) => summon[Scenegraph].update(summon[VarContext].swingPropertyUpdated(ops.value(v), v.getValue))" ::
+    "val l: ChangeListener = (e: ChangeEvent | UncheckedNull) => summon[Scenegraph].update(summon[VarContext].swingPropertyUpdated(ops.extension_value(v), v.getValue))" ::
     "v.addChangeListener(l)" ::
     Nil
 )
@@ -674,7 +689,7 @@ case object ProgressBar extends NodeDescr(
     "def percentComplete = v.getPercentComplete"
   ),
   initExtra = 
-    "val l: ChangeListener = (e: ChangeEvent | UncheckedNull) => summon[Scenegraph].update(summon[VarContext].swingPropertyUpdated(ops.value(v), v.getValue))" ::
+    "val l: ChangeListener = (e: ChangeEvent | UncheckedNull) => summon[Scenegraph].update(summon[VarContext].swingPropertyUpdated(ops.extension_value(v), v.getValue))" ::
     "v.addChangeListener(l)" ::
     Nil
 )
@@ -728,9 +743,9 @@ case object ListView extends NodeDescr(
   initExtra = """
     |val lsl: ListSelectionListener = (evt) => sc.update{
     |  val vc = summon[VarContext]
-    |  vc.swingPropertyUpdated(ops.selectedIndex(v), v.getSelectedIndex)
-    |  vc.swingPropertyUpdated(ops.selectedIndices(v), v.getSelectedIndices.nn)
-    |  vc.swingPropertyUpdated(ops.selectedIndices(v), v.getSelectedIndices.nn)
+    |  vc.swingPropertyUpdated(ops.extension_selectedIndex(v), v.getSelectedIndex)
+    |  vc.swingPropertyUpdated(ops.extension_selectedIndices(v), v.getSelectedIndices.nn)
+    |  vc.swingPropertyUpdated(ops.extension_selectedIndices(v), v.getSelectedIndices.nn)
     |}
     |v.addListSelectionListener(lsl)
     """.stripMargin.split("\n").asInstanceOf[Array[String]].toIndexedSeq,
@@ -1007,9 +1022,9 @@ case object Combobox extends NodeDescr(
   initExtra = """
     |val il: ItemListener = evt => sc.update {
     |  val vc = summon[VarContext]
-    |  vc.swingPropertyUpdated(ops.selectedIndex(v), v.getSelectedIndex)
+    |  vc.swingPropertyUpdated(ops.extension_selectedIndex(v), v.getSelectedIndex)
     |  val si = v.getSelectedItem.asInstanceOf[E | Null]
-    |  vc.swingPropertyUpdated(ops.selectedItem(v), if (si == null) None else Some(si))
+    |  vc.swingPropertyUpdated(ops.extension_selectedItem(v), if (si == null) None else Some(si))
     |}
     |v.addItemListener(il)
   """.trim.nn.stripMargin.split("\n").asInstanceOf[Array[String]].toIndexedSeq
@@ -1045,7 +1060,7 @@ case object Spinner extends NodeDescr(
     SwingProp("value", "E", "_.getValue", "_.setValue(_)", overrideTpeInStaticPos = Some("Any")),
   ),
   initExtra = """
-    |val cl: ChangeListener = evt => sc.update(summon[VarContext].swingPropertyUpdated(ops.value(v), v.getValue.asInstanceOf))
+    |val cl: ChangeListener = evt => sc.update(summon[VarContext].swingPropertyUpdated(ops.extension_value(v), v.getValue.asInstanceOf))
     |v.addChangeListener(cl)
     """.trim.nn.stripMargin.split("\n").asInstanceOf[Array[String]].toIndexedSeq
 )
@@ -1089,7 +1104,7 @@ def genCode(n: NodeDescr): String = {
          |): Scenegraph ?=> VarContextAction[${n.name}$tpeParams] = {
          |  val res = uninitialized$tpeParams()
          |  ${n.name}.init(res)
-         |  ${allVars.map(v => s"ifSet(${v._2.name}, ${v._1.name}.ops.${v._2.name}(res) := _)").mkString("\n  ")}
+         |  ${allVars.map(v => s"ifSet(${v._2.name}, ${v._1.name}.ops.extension_${v._2.name}(res) := _)").mkString("\n  ")}
          |  res
          |}
          |

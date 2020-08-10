@@ -8,7 +8,7 @@ class KeyedWeakHashMap[K, V] extends collection.mutable.Map[Keyed[K], V] {
   private val underlying = collection.mutable.AnyRefMap.empty[WeakKeyed[K], V]
   private val refQueue = ReferenceQueue[Any]()
   
-  def (k: Keyed[K]) toWeak = WeakKeyed(k.keyed, k.instance, refQueue)
+  def (k: Keyed[K]) toWeak: WeakKeyed[K] = WeakKeyed(k.keyed, k.instance, refQueue)
 
   def addOne(elem: (Keyed[K], V)) = {
     expungeStaleEntries()

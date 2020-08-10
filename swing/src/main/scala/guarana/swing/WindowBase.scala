@@ -102,6 +102,7 @@ object WindowBase extends VarsMap {
     maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     modalExclusionType: Opt[Binding[java.awt.Dialog.ModalExclusionType]] = UnsetParam,
+    mouseDragMut: Opt[Binding[Option[MouseDrag]]] = UnsetParam,
     opacity: Opt[Binding[Float]] = UnsetParam,
     prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     root: Opt[Binding[Node]] = UnsetParam,
@@ -111,29 +112,30 @@ object WindowBase extends VarsMap {
   ): Scenegraph ?=> VarContextAction[WindowBase] = {
     val res = uninitialized()
     WindowBase.init(res)
-    ifSet(alwaysOnTop, WindowBase.ops.alwaysOnTop(res) := _)
-    ifSet(autoRequestFocus, WindowBase.ops.autoRequestFocus(res) := _)
-    ifSet(background, Node.ops.background(res) := _)
-    ifSet(bounds, Node.ops.bounds(res) := _)
-    ifSet(componentOrientation, Node.ops.componentOrientation(res) := _)
-    ifSet(cursor, Node.ops.cursor(res) := _)
-    ifSet(enabled, Node.ops.enabled(res) := _)
-    ifSet(focusCycleRoot, WindowBase.ops.focusCycleRoot(res) := _)
-    ifSet(focusable, Node.ops.focusable(res) := _)
-    ifSet(focusableWindowState, WindowBase.ops.focusableWindowState(res) := _)
-    ifSet(font, Node.ops.font(res) := _)
-    ifSet(foreground, Node.ops.foreground(res) := _)
-    ifSet(iconImages, WindowBase.ops.iconImages(res) := _)
-    ifSet(locationByPlatform, WindowBase.ops.locationByPlatform(res) := _)
-    ifSet(maxSize, Node.ops.maxSize(res) := _)
-    ifSet(minSize, Node.ops.minSize(res) := _)
-    ifSet(modalExclusionType, WindowBase.ops.modalExclusionType(res) := _)
-    ifSet(opacity, WindowBase.ops.opacity(res) := _)
-    ifSet(prefSize, Node.ops.prefSize(res) := _)
-    ifSet(root, WindowBase.ops.root(res) := _)
-    ifSet(shape, WindowBase.ops.shape(res) := _)
-    ifSet(tpe, WindowBase.ops.tpe(res) := _)
-    ifSet(visible, Node.ops.visible(res) := _)
+    ifSet(alwaysOnTop, WindowBase.ops.extension_alwaysOnTop(res) := _)
+    ifSet(autoRequestFocus, WindowBase.ops.extension_autoRequestFocus(res) := _)
+    ifSet(background, Node.ops.extension_background(res) := _)
+    ifSet(bounds, Node.ops.extension_bounds(res) := _)
+    ifSet(componentOrientation, Node.ops.extension_componentOrientation(res) := _)
+    ifSet(cursor, Node.ops.extension_cursor(res) := _)
+    ifSet(enabled, Node.ops.extension_enabled(res) := _)
+    ifSet(focusCycleRoot, WindowBase.ops.extension_focusCycleRoot(res) := _)
+    ifSet(focusable, Node.ops.extension_focusable(res) := _)
+    ifSet(focusableWindowState, WindowBase.ops.extension_focusableWindowState(res) := _)
+    ifSet(font, Node.ops.extension_font(res) := _)
+    ifSet(foreground, Node.ops.extension_foreground(res) := _)
+    ifSet(iconImages, WindowBase.ops.extension_iconImages(res) := _)
+    ifSet(locationByPlatform, WindowBase.ops.extension_locationByPlatform(res) := _)
+    ifSet(maxSize, Node.ops.extension_maxSize(res) := _)
+    ifSet(minSize, Node.ops.extension_minSize(res) := _)
+    ifSet(modalExclusionType, WindowBase.ops.extension_modalExclusionType(res) := _)
+    ifSet(mouseDragMut, Node.ops.extension_mouseDragMut(res) := _)
+    ifSet(opacity, WindowBase.ops.extension_opacity(res) := _)
+    ifSet(prefSize, Node.ops.extension_prefSize(res) := _)
+    ifSet(root, WindowBase.ops.extension_root(res) := _)
+    ifSet(shape, WindowBase.ops.extension_shape(res) := _)
+    ifSet(tpe, WindowBase.ops.extension_tpe(res) := _)
+    ifSet(visible, Node.ops.extension_visible(res) := _)
     res
   }
   

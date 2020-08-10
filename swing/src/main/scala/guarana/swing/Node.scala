@@ -24,16 +24,14 @@ object Node extends VarsMap {
   val Foreground: SwingVar.Aux[Node, java.awt.Color | Null] = SwingVar[Node, java.awt.Color | Null]("foreground", _.getForeground, _.setForeground(_))
   val MaxSize: SwingVar.Aux[Node, (Double, Double) | Null] = SwingVar[Node, (Double, Double) | Null]("maxSize", {n => val d = n.getMaximumSize; if (d != null) (d.getWidth, d.getHeight) else null}, {(n, d) => n.setMaximumSize(if (d == null) null else java.awt.Dimension(d._1.toInt, d._2.toInt))})
   val MinSize: SwingVar.Aux[Node, (Double, Double) | Null] = SwingVar[Node, (Double, Double) | Null]("minSize", {n => val d = n.getMinimumSize; if (d != null) (d.getWidth, d.getHeight) else null}, {(n, d) => n.setMinimumSize(if (d == null) null else java.awt.Dimension(d._1.toInt, d._2.toInt))})
+  private[guarana] val MouseDragMut: Var[Option[MouseDrag]] = Var[Option[MouseDrag]]("mouseDragMut", None, false)
   private val MouseLocationMut: Var[(Int, Int)] = Var[(Int, Int)]("mouseLocationMut", (0, 0), false)
-  val MouseLocation: ObsVal[(Int, Int)] = MouseLocationMut
   val PrefSize: SwingVar.Aux[Node, (Double, Double) | Null] = SwingVar[Node, (Double, Double) | Null]("prefSize", {n => val d = n.getPreferredSize; if (d != null) (d.getWidth, d.getHeight) else null}, {(n, d) => n.setPreferredSize(if (d == null) null else java.awt.Dimension(d._1.toInt, d._2.toInt))})
   val Visible: SwingVar.Aux[Node, Boolean] = SwingVar[Node, Boolean]("visible", _.isVisible, _.setVisible(_))
-  private[guarana] val MouseDragMut: Var[Option[MouseDrag]] = Var("mouseDragMut", None)
-  val MouseDrag: ObsVal[Option[MouseDrag]] = MouseDragMut
 
   val FocusEvents = Emitter[(FocusEvent, Boolean)]()
-  val MouseEvents = Emitter[guarana.swing.MouseEvent]()
   val KeyEvents = Emitter[guarana.swing.KeyEvent]()
+  val MouseEvents = Emitter[guarana.swing.MouseEvent]()
 
   extension ops on (v: Node) {
     def background: Var.Aux[java.awt.Color | Null, v.type] = Node.Background.asInstanceOf[Var.Aux[java.awt.Color | Null, v.type]]
@@ -46,12 +44,13 @@ object Node extends VarsMap {
     def foreground: Var.Aux[java.awt.Color | Null, v.type] = Node.Foreground.asInstanceOf[Var.Aux[java.awt.Color | Null, v.type]]
     def maxSize: Var.Aux[(Double, Double) | Null, v.type] = Node.MaxSize.asInstanceOf[Var.Aux[(Double, Double) | Null, v.type]]
     def minSize: Var.Aux[(Double, Double) | Null, v.type] = Node.MinSize.asInstanceOf[Var.Aux[(Double, Double) | Null, v.type]]
+    def mouseDragMut: Var.Aux[Option[MouseDrag], v.type] = Node.MouseDragMut.asInstanceOf[Var.Aux[Option[MouseDrag], v.type]]
     def prefSize: Var.Aux[(Double, Double) | Null, v.type] = Node.PrefSize.asInstanceOf[Var.Aux[(Double, Double) | Null, v.type]]
     def visible: Var.Aux[Boolean, v.type] = Node.Visible.asInstanceOf[Var.Aux[Boolean, v.type]]
 
     def focusEvents: Emitter.Aux[(FocusEvent, Boolean), v.type] = Node.FocusEvents.forInstance(v)
-    def mouseEvents: Emitter.Aux[guarana.swing.MouseEvent, v.type] = Node.MouseEvents.forInstance(v)
     def keyEvents: Emitter.Aux[guarana.swing.KeyEvent, v.type] = Node.KeyEvents.forInstance(v)
+    def mouseEvents: Emitter.Aux[guarana.swing.MouseEvent, v.type] = Node.MouseEvents.forInstance(v)
 
     def focused = Node.FocusedMut.asObsValIn(v)
     def mouseLocation = Node.MouseLocationMut.asObsValIn(v)
@@ -96,13 +95,15 @@ object Node extends VarsMap {
       override def componentMoved(e: ComponentEvent | UncheckedNull): Unit = updateBounds()
       override def componentResized(e: ComponentEvent | UncheckedNull): Unit = updateBounds()
       def updateBounds(): Unit = sc.update {
-        summon[VarContext].swingPropertyUpdated(ops.bounds(v), v.getBounds.nn)
+        summon[VarContext].swingPropertyUpdated(ops.extension_bounds(v), v.getBounds.nn)
       }
+    
+    
+      v.addKeyListener(sc.awtInputListener)
+      v.addMouseListener(sc.awtInputListener)
+      v.addMouseMotionListener(sc.awtInputListener)
     }
     
-    v.addKeyListener(sc.awtInputListener)
-    v.addMouseListener(sc.awtInputListener)
-    v.addMouseMotionListener(sc.awtInputListener)
   }
   def uninitialized(): Node = {
     val res = java.awt.Container().asInstanceOf[Node]
@@ -122,24 +123,27 @@ object Node extends VarsMap {
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
+    mouseDragMut: Opt[Binding[Option[MouseDrag]]] = UnsetParam,
     prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): Scenegraph ?=> VarContextAction[Node] = {
     val res = uninitialized()
     Node.init(res)
-    ifSet(background, Node.ops.background(res) := _)
-    ifSet(bounds, Node.ops.bounds(res) := _)
-    ifSet(componentOrientation, Node.ops.componentOrientation(res) := _)
-    ifSet(cursor, Node.ops.cursor(res) := _)
-    ifSet(enabled, Node.ops.enabled(res) := _)
-    ifSet(focusable, Node.ops.focusable(res) := _)
-    ifSet(font, Node.ops.font(res) := _)
-    ifSet(foreground, Node.ops.foreground(res) := _)
-    ifSet(maxSize, Node.ops.maxSize(res) := _)
-    ifSet(minSize, Node.ops.minSize(res) := _)
-    ifSet(prefSize, Node.ops.prefSize(res) := _)
-    ifSet(visible, Node.ops.visible(res) := _)
+    ifSet(background, Node.ops.extension_background(res) := _)
+    ifSet(bounds, Node.ops.extension_bounds(res) := _)
+    ifSet(componentOrientation, Node.ops.extension_componentOrientation(res) := _)
+    ifSet(cursor, Node.ops.extension_cursor(res) := _)
+    ifSet(enabled, Node.ops.extension_enabled(res) := _)
+    ifSet(focusable, Node.ops.extension_focusable(res) := _)
+    ifSet(font, Node.ops.extension_font(res) := _)
+    ifSet(foreground, Node.ops.extension_foreground(res) := _)
+    ifSet(maxSize, Node.ops.extension_maxSize(res) := _)
+    ifSet(minSize, Node.ops.extension_minSize(res) := _)
+    ifSet(mouseDragMut, Node.ops.extension_mouseDragMut(res) := _)
+    ifSet(prefSize, Node.ops.extension_prefSize(res) := _)
+    ifSet(visible, Node.ops.extension_visible(res) := _)
     res
   }
-  
+  val MouseLocation: ObsVal[(Int, Int)] = MouseLocationMut
+  val MouseDrag: ObsVal[Option[MouseDrag]] = MouseDragMut
 }
