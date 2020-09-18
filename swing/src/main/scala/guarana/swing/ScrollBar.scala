@@ -86,6 +86,7 @@ object ScrollBar extends VarsMap {
     minimum: Opt[Binding[Int]] = UnsetParam,
     model: Opt[Binding[javax.swing.BoundedRangeModel]] = UnsetParam,
     mouseDragMut: Opt[Binding[Option[MouseDrag]]] = UnsetParam,
+    name: Opt[Binding[String | Null]] = UnsetParam,
     opaque: Opt[Binding[Boolean]] = UnsetParam,
     orientation: Opt[Binding[Int]] = UnsetParam,
     prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
@@ -127,6 +128,7 @@ object ScrollBar extends VarsMap {
     ifSet(minimum, ScrollBar.ops.extension_minimum(res) := _)
     ifSet(model, ScrollBar.ops.extension_model(res) := _)
     ifSet(mouseDragMut, Node.ops.extension_mouseDragMut(res) := _)
+    ifSet(name, Node.ops.extension_name(res) := _)
     ifSet(opaque, Component.ops.extension_opaque(res) := _)
     ifSet(orientation, ScrollBar.ops.extension_orientation(res) := _)
     ifSet(prefSize, Node.ops.extension_prefSize(res) := _)

@@ -103,6 +103,7 @@ object Slider extends VarsMap {
     minorTickSpacing: Opt[Binding[Int]] = UnsetParam,
     model: Opt[Binding[javax.swing.BoundedRangeModel | Null]] = UnsetParam,
     mouseDragMut: Opt[Binding[Option[MouseDrag]]] = UnsetParam,
+    name: Opt[Binding[String | Null]] = UnsetParam,
     opaque: Opt[Binding[Boolean]] = UnsetParam,
     orientation: Opt[Binding[Int]] = UnsetParam,
     paintLabels: Opt[Binding[Boolean]] = UnsetParam,
@@ -150,6 +151,7 @@ object Slider extends VarsMap {
     ifSet(minorTickSpacing, Slider.ops.extension_minorTickSpacing(res) := _)
     ifSet(model, Slider.ops.extension_model(res) := _)
     ifSet(mouseDragMut, Node.ops.extension_mouseDragMut(res) := _)
+    ifSet(name, Node.ops.extension_name(res) := _)
     ifSet(opaque, Component.ops.extension_opaque(res) := _)
     ifSet(orientation, Slider.ops.extension_orientation(res) := _)
     ifSet(paintLabels, Slider.ops.extension_paintLabels(res) := _)

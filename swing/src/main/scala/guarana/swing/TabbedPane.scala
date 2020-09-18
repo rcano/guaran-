@@ -146,6 +146,7 @@ object TabbedPane extends VarsMap {
     minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     model: Opt[Binding[javax.swing.SingleSelectionModel]] = UnsetParam,
     mouseDragMut: Opt[Binding[Option[MouseDrag]]] = UnsetParam,
+    name: Opt[Binding[String | Null]] = UnsetParam,
     opaque: Opt[Binding[Boolean]] = UnsetParam,
     prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     requestFocusEnabled: Opt[Binding[Boolean]] = UnsetParam,
@@ -184,6 +185,7 @@ object TabbedPane extends VarsMap {
     ifSet(minSize, Node.ops.extension_minSize(res) := _)
     ifSet(model, TabbedPane.ops.extension_model(res) := _)
     ifSet(mouseDragMut, Node.ops.extension_mouseDragMut(res) := _)
+    ifSet(name, Node.ops.extension_name(res) := _)
     ifSet(opaque, Component.ops.extension_opaque(res) := _)
     ifSet(prefSize, Node.ops.extension_prefSize(res) := _)
     ifSet(requestFocusEnabled, Component.ops.extension_requestFocusEnabled(res) := _)

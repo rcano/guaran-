@@ -64,6 +64,7 @@ object AbsolutePositioningPane extends VarsMap {
     maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     mouseDragMut: Opt[Binding[Option[MouseDrag]]] = UnsetParam,
+    name: Opt[Binding[String | Null]] = UnsetParam,
     nodes: Opt[Binding[Seq[Node]]] = UnsetParam,
     opaque: Opt[Binding[Boolean]] = UnsetParam,
     prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
@@ -97,6 +98,7 @@ object AbsolutePositioningPane extends VarsMap {
     ifSet(maxSize, Node.ops.extension_maxSize(res) := _)
     ifSet(minSize, Node.ops.extension_minSize(res) := _)
     ifSet(mouseDragMut, Node.ops.extension_mouseDragMut(res) := _)
+    ifSet(name, Node.ops.extension_name(res) := _)
     ifSet(nodes, AbsolutePositioningPane.ops.extension_nodes(res) := _)
     ifSet(opaque, Component.ops.extension_opaque(res) := _)
     ifSet(prefSize, Node.ops.extension_prefSize(res) := _)

@@ -71,6 +71,7 @@ case object Node extends NodeDescr(
     SwingProp("minSize", "(Double, Double) | Null",
       "{n => val d = n.getMinimumSize; if (d != null) (d.getWidth, d.getHeight) else null}",
       "{(n, d) => n.setMinimumSize(if (d == null) null else java.awt.Dimension(d._1.toInt, d._2.toInt))}"),
+    SwingProp("name", "String | Null"),
     SwingProp("prefSize", "(Double, Double) | Null",
       "{n => val d = n.getPreferredSize; if (d != null) (d.getWidth, d.getHeight) else null}",
       "{(n, d) => n.setPreferredSize(if (d == null) null else java.awt.Dimension(d._1.toInt, d._2.toInt))}"),
@@ -1121,13 +1122,16 @@ def genCode(n: NodeDescr): String = {
      |
      |  ${sortedEmitters.map(e => s"val ${e.name.capitalize} = Emitter[${e.tpe}]()").mkString("\n  ")}
      |
-     |  extension ops on $tpeParams(v: ${n.name}$tpeParams) {
-     |    ${nonPrivateSortedProps.map(p => s"def ${p.name}: Var.Aux[${p.tpe}, v.type] = ${n.name}.${p.name.capitalize}.asInstanceOf[Var.Aux[${p.tpe}, v.type]]").mkString("\n    ")}
+     |  given ops as Ops.type = Ops
+     |  object Ops {
+     |    extension $tpeParams(v: ${n.name}$tpeParams) {
+     |      ${nonPrivateSortedProps.map(p => s"def ${p.name}: Var.Aux[${p.tpe}, v.type] = ${n.name}.${p.name.capitalize}.asInstanceOf[Var.Aux[${p.tpe}, v.type]]").mkString("\n      ")}
 
-     |    ${sortedEmitters.map(e => s"def ${e.name}: Emitter.Aux[${e.tpe}, v.type] = ${n.name}.${e.name.capitalize}.forInstance(v)").mkString("\n    ")}
+     |      ${sortedEmitters.map(e => s"def ${e.name}: Emitter.Aux[${e.tpe}, v.type] = ${n.name}.${e.name.capitalize}.forInstance(v)").mkString("\n      ")}
 
-     |    ${n.opsExtra.mkString("\n    ")}
-     |    def unwrap: ${n.underlying} = v
+     |      ${n.opsExtra.mkString("\n      ")}
+     |      def unwrap: ${n.underlying} = v
+     |    }
      |  }
      |
      |  def wrap$tpeParams(v: ${n.underlying}) = v.asInstanceOf[${n.name}$tpeParams]

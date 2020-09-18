@@ -103,6 +103,7 @@ object WindowBase extends VarsMap {
     minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     modalExclusionType: Opt[Binding[java.awt.Dialog.ModalExclusionType]] = UnsetParam,
     mouseDragMut: Opt[Binding[Option[MouseDrag]]] = UnsetParam,
+    name: Opt[Binding[String | Null]] = UnsetParam,
     opacity: Opt[Binding[Float]] = UnsetParam,
     prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     root: Opt[Binding[Node]] = UnsetParam,
@@ -130,6 +131,7 @@ object WindowBase extends VarsMap {
     ifSet(minSize, Node.ops.extension_minSize(res) := _)
     ifSet(modalExclusionType, WindowBase.ops.extension_modalExclusionType(res) := _)
     ifSet(mouseDragMut, Node.ops.extension_mouseDragMut(res) := _)
+    ifSet(name, Node.ops.extension_name(res) := _)
     ifSet(opacity, WindowBase.ops.extension_opacity(res) := _)
     ifSet(prefSize, Node.ops.extension_prefSize(res) := _)
     ifSet(root, WindowBase.ops.extension_root(res) := _)

@@ -124,6 +124,7 @@ object ListView extends VarsMap {
     minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     model: Opt[Binding[javax.swing.ListModel[E]]] = UnsetParam,
     mouseDragMut: Opt[Binding[Option[MouseDrag]]] = UnsetParam,
+    name: Opt[Binding[String | Null]] = UnsetParam,
     opaque: Opt[Binding[Boolean]] = UnsetParam,
     prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     prototypeCellValue: Opt[Binding[E | Null]] = UnsetParam,
@@ -172,6 +173,7 @@ object ListView extends VarsMap {
     ifSet(minSize, Node.ops.extension_minSize(res) := _)
     ifSet(model, ListView.ops.extension_model(res) := _)
     ifSet(mouseDragMut, Node.ops.extension_mouseDragMut(res) := _)
+    ifSet(name, Node.ops.extension_name(res) := _)
     ifSet(opaque, Component.ops.extension_opaque(res) := _)
     ifSet(prefSize, Node.ops.extension_prefSize(res) := _)
     ifSet(prototypeCellValue, ListView.ops.extension_prototypeCellValue(res) := _)

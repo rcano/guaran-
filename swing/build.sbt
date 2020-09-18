@@ -7,7 +7,9 @@ scalaVersion := "0.26.0-RC1"
 
 scalacOptions ++= Seq(
   "-Yexplicit-nulls",
-   "-deprecation", "-unchecked")
+  "-deprecation", "-unchecked",
+  "-Ysemanticdb",
+)
 
 Compile / packageDoc / publishArtifact := false
 

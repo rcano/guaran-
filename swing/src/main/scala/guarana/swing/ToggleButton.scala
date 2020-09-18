@@ -83,6 +83,7 @@ object ToggleButton extends VarsMap {
     model: Opt[Binding[javax.swing.ButtonModel | Null]] = UnsetParam,
     mouseDragMut: Opt[Binding[Option[MouseDrag]]] = UnsetParam,
     multiClickThreshhold: Opt[Binding[Long]] = UnsetParam,
+    name: Opt[Binding[String | Null]] = UnsetParam,
     opaque: Opt[Binding[Boolean]] = UnsetParam,
     prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     pressed: Opt[Binding[Boolean]] = UnsetParam,
@@ -145,6 +146,7 @@ object ToggleButton extends VarsMap {
     ifSet(model, ButtonBase.ops.extension_model(res) := _)
     ifSet(mouseDragMut, Node.ops.extension_mouseDragMut(res) := _)
     ifSet(multiClickThreshhold, ButtonBase.ops.extension_multiClickThreshhold(res) := _)
+    ifSet(name, Node.ops.extension_name(res) := _)
     ifSet(opaque, Component.ops.extension_opaque(res) := _)
     ifSet(prefSize, Node.ops.extension_prefSize(res) := _)
     ifSet(pressed, ButtonBase.ops.extension_pressed(res) := _)
