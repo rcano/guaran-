@@ -3,9 +3,9 @@
 package guarana.swing
 
 import language.implicitConversions
-import java.awt.{Component => _, TextComponent => _, TextField => _, _}
+import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, _}
 import java.awt.event._
-import javax.swing._
+import javax.swing.{Action => _, _}
 import javax.swing.event._
 import guarana.swing.util._
 import scala.jdk.CollectionConverters._
@@ -31,39 +31,42 @@ object Component extends VarsMap {
 
   
 
-  extension ops on (v: Component) {
-    def actionMap: Var.Aux[javax.swing.ActionMap, v.type] = Component.ActionMap.asInstanceOf[Var.Aux[javax.swing.ActionMap, v.type]]
-    def alignmentX: Var.Aux[Float, v.type] = Component.AlignmentX.asInstanceOf[Var.Aux[Float, v.type]]
-    def alignmentY: Var.Aux[Float, v.type] = Component.AlignmentY.asInstanceOf[Var.Aux[Float, v.type]]
-    def autoscrolls: Var.Aux[Boolean, v.type] = Component.Autoscrolls.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def border: Var.Aux[javax.swing.border.Border | Null, v.type] = Component.Border.asInstanceOf[Var.Aux[javax.swing.border.Border | Null, v.type]]
-    def componentPopupMenu: Var.Aux[javax.swing.JPopupMenu | Null, v.type] = Component.ComponentPopupMenu.asInstanceOf[Var.Aux[javax.swing.JPopupMenu | Null, v.type]]
-    def debugGraphicsOptions: Var.Aux[Int, v.type] = Component.DebugGraphicsOptions.asInstanceOf[Var.Aux[Int, v.type]]
-    def doubleBuffered: Var.Aux[Boolean, v.type] = Component.DoubleBuffered.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def inheritsPopupMenu: Var.Aux[Boolean, v.type] = Component.InheritsPopupMenu.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def inputVerifier: Var.Aux[javax.swing.InputVerifier | Null, v.type] = Component.InputVerifier.asInstanceOf[Var.Aux[javax.swing.InputVerifier | Null, v.type]]
-    def opaque: Var.Aux[Boolean, v.type] = Component.Opaque.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def requestFocusEnabled: Var.Aux[Boolean, v.type] = Component.RequestFocusEnabled.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def toolTipText: Var.Aux[String | Null, v.type] = Component.ToolTipText.asInstanceOf[Var.Aux[String | Null, v.type]]
-    def transferHandler: Var.Aux[javax.swing.TransferHandler | Null, v.type] = Component.TransferHandler.asInstanceOf[Var.Aux[javax.swing.TransferHandler | Null, v.type]]
-    def verifyInputWhenFocusTarget: Var.Aux[Boolean, v.type] = Component.VerifyInputWhenFocusTarget.asInstanceOf[Var.Aux[Boolean, v.type]]
+  given ops as Ops.type = Ops
+  object Ops {
+    extension (v: Component) {
+      def actionMap: Var.Aux[javax.swing.ActionMap, v.type] = Component.ActionMap.asInstanceOf[Var.Aux[javax.swing.ActionMap, v.type]]
+      def alignmentX: Var.Aux[Float, v.type] = Component.AlignmentX.asInstanceOf[Var.Aux[Float, v.type]]
+      def alignmentY: Var.Aux[Float, v.type] = Component.AlignmentY.asInstanceOf[Var.Aux[Float, v.type]]
+      def autoscrolls: Var.Aux[Boolean, v.type] = Component.Autoscrolls.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def border: Var.Aux[javax.swing.border.Border | Null, v.type] = Component.Border.asInstanceOf[Var.Aux[javax.swing.border.Border | Null, v.type]]
+      def componentPopupMenu: Var.Aux[javax.swing.JPopupMenu | Null, v.type] = Component.ComponentPopupMenu.asInstanceOf[Var.Aux[javax.swing.JPopupMenu | Null, v.type]]
+      def debugGraphicsOptions: Var.Aux[Int, v.type] = Component.DebugGraphicsOptions.asInstanceOf[Var.Aux[Int, v.type]]
+      def doubleBuffered: Var.Aux[Boolean, v.type] = Component.DoubleBuffered.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def inheritsPopupMenu: Var.Aux[Boolean, v.type] = Component.InheritsPopupMenu.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def inputVerifier: Var.Aux[javax.swing.InputVerifier | Null, v.type] = Component.InputVerifier.asInstanceOf[Var.Aux[javax.swing.InputVerifier | Null, v.type]]
+      def opaque: Var.Aux[Boolean, v.type] = Component.Opaque.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def requestFocusEnabled: Var.Aux[Boolean, v.type] = Component.RequestFocusEnabled.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def toolTipText: Var.Aux[String | Null, v.type] = Component.ToolTipText.asInstanceOf[Var.Aux[String | Null, v.type]]
+      def transferHandler: Var.Aux[javax.swing.TransferHandler | Null, v.type] = Component.TransferHandler.asInstanceOf[Var.Aux[javax.swing.TransferHandler | Null, v.type]]
+      def verifyInputWhenFocusTarget: Var.Aux[Boolean, v.type] = Component.VerifyInputWhenFocusTarget.asInstanceOf[Var.Aux[Boolean, v.type]]
 
-    
+      
 
-    def UI = v.getUI
-    def UIClassID = v.getUIClassID
-    def ancestorListeners = v.getAncestorListeners
-    def inputMap = v.getInputMap
-    def optimizedDrawingEnabled = v.isOptimizedDrawingEnabled
-    def paintingForPrint = v.isPaintingForPrint
-    def paintingTile = v.isPaintingTile
-    def registeredKeyStrokes = v.getRegisteredKeyStrokes
-    def rootPane = v.getRootPane
-    def topLevelAncestor = v.getTopLevelAncestor
-    def vetoableChangeListeners = v.getVetoableChangeListeners
-    def visibleRect = v.getVisibleRect
-    def uiPrefSize: (Double, Double) | Null = ops.extension_UI(v).?(_.getPreferredSize(v)).?(d => (d.getWidth, d.getHeight))
-    def unwrap: javax.swing.JComponent = v
+      def UI = v.getUI
+      def UIClassID = v.getUIClassID
+      def ancestorListeners = v.getAncestorListeners
+      def inputMap = v.getInputMap
+      def optimizedDrawingEnabled = v.isOptimizedDrawingEnabled
+      def paintingForPrint = v.isPaintingForPrint
+      def paintingTile = v.isPaintingTile
+      def registeredKeyStrokes = v.getRegisteredKeyStrokes
+      def rootPane = v.getRootPane
+      def topLevelAncestor = v.getTopLevelAncestor
+      def vetoableChangeListeners = v.getVetoableChangeListeners
+      def visibleRect = v.getVisibleRect
+      def uiPrefSize: (Double, Double) | Null = ops.extension_UI(v).?(_.getPreferredSize(v)).?(d => (d.getWidth, d.getHeight))
+      def unwrap: javax.swing.JComponent = v
+    }
   }
 
   def wrap(v: javax.swing.JComponent) = v.asInstanceOf[Component]

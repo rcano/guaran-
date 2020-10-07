@@ -3,9 +3,9 @@
 package guarana.swing
 
 import language.implicitConversions
-import java.awt.{Component => _, TextComponent => _, TextField => _, _}
+import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, _}
 import java.awt.event._
-import javax.swing._
+import javax.swing.{Action => _, _}
 import javax.swing.event._
 import guarana.swing.util._
 import scala.jdk.CollectionConverters._
@@ -26,23 +26,26 @@ object SplitPane extends VarsMap {
 
   
 
-  extension ops on (v: SplitPane) {
-    def UI: Var.Aux[javax.swing.plaf.SplitPaneUI, v.type] = SplitPane.UI.asInstanceOf[Var.Aux[javax.swing.plaf.SplitPaneUI, v.type]]
-    def componentA: Var.Aux[Component | Null, v.type] = SplitPane.ComponentA.asInstanceOf[Var.Aux[Component | Null, v.type]]
-    def componentB: Var.Aux[Component | Null, v.type] = SplitPane.ComponentB.asInstanceOf[Var.Aux[Component | Null, v.type]]
-    def continuousLayout: Var.Aux[Boolean, v.type] = SplitPane.ContinuousLayout.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def dividerLocation: Var.Aux[Int, v.type] = SplitPane.DividerLocation.asInstanceOf[Var.Aux[Int, v.type]]
-    def dividerSize: Var.Aux[Int, v.type] = SplitPane.DividerSize.asInstanceOf[Var.Aux[Int, v.type]]
-    def horizontal: Var.Aux[Boolean, v.type] = SplitPane.Horizontal.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def lastDividerLocation: Var.Aux[Int, v.type] = SplitPane.LastDividerLocation.asInstanceOf[Var.Aux[Int, v.type]]
-    def oneTouchExpandable: Var.Aux[Boolean, v.type] = SplitPane.OneTouchExpandable.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def resizeWeight: Var.Aux[Double, v.type] = SplitPane.ResizeWeight.asInstanceOf[Var.Aux[Double, v.type]]
+  given ops as Ops.type = Ops
+  object Ops {
+    extension (v: SplitPane) {
+      def UI: Var.Aux[javax.swing.plaf.SplitPaneUI, v.type] = SplitPane.UI.asInstanceOf[Var.Aux[javax.swing.plaf.SplitPaneUI, v.type]]
+      def componentA: Var.Aux[Component | Null, v.type] = SplitPane.ComponentA.asInstanceOf[Var.Aux[Component | Null, v.type]]
+      def componentB: Var.Aux[Component | Null, v.type] = SplitPane.ComponentB.asInstanceOf[Var.Aux[Component | Null, v.type]]
+      def continuousLayout: Var.Aux[Boolean, v.type] = SplitPane.ContinuousLayout.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def dividerLocation: Var.Aux[Int, v.type] = SplitPane.DividerLocation.asInstanceOf[Var.Aux[Int, v.type]]
+      def dividerSize: Var.Aux[Int, v.type] = SplitPane.DividerSize.asInstanceOf[Var.Aux[Int, v.type]]
+      def horizontal: Var.Aux[Boolean, v.type] = SplitPane.Horizontal.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def lastDividerLocation: Var.Aux[Int, v.type] = SplitPane.LastDividerLocation.asInstanceOf[Var.Aux[Int, v.type]]
+      def oneTouchExpandable: Var.Aux[Boolean, v.type] = SplitPane.OneTouchExpandable.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def resizeWeight: Var.Aux[Double, v.type] = SplitPane.ResizeWeight.asInstanceOf[Var.Aux[Double, v.type]]
 
-    
+      
 
-    def maximumDividerLocation: Int = v.getMaximumDividerLocation
-    def minimumDividerLocation: Int = v.getMinimumDividerLocation
-    def unwrap: javax.swing.JSplitPane = v
+      def maximumDividerLocation: Int = v.getMaximumDividerLocation
+      def minimumDividerLocation: Int = v.getMinimumDividerLocation
+      def unwrap: javax.swing.JSplitPane = v
+    }
   }
 
   def wrap(v: javax.swing.JSplitPane) = v.asInstanceOf[SplitPane]

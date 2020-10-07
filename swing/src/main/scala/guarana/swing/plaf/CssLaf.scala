@@ -29,7 +29,7 @@ class CssLaf(val scenegraph: Scenegraph) extends MetalLookAndFeel {
         case _ =>
       }
     }
-    defaults.put(CssLaf, this)
+    defaults.put(CssLaf.UiDefaultsCssLafKey, this)
 
     defaults.keySet.nn.asScala.filter(_.toString endsWith "border") foreach (k => defaults.put(k, CssBorder(scenegraph)))
 
@@ -49,6 +49,7 @@ class CssLaf(val scenegraph: Scenegraph) extends MetalLookAndFeel {
 }
 
 object CssLaf {
+  val UiDefaultsCssLafKey = "CssLafInstance"
   def install(): Scenegraph ?=> Unit = {
     UIManager.setLookAndFeel(CssLaf(summon))
   }
@@ -74,8 +75,8 @@ object CssLaf {
 }
 
 trait CssUi {
-  def scenegraph = UIManager.getDefaults.get(CssLaf).toOption.fold(
-    throw new IllegalStateException("RUnning CssLaf without a Scenegraph?")
+  def scenegraph = UIManager.getDefaults.get(CssLaf.UiDefaultsCssLafKey).toOption.fold(
+    throw new IllegalStateException(s"Running CssLaf without a Scenegraph?")
   )(_.asInstanceOf[CssLaf].scenegraph)
 
   inline protected def withinRegion(c: javax.swing.JComponent)(inline f: (Int, Int, Int, Int) => Unit): Unit = {

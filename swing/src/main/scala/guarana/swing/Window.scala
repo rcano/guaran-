@@ -3,9 +3,9 @@
 package guarana.swing
 
 import language.implicitConversions
-import java.awt.{Component => _, TextComponent => _, TextField => _, _}
+import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, _}
 import java.awt.event._
-import javax.swing._
+import javax.swing.{Action => _, _}
 import javax.swing.event._
 import guarana.swing.util._
 import scala.jdk.CollectionConverters._
@@ -20,16 +20,19 @@ object Window extends VarsMap {
 
   
 
-  extension ops on (v: Window) {
-    def contentPane: Var.Aux[java.awt.Container, v.type] = Window.ContentPane.asInstanceOf[Var.Aux[java.awt.Container, v.type]]
-    def glassPane: Var.Aux[java.awt.Component | Null, v.type] = Window.GlassPane.asInstanceOf[Var.Aux[java.awt.Component | Null, v.type]]
-    def layeredPane: Var.Aux[javax.swing.JLayeredPane | Null, v.type] = Window.LayeredPane.asInstanceOf[Var.Aux[javax.swing.JLayeredPane | Null, v.type]]
-    def transferHandler: Var.Aux[javax.swing.TransferHandler | Null, v.type] = Window.TransferHandler.asInstanceOf[Var.Aux[javax.swing.TransferHandler | Null, v.type]]
+  given ops as Ops.type = Ops
+  object Ops {
+    extension (v: Window) {
+      def contentPane: Var.Aux[java.awt.Container, v.type] = Window.ContentPane.asInstanceOf[Var.Aux[java.awt.Container, v.type]]
+      def glassPane: Var.Aux[java.awt.Component | Null, v.type] = Window.GlassPane.asInstanceOf[Var.Aux[java.awt.Component | Null, v.type]]
+      def layeredPane: Var.Aux[javax.swing.JLayeredPane | Null, v.type] = Window.LayeredPane.asInstanceOf[Var.Aux[javax.swing.JLayeredPane | Null, v.type]]
+      def transferHandler: Var.Aux[javax.swing.TransferHandler | Null, v.type] = Window.TransferHandler.asInstanceOf[Var.Aux[javax.swing.TransferHandler | Null, v.type]]
 
-    
+      
 
-    def rootPane: JRootPane = v.getRootPane.nn
-    def unwrap: javax.swing.JWindow = v
+      def rootPane: JRootPane = v.getRootPane.nn
+      def unwrap: javax.swing.JWindow = v
+    }
   }
 
   def wrap(v: javax.swing.JWindow) = v.asInstanceOf[Window]
@@ -40,14 +43,14 @@ object Window extends VarsMap {
     
     
   }
-  def uninitialized(gc: GraphicsConfiguration | Null = null): Window = {
-    val res = javax.swing.JWindow(gc).asInstanceOf[Window]
+  def uninitialized(parent: WindowBase | Null = null, gc: GraphicsConfiguration | Null = null): Window = {
+    val res = javax.swing.JWindow(parent.?(_.unwrap), gc).asInstanceOf[Window]
     
     res
   }
   
   def apply(
-    gc: GraphicsConfiguration | Null = null,
+    parent: WindowBase | Null = null, gc: GraphicsConfiguration | Null = null,
     alwaysOnTop: Opt[Binding[Boolean]] = UnsetParam,
     autoRequestFocus: Opt[Binding[Boolean]] = UnsetParam,
     background: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
@@ -78,7 +81,7 @@ object Window extends VarsMap {
     transferHandler: Opt[Binding[javax.swing.TransferHandler | Null]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): Scenegraph ?=> VarContextAction[Window] = {
-    val res = uninitialized()
+    val res = uninitialized(parent, gc)
     Window.init(res)
     ifSet(alwaysOnTop, WindowBase.ops.extension_alwaysOnTop(res) := _)
     ifSet(autoRequestFocus, WindowBase.ops.extension_autoRequestFocus(res) := _)

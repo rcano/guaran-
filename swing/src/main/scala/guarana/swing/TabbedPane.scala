@@ -3,9 +3,9 @@
 package guarana.swing
 
 import language.implicitConversions
-import java.awt.{Component => _, TextComponent => _, TextField => _, _}
+import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, _}
 import java.awt.event._
-import javax.swing._
+import javax.swing.{Action => _, _}
 import javax.swing.event._
 import guarana.swing.util._
 import scala.jdk.CollectionConverters._
@@ -23,21 +23,24 @@ object TabbedPane extends VarsMap {
 
   
 
-  extension ops on (v: TabbedPane) {
-    def UI: Var.Aux[javax.swing.plaf.TabbedPaneUI, v.type] = TabbedPane.UI.asInstanceOf[Var.Aux[javax.swing.plaf.TabbedPaneUI, v.type]]
-    def model: Var.Aux[javax.swing.SingleSelectionModel, v.type] = TabbedPane.Model.asInstanceOf[Var.Aux[javax.swing.SingleSelectionModel, v.type]]
-    def selectedComponent: Var.Aux[Option[Node], v.type] = TabbedPane.SelectedComponent.asInstanceOf[Var.Aux[Option[Node], v.type]]
-    def selectedIndex: Var.Aux[Int, v.type] = TabbedPane.SelectedIndex.asInstanceOf[Var.Aux[Int, v.type]]
-    def tabLayoutPolicy: Var.Aux[Int, v.type] = TabbedPane.TabLayoutPolicy.asInstanceOf[Var.Aux[Int, v.type]]
-    def tabPlacement: Var.Aux[Int, v.type] = TabbedPane.TabPlacement.asInstanceOf[Var.Aux[Int, v.type]]
-    def tabs: Var.Aux[ObsBuffer[Tab], v.type] = TabbedPane.Tabs.asInstanceOf[Var.Aux[ObsBuffer[Tab], v.type]]
+  given ops as Ops.type = Ops
+  object Ops {
+    extension (v: TabbedPane) {
+      def UI: Var.Aux[javax.swing.plaf.TabbedPaneUI, v.type] = TabbedPane.UI.asInstanceOf[Var.Aux[javax.swing.plaf.TabbedPaneUI, v.type]]
+      def model: Var.Aux[javax.swing.SingleSelectionModel, v.type] = TabbedPane.Model.asInstanceOf[Var.Aux[javax.swing.SingleSelectionModel, v.type]]
+      def selectedComponent: Var.Aux[Option[Node], v.type] = TabbedPane.SelectedComponent.asInstanceOf[Var.Aux[Option[Node], v.type]]
+      def selectedIndex: Var.Aux[Int, v.type] = TabbedPane.SelectedIndex.asInstanceOf[Var.Aux[Int, v.type]]
+      def tabLayoutPolicy: Var.Aux[Int, v.type] = TabbedPane.TabLayoutPolicy.asInstanceOf[Var.Aux[Int, v.type]]
+      def tabPlacement: Var.Aux[Int, v.type] = TabbedPane.TabPlacement.asInstanceOf[Var.Aux[Int, v.type]]
+      def tabs: Var.Aux[ObsBuffer[Tab], v.type] = TabbedPane.Tabs.asInstanceOf[Var.Aux[ObsBuffer[Tab], v.type]]
 
-    
+      
 
-    def changeListeners: Array[javax.swing.event.ChangeListener] = v.getChangeListeners.asInstanceOf
-    def tabCount: Int = v.getTabCount
-    def tabRunCount: Int = v.getTabRunCount
-    def unwrap: javax.swing.JTabbedPane = v
+      def changeListeners: Array[javax.swing.event.ChangeListener] = v.getChangeListeners.asInstanceOf
+      def tabCount: Int = v.getTabCount
+      def tabRunCount: Int = v.getTabRunCount
+      def unwrap: javax.swing.JTabbedPane = v
+    }
   }
 
   def wrap(v: javax.swing.JTabbedPane) = v.asInstanceOf[TabbedPane]
@@ -45,17 +48,38 @@ object TabbedPane extends VarsMap {
   def init(v: TabbedPane): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     Component.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
+    object LocatedTab {
+      def unapply(t: Any)(using VarContext): Option[(Tab, Int)] = t match {
+        case t: Tab =>  v.tabs().indexOf(t) match {
+          case -1 => None
+          case i => Some(t -> i)
+        }
+        case _ => None
+      }
+    }
+    val tabReactions = EventIterator.foreach {
+      //react to updates to the vars of the Tabs
+      case Tab.Title.generic(LocatedTab(t, at), oldv, newv) => v.setTitleAt(at, newv)
+      case Tab.Icon.generic(LocatedTab(t, at), oldv, newv) => v.setIconAt(at, newv)
+      case Tab.Content.generic(LocatedTab(t, at), oldv, newv) => v.setComponentAt(at, newv.unwrap)
+      case Tab.Tip.generic(LocatedTab(t, at), oldv, newv) => v.setToolTipTextAt(at, newv)
+      case Tab.Enabled.generic(LocatedTab(t, at), oldv, newv) => v.setEnabledAt(at, newv)
+      case Tab.TabNode.generic(LocatedTab(t, at), oldv, newv) => v.setTabComponentAt(at, newv.?(_.unwrap))
+      case _ => 
+    }
     //helper methods to add tabs and react to their changes
     def addTab(t: Tab): Unit = sc.update {
       v.addTab(t.title(), t.icon(), t.content().unwrap, t.tip())
       v.setEnabledAt(v.getTabCount - 1, t.enabled())
       v.setTabComponentAt(v.getTabCount - 1, t.tabNode().?(_.unwrap))
+      t.varUpdates := tabReactions
     }
     def removeTab(at: Int): Unit = v.removeTabAt(at)
     def insertTab(t: Tab, at: Int) = sc.update { 
       v.insertTab(t.title(), t.icon(), t.content().unwrap, t.tip(), at)
       v.setEnabledAt(at, t.enabled())
       v.setTabComponentAt(at, t.tabNode().?(_.unwrap))
+      t.varUpdates := tabReactions
     }
     def replaceTab(oldTab: Tab, withTab: Tab) = sc.update {
       val at = v.indexOfTabComponent(oldTab.content().?(_.unwrap))
@@ -65,6 +89,7 @@ object TabbedPane extends VarsMap {
       v.setToolTipTextAt(at, withTab.tip())
       v.setEnabledAt(at, withTab.enabled())
       v.setTabComponentAt(at, withTab.tabNode().?(_.unwrap))
+      withTab.varUpdates := tabReactions
     }
     
     val bufferListener: PartialFunction[ObsBuffer.Event[Tab], Unit] = {
@@ -75,15 +100,6 @@ object TabbedPane extends VarsMap {
       case ObsBuffer.Event.Cleared => v.removeAll()
     }
     
-    object LocatedTab {
-      def unapply(t: Any)(using VarContext): Option[(Tab, Int)] = t match {
-        case t: Tab =>  v.tabs().indexOf(t) match {
-          case -1 => None
-          case i => Some(t -> i)
-        }
-        case _ => None
-      }
-    }
     
     sc.update {
       sc.varUpdates := EventIterator.foreach {
@@ -94,15 +110,6 @@ object TabbedPane extends VarsMap {
           //replace all tabs
           v.removeAll()
           newv foreach addTab
-    
-        //react to updates to the vars of the Tabs
-        case Tab.Title.generic(LocatedTab(t, at), oldv, newv) => v.setTitleAt(at, newv)
-        case Tab.Icon.generic(LocatedTab(t, at), oldv, newv) => v.setIconAt(at, newv)
-        case Tab.Content.generic(LocatedTab(t, at), oldv, newv) => v.setComponentAt(at, newv.unwrap)
-        case Tab.Tip.generic(LocatedTab(t, at), oldv, newv) => v.setToolTipTextAt(at, newv)
-        case Tab.Enabled.generic(LocatedTab(t, at), oldv, newv) => v.setEnabledAt(at, newv)
-        case Tab.TabNode.generic(LocatedTab(t, at), oldv, newv) => v.setTabComponentAt(at, newv.?(_.unwrap))
-    
         case _ => 
       }
     

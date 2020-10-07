@@ -11,41 +11,42 @@ import guarana.swing.util._
 import scala.jdk.CollectionConverters._
 import scala.util.chaining._
 
-opaque type CheckBox <: ToggleButton = javax.swing.JCheckBox & ToggleButton
-object CheckBox extends VarsMap {
-  val BorderPaintedFlat: SwingVar.Aux[CheckBox, Boolean] = SwingVar[CheckBox, Boolean]("borderPaintedFlat", _.isBorderPaintedFlat, _.setBorderPaintedFlat(_))
+opaque type CheckBoxMenuItem <: MenuItem = javax.swing.JCheckBoxMenuItem & MenuItem
+object CheckBoxMenuItem extends VarsMap {
+  val State: SwingVar.Aux[CheckBoxMenuItem, Boolean] = SwingVar[CheckBoxMenuItem, Boolean]("state", _.getState, _.setState(_))
 
   
 
   given ops as Ops.type = Ops
   object Ops {
-    extension (v: CheckBox) {
-      def borderPaintedFlat: Var.Aux[Boolean, v.type] = CheckBox.BorderPaintedFlat.asInstanceOf[Var.Aux[Boolean, v.type]]
+    extension (v: CheckBoxMenuItem) {
+      def state: Var.Aux[Boolean, v.type] = CheckBoxMenuItem.State.asInstanceOf[Var.Aux[Boolean, v.type]]
 
       
 
       
-      def unwrap: javax.swing.JCheckBox = v
+      def unwrap: javax.swing.JCheckBoxMenuItem = v
     }
   }
 
-  def wrap(v: javax.swing.JCheckBox) = v.asInstanceOf[CheckBox]
+  def wrap(v: javax.swing.JCheckBoxMenuItem) = v.asInstanceOf[CheckBoxMenuItem]
 
-  def init(v: CheckBox): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
-    ToggleButton.init(v)
+  def init(v: CheckBoxMenuItem): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
+    MenuItem.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
     
     
   }
-  def uninitialized(): CheckBox = {
-    val res = javax.swing.JCheckBox().asInstanceOf[CheckBox]
+  def uninitialized(): CheckBoxMenuItem = {
+    val res = javax.swing.JCheckBoxMenuItem().asInstanceOf[CheckBoxMenuItem]
     
     res
   }
   
   def apply(
     
-    UI: Opt[Binding[javax.swing.plaf.ButtonUI]] = UnsetParam,
+    UI: Opt[Binding[javax.swing.plaf.MenuItemUI | Null]] = UnsetParam,
+    accelerator: Opt[Binding[javax.swing.KeyStroke | Null]] = UnsetParam,
     action: Opt[Binding[javax.swing.Action | Null]] = UnsetParam,
     actionCommand: Opt[Binding[java.lang.String | Null]] = UnsetParam,
     actionMap: Opt[Binding[javax.swing.ActionMap]] = UnsetParam,
@@ -56,7 +57,6 @@ object CheckBox extends VarsMap {
     background: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     border: Opt[Binding[javax.swing.border.Border | Null]] = UnsetParam,
     borderPainted: Opt[Binding[Boolean]] = UnsetParam,
-    borderPaintedFlat: Opt[Binding[Boolean]] = UnsetParam,
     bounds: Opt[Binding[Bounds]] = UnsetParam,
     componentOrientation: Opt[Binding[java.awt.ComponentOrientation]] = UnsetParam,
     componentPopupMenu: Opt[Binding[javax.swing.JPopupMenu | Null]] = UnsetParam,
@@ -99,6 +99,7 @@ object CheckBox extends VarsMap {
     rolloverSelectedIcon: Opt[Binding[javax.swing.Icon | Null]] = UnsetParam,
     selected: Opt[Binding[Boolean]] = UnsetParam,
     selectedIcon: Opt[Binding[javax.swing.Icon | Null]] = UnsetParam,
+    state: Opt[Binding[Boolean]] = UnsetParam,
     text: Opt[Binding[java.lang.String | Null]] = UnsetParam,
     toolTipText: Opt[Binding[String | Null]] = UnsetParam,
     transferHandler: Opt[Binding[javax.swing.TransferHandler | Null]] = UnsetParam,
@@ -106,10 +107,11 @@ object CheckBox extends VarsMap {
     verticalAlignment: Opt[Binding[Int]] = UnsetParam,
     verticalTextPosition: Opt[Binding[Int]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Scenegraph ?=> VarContextAction[CheckBox] = {
+  ): Scenegraph ?=> VarContextAction[CheckBoxMenuItem] = {
     val res = uninitialized()
-    CheckBox.init(res)
-    ifSet(UI, ButtonBase.ops.extension_UI(res) := _)
+    CheckBoxMenuItem.init(res)
+    ifSet(UI, MenuItem.ops.extension_UI(res) := _)
+    ifSet(accelerator, MenuItem.ops.extension_accelerator(res) := _)
     ifSet(action, ButtonBase.ops.extension_action(res) := _)
     ifSet(actionCommand, ButtonBase.ops.extension_actionCommand(res) := _)
     ifSet(actionMap, Component.ops.extension_actionMap(res) := _)
@@ -120,7 +122,6 @@ object CheckBox extends VarsMap {
     ifSet(background, Node.ops.extension_background(res) := _)
     ifSet(border, Component.ops.extension_border(res) := _)
     ifSet(borderPainted, ButtonBase.ops.extension_borderPainted(res) := _)
-    ifSet(borderPaintedFlat, CheckBox.ops.extension_borderPaintedFlat(res) := _)
     ifSet(bounds, Node.ops.extension_bounds(res) := _)
     ifSet(componentOrientation, Node.ops.extension_componentOrientation(res) := _)
     ifSet(componentPopupMenu, Component.ops.extension_componentPopupMenu(res) := _)
@@ -163,6 +164,7 @@ object CheckBox extends VarsMap {
     ifSet(rolloverSelectedIcon, ButtonBase.ops.extension_rolloverSelectedIcon(res) := _)
     ifSet(selected, ButtonBase.ops.extension_selected(res) := _)
     ifSet(selectedIcon, ButtonBase.ops.extension_selectedIcon(res) := _)
+    ifSet(state, CheckBoxMenuItem.ops.extension_state(res) := _)
     ifSet(text, ButtonBase.ops.extension_text(res) := _)
     ifSet(toolTipText, Component.ops.extension_toolTipText(res) := _)
     ifSet(transferHandler, Component.ops.extension_transferHandler(res) := _)
@@ -172,5 +174,5 @@ object CheckBox extends VarsMap {
     ifSet(visible, Node.ops.extension_visible(res) := _)
     res
   }
-  def apply(a: Action): Scenegraph ?=> CheckBox = wrap(javax.swing.JCheckBox(a.unwrap)).tap(init)
+  def apply(a: Action): Scenegraph ?=> CheckBoxMenuItem = wrap(javax.swing.JCheckBoxMenuItem(a.unwrap)).tap(init)
 }

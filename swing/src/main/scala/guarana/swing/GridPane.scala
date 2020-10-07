@@ -3,9 +3,9 @@
 package guarana.swing
 
 import language.implicitConversions
-import java.awt.{Component => _, TextComponent => _, TextField => _, _}
+import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, _}
 import java.awt.event._
-import javax.swing._
+import javax.swing.{Action => _, _}
 import javax.swing.event._
 import guarana.swing.util._
 import scala.jdk.CollectionConverters._
@@ -21,17 +21,20 @@ object GridPane extends VarsMap {
 
   
 
-  extension ops on (v: GridPane) {
-    def autoCreateContainerGaps: Var.Aux[Boolean, v.type] = GridPane.AutoCreateContainerGaps.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def hgap: Var.Aux[Double, v.type] = GridPane.Hgap.asInstanceOf[Var.Aux[Double, v.type]]
-    def layoutVar: Var.Aux[Unit, v.type] = GridPane.LayoutVar.asInstanceOf[Var.Aux[Unit, v.type]]
-    def rows: Var.Aux[Seq[Seq[Node]], v.type] = GridPane.Rows.asInstanceOf[Var.Aux[Seq[Seq[Node]], v.type]]
-    def vgap: Var.Aux[Double, v.type] = GridPane.Vgap.asInstanceOf[Var.Aux[Double, v.type]]
+  given ops as Ops.type = Ops
+  object Ops {
+    extension (v: GridPane) {
+      def autoCreateContainerGaps: Var.Aux[Boolean, v.type] = GridPane.AutoCreateContainerGaps.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def hgap: Var.Aux[Double, v.type] = GridPane.Hgap.asInstanceOf[Var.Aux[Double, v.type]]
+      def layoutVar: Var.Aux[Unit, v.type] = GridPane.LayoutVar.asInstanceOf[Var.Aux[Unit, v.type]]
+      def rows: Var.Aux[Seq[Seq[Node]], v.type] = GridPane.Rows.asInstanceOf[Var.Aux[Seq[Seq[Node]], v.type]]
+      def vgap: Var.Aux[Double, v.type] = GridPane.Vgap.asInstanceOf[Var.Aux[Double, v.type]]
 
-    
+      
 
-    
-    def unwrap: javax.swing.JPanel = v
+      
+      def unwrap: javax.swing.JPanel = v
+    }
   }
 
   def wrap(v: javax.swing.JPanel) = v.asInstanceOf[GridPane]

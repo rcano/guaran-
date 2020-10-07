@@ -3,9 +3,9 @@
 package guarana.swing
 
 import language.implicitConversions
-import java.awt.{Component => _, TextComponent => _, TextField => _, _}
+import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, _}
 import java.awt.event._
-import javax.swing._
+import javax.swing.{Action => _, _}
 import javax.swing.event._
 import guarana.swing.util._
 import scala.jdk.CollectionConverters._
@@ -32,36 +32,39 @@ object TextComponent extends VarsMap {
 
   
 
-  extension ops on (v: TextComponent) {
-    def UI: Var.Aux[javax.swing.plaf.TextUI, v.type] = TextComponent.UI.asInstanceOf[Var.Aux[javax.swing.plaf.TextUI, v.type]]
-    def caret: Var.Aux[javax.swing.text.Caret, v.type] = TextComponent.Caret.asInstanceOf[Var.Aux[javax.swing.text.Caret, v.type]]
-    def caretColor: Var.Aux[java.awt.Color | Null, v.type] = TextComponent.CaretColor.asInstanceOf[Var.Aux[java.awt.Color | Null, v.type]]
-    def disabledTextColor: Var.Aux[java.awt.Color | Null, v.type] = TextComponent.DisabledTextColor.asInstanceOf[Var.Aux[java.awt.Color | Null, v.type]]
-    def document: Var.Aux[javax.swing.text.Document, v.type] = TextComponent.Document.asInstanceOf[Var.Aux[javax.swing.text.Document, v.type]]
-    def dragEnabled: Var.Aux[Boolean, v.type] = TextComponent.DragEnabled.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def dropMode: Var.Aux[javax.swing.DropMode | Null, v.type] = TextComponent.DropMode.asInstanceOf[Var.Aux[javax.swing.DropMode | Null, v.type]]
-    def editable: Var.Aux[Boolean, v.type] = TextComponent.Editable.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def focusAccelerator: Var.Aux[Char, v.type] = TextComponent.FocusAccelerator.asInstanceOf[Var.Aux[Char, v.type]]
-    def highlighter: Var.Aux[javax.swing.text.Highlighter | Null, v.type] = TextComponent.Highlighter.asInstanceOf[Var.Aux[javax.swing.text.Highlighter | Null, v.type]]
-    def keymap: Var.Aux[javax.swing.text.Keymap | Null, v.type] = TextComponent.Keymap.asInstanceOf[Var.Aux[javax.swing.text.Keymap | Null, v.type]]
-    def margin: Var.Aux[java.awt.Insets | Null, v.type] = TextComponent.Margin.asInstanceOf[Var.Aux[java.awt.Insets | Null, v.type]]
-    def navigationFilter: Var.Aux[javax.swing.text.NavigationFilter | Null, v.type] = TextComponent.NavigationFilter.asInstanceOf[Var.Aux[javax.swing.text.NavigationFilter | Null, v.type]]
-    def selectedTextColor: Var.Aux[java.awt.Color | Null, v.type] = TextComponent.SelectedTextColor.asInstanceOf[Var.Aux[java.awt.Color | Null, v.type]]
-    def selectionColor: Var.Aux[java.awt.Color | Null, v.type] = TextComponent.SelectionColor.asInstanceOf[Var.Aux[java.awt.Color | Null, v.type]]
+  given ops as Ops.type = Ops
+  object Ops {
+    extension (v: TextComponent) {
+      def UI: Var.Aux[javax.swing.plaf.TextUI, v.type] = TextComponent.UI.asInstanceOf[Var.Aux[javax.swing.plaf.TextUI, v.type]]
+      def caret: Var.Aux[javax.swing.text.Caret, v.type] = TextComponent.Caret.asInstanceOf[Var.Aux[javax.swing.text.Caret, v.type]]
+      def caretColor: Var.Aux[java.awt.Color | Null, v.type] = TextComponent.CaretColor.asInstanceOf[Var.Aux[java.awt.Color | Null, v.type]]
+      def disabledTextColor: Var.Aux[java.awt.Color | Null, v.type] = TextComponent.DisabledTextColor.asInstanceOf[Var.Aux[java.awt.Color | Null, v.type]]
+      def document: Var.Aux[javax.swing.text.Document, v.type] = TextComponent.Document.asInstanceOf[Var.Aux[javax.swing.text.Document, v.type]]
+      def dragEnabled: Var.Aux[Boolean, v.type] = TextComponent.DragEnabled.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def dropMode: Var.Aux[javax.swing.DropMode | Null, v.type] = TextComponent.DropMode.asInstanceOf[Var.Aux[javax.swing.DropMode | Null, v.type]]
+      def editable: Var.Aux[Boolean, v.type] = TextComponent.Editable.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def focusAccelerator: Var.Aux[Char, v.type] = TextComponent.FocusAccelerator.asInstanceOf[Var.Aux[Char, v.type]]
+      def highlighter: Var.Aux[javax.swing.text.Highlighter | Null, v.type] = TextComponent.Highlighter.asInstanceOf[Var.Aux[javax.swing.text.Highlighter | Null, v.type]]
+      def keymap: Var.Aux[javax.swing.text.Keymap | Null, v.type] = TextComponent.Keymap.asInstanceOf[Var.Aux[javax.swing.text.Keymap | Null, v.type]]
+      def margin: Var.Aux[java.awt.Insets | Null, v.type] = TextComponent.Margin.asInstanceOf[Var.Aux[java.awt.Insets | Null, v.type]]
+      def navigationFilter: Var.Aux[javax.swing.text.NavigationFilter | Null, v.type] = TextComponent.NavigationFilter.asInstanceOf[Var.Aux[javax.swing.text.NavigationFilter | Null, v.type]]
+      def selectedTextColor: Var.Aux[java.awt.Color | Null, v.type] = TextComponent.SelectedTextColor.asInstanceOf[Var.Aux[java.awt.Color | Null, v.type]]
+      def selectionColor: Var.Aux[java.awt.Color | Null, v.type] = TextComponent.SelectionColor.asInstanceOf[Var.Aux[java.awt.Color | Null, v.type]]
 
-    
+      
 
-    def actions = v.getActions
-    def caretListeners = v.getCaretListeners
-    def dropLocation = v.getDropLocation
-    def preferredScrollableViewportSize = v.getPreferredScrollableViewportSize
-    def scrollableTracksViewportHeight = v.getScrollableTracksViewportHeight
-    def scrollableTracksViewportWidth = v.getScrollableTracksViewportWidth
-    def selectedText = v.getSelectedText
-    def text = v.getText.nn
-    def text_=(s: String) = v.setText(s)
-    def currentText: ObsVal.Aux[String, v.type] = TextComponent.CurrentText.asInstanceOf[ObsVal.Aux[String, v.type]]
-    def unwrap: javax.swing.text.JTextComponent = v
+      def actions = v.getActions
+      def caretListeners = v.getCaretListeners
+      def dropLocation = v.getDropLocation
+      def preferredScrollableViewportSize = v.getPreferredScrollableViewportSize
+      def scrollableTracksViewportHeight = v.getScrollableTracksViewportHeight
+      def scrollableTracksViewportWidth = v.getScrollableTracksViewportWidth
+      def selectedText = v.getSelectedText
+      def text = v.getText.nn
+      def text_=(s: String) = v.setText(s)
+      def currentText: ObsVal.Aux[String, v.type] = TextComponent.CurrentText.asInstanceOf[ObsVal.Aux[String, v.type]]
+      def unwrap: javax.swing.text.JTextComponent = v
+    }
   }
 
   def wrap(v: javax.swing.text.JTextComponent) = v.asInstanceOf[TextComponent]

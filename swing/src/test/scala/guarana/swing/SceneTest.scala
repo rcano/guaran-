@@ -45,6 +45,13 @@ import util.UnsetParam
   }
 }
 
+@main def FormTestReload: Unit = {
+  val out = new java.io.PrintStream("target/log.txt")
+  System.setErr(out)
+  System.setOut(out)
+  DevAppReloader.launch(Array(java.nio.file.Paths.get("target/scala-0.28/classes").nn, java.nio.file.Paths.get("target/scala-0.28/test-classes").nn), "guarana.swing.*".r, "guarana.swing.FormTest", Array())
+}
+
 @main def FormTest: Unit = {
   // val orig = System.getProperties().nn
   // new java.util.Properties() {
@@ -117,7 +124,6 @@ import util.UnsetParam
   // plaf.CssSynthLaf.install()
 
   scenegraph.update {
-
     plaf.CssLaf.install()
 
     val userTf = TextField(columns = 5)
@@ -208,6 +214,7 @@ import util.UnsetParam
       visible = true,
       defaultCloseOperation = 3, //exit on close
       root = TabbedPane(tabs = tabs)
+      // root = tab1Content
     ).pack()
   }
 }

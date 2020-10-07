@@ -3,9 +3,9 @@
 package guarana.swing
 
 import language.implicitConversions
-import java.awt.{Component => _, TextComponent => _, TextField => _, _}
+import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, _}
 import java.awt.event._
-import javax.swing._
+import javax.swing.{Action => _, _}
 import javax.swing.event._
 import guarana.swing.util._
 import scala.jdk.CollectionConverters._
@@ -51,11 +51,11 @@ object Node extends VarsMap {
       def name: Var.Aux[String | Null, v.type] = Node.Name.asInstanceOf[Var.Aux[String | Null, v.type]]
       def prefSize: Var.Aux[(Double, Double) | Null, v.type] = Node.PrefSize.asInstanceOf[Var.Aux[(Double, Double) | Null, v.type]]
       def visible: Var.Aux[Boolean, v.type] = Node.Visible.asInstanceOf[Var.Aux[Boolean, v.type]]
-  
+
       def focusEvents: Emitter.Aux[(FocusEvent, Boolean), v.type] = Node.FocusEvents.forInstance(v)
       def keyEvents: Emitter.Aux[guarana.swing.KeyEvent, v.type] = Node.KeyEvents.forInstance(v)
       def mouseEvents: Emitter.Aux[guarana.swing.MouseEvent, v.type] = Node.MouseEvents.forInstance(v)
-  
+
       def focused = Node.FocusedMut.asObsValIn(v)
       def mouseLocation = Node.MouseLocationMut.asObsValIn(v)
       def mouseDrag = Node.MouseDragMut.asObsValIn(v)

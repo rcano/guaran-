@@ -20,7 +20,7 @@ case class Parallel private[animation](steps: IndexedSeq[Script]) extends Script
 case class Fork private[animation](script: Script) extends Script
 
 object Script {
-  extension on (s: Script) {
+  extension (s: Script) {
     def &(s2: Script): Parallel = s match {
       case Parallel(steps) => Parallel(steps :+ s2)
       case _ => Parallel(IndexedSeq(s, s2))

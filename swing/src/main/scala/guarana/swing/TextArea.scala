@@ -3,9 +3,9 @@
 package guarana.swing
 
 import language.implicitConversions
-import java.awt.{Component => _, TextComponent => _, TextField => _, _}
+import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, _}
 import java.awt.event._
-import javax.swing._
+import javax.swing.{Action => _, _}
 import javax.swing.event._
 import guarana.swing.util._
 import scala.jdk.CollectionConverters._
@@ -21,17 +21,20 @@ object TextArea extends VarsMap {
 
   
 
-  extension ops on (v: TextArea) {
-    def columns: Var.Aux[Int, v.type] = TextArea.Columns.asInstanceOf[Var.Aux[Int, v.type]]
-    def lineWrap: Var.Aux[Boolean, v.type] = TextArea.LineWrap.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def rows: Var.Aux[Int, v.type] = TextArea.Rows.asInstanceOf[Var.Aux[Int, v.type]]
-    def tabSize: Var.Aux[Int, v.type] = TextArea.TabSize.asInstanceOf[Var.Aux[Int, v.type]]
-    def wrapStyleWord: Var.Aux[Boolean, v.type] = TextArea.WrapStyleWord.asInstanceOf[Var.Aux[Boolean, v.type]]
+  given ops as Ops.type = Ops
+  object Ops {
+    extension (v: TextArea) {
+      def columns: Var.Aux[Int, v.type] = TextArea.Columns.asInstanceOf[Var.Aux[Int, v.type]]
+      def lineWrap: Var.Aux[Boolean, v.type] = TextArea.LineWrap.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def rows: Var.Aux[Int, v.type] = TextArea.Rows.asInstanceOf[Var.Aux[Int, v.type]]
+      def tabSize: Var.Aux[Int, v.type] = TextArea.TabSize.asInstanceOf[Var.Aux[Int, v.type]]
+      def wrapStyleWord: Var.Aux[Boolean, v.type] = TextArea.WrapStyleWord.asInstanceOf[Var.Aux[Boolean, v.type]]
 
-    
+      
 
-    def lineCount = v.getLineCount
-    def unwrap: javax.swing.JTextArea = v
+      def lineCount = v.getLineCount
+      def unwrap: javax.swing.JTextArea = v
+    }
   }
 
   def wrap(v: javax.swing.JTextArea) = v.asInstanceOf[TextArea]

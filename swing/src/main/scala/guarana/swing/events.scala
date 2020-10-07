@@ -20,7 +20,7 @@ object MouseButton {
 }
 
 case class MousePosition(relativeX: Int, relativeY: Int, absoluteX: Int, absoluteY: Int)
-case class MouseDrag(dragStart: MousePosition, dragStop: MousePosition, isReleased: Boolean, awtEvent: java.awt.event.MouseEvent) {
+case class MouseDrag(dragStart: MousePosition, dragStop: MousePosition, isReleased: Boolean, awtEvent: java.awt.event.MouseEvent, dragTriggerEvent: java.awt.event.MouseEvent) {
   def isButtonPressed(btn: MouseButton.Primary.type | MouseButton.Middle.type | MouseButton.Secondary.type): Boolean = btn match {
     case MouseButton.Primary => (awtEvent.getModifiersEx & java.awt.event.InputEvent.BUTTON1_DOWN_MASK) > 0
     case MouseButton.Middle => (awtEvent.getModifiersEx & java.awt.event.InputEvent.BUTTON2_DOWN_MASK) > 0

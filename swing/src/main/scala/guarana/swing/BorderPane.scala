@@ -3,9 +3,9 @@
 package guarana.swing
 
 import language.implicitConversions
-import java.awt.{Component => _, TextComponent => _, TextField => _, _}
+import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, _}
 import java.awt.event._
-import javax.swing._
+import javax.swing.{Action => _, _}
 import javax.swing.event._
 import guarana.swing.util._
 import scala.jdk.CollectionConverters._
@@ -23,19 +23,22 @@ object BorderPane extends VarsMap {
 
   
 
-  extension ops on (v: BorderPane) {
-    def bottom: Var.Aux[Node | Null, v.type] = BorderPane.Bottom.asInstanceOf[Var.Aux[Node | Null, v.type]]
-    def center: Var.Aux[Node | Null, v.type] = BorderPane.Center.asInstanceOf[Var.Aux[Node | Null, v.type]]
-    def hgap: Var.Aux[Double, v.type] = BorderPane.Hgap.asInstanceOf[Var.Aux[Double, v.type]]
-    def left: Var.Aux[Node | Null, v.type] = BorderPane.Left.asInstanceOf[Var.Aux[Node | Null, v.type]]
-    def right: Var.Aux[Node | Null, v.type] = BorderPane.Right.asInstanceOf[Var.Aux[Node | Null, v.type]]
-    def top: Var.Aux[Node | Null, v.type] = BorderPane.Top.asInstanceOf[Var.Aux[Node | Null, v.type]]
-    def vgap: Var.Aux[Double, v.type] = BorderPane.Vgap.asInstanceOf[Var.Aux[Double, v.type]]
+  given ops as Ops.type = Ops
+  object Ops {
+    extension (v: BorderPane) {
+      def bottom: Var.Aux[Node | Null, v.type] = BorderPane.Bottom.asInstanceOf[Var.Aux[Node | Null, v.type]]
+      def center: Var.Aux[Node | Null, v.type] = BorderPane.Center.asInstanceOf[Var.Aux[Node | Null, v.type]]
+      def hgap: Var.Aux[Double, v.type] = BorderPane.Hgap.asInstanceOf[Var.Aux[Double, v.type]]
+      def left: Var.Aux[Node | Null, v.type] = BorderPane.Left.asInstanceOf[Var.Aux[Node | Null, v.type]]
+      def right: Var.Aux[Node | Null, v.type] = BorderPane.Right.asInstanceOf[Var.Aux[Node | Null, v.type]]
+      def top: Var.Aux[Node | Null, v.type] = BorderPane.Top.asInstanceOf[Var.Aux[Node | Null, v.type]]
+      def vgap: Var.Aux[Double, v.type] = BorderPane.Vgap.asInstanceOf[Var.Aux[Double, v.type]]
 
-    
+      
 
-    
-    def unwrap: javax.swing.JPanel = v
+      
+      def unwrap: javax.swing.JPanel = v
+    }
   }
 
   def wrap(v: javax.swing.JPanel) = v.asInstanceOf[BorderPane]

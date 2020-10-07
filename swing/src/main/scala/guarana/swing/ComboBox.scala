@@ -3,9 +3,9 @@
 package guarana.swing
 
 import language.implicitConversions
-import java.awt.{Component => _, TextComponent => _, TextField => _, _}
+import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, _}
 import java.awt.event._
-import javax.swing._
+import javax.swing.{Action => _, _}
 import javax.swing.event._
 import guarana.swing.util._
 import scala.jdk.CollectionConverters._
@@ -31,31 +31,34 @@ object ComboBox extends VarsMap {
 
   
 
-  extension ops on [E](v: ComboBox[E]) {
-    def UI: Var.Aux[javax.swing.plaf.ComboBoxUI, v.type] = ComboBox.UI.asInstanceOf[Var.Aux[javax.swing.plaf.ComboBoxUI, v.type]]
-    def action: Var.Aux[javax.swing.Action | Null, v.type] = ComboBox.Action.asInstanceOf[Var.Aux[javax.swing.Action | Null, v.type]]
-    def actionCommand: Var.Aux[java.lang.String | Null, v.type] = ComboBox.ActionCommand.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
-    def editable: Var.Aux[Boolean, v.type] = ComboBox.Editable.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def editor: Var.Aux[javax.swing.ComboBoxEditor | Null, v.type] = ComboBox.Editor.asInstanceOf[Var.Aux[javax.swing.ComboBoxEditor | Null, v.type]]
-    def items: Var.Aux[Seq[E], v.type] = ComboBox.Items.asInstanceOf[Var.Aux[Seq[E], v.type]]
-    def keySelectionManager: Var.Aux[javax.swing.JComboBox.KeySelectionManager | Null, v.type] = ComboBox.KeySelectionManager.asInstanceOf[Var.Aux[javax.swing.JComboBox.KeySelectionManager | Null, v.type]]
-    def lightWeightPopupEnabled: Var.Aux[Boolean, v.type] = ComboBox.LightWeightPopupEnabled.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def maximumRowCount: Var.Aux[Int, v.type] = ComboBox.MaximumRowCount.asInstanceOf[Var.Aux[Int, v.type]]
-    def model: Var.Aux[javax.swing.ComboBoxModel[E], v.type] = ComboBox.Model.asInstanceOf[Var.Aux[javax.swing.ComboBoxModel[E], v.type]]
-    def popupVisible: Var.Aux[Boolean, v.type] = ComboBox.PopupVisible.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def prototypeDisplayValue: Var.Aux[E, v.type] = ComboBox.PrototypeDisplayValue.asInstanceOf[Var.Aux[E, v.type]]
-    def renderer: Var.Aux[javax.swing.ListCellRenderer[_ >: E], v.type] = ComboBox.Renderer.asInstanceOf[Var.Aux[javax.swing.ListCellRenderer[_ >: E], v.type]]
-    def selectedIndex: Var.Aux[Int, v.type] = ComboBox.SelectedIndex.asInstanceOf[Var.Aux[Int, v.type]]
-    def selectedItem: Var.Aux[Option[E], v.type] = ComboBox.SelectedItem.asInstanceOf[Var.Aux[Option[E], v.type]]
+  given ops as Ops.type = Ops
+  object Ops {
+    extension [E](v: ComboBox[E]) {
+      def UI: Var.Aux[javax.swing.plaf.ComboBoxUI, v.type] = ComboBox.UI.asInstanceOf[Var.Aux[javax.swing.plaf.ComboBoxUI, v.type]]
+      def action: Var.Aux[javax.swing.Action | Null, v.type] = ComboBox.Action.asInstanceOf[Var.Aux[javax.swing.Action | Null, v.type]]
+      def actionCommand: Var.Aux[java.lang.String | Null, v.type] = ComboBox.ActionCommand.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
+      def editable: Var.Aux[Boolean, v.type] = ComboBox.Editable.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def editor: Var.Aux[javax.swing.ComboBoxEditor | Null, v.type] = ComboBox.Editor.asInstanceOf[Var.Aux[javax.swing.ComboBoxEditor | Null, v.type]]
+      def items: Var.Aux[Seq[E], v.type] = ComboBox.Items.asInstanceOf[Var.Aux[Seq[E], v.type]]
+      def keySelectionManager: Var.Aux[javax.swing.JComboBox.KeySelectionManager | Null, v.type] = ComboBox.KeySelectionManager.asInstanceOf[Var.Aux[javax.swing.JComboBox.KeySelectionManager | Null, v.type]]
+      def lightWeightPopupEnabled: Var.Aux[Boolean, v.type] = ComboBox.LightWeightPopupEnabled.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def maximumRowCount: Var.Aux[Int, v.type] = ComboBox.MaximumRowCount.asInstanceOf[Var.Aux[Int, v.type]]
+      def model: Var.Aux[javax.swing.ComboBoxModel[E], v.type] = ComboBox.Model.asInstanceOf[Var.Aux[javax.swing.ComboBoxModel[E], v.type]]
+      def popupVisible: Var.Aux[Boolean, v.type] = ComboBox.PopupVisible.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def prototypeDisplayValue: Var.Aux[E, v.type] = ComboBox.PrototypeDisplayValue.asInstanceOf[Var.Aux[E, v.type]]
+      def renderer: Var.Aux[javax.swing.ListCellRenderer[_ >: E], v.type] = ComboBox.Renderer.asInstanceOf[Var.Aux[javax.swing.ListCellRenderer[_ >: E], v.type]]
+      def selectedIndex: Var.Aux[Int, v.type] = ComboBox.SelectedIndex.asInstanceOf[Var.Aux[Int, v.type]]
+      def selectedItem: Var.Aux[Option[E], v.type] = ComboBox.SelectedItem.asInstanceOf[Var.Aux[Option[E], v.type]]
 
-    
+      
 
-    def actionListeners: Array[java.awt.event.ActionListener] = v.getActionListeners.asInstanceOf
-    def itemCount: Int = v.getItemCount
-    def itemListeners: Array[java.awt.event.ItemListener] = v.getItemListeners.asInstanceOf
-    def popupMenuListeners: Array[javax.swing.event.PopupMenuListener] = v.getPopupMenuListeners.asInstanceOf
-    def selectedObjects: Seq[E] = v.getSelectedObjects.nn.toIndexedSeq.asInstanceOf
-    def unwrap: javax.swing.JComboBox[_ <: E] = v
+      def actionListeners: Array[java.awt.event.ActionListener] = v.getActionListeners.asInstanceOf
+      def itemCount: Int = v.getItemCount
+      def itemListeners: Array[java.awt.event.ItemListener] = v.getItemListeners.asInstanceOf
+      def popupMenuListeners: Array[javax.swing.event.PopupMenuListener] = v.getPopupMenuListeners.asInstanceOf
+      def selectedObjects: Seq[E] = v.getSelectedObjects.nn.toIndexedSeq.asInstanceOf
+      def unwrap: javax.swing.JComboBox[_ <: E] = v
+    }
   }
 
   def wrap[E](v: javax.swing.JComboBox[_ <: E]) = v.asInstanceOf[ComboBox[E]]

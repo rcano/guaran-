@@ -3,9 +3,9 @@
 package guarana.swing
 
 import language.implicitConversions
-import java.awt.{Component => _, TextComponent => _, TextField => _, _}
+import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, _}
 import java.awt.event._
-import javax.swing._
+import javax.swing.{Action => _, _}
 import javax.swing.event._
 import guarana.swing.util._
 import scala.jdk.CollectionConverters._
@@ -32,28 +32,31 @@ object Slider extends VarsMap {
 
   
 
-  extension ops on (v: Slider) {
-    def UI: Var.Aux[javax.swing.plaf.SliderUI, v.type] = Slider.UI.asInstanceOf[Var.Aux[javax.swing.plaf.SliderUI, v.type]]
-    def extent: Var.Aux[Int, v.type] = Slider.Extent.asInstanceOf[Var.Aux[Int, v.type]]
-    def inverted: Var.Aux[Boolean, v.type] = Slider.Inverted.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def labelTable: Var.Aux[java.util.Dictionary[_, _] | Null, v.type] = Slider.LabelTable.asInstanceOf[Var.Aux[java.util.Dictionary[_, _] | Null, v.type]]
-    def majorTickSpacing: Var.Aux[Int, v.type] = Slider.MajorTickSpacing.asInstanceOf[Var.Aux[Int, v.type]]
-    def max: Var.Aux[Int, v.type] = Slider.Max.asInstanceOf[Var.Aux[Int, v.type]]
-    def min: Var.Aux[Int, v.type] = Slider.Min.asInstanceOf[Var.Aux[Int, v.type]]
-    def minorTickSpacing: Var.Aux[Int, v.type] = Slider.MinorTickSpacing.asInstanceOf[Var.Aux[Int, v.type]]
-    def model: Var.Aux[javax.swing.BoundedRangeModel | Null, v.type] = Slider.Model.asInstanceOf[Var.Aux[javax.swing.BoundedRangeModel | Null, v.type]]
-    def orientation: Var.Aux[Int, v.type] = Slider.Orientation.asInstanceOf[Var.Aux[Int, v.type]]
-    def paintLabels: Var.Aux[Boolean, v.type] = Slider.PaintLabels.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def paintTicks: Var.Aux[Boolean, v.type] = Slider.PaintTicks.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def paintTrack: Var.Aux[Boolean, v.type] = Slider.PaintTrack.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def snapToTicks: Var.Aux[Boolean, v.type] = Slider.SnapToTicks.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def value: Var.Aux[Int, v.type] = Slider.Value.asInstanceOf[Var.Aux[Int, v.type]]
-    def valueIsAdjusting: Var.Aux[Boolean, v.type] = Slider.ValueIsAdjusting.asInstanceOf[Var.Aux[Boolean, v.type]]
+  given ops as Ops.type = Ops
+  object Ops {
+    extension (v: Slider) {
+      def UI: Var.Aux[javax.swing.plaf.SliderUI, v.type] = Slider.UI.asInstanceOf[Var.Aux[javax.swing.plaf.SliderUI, v.type]]
+      def extent: Var.Aux[Int, v.type] = Slider.Extent.asInstanceOf[Var.Aux[Int, v.type]]
+      def inverted: Var.Aux[Boolean, v.type] = Slider.Inverted.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def labelTable: Var.Aux[java.util.Dictionary[_, _] | Null, v.type] = Slider.LabelTable.asInstanceOf[Var.Aux[java.util.Dictionary[_, _] | Null, v.type]]
+      def majorTickSpacing: Var.Aux[Int, v.type] = Slider.MajorTickSpacing.asInstanceOf[Var.Aux[Int, v.type]]
+      def max: Var.Aux[Int, v.type] = Slider.Max.asInstanceOf[Var.Aux[Int, v.type]]
+      def min: Var.Aux[Int, v.type] = Slider.Min.asInstanceOf[Var.Aux[Int, v.type]]
+      def minorTickSpacing: Var.Aux[Int, v.type] = Slider.MinorTickSpacing.asInstanceOf[Var.Aux[Int, v.type]]
+      def model: Var.Aux[javax.swing.BoundedRangeModel | Null, v.type] = Slider.Model.asInstanceOf[Var.Aux[javax.swing.BoundedRangeModel | Null, v.type]]
+      def orientation: Var.Aux[Int, v.type] = Slider.Orientation.asInstanceOf[Var.Aux[Int, v.type]]
+      def paintLabels: Var.Aux[Boolean, v.type] = Slider.PaintLabels.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def paintTicks: Var.Aux[Boolean, v.type] = Slider.PaintTicks.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def paintTrack: Var.Aux[Boolean, v.type] = Slider.PaintTrack.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def snapToTicks: Var.Aux[Boolean, v.type] = Slider.SnapToTicks.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def value: Var.Aux[Int, v.type] = Slider.Value.asInstanceOf[Var.Aux[Int, v.type]]
+      def valueIsAdjusting: Var.Aux[Boolean, v.type] = Slider.ValueIsAdjusting.asInstanceOf[Var.Aux[Boolean, v.type]]
 
-    
+      
 
-    def changeListeners = v.getChangeListeners
-    def unwrap: javax.swing.JSlider = v
+      def changeListeners = v.getChangeListeners
+      def unwrap: javax.swing.JSlider = v
+    }
   }
 
   def wrap(v: javax.swing.JSlider) = v.asInstanceOf[Slider]

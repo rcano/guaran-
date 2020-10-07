@@ -34,7 +34,7 @@ object SwingProp {
 case class VarProp(name: String, tpe: String, initValue: String, visibility: Option[String] = None, overrideTpeInStaticPos: Option[String] = None, eagerEvaluation: Boolean = false) extends Property
 
 case class EmitterDescr(name: String, tpe: String, initializer: Seq[String])
-case class Parameter(name: String, tpe: String, passAs: String)
+case class Parameter(name: String, tpe: String, passAs: String, erased: Boolean = false)
 
 abstract class NodeDescr(
   val name: String,
@@ -235,7 +235,10 @@ case object Window extends NodeDescr(
   opsExtra = Seq(
     "def rootPane: JRootPane = v.getRootPane.nn"
   ),
-  uninitExtraParams = Seq(Parameter("gc", "GraphicsConfiguration | Null = null", "gc")),
+  uninitExtraParams = Seq(
+    Parameter("parent", "WindowBase | Null = null", "parent.?(_.unwrap)"),
+    Parameter("gc", "GraphicsConfiguration | Null = null", "gc")
+  ),
 )
 
 case object Frame extends NodeDescr(
@@ -249,7 +252,8 @@ case object Frame extends NodeDescr(
     SwingProp("state", "Int"),
     SwingProp("title", "java.lang.String | Null"),
     SwingProp("undecorated", "Boolean"),
-    SwingProp("menuBar", "javax.swing.JMenuBar | Null", "_.getJMenuBar", "_.setJMenuBar(_)"),
+    // SwingProp("menuBar", "javax.swing.JMenuBar | Null", "_.getJMenuBar", "_.setJMenuBar(_)"),
+    SwingProp("menuBar", "guarana.swing.MenuBar | Null", "_.getJMenuBar.?(guarana.swing.MenuBar.wrap)", "(f, m) => f.setJMenuBar(m.?(_.unwrap))"),
     SwingProp("contentPane", "java.awt.Container", "_.getContentPane().nn", "_.setContentPane(_)"),
     SwingProp("defaultCloseOperation", "Int"),
     SwingProp("glassPane", "java.awt.Component | Null"),
@@ -259,7 +263,37 @@ case object Frame extends NodeDescr(
   opsExtra = Seq(
     "def rootPane: JRootPane = v.getRootPane.nn"
   ),
-  uninitExtraParams = Seq(Parameter("gc", "GraphicsConfiguration | Null = null", "gc")),
+  uninitExtraParams = Seq(
+    Parameter("gc", "GraphicsConfiguration | Null = null", "gc")
+  ),
+)
+
+case object Dialog extends NodeDescr(
+  "Dialog",
+  "javax.swing.JDialog",
+  parents = Seq(WindowBase),
+  props = Seq(
+    SwingProp("contentPane", "java.awt.Container | Null"),
+    SwingProp("defaultCloseOperation", "Int"),
+    SwingProp("glassPane", "java.awt.Component | Null"),
+    SwingProp("layeredPane", "javax.swing.JLayeredPane | Null"),
+    SwingProp("menuBar", "javax.swing.JMenuBar | Null", "_.getJMenuBar", "_.setJMenuBar(_)"),
+    SwingProp("modal", "Boolean"),
+    SwingProp("modalityType", "java.awt.Dialog.ModalityType | Null"),
+    SwingProp("resizable", "Boolean"),
+    SwingProp("title", "java.lang.String | Null"),
+    SwingProp("transferHandler", "javax.swing.TransferHandler | Null"),
+    SwingProp("undecorated", "Boolean"),
+  ),
+  opsExtra = Seq(
+    "def rootPane: JRootPane = v.getRootPane.nn"
+  ),
+  uninitExtraParams = Seq(
+    Parameter("parent", "WindowBase | Null = null", "parent.?(_.unwrap)"),
+    Parameter("title", "_", "null: String | Null", true),
+    Parameter("modalityType", "_", "null: java.awt.Dialog.ModalityType | Null", true),
+    Parameter("gc", "GraphicsConfiguration | Null = null", "gc")
+  )
 )
 
 ////////////////////////////////////////////////////////////////////////////
@@ -607,12 +641,18 @@ case object Button extends NodeDescr(
   opsExtra = Seq(
    "def defaultButton = v.isDefaultButton"
   ),
+  companionObjectExtras = Seq(
+    "def apply(a: Action): Scenegraph ?=> Button = wrap(javax.swing.JButton(a.unwrap)).tap(init)"
+  )
 )
 
 case object ToggleButton extends NodeDescr(
   "ToggleButton",
   "javax.swing.JToggleButton",
   parents = Seq(ButtonBase),
+  companionObjectExtras = Seq(
+    "def apply(a: Action): Scenegraph ?=> ToggleButton = wrap(javax.swing.JToggleButton(a.unwrap)).tap(init)"
+  )
 )
 
 case object CheckBox extends NodeDescr(
@@ -622,12 +662,112 @@ case object CheckBox extends NodeDescr(
   props = Seq(
     SwingProp("borderPaintedFlat", "Boolean")
   ),
+  companionObjectExtras = Seq(
+    "def apply(a: Action): Scenegraph ?=> CheckBox = wrap(javax.swing.JCheckBox(a.unwrap)).tap(init)"
+  )
 )
 
 case object RadioButton extends NodeDescr(
   "RadioButton",
   "javax.swing.JRadioButton",
   parents = Seq(ToggleButton),
+  companionObjectExtras = Seq(
+    "def apply(a: Action): Scenegraph ?=> RadioButton = wrap(javax.swing.JRadioButton(a.unwrap)).tap(init)"
+  )
+)
+
+////////////////////////////////////////////////////////////////////////////
+// menus
+////////////////////////////////////////////////////////////////////////////
+
+case object MenuItem extends NodeDescr(
+  "MenuItem",
+  "javax.swing.JMenuItem",
+  parents = Seq(ButtonBase),
+  props = Seq(
+    SwingProp("UI", "javax.swing.plaf.MenuItemUI | Null", "_.getUI.asInstanceOf", "_.setUI(_)"),
+    SwingProp("accelerator", "javax.swing.KeyStroke | Null"),
+  ),
+  opsExtra = Seq(
+    "def component: java.awt.Component | Null = v.getComponent",
+    "def menuDragMouseListeners: Array[javax.swing.event.MenuDragMouseListener | Null] = v.getMenuDragMouseListeners.nn",
+    "def menuKeyListeners: Array[javax.swing.event.MenuKeyListener | Null] = v.getMenuKeyListeners.nn",
+    "def subElements: Array[javax.swing.MenuElement | Null] = v.getSubElements.nn"
+  ),
+  companionObjectExtras = Seq(
+    "def apply(a: Action): Scenegraph ?=> MenuItem = wrap(javax.swing.JMenuItem(a.unwrap)).tap(init)"
+  )
+)
+
+case object CheckBoxMenuItem extends NodeDescr(
+  "CheckBoxMenuItem",
+  "javax.swing.JCheckBoxMenuItem",
+  parents = Seq(MenuItem),
+  props = Seq(
+    SwingProp("state", "Boolean", "_.getState", "_.setState(_)")
+  ),
+  companionObjectExtras = Seq(
+    "def apply(a: Action): Scenegraph ?=> CheckBoxMenuItem = wrap(javax.swing.JCheckBoxMenuItem(a.unwrap)).tap(init)"
+  )
+)
+
+case object RadioButtonMenuItem extends NodeDescr(
+  "RadioButtonMenuItem",
+  "javax.swing.JRadioButtonMenuItem",
+  parents = Seq(MenuItem),
+  props = Seq(),
+  companionObjectExtras = Seq(
+    "def apply(a: Action): Scenegraph ?=> RadioButtonMenuItem = wrap(javax.swing.JRadioButtonMenuItem(a.unwrap)).tap(init)"
+  )
+)
+
+case object Menu extends NodeDescr(
+  "Menu",
+  "javax.swing.JMenu",
+  parents = Seq(MenuItem),
+  props = Seq(
+    SwingProp("UI", "javax.swing.plaf.MenuBarUI | Null"),
+    SwingProp("delay", "Int"),
+    SwingProp("popupMenuVisible", "Boolean"),
+    SwingProp("borderPainted", "Boolean"),
+    SwingProp("helpMenu", "javax.swing.JMenu | Null"),
+    SwingProp("margin", "java.awt.Insets | Null"),
+    SwingProp("selectionModel", "javax.swing.SingleSelectionModel | Null"),
+    SwingProp("accelerator", "javax.swing.KeyStroke | Null"),
+  ),
+  opsExtra = Seq(
+    "def itemCount: Int = v.getItemCount",
+    "def menuComponentCount: Int = v.getMenuComponentCount",
+    "def menuComponents: Array[java.awt.Component | Null] = v.getMenuComponents",
+    "def menuListeners: Array[javax.swing.event.MenuListener | Null] = v.getMenuListeners",
+    "def popupMenu: javax.swing.JPopupMenu | Null = v.getPopupMenu",
+    "def tearOff: Boolean = v.isTearOff",
+    "def topLevelMenu: Boolean = v.isTopLevelMenu"
+  ),
+  companionObjectExtras = Seq(
+    "def apply(a: Action): MenuItem = wrap(javax.swing.JMenu(a.unwrap)).tap(init)"
+  )
+)
+
+case object MenuBar extends NodeDescr(
+  "MenuBar",
+  "javax.swing.JMenuBar",
+  parents = Seq(Component),
+  props = Seq(
+    SwingProp("UI", "javax.swing.plaf.MenuBarUI | Null"),
+    SwingProp("borderPainted", "Boolean"),
+    SwingProp("helpMenu", "javax.swing.JMenu | Null"),
+    SwingProp("margin", "java.awt.Insets | Null"),
+    SwingProp("selectionModel", "javax.swing.SingleSelectionModel | Null"),
+  ),
+  opsExtra = Seq(
+    "def component: java.awt.Component | Null = v.getComponent",
+    "def menuCount: Int = v.getMenuCount",
+    "def selected: Boolean = v.isSelected",
+    "def subElements: Array[javax.swing.MenuElement | Null] = v.getSubElements.nn"
+  ),
+  companionObjectExtras = Seq(
+  )
 )
 
 ////////////////////////////////////////////////////////////////////////////
@@ -915,17 +1055,38 @@ case object TabbedPane extends NodeDescr(
     "def tabRunCount: Int = v.getTabRunCount"
   ),
   initExtra = """
+    |object LocatedTab {
+    |  def unapply(t: Any)(using VarContext): Option[(Tab, Int)] = t match {
+    |    case t: Tab =>  v.tabs().indexOf(t) match {
+    |      case -1 => None
+    |      case i => Some(t -> i)
+    |    }
+    |    case _ => None
+    |  }
+    |}
+    |val tabReactions = EventIterator.foreach {
+    |  //react to updates to the vars of the Tabs
+    |  case Tab.Title.generic(LocatedTab(t, at), oldv, newv) => v.setTitleAt(at, newv)
+    |  case Tab.Icon.generic(LocatedTab(t, at), oldv, newv) => v.setIconAt(at, newv)
+    |  case Tab.Content.generic(LocatedTab(t, at), oldv, newv) => v.setComponentAt(at, newv.unwrap)
+    |  case Tab.Tip.generic(LocatedTab(t, at), oldv, newv) => v.setToolTipTextAt(at, newv)
+    |  case Tab.Enabled.generic(LocatedTab(t, at), oldv, newv) => v.setEnabledAt(at, newv)
+    |  case Tab.TabNode.generic(LocatedTab(t, at), oldv, newv) => v.setTabComponentAt(at, newv.?(_.unwrap))
+    |  case _ => 
+    |}
     |//helper methods to add tabs and react to their changes
     |def addTab(t: Tab): Unit = sc.update {
     |  v.addTab(t.title(), t.icon(), t.content().unwrap, t.tip())
     |  v.setEnabledAt(v.getTabCount - 1, t.enabled())
     |  v.setTabComponentAt(v.getTabCount - 1, t.tabNode().?(_.unwrap))
+    |  t.varUpdates := tabReactions
     |}
     |def removeTab(at: Int): Unit = v.removeTabAt(at)
     |def insertTab(t: Tab, at: Int) = sc.update { 
     |  v.insertTab(t.title(), t.icon(), t.content().unwrap, t.tip(), at)
     |  v.setEnabledAt(at, t.enabled())
     |  v.setTabComponentAt(at, t.tabNode().?(_.unwrap))
+    |  t.varUpdates := tabReactions
     |}
     |def replaceTab(oldTab: Tab, withTab: Tab) = sc.update {
     |  val at = v.indexOfTabComponent(oldTab.content().?(_.unwrap))
@@ -935,6 +1096,7 @@ case object TabbedPane extends NodeDescr(
     |  v.setToolTipTextAt(at, withTab.tip())
     |  v.setEnabledAt(at, withTab.enabled())
     |  v.setTabComponentAt(at, withTab.tabNode().?(_.unwrap))
+    |  withTab.varUpdates := tabReactions
     |}
 
     |val bufferListener: PartialFunction[ObsBuffer.Event[Tab], Unit] = {
@@ -945,15 +1107,6 @@ case object TabbedPane extends NodeDescr(
     |  case ObsBuffer.Event.Cleared => v.removeAll()
     |}
 
-    |object LocatedTab {
-    |  def unapply(t: Any)(using VarContext): Option[(Tab, Int)] = t match {
-    |    case t: Tab =>  v.tabs().indexOf(t) match {
-    |      case -1 => None
-    |      case i => Some(t -> i)
-    |    }
-    |    case _ => None
-    |  }
-    |}
 
     |sc.update {
     |  sc.varUpdates := EventIterator.foreach {
@@ -964,15 +1117,6 @@ case object TabbedPane extends NodeDescr(
     |      //replace all tabs
     |      v.removeAll()
     |      newv foreach addTab
-
-    |    //react to updates to the vars of the Tabs
-    |    case Tab.Title.generic(LocatedTab(t, at), oldv, newv) => v.setTitleAt(at, newv)
-    |    case Tab.Icon.generic(LocatedTab(t, at), oldv, newv) => v.setIconAt(at, newv)
-    |    case Tab.Content.generic(LocatedTab(t, at), oldv, newv) => v.setComponentAt(at, newv.unwrap)
-    |    case Tab.Tip.generic(LocatedTab(t, at), oldv, newv) => v.setToolTipTextAt(at, newv)
-    |    case Tab.Enabled.generic(LocatedTab(t, at), oldv, newv) => v.setEnabledAt(at, newv)
-    |    case Tab.TabNode.generic(LocatedTab(t, at), oldv, newv) => v.setTabComponentAt(at, newv.?(_.unwrap))
-
     |    case _ => 
     |  }
 
@@ -1093,17 +1237,17 @@ def genCode(n: NodeDescr): String = {
   }.flatten.toVector.sortBy(_._2.name)
 
   val initializers = if (!n.isAbstract) 
-      s"""def uninitialized$tpeParams(${n.uninitExtraParams.map(t => s"${t.name}: ${t.tpe}").mkString(", ")}): ${n.name}$tpeParams = {
+      s"""def uninitialized$tpeParams(${n.uninitExtraParams.filterNot(_.erased).map(t => s"${t.name}: ${t.tpe}").mkString(", ")}): ${n.name}$tpeParams = {
          |  val res = ${n.underlying.replaceAll(raw"_ <: ", "")}(${n.uninitExtraParams.map(_.passAs).mkString(", ")}).asInstanceOf[${n.name}$tpeParams]
          |  ${n.uninitExtra.mkString("\n    ")}
          |  res
          |}
          |
          |def apply$tpeParams(
-         |  ${if (n.uninitExtraParams.nonEmpty) n.uninitExtraParams.map(t => s"${t._1}: ${t._2}").mkString(", ") + "," else ""}
+         |  ${if (n.uninitExtraParams.nonEmpty) n.uninitExtraParams.filterNot(_.erased).map(t => s"${t.name}: ${t.tpe}").mkString(", ") + "," else ""}
          |  ${allVars.map(v => s"${v._2.name}: Opt[Binding[${v._2.tpe}]] = UnsetParam").mkString(",\n  ")}
          |): Scenegraph ?=> VarContextAction[${n.name}$tpeParams] = {
-         |  val res = uninitialized$tpeParams()
+         |  val res = uninitialized$tpeParams(${n.uninitExtraParams.filterNot(_.erased).map(_.name).mkString(", ")})
          |  ${n.name}.init(res)
          |  ${allVars.map(v => s"ifSet(${v._2.name}, ${v._1.name}.ops.extension_${v._2.name}(res) := _)").mkString("\n  ")}
          |  res
@@ -1156,9 +1300,9 @@ def genCode(n: NodeDescr): String = {
     |package guarana.swing
 
     |import language.implicitConversions
-    |import java.awt.{Component => _, TextComponent => _, TextField => _, _}
+    |import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, _}
     |import java.awt.event._
-    |import javax.swing._
+    |import javax.swing.{Action => _, _}
     |import javax.swing.event._
     |import guarana.swing.util._
     |import scala.jdk.CollectionConverters._
@@ -1172,6 +1316,7 @@ def genCode(n: NodeDescr): String = {
     WindowBase,
     Window,
     Frame,
+    Dialog,
     Pane,
     AbsolutePositioningPane,
     BorderPane,
@@ -1188,6 +1333,10 @@ def genCode(n: NodeDescr): String = {
     ToggleButton,
     CheckBox,
     RadioButton,
+    MenuBar,
+    MenuItem,
+    CheckBoxMenuItem,
+    RadioButtonMenuItem,
     Slider,
     ProgressBar,
     ListView,

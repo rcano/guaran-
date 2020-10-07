@@ -3,9 +3,9 @@
 package guarana.swing
 
 import language.implicitConversions
-import java.awt.{Component => _, TextComponent => _, TextField => _, _}
+import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, _}
 import java.awt.event._
-import javax.swing._
+import javax.swing.{Action => _, _}
 import javax.swing.event._
 import guarana.swing.util._
 import scala.jdk.CollectionConverters._
@@ -45,53 +45,56 @@ object TableView extends VarsMap {
 
   
 
-  extension ops on (v: TableView) {
-    def UI: Var.Aux[javax.swing.plaf.TableUI, v.type] = TableView.UI.asInstanceOf[Var.Aux[javax.swing.plaf.TableUI, v.type]]
-    def autoCreateColumnsFromModel: Var.Aux[Boolean, v.type] = TableView.AutoCreateColumnsFromModel.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def autoCreateRowSorter: Var.Aux[Boolean, v.type] = TableView.AutoCreateRowSorter.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def autoResizeMode: Var.Aux[Int, v.type] = TableView.AutoResizeMode.asInstanceOf[Var.Aux[Int, v.type]]
-    def cellEditor: Var.Aux[javax.swing.table.TableCellEditor, v.type] = TableView.CellEditor.asInstanceOf[Var.Aux[javax.swing.table.TableCellEditor, v.type]]
-    def cellSelectionEnabled: Var.Aux[Boolean, v.type] = TableView.CellSelectionEnabled.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def columnModel: Var.Aux[javax.swing.table.TableColumnModel, v.type] = TableView.ColumnModel.asInstanceOf[Var.Aux[javax.swing.table.TableColumnModel, v.type]]
-    def columnSelectionAllowed: Var.Aux[Boolean, v.type] = TableView.ColumnSelectionAllowed.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def dragEnabled: Var.Aux[Boolean, v.type] = TableView.DragEnabled.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def dropMode: Var.Aux[javax.swing.DropMode | Null, v.type] = TableView.DropMode.asInstanceOf[Var.Aux[javax.swing.DropMode | Null, v.type]]
-    def editingColumn: Var.Aux[Int, v.type] = TableView.EditingColumn.asInstanceOf[Var.Aux[Int, v.type]]
-    def editingRow: Var.Aux[Int, v.type] = TableView.EditingRow.asInstanceOf[Var.Aux[Int, v.type]]
-    def fillsViewportHeight: Var.Aux[Boolean, v.type] = TableView.FillsViewportHeight.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def gridColor: Var.Aux[java.awt.Color | Null, v.type] = TableView.GridColor.asInstanceOf[Var.Aux[java.awt.Color | Null, v.type]]
-    def intercellSpacing: Var.Aux[(Double, Double) | Null, v.type] = TableView.IntercellSpacing.asInstanceOf[Var.Aux[(Double, Double) | Null, v.type]]
-    def model: Var.Aux[javax.swing.table.TableModel, v.type] = TableView.Model.asInstanceOf[Var.Aux[javax.swing.table.TableModel, v.type]]
-    def preferredScrollableViewportSize: Var.Aux[(Double, Double) | Null, v.type] = TableView.PreferredScrollableViewportSize.asInstanceOf[Var.Aux[(Double, Double) | Null, v.type]]
-    def rowHeight: Var.Aux[Int, v.type] = TableView.RowHeight.asInstanceOf[Var.Aux[Int, v.type]]
-    def rowMargin: Var.Aux[Int, v.type] = TableView.RowMargin.asInstanceOf[Var.Aux[Int, v.type]]
-    def rowSelectionAllowed: Var.Aux[Boolean, v.type] = TableView.RowSelectionAllowed.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def rowSorter: Var.Aux[javax.swing.RowSorter[_ <: javax.swing.table.TableModel] | Null, v.type] = TableView.RowSorter.asInstanceOf[Var.Aux[javax.swing.RowSorter[_ <: javax.swing.table.TableModel] | Null, v.type]]
-    def selectionBackground: Var.Aux[java.awt.Color | Null, v.type] = TableView.SelectionBackground.asInstanceOf[Var.Aux[java.awt.Color | Null, v.type]]
-    def selectionForeground: Var.Aux[java.awt.Color | Null, v.type] = TableView.SelectionForeground.asInstanceOf[Var.Aux[java.awt.Color | Null, v.type]]
-    def selectionModel: Var.Aux[javax.swing.ListSelectionModel, v.type] = TableView.SelectionModel.asInstanceOf[Var.Aux[javax.swing.ListSelectionModel, v.type]]
-    def showHorizontalLines: Var.Aux[Boolean, v.type] = TableView.ShowHorizontalLines.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def showVerticalLines: Var.Aux[Boolean, v.type] = TableView.ShowVerticalLines.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def surrendersFocusOnKeystroke: Var.Aux[Boolean, v.type] = TableView.SurrendersFocusOnKeystroke.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def tableHeader: Var.Aux[javax.swing.table.JTableHeader | Null, v.type] = TableView.TableHeader.asInstanceOf[Var.Aux[javax.swing.table.JTableHeader | Null, v.type]]
-    def updateSelectionOnSort: Var.Aux[Boolean, v.type] = TableView.UpdateSelectionOnSort.asInstanceOf[Var.Aux[Boolean, v.type]]
+  given ops as Ops.type = Ops
+  object Ops {
+    extension (v: TableView) {
+      def UI: Var.Aux[javax.swing.plaf.TableUI, v.type] = TableView.UI.asInstanceOf[Var.Aux[javax.swing.plaf.TableUI, v.type]]
+      def autoCreateColumnsFromModel: Var.Aux[Boolean, v.type] = TableView.AutoCreateColumnsFromModel.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def autoCreateRowSorter: Var.Aux[Boolean, v.type] = TableView.AutoCreateRowSorter.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def autoResizeMode: Var.Aux[Int, v.type] = TableView.AutoResizeMode.asInstanceOf[Var.Aux[Int, v.type]]
+      def cellEditor: Var.Aux[javax.swing.table.TableCellEditor, v.type] = TableView.CellEditor.asInstanceOf[Var.Aux[javax.swing.table.TableCellEditor, v.type]]
+      def cellSelectionEnabled: Var.Aux[Boolean, v.type] = TableView.CellSelectionEnabled.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def columnModel: Var.Aux[javax.swing.table.TableColumnModel, v.type] = TableView.ColumnModel.asInstanceOf[Var.Aux[javax.swing.table.TableColumnModel, v.type]]
+      def columnSelectionAllowed: Var.Aux[Boolean, v.type] = TableView.ColumnSelectionAllowed.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def dragEnabled: Var.Aux[Boolean, v.type] = TableView.DragEnabled.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def dropMode: Var.Aux[javax.swing.DropMode | Null, v.type] = TableView.DropMode.asInstanceOf[Var.Aux[javax.swing.DropMode | Null, v.type]]
+      def editingColumn: Var.Aux[Int, v.type] = TableView.EditingColumn.asInstanceOf[Var.Aux[Int, v.type]]
+      def editingRow: Var.Aux[Int, v.type] = TableView.EditingRow.asInstanceOf[Var.Aux[Int, v.type]]
+      def fillsViewportHeight: Var.Aux[Boolean, v.type] = TableView.FillsViewportHeight.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def gridColor: Var.Aux[java.awt.Color | Null, v.type] = TableView.GridColor.asInstanceOf[Var.Aux[java.awt.Color | Null, v.type]]
+      def intercellSpacing: Var.Aux[(Double, Double) | Null, v.type] = TableView.IntercellSpacing.asInstanceOf[Var.Aux[(Double, Double) | Null, v.type]]
+      def model: Var.Aux[javax.swing.table.TableModel, v.type] = TableView.Model.asInstanceOf[Var.Aux[javax.swing.table.TableModel, v.type]]
+      def preferredScrollableViewportSize: Var.Aux[(Double, Double) | Null, v.type] = TableView.PreferredScrollableViewportSize.asInstanceOf[Var.Aux[(Double, Double) | Null, v.type]]
+      def rowHeight: Var.Aux[Int, v.type] = TableView.RowHeight.asInstanceOf[Var.Aux[Int, v.type]]
+      def rowMargin: Var.Aux[Int, v.type] = TableView.RowMargin.asInstanceOf[Var.Aux[Int, v.type]]
+      def rowSelectionAllowed: Var.Aux[Boolean, v.type] = TableView.RowSelectionAllowed.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def rowSorter: Var.Aux[javax.swing.RowSorter[_ <: javax.swing.table.TableModel] | Null, v.type] = TableView.RowSorter.asInstanceOf[Var.Aux[javax.swing.RowSorter[_ <: javax.swing.table.TableModel] | Null, v.type]]
+      def selectionBackground: Var.Aux[java.awt.Color | Null, v.type] = TableView.SelectionBackground.asInstanceOf[Var.Aux[java.awt.Color | Null, v.type]]
+      def selectionForeground: Var.Aux[java.awt.Color | Null, v.type] = TableView.SelectionForeground.asInstanceOf[Var.Aux[java.awt.Color | Null, v.type]]
+      def selectionModel: Var.Aux[javax.swing.ListSelectionModel, v.type] = TableView.SelectionModel.asInstanceOf[Var.Aux[javax.swing.ListSelectionModel, v.type]]
+      def showHorizontalLines: Var.Aux[Boolean, v.type] = TableView.ShowHorizontalLines.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def showVerticalLines: Var.Aux[Boolean, v.type] = TableView.ShowVerticalLines.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def surrendersFocusOnKeystroke: Var.Aux[Boolean, v.type] = TableView.SurrendersFocusOnKeystroke.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def tableHeader: Var.Aux[javax.swing.table.JTableHeader | Null, v.type] = TableView.TableHeader.asInstanceOf[Var.Aux[javax.swing.table.JTableHeader | Null, v.type]]
+      def updateSelectionOnSort: Var.Aux[Boolean, v.type] = TableView.UpdateSelectionOnSort.asInstanceOf[Var.Aux[Boolean, v.type]]
 
-    
+      
 
-    def columnCount: Int = v.getColumnCount
-    def dropLocation: javax.swing.JTable.DropLocation | Null = v.getDropLocation
-    def editing: Boolean = v.isEditing
-    def editorComponent: java.awt.Component | Null = v.getEditorComponent
-    def rowCount: Int = v.getRowCount
-    def scrollableTracksViewportHeight: Boolean = v.getScrollableTracksViewportHeight
-    def scrollableTracksViewportWidth: Boolean = v.getScrollableTracksViewportWidth
-    def selectedColumn: Int = v.getSelectedColumn
-    def selectedColumnCount: Int = v.getSelectedColumnCount
-    def selectedColumns: Array[Int] = v.getSelectedColumns.nn
-    def selectedRow: Int = v.getSelectedRow
-    def selectedRowCount: Int = v.getSelectedRowCount
-    def selectedRows: Array[Int] = v.getSelectedRows.nn
-    def unwrap: javax.swing.JTable = v
+      def columnCount: Int = v.getColumnCount
+      def dropLocation: javax.swing.JTable.DropLocation | Null = v.getDropLocation
+      def editing: Boolean = v.isEditing
+      def editorComponent: java.awt.Component | Null = v.getEditorComponent
+      def rowCount: Int = v.getRowCount
+      def scrollableTracksViewportHeight: Boolean = v.getScrollableTracksViewportHeight
+      def scrollableTracksViewportWidth: Boolean = v.getScrollableTracksViewportWidth
+      def selectedColumn: Int = v.getSelectedColumn
+      def selectedColumnCount: Int = v.getSelectedColumnCount
+      def selectedColumns: Array[Int] = v.getSelectedColumns.nn
+      def selectedRow: Int = v.getSelectedRow
+      def selectedRowCount: Int = v.getSelectedRowCount
+      def selectedRows: Array[Int] = v.getSelectedRows.nn
+      def unwrap: javax.swing.JTable = v
+    }
   }
 
   def wrap(v: javax.swing.JTable) = v.asInstanceOf[TableView]

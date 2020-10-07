@@ -118,7 +118,7 @@ object Binding {
 }
 
 trait SwingObsVal[+T] extends ObsVal[T] {
-  type ForInstance <: Node with Singleton
+  type ForInstance <: Singleton
   private[swing] def get(n: ForInstance): T
   def initialValue(v: Any)(using ev: v.type <:< ForInstance) = get(ev(v))
 }
@@ -147,10 +147,10 @@ trait SwingVar[T] extends Var[T] with SwingObsVal[T] {
 }
 
 object SwingVar {
-  type Aux[N <: Node, T] = SwingVar[T] {
+  type Aux[N, T] = SwingVar[T] {
     type ForInstance <: N & Singleton
   }
-  def apply[N <: Node, T](varName: => String, getter: N => T, setter: (N, T) => Unit): Aux[N, T] = new SwingVar[T] {
+  def apply[N, T](varName: => String, getter: N => T, setter: (N, T) => Unit): Aux[N, T] = new SwingVar[T] {
     lazy val name = varName
     type ForInstance <: N & Singleton
     def get(n: ForInstance) = getter(n)

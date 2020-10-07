@@ -11,49 +11,59 @@ import guarana.swing.util._
 import scala.jdk.CollectionConverters._
 import scala.util.chaining._
 
-opaque type Separator <: Component = javax.swing.JSeparator & Component
-object Separator extends VarsMap {
-  val UI: SwingVar.Aux[Separator, javax.swing.plaf.SeparatorUI] = SwingVar[Separator, javax.swing.plaf.SeparatorUI]("UI", _.getUI.nn, _.setUI(_))
-  val Horizontal: SwingVar.Aux[Separator, Boolean] = SwingVar[Separator, Boolean]("horizontal", _.getOrientation == SwingConstants.HORIZONTAL, (s, h) => s.setOrientation(if (h) SwingConstants.HORIZONTAL else SwingConstants.VERTICAL))
+opaque type MenuBar <: Component = javax.swing.JMenuBar & Component
+object MenuBar extends VarsMap {
+  val UI: SwingVar.Aux[MenuBar, javax.swing.plaf.MenuBarUI | Null] = SwingVar[MenuBar, javax.swing.plaf.MenuBarUI | Null]("UI", _.getUI, _.setUI(_))
+  val BorderPainted: SwingVar.Aux[MenuBar, Boolean] = SwingVar[MenuBar, Boolean]("borderPainted", _.isBorderPainted, _.setBorderPainted(_))
+  val HelpMenu: SwingVar.Aux[MenuBar, javax.swing.JMenu | Null] = SwingVar[MenuBar, javax.swing.JMenu | Null]("helpMenu", _.getHelpMenu, _.setHelpMenu(_))
+  val Margin: SwingVar.Aux[MenuBar, java.awt.Insets | Null] = SwingVar[MenuBar, java.awt.Insets | Null]("margin", _.getMargin, _.setMargin(_))
+  val SelectionModel: SwingVar.Aux[MenuBar, javax.swing.SingleSelectionModel | Null] = SwingVar[MenuBar, javax.swing.SingleSelectionModel | Null]("selectionModel", _.getSelectionModel, _.setSelectionModel(_))
 
   
 
   given ops as Ops.type = Ops
   object Ops {
-    extension (v: Separator) {
-      def UI: Var.Aux[javax.swing.plaf.SeparatorUI, v.type] = Separator.UI.asInstanceOf[Var.Aux[javax.swing.plaf.SeparatorUI, v.type]]
-      def horizontal: Var.Aux[Boolean, v.type] = Separator.Horizontal.asInstanceOf[Var.Aux[Boolean, v.type]]
+    extension (v: MenuBar) {
+      def UI: Var.Aux[javax.swing.plaf.MenuBarUI | Null, v.type] = MenuBar.UI.asInstanceOf[Var.Aux[javax.swing.plaf.MenuBarUI | Null, v.type]]
+      def borderPainted: Var.Aux[Boolean, v.type] = MenuBar.BorderPainted.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def helpMenu: Var.Aux[javax.swing.JMenu | Null, v.type] = MenuBar.HelpMenu.asInstanceOf[Var.Aux[javax.swing.JMenu | Null, v.type]]
+      def margin: Var.Aux[java.awt.Insets | Null, v.type] = MenuBar.Margin.asInstanceOf[Var.Aux[java.awt.Insets | Null, v.type]]
+      def selectionModel: Var.Aux[javax.swing.SingleSelectionModel | Null, v.type] = MenuBar.SelectionModel.asInstanceOf[Var.Aux[javax.swing.SingleSelectionModel | Null, v.type]]
 
       
 
-      
-      def unwrap: javax.swing.JSeparator = v
+      def component: java.awt.Component | Null = v.getComponent
+      def menuCount: Int = v.getMenuCount
+      def selected: Boolean = v.isSelected
+      def subElements: Array[javax.swing.MenuElement | Null] = v.getSubElements.nn
+      def unwrap: javax.swing.JMenuBar = v
     }
   }
 
-  def wrap(v: javax.swing.JSeparator) = v.asInstanceOf[Separator]
+  def wrap(v: javax.swing.JMenuBar) = v.asInstanceOf[MenuBar]
 
-  def init(v: Separator): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
+  def init(v: MenuBar): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     Component.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
     
     
   }
-  def uninitialized(): Separator = {
-    val res = javax.swing.JSeparator().asInstanceOf[Separator]
+  def uninitialized(): MenuBar = {
+    val res = javax.swing.JMenuBar().asInstanceOf[MenuBar]
     
     res
   }
   
   def apply(
     
-    UI: Opt[Binding[javax.swing.plaf.SeparatorUI]] = UnsetParam,
+    UI: Opt[Binding[javax.swing.plaf.MenuBarUI | Null]] = UnsetParam,
     actionMap: Opt[Binding[javax.swing.ActionMap]] = UnsetParam,
     alignmentX: Opt[Binding[Float]] = UnsetParam,
     alignmentY: Opt[Binding[Float]] = UnsetParam,
     autoscrolls: Opt[Binding[Boolean]] = UnsetParam,
     background: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     border: Opt[Binding[javax.swing.border.Border | Null]] = UnsetParam,
+    borderPainted: Opt[Binding[Boolean]] = UnsetParam,
     bounds: Opt[Binding[Bounds]] = UnsetParam,
     componentOrientation: Opt[Binding[java.awt.ComponentOrientation]] = UnsetParam,
     componentPopupMenu: Opt[Binding[javax.swing.JPopupMenu | Null]] = UnsetParam,
@@ -64,9 +74,10 @@ object Separator extends VarsMap {
     focusable: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
-    horizontal: Opt[Binding[Boolean]] = UnsetParam,
+    helpMenu: Opt[Binding[javax.swing.JMenu | Null]] = UnsetParam,
     inheritsPopupMenu: Opt[Binding[Boolean]] = UnsetParam,
     inputVerifier: Opt[Binding[javax.swing.InputVerifier | Null]] = UnsetParam,
+    margin: Opt[Binding[java.awt.Insets | Null]] = UnsetParam,
     maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     mouseDragMut: Opt[Binding[Option[MouseDrag]]] = UnsetParam,
@@ -74,20 +85,22 @@ object Separator extends VarsMap {
     opaque: Opt[Binding[Boolean]] = UnsetParam,
     prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     requestFocusEnabled: Opt[Binding[Boolean]] = UnsetParam,
+    selectionModel: Opt[Binding[javax.swing.SingleSelectionModel | Null]] = UnsetParam,
     toolTipText: Opt[Binding[String | Null]] = UnsetParam,
     transferHandler: Opt[Binding[javax.swing.TransferHandler | Null]] = UnsetParam,
     verifyInputWhenFocusTarget: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Scenegraph ?=> VarContextAction[Separator] = {
+  ): Scenegraph ?=> VarContextAction[MenuBar] = {
     val res = uninitialized()
-    Separator.init(res)
-    ifSet(UI, Separator.ops.extension_UI(res) := _)
+    MenuBar.init(res)
+    ifSet(UI, MenuBar.ops.extension_UI(res) := _)
     ifSet(actionMap, Component.ops.extension_actionMap(res) := _)
     ifSet(alignmentX, Component.ops.extension_alignmentX(res) := _)
     ifSet(alignmentY, Component.ops.extension_alignmentY(res) := _)
     ifSet(autoscrolls, Component.ops.extension_autoscrolls(res) := _)
     ifSet(background, Node.ops.extension_background(res) := _)
     ifSet(border, Component.ops.extension_border(res) := _)
+    ifSet(borderPainted, MenuBar.ops.extension_borderPainted(res) := _)
     ifSet(bounds, Node.ops.extension_bounds(res) := _)
     ifSet(componentOrientation, Node.ops.extension_componentOrientation(res) := _)
     ifSet(componentPopupMenu, Component.ops.extension_componentPopupMenu(res) := _)
@@ -98,9 +111,10 @@ object Separator extends VarsMap {
     ifSet(focusable, Node.ops.extension_focusable(res) := _)
     ifSet(font, Node.ops.extension_font(res) := _)
     ifSet(foreground, Node.ops.extension_foreground(res) := _)
-    ifSet(horizontal, Separator.ops.extension_horizontal(res) := _)
+    ifSet(helpMenu, MenuBar.ops.extension_helpMenu(res) := _)
     ifSet(inheritsPopupMenu, Component.ops.extension_inheritsPopupMenu(res) := _)
     ifSet(inputVerifier, Component.ops.extension_inputVerifier(res) := _)
+    ifSet(margin, MenuBar.ops.extension_margin(res) := _)
     ifSet(maxSize, Node.ops.extension_maxSize(res) := _)
     ifSet(minSize, Node.ops.extension_minSize(res) := _)
     ifSet(mouseDragMut, Node.ops.extension_mouseDragMut(res) := _)
@@ -108,6 +122,7 @@ object Separator extends VarsMap {
     ifSet(opaque, Component.ops.extension_opaque(res) := _)
     ifSet(prefSize, Node.ops.extension_prefSize(res) := _)
     ifSet(requestFocusEnabled, Component.ops.extension_requestFocusEnabled(res) := _)
+    ifSet(selectionModel, MenuBar.ops.extension_selectionModel(res) := _)
     ifSet(toolTipText, Component.ops.extension_toolTipText(res) := _)
     ifSet(transferHandler, Component.ops.extension_transferHandler(res) := _)
     ifSet(verifyInputWhenFocusTarget, Component.ops.extension_verifyInputWhenFocusTarget(res) := _)

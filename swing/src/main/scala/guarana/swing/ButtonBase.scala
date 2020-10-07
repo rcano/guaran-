@@ -3,9 +3,9 @@
 package guarana.swing
 
 import language.implicitConversions
-import java.awt.{Component => _, TextComponent => _, TextField => _, _}
+import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, _}
 import java.awt.event._
-import javax.swing._
+import javax.swing.{Action => _, _}
 import javax.swing.event._
 import guarana.swing.util._
 import scala.jdk.CollectionConverters._
@@ -48,47 +48,50 @@ object ButtonBase extends VarsMap {
 
   val ActionEvents = Emitter[java.awt.event.ActionEvent]()
 
-  extension ops on (v: ButtonBase) {
-    def UI: Var.Aux[javax.swing.plaf.ButtonUI, v.type] = ButtonBase.UI.asInstanceOf[Var.Aux[javax.swing.plaf.ButtonUI, v.type]]
-    def action: Var.Aux[javax.swing.Action | Null, v.type] = ButtonBase.Action.asInstanceOf[Var.Aux[javax.swing.Action | Null, v.type]]
-    def actionCommand: Var.Aux[java.lang.String | Null, v.type] = ButtonBase.ActionCommand.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
-    def armed: Var.Aux[Boolean, v.type] = ButtonBase.Armed.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def borderPainted: Var.Aux[Boolean, v.type] = ButtonBase.BorderPainted.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def contentAreaFilled: Var.Aux[Boolean, v.type] = ButtonBase.ContentAreaFilled.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def disabledIcon: Var.Aux[javax.swing.Icon | Null, v.type] = ButtonBase.DisabledIcon.asInstanceOf[Var.Aux[javax.swing.Icon | Null, v.type]]
-    def disabledSelectedIcon: Var.Aux[javax.swing.Icon | Null, v.type] = ButtonBase.DisabledSelectedIcon.asInstanceOf[Var.Aux[javax.swing.Icon | Null, v.type]]
-    def displayedMnemonicIndex: Var.Aux[Int, v.type] = ButtonBase.DisplayedMnemonicIndex.asInstanceOf[Var.Aux[Int, v.type]]
-    def enabled: Var.Aux[Boolean, v.type] = ButtonBase.Enabled.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def focusPainted: Var.Aux[Boolean, v.type] = ButtonBase.FocusPainted.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def hideActionText: Var.Aux[Boolean, v.type] = ButtonBase.HideActionText.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def horizontalAlignment: Var.Aux[Int, v.type] = ButtonBase.HorizontalAlignment.asInstanceOf[Var.Aux[Int, v.type]]
-    def horizontalTextPosition: Var.Aux[Int, v.type] = ButtonBase.HorizontalTextPosition.asInstanceOf[Var.Aux[Int, v.type]]
-    def icon: Var.Aux[javax.swing.Icon | Null, v.type] = ButtonBase.Icon.asInstanceOf[Var.Aux[javax.swing.Icon | Null, v.type]]
-    def iconTextGap: Var.Aux[Int, v.type] = ButtonBase.IconTextGap.asInstanceOf[Var.Aux[Int, v.type]]
-    def label: Var.Aux[java.lang.String | Null, v.type] = ButtonBase.Label.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
-    def margin: Var.Aux[java.awt.Insets | Null, v.type] = ButtonBase.Margin.asInstanceOf[Var.Aux[java.awt.Insets | Null, v.type]]
-    def mnemonic: Var.Aux[Int, v.type] = ButtonBase.Mnemonic.asInstanceOf[Var.Aux[Int, v.type]]
-    def model: Var.Aux[javax.swing.ButtonModel | Null, v.type] = ButtonBase.Model.asInstanceOf[Var.Aux[javax.swing.ButtonModel | Null, v.type]]
-    def multiClickThreshhold: Var.Aux[Long, v.type] = ButtonBase.MultiClickThreshhold.asInstanceOf[Var.Aux[Long, v.type]]
-    def pressed: Var.Aux[Boolean, v.type] = ButtonBase.Pressed.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def pressedIcon: Var.Aux[javax.swing.Icon | Null, v.type] = ButtonBase.PressedIcon.asInstanceOf[Var.Aux[javax.swing.Icon | Null, v.type]]
-    def rollover: Var.Aux[Boolean, v.type] = ButtonBase.Rollover.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def rolloverEnabled: Var.Aux[Boolean, v.type] = ButtonBase.RolloverEnabled.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def rolloverIcon: Var.Aux[javax.swing.Icon | Null, v.type] = ButtonBase.RolloverIcon.asInstanceOf[Var.Aux[javax.swing.Icon | Null, v.type]]
-    def rolloverSelectedIcon: Var.Aux[javax.swing.Icon | Null, v.type] = ButtonBase.RolloverSelectedIcon.asInstanceOf[Var.Aux[javax.swing.Icon | Null, v.type]]
-    def selected: Var.Aux[Boolean, v.type] = ButtonBase.Selected.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def selectedIcon: Var.Aux[javax.swing.Icon | Null, v.type] = ButtonBase.SelectedIcon.asInstanceOf[Var.Aux[javax.swing.Icon | Null, v.type]]
-    def text: Var.Aux[java.lang.String | Null, v.type] = ButtonBase.Text.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
-    def verticalAlignment: Var.Aux[Int, v.type] = ButtonBase.VerticalAlignment.asInstanceOf[Var.Aux[Int, v.type]]
-    def verticalTextPosition: Var.Aux[Int, v.type] = ButtonBase.VerticalTextPosition.asInstanceOf[Var.Aux[Int, v.type]]
+  given ops as Ops.type = Ops
+  object Ops {
+    extension (v: ButtonBase) {
+      def UI: Var.Aux[javax.swing.plaf.ButtonUI, v.type] = ButtonBase.UI.asInstanceOf[Var.Aux[javax.swing.plaf.ButtonUI, v.type]]
+      def action: Var.Aux[javax.swing.Action | Null, v.type] = ButtonBase.Action.asInstanceOf[Var.Aux[javax.swing.Action | Null, v.type]]
+      def actionCommand: Var.Aux[java.lang.String | Null, v.type] = ButtonBase.ActionCommand.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
+      def armed: Var.Aux[Boolean, v.type] = ButtonBase.Armed.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def borderPainted: Var.Aux[Boolean, v.type] = ButtonBase.BorderPainted.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def contentAreaFilled: Var.Aux[Boolean, v.type] = ButtonBase.ContentAreaFilled.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def disabledIcon: Var.Aux[javax.swing.Icon | Null, v.type] = ButtonBase.DisabledIcon.asInstanceOf[Var.Aux[javax.swing.Icon | Null, v.type]]
+      def disabledSelectedIcon: Var.Aux[javax.swing.Icon | Null, v.type] = ButtonBase.DisabledSelectedIcon.asInstanceOf[Var.Aux[javax.swing.Icon | Null, v.type]]
+      def displayedMnemonicIndex: Var.Aux[Int, v.type] = ButtonBase.DisplayedMnemonicIndex.asInstanceOf[Var.Aux[Int, v.type]]
+      def enabled: Var.Aux[Boolean, v.type] = ButtonBase.Enabled.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def focusPainted: Var.Aux[Boolean, v.type] = ButtonBase.FocusPainted.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def hideActionText: Var.Aux[Boolean, v.type] = ButtonBase.HideActionText.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def horizontalAlignment: Var.Aux[Int, v.type] = ButtonBase.HorizontalAlignment.asInstanceOf[Var.Aux[Int, v.type]]
+      def horizontalTextPosition: Var.Aux[Int, v.type] = ButtonBase.HorizontalTextPosition.asInstanceOf[Var.Aux[Int, v.type]]
+      def icon: Var.Aux[javax.swing.Icon | Null, v.type] = ButtonBase.Icon.asInstanceOf[Var.Aux[javax.swing.Icon | Null, v.type]]
+      def iconTextGap: Var.Aux[Int, v.type] = ButtonBase.IconTextGap.asInstanceOf[Var.Aux[Int, v.type]]
+      def label: Var.Aux[java.lang.String | Null, v.type] = ButtonBase.Label.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
+      def margin: Var.Aux[java.awt.Insets | Null, v.type] = ButtonBase.Margin.asInstanceOf[Var.Aux[java.awt.Insets | Null, v.type]]
+      def mnemonic: Var.Aux[Int, v.type] = ButtonBase.Mnemonic.asInstanceOf[Var.Aux[Int, v.type]]
+      def model: Var.Aux[javax.swing.ButtonModel | Null, v.type] = ButtonBase.Model.asInstanceOf[Var.Aux[javax.swing.ButtonModel | Null, v.type]]
+      def multiClickThreshhold: Var.Aux[Long, v.type] = ButtonBase.MultiClickThreshhold.asInstanceOf[Var.Aux[Long, v.type]]
+      def pressed: Var.Aux[Boolean, v.type] = ButtonBase.Pressed.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def pressedIcon: Var.Aux[javax.swing.Icon | Null, v.type] = ButtonBase.PressedIcon.asInstanceOf[Var.Aux[javax.swing.Icon | Null, v.type]]
+      def rollover: Var.Aux[Boolean, v.type] = ButtonBase.Rollover.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def rolloverEnabled: Var.Aux[Boolean, v.type] = ButtonBase.RolloverEnabled.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def rolloverIcon: Var.Aux[javax.swing.Icon | Null, v.type] = ButtonBase.RolloverIcon.asInstanceOf[Var.Aux[javax.swing.Icon | Null, v.type]]
+      def rolloverSelectedIcon: Var.Aux[javax.swing.Icon | Null, v.type] = ButtonBase.RolloverSelectedIcon.asInstanceOf[Var.Aux[javax.swing.Icon | Null, v.type]]
+      def selected: Var.Aux[Boolean, v.type] = ButtonBase.Selected.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def selectedIcon: Var.Aux[javax.swing.Icon | Null, v.type] = ButtonBase.SelectedIcon.asInstanceOf[Var.Aux[javax.swing.Icon | Null, v.type]]
+      def text: Var.Aux[java.lang.String | Null, v.type] = ButtonBase.Text.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
+      def verticalAlignment: Var.Aux[Int, v.type] = ButtonBase.VerticalAlignment.asInstanceOf[Var.Aux[Int, v.type]]
+      def verticalTextPosition: Var.Aux[Int, v.type] = ButtonBase.VerticalTextPosition.asInstanceOf[Var.Aux[Int, v.type]]
 
-    def actionEvents: Emitter.Aux[java.awt.event.ActionEvent, v.type] = ButtonBase.ActionEvents.forInstance(v)
+      def actionEvents: Emitter.Aux[java.awt.event.ActionEvent, v.type] = ButtonBase.ActionEvents.forInstance(v)
 
-    def actionListeners = v.getActionListeners
-    def changeListeners = v.getChangeListeners
-    def itemListeners = v.getItemListeners
-    def selectedObjects = v.getSelectedObjects
-    def unwrap: javax.swing.AbstractButton = v
+      def actionListeners = v.getActionListeners
+      def changeListeners = v.getChangeListeners
+      def itemListeners = v.getItemListeners
+      def selectedObjects = v.getSelectedObjects
+      def unwrap: javax.swing.AbstractButton = v
+    }
   }
 
   def wrap(v: javax.swing.AbstractButton) = v.asInstanceOf[ButtonBase]

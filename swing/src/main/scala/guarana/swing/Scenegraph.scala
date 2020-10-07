@@ -176,7 +176,8 @@ class Scenegraph {
             MousePosition(origin.getX, origin.getY, origin.getXOnScreen, origin.getYOnScreen),
             MousePosition(evt.getX, evt.getY, evt.getXOnScreen, evt.getYOnScreen),
             false,
-            evt.nn
+            evt.nn,
+            origin
           ))
       }
     }
@@ -194,7 +195,8 @@ class Scenegraph {
               MousePosition(origin.getX, origin.getY, origin.getXOnScreen, origin.getYOnScreen),
               MousePosition(evt.getX, evt.getY, evt.getXOnScreen, evt.getYOnScreen),
               true,
-              evt.nn
+              evt.nn,
+              origin
             ))
           dragStart = None
       }

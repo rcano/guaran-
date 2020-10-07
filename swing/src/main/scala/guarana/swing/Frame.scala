@@ -3,9 +3,9 @@
 package guarana.swing
 
 import language.implicitConversions
-import java.awt.{Component => _, TextComponent => _, TextField => _, _}
+import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, _}
 import java.awt.event._
-import javax.swing._
+import javax.swing.{Action => _, _}
 import javax.swing.event._
 import guarana.swing.util._
 import scala.jdk.CollectionConverters._
@@ -19,7 +19,7 @@ object Frame extends VarsMap {
   val GlassPane: SwingVar.Aux[Frame, java.awt.Component | Null] = SwingVar[Frame, java.awt.Component | Null]("glassPane", _.getGlassPane, _.setGlassPane(_))
   val LayeredPane: SwingVar.Aux[Frame, javax.swing.JLayeredPane | Null] = SwingVar[Frame, javax.swing.JLayeredPane | Null]("layeredPane", _.getLayeredPane, _.setLayeredPane(_))
   val MaximizedBounds: SwingVar.Aux[Frame, Bounds | Null] = SwingVar[Frame, Bounds | Null]("maximizedBounds", _.getMaximizedBounds, _.setMaximizedBounds(_))
-  val MenuBar: SwingVar.Aux[Frame, javax.swing.JMenuBar | Null] = SwingVar[Frame, javax.swing.JMenuBar | Null]("menuBar", _.getJMenuBar, _.setJMenuBar(_))
+  val MenuBar: SwingVar.Aux[Frame, guarana.swing.MenuBar | Null] = SwingVar[Frame, guarana.swing.MenuBar | Null]("menuBar", _.getJMenuBar.?(guarana.swing.MenuBar.wrap), (f, m) => f.setJMenuBar(m.?(_.unwrap)))
   val Resizable: SwingVar.Aux[Frame, Boolean] = SwingVar[Frame, Boolean]("resizable", _.isResizable, _.setResizable(_))
   val State: SwingVar.Aux[Frame, Int] = SwingVar[Frame, Int]("state", _.getState, _.setState(_))
   val Title: SwingVar.Aux[Frame, java.lang.String | Null] = SwingVar[Frame, java.lang.String | Null]("title", _.getTitle, _.setTitle(_))
@@ -28,24 +28,27 @@ object Frame extends VarsMap {
 
   
 
-  extension ops on (v: Frame) {
-    def contentPane: Var.Aux[java.awt.Container, v.type] = Frame.ContentPane.asInstanceOf[Var.Aux[java.awt.Container, v.type]]
-    def defaultCloseOperation: Var.Aux[Int, v.type] = Frame.DefaultCloseOperation.asInstanceOf[Var.Aux[Int, v.type]]
-    def extendedState: Var.Aux[Int, v.type] = Frame.ExtendedState.asInstanceOf[Var.Aux[Int, v.type]]
-    def glassPane: Var.Aux[java.awt.Component | Null, v.type] = Frame.GlassPane.asInstanceOf[Var.Aux[java.awt.Component | Null, v.type]]
-    def layeredPane: Var.Aux[javax.swing.JLayeredPane | Null, v.type] = Frame.LayeredPane.asInstanceOf[Var.Aux[javax.swing.JLayeredPane | Null, v.type]]
-    def maximizedBounds: Var.Aux[Bounds | Null, v.type] = Frame.MaximizedBounds.asInstanceOf[Var.Aux[Bounds | Null, v.type]]
-    def menuBar: Var.Aux[javax.swing.JMenuBar | Null, v.type] = Frame.MenuBar.asInstanceOf[Var.Aux[javax.swing.JMenuBar | Null, v.type]]
-    def resizable: Var.Aux[Boolean, v.type] = Frame.Resizable.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def state: Var.Aux[Int, v.type] = Frame.State.asInstanceOf[Var.Aux[Int, v.type]]
-    def title: Var.Aux[java.lang.String | Null, v.type] = Frame.Title.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
-    def transferHandler: Var.Aux[javax.swing.TransferHandler | Null, v.type] = Frame.TransferHandler.asInstanceOf[Var.Aux[javax.swing.TransferHandler | Null, v.type]]
-    def undecorated: Var.Aux[Boolean, v.type] = Frame.Undecorated.asInstanceOf[Var.Aux[Boolean, v.type]]
+  given ops as Ops.type = Ops
+  object Ops {
+    extension (v: Frame) {
+      def contentPane: Var.Aux[java.awt.Container, v.type] = Frame.ContentPane.asInstanceOf[Var.Aux[java.awt.Container, v.type]]
+      def defaultCloseOperation: Var.Aux[Int, v.type] = Frame.DefaultCloseOperation.asInstanceOf[Var.Aux[Int, v.type]]
+      def extendedState: Var.Aux[Int, v.type] = Frame.ExtendedState.asInstanceOf[Var.Aux[Int, v.type]]
+      def glassPane: Var.Aux[java.awt.Component | Null, v.type] = Frame.GlassPane.asInstanceOf[Var.Aux[java.awt.Component | Null, v.type]]
+      def layeredPane: Var.Aux[javax.swing.JLayeredPane | Null, v.type] = Frame.LayeredPane.asInstanceOf[Var.Aux[javax.swing.JLayeredPane | Null, v.type]]
+      def maximizedBounds: Var.Aux[Bounds | Null, v.type] = Frame.MaximizedBounds.asInstanceOf[Var.Aux[Bounds | Null, v.type]]
+      def menuBar: Var.Aux[guarana.swing.MenuBar | Null, v.type] = Frame.MenuBar.asInstanceOf[Var.Aux[guarana.swing.MenuBar | Null, v.type]]
+      def resizable: Var.Aux[Boolean, v.type] = Frame.Resizable.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def state: Var.Aux[Int, v.type] = Frame.State.asInstanceOf[Var.Aux[Int, v.type]]
+      def title: Var.Aux[java.lang.String | Null, v.type] = Frame.Title.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
+      def transferHandler: Var.Aux[javax.swing.TransferHandler | Null, v.type] = Frame.TransferHandler.asInstanceOf[Var.Aux[javax.swing.TransferHandler | Null, v.type]]
+      def undecorated: Var.Aux[Boolean, v.type] = Frame.Undecorated.asInstanceOf[Var.Aux[Boolean, v.type]]
 
-    
+      
 
-    def rootPane: JRootPane = v.getRootPane.nn
-    def unwrap: javax.swing.JFrame = v
+      def rootPane: JRootPane = v.getRootPane.nn
+      def unwrap: javax.swing.JFrame = v
+    }
   }
 
   def wrap(v: javax.swing.JFrame) = v.asInstanceOf[Frame]
@@ -85,7 +88,7 @@ object Frame extends VarsMap {
     locationByPlatform: Opt[Binding[Boolean]] = UnsetParam,
     maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     maximizedBounds: Opt[Binding[Bounds | Null]] = UnsetParam,
-    menuBar: Opt[Binding[javax.swing.JMenuBar | Null]] = UnsetParam,
+    menuBar: Opt[Binding[guarana.swing.MenuBar | Null]] = UnsetParam,
     minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     modalExclusionType: Opt[Binding[java.awt.Dialog.ModalExclusionType]] = UnsetParam,
     mouseDragMut: Opt[Binding[Option[MouseDrag]]] = UnsetParam,
@@ -102,7 +105,7 @@ object Frame extends VarsMap {
     undecorated: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): Scenegraph ?=> VarContextAction[Frame] = {
-    val res = uninitialized()
+    val res = uninitialized(gc)
     Frame.init(res)
     ifSet(alwaysOnTop, WindowBase.ops.extension_alwaysOnTop(res) := _)
     ifSet(autoRequestFocus, WindowBase.ops.extension_autoRequestFocus(res) := _)

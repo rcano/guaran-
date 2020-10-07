@@ -3,7 +3,7 @@ package guarana.swing
 import language.implicitConversions
 import util._
 
-extension metrics on (d: Double | Float | Int) {
+extension (d: Double | Float | Int) {
   inline def em(using sc: Scenegraph, vc: VarContext) = 
     (inline d match {
       case i: Int => i.toDouble
@@ -35,7 +35,7 @@ inline def [T, U](e: T | Null) ? (inline f: T => U): U | Null = if (e != null) f
 inline def [T](e: T | Null) toOption: Option[T] = if (e != null) Some(e) else None
 inline def [F[_], T](e: F[T | Null] | Null) nnn: F[T] = e.asInstanceOf[F[T]]
 
-extension documentOps on (d: javax.swing.text.Document) {
+extension (d: javax.swing.text.Document) {
   def defaultRootElement = d.getDefaultRootElement
   def length = d.getLength
   def empty = d.length == 0
@@ -52,7 +52,7 @@ extension documentOps on (d: javax.swing.text.Document) {
   def rootElements = d.getRootElements
 }
 
-extension listModelOps on [E](m: javax.swing.ListModel[E]) {
+extension [E](m: javax.swing.ListModel[E]) {
   def elements: collection.IndexedSeqView[E] = (0 until m.getSize).view.map(m.getElementAt(_).nn)
 }
 implicit def seqToListModel[E](s: Seq[E]): javax.swing.ListModel[E] = new javax.swing.AbstractListModel[E] {

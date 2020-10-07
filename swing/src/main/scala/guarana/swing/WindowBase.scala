@@ -3,9 +3,9 @@
 package guarana.swing
 
 import language.implicitConversions
-import java.awt.{Component => _, TextComponent => _, TextField => _, _}
+import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, _}
 import java.awt.event._
-import javax.swing._
+import javax.swing.{Action => _, _}
 import javax.swing.event._
 import guarana.swing.util._
 import scala.jdk.CollectionConverters._
@@ -27,46 +27,49 @@ object WindowBase extends VarsMap {
 
   
 
-  extension ops on (v: WindowBase) {
-    def alwaysOnTop: Var.Aux[Boolean, v.type] = WindowBase.AlwaysOnTop.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def autoRequestFocus: Var.Aux[Boolean, v.type] = WindowBase.AutoRequestFocus.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def focusCycleRoot: Var.Aux[Boolean, v.type] = WindowBase.FocusCycleRoot.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def focusableWindowState: Var.Aux[Boolean, v.type] = WindowBase.FocusableWindowState.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def iconImages: Var.Aux[Seq[java.awt.Image], v.type] = WindowBase.IconImages.asInstanceOf[Var.Aux[Seq[java.awt.Image], v.type]]
-    def locationByPlatform: Var.Aux[Boolean, v.type] = WindowBase.LocationByPlatform.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def modalExclusionType: Var.Aux[java.awt.Dialog.ModalExclusionType, v.type] = WindowBase.ModalExclusionType.asInstanceOf[Var.Aux[java.awt.Dialog.ModalExclusionType, v.type]]
-    def opacity: Var.Aux[Float, v.type] = WindowBase.Opacity.asInstanceOf[Var.Aux[Float, v.type]]
-    def root: Var.Aux[Node, v.type] = WindowBase.Root.asInstanceOf[Var.Aux[Node, v.type]]
-    def shape: Var.Aux[java.awt.Shape | Null, v.type] = WindowBase.Shape.asInstanceOf[Var.Aux[java.awt.Shape | Null, v.type]]
-    def tpe: Var.Aux[java.awt.Window.Type, v.type] = WindowBase.Tpe.asInstanceOf[Var.Aux[java.awt.Window.Type, v.type]]
+  given ops as Ops.type = Ops
+  object Ops {
+    extension (v: WindowBase) {
+      def alwaysOnTop: Var.Aux[Boolean, v.type] = WindowBase.AlwaysOnTop.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def autoRequestFocus: Var.Aux[Boolean, v.type] = WindowBase.AutoRequestFocus.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def focusCycleRoot: Var.Aux[Boolean, v.type] = WindowBase.FocusCycleRoot.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def focusableWindowState: Var.Aux[Boolean, v.type] = WindowBase.FocusableWindowState.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def iconImages: Var.Aux[Seq[java.awt.Image], v.type] = WindowBase.IconImages.asInstanceOf[Var.Aux[Seq[java.awt.Image], v.type]]
+      def locationByPlatform: Var.Aux[Boolean, v.type] = WindowBase.LocationByPlatform.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def modalExclusionType: Var.Aux[java.awt.Dialog.ModalExclusionType, v.type] = WindowBase.ModalExclusionType.asInstanceOf[Var.Aux[java.awt.Dialog.ModalExclusionType, v.type]]
+      def opacity: Var.Aux[Float, v.type] = WindowBase.Opacity.asInstanceOf[Var.Aux[Float, v.type]]
+      def root: Var.Aux[Node, v.type] = WindowBase.Root.asInstanceOf[Var.Aux[Node, v.type]]
+      def shape: Var.Aux[java.awt.Shape | Null, v.type] = WindowBase.Shape.asInstanceOf[Var.Aux[java.awt.Shape | Null, v.type]]
+      def tpe: Var.Aux[java.awt.Window.Type, v.type] = WindowBase.Tpe.asInstanceOf[Var.Aux[java.awt.Window.Type, v.type]]
 
-    
+      
 
-    def accessibleContext = v.getAccessibleContext
-    def active = v.isActive
-    def alwaysOnTopSupported = v.isAlwaysOnTopSupported
-    def bufferStrategy = v.getBufferStrategy
-    def focusCycleRootAncestor = v.getFocusCycleRootAncestor
-    def focusOwner = v.getFocusOwner
-    def focusableWindow = v.isFocusableWindow
-    def focused = v.isFocused
-    def inputContext = v.getInputContext
-    def locale = v.getLocale
-    def mostRecentFocusOwner = v.getMostRecentFocusOwner
-    def opaque = v.isOpaque
-    def ownedWindows = v.getOwnedWindows
-    def owner = v.getOwner
-    def pack() = v.pack()
-    def showing = v.isShowing
-    def toFront() = v.toFront()
-    def toBack() = v.toBack()
-    def toolkit = v.getToolkit
-    def validateRoot = v.isValidateRoot
-    def warningString = v.getWarningString
-    def windowFocusListeners = v.getWindowFocusListeners
-    def windowListeners = v.getWindowListeners
-    def windowStateListeners = v.getWindowStateListeners
-    def unwrap: java.awt.Window = v
+      def accessibleContext = v.getAccessibleContext
+      def active = v.isActive
+      def alwaysOnTopSupported = v.isAlwaysOnTopSupported
+      def bufferStrategy = v.getBufferStrategy
+      def focusCycleRootAncestor = v.getFocusCycleRootAncestor
+      def focusOwner = v.getFocusOwner
+      def focusableWindow = v.isFocusableWindow
+      def focused = v.isFocused
+      def inputContext = v.getInputContext
+      def locale = v.getLocale
+      def mostRecentFocusOwner = v.getMostRecentFocusOwner
+      def opaque = v.isOpaque
+      def ownedWindows = v.getOwnedWindows
+      def owner = v.getOwner
+      def pack() = v.pack()
+      def showing = v.isShowing
+      def toFront() = v.toFront()
+      def toBack() = v.toBack()
+      def toolkit = v.getToolkit
+      def validateRoot = v.isValidateRoot
+      def warningString = v.getWarningString
+      def windowFocusListeners = v.getWindowFocusListeners
+      def windowListeners = v.getWindowListeners
+      def windowStateListeners = v.getWindowStateListeners
+      def unwrap: java.awt.Window = v
+    }
   }
 
   def wrap(v: java.awt.Window) = v.asInstanceOf[WindowBase]
@@ -111,7 +114,7 @@ object WindowBase extends VarsMap {
     tpe: Opt[Binding[java.awt.Window.Type]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): Scenegraph ?=> VarContextAction[WindowBase] = {
-    val res = uninitialized()
+    val res = uninitialized(parent, gc)
     WindowBase.init(res)
     ifSet(alwaysOnTop, WindowBase.ops.extension_alwaysOnTop(res) := _)
     ifSet(autoRequestFocus, WindowBase.ops.extension_autoRequestFocus(res) := _)

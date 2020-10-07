@@ -3,9 +3,9 @@
 package guarana.swing
 
 import language.implicitConversions
-import java.awt.{Component => _, TextComponent => _, TextField => _, _}
+import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, _}
 import java.awt.event._
-import javax.swing._
+import javax.swing.{Action => _, _}
 import javax.swing.event._
 import guarana.swing.util._
 import scala.jdk.CollectionConverters._
@@ -26,22 +26,25 @@ object ScrollBar extends VarsMap {
 
   
 
-  extension ops on (v: ScrollBar) {
-    def UI: Var.Aux[javax.swing.plaf.ScrollBarUI, v.type] = ScrollBar.UI.asInstanceOf[Var.Aux[javax.swing.plaf.ScrollBarUI, v.type]]
-    def blockIncrement: Var.Aux[Int, v.type] = ScrollBar.BlockIncrement.asInstanceOf[Var.Aux[Int, v.type]]
-    def maximum: Var.Aux[Int, v.type] = ScrollBar.Maximum.asInstanceOf[Var.Aux[Int, v.type]]
-    def minimum: Var.Aux[Int, v.type] = ScrollBar.Minimum.asInstanceOf[Var.Aux[Int, v.type]]
-    def model: Var.Aux[javax.swing.BoundedRangeModel, v.type] = ScrollBar.Model.asInstanceOf[Var.Aux[javax.swing.BoundedRangeModel, v.type]]
-    def orientation: Var.Aux[Int, v.type] = ScrollBar.Orientation.asInstanceOf[Var.Aux[Int, v.type]]
-    def unitIncrement: Var.Aux[Int, v.type] = ScrollBar.UnitIncrement.asInstanceOf[Var.Aux[Int, v.type]]
-    def value: Var.Aux[Int, v.type] = ScrollBar.Value.asInstanceOf[Var.Aux[Int, v.type]]
-    def valueIsAdjusting: Var.Aux[Boolean, v.type] = ScrollBar.ValueIsAdjusting.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def visibleAmount: Var.Aux[Int, v.type] = ScrollBar.VisibleAmount.asInstanceOf[Var.Aux[Int, v.type]]
+  given ops as Ops.type = Ops
+  object Ops {
+    extension (v: ScrollBar) {
+      def UI: Var.Aux[javax.swing.plaf.ScrollBarUI, v.type] = ScrollBar.UI.asInstanceOf[Var.Aux[javax.swing.plaf.ScrollBarUI, v.type]]
+      def blockIncrement: Var.Aux[Int, v.type] = ScrollBar.BlockIncrement.asInstanceOf[Var.Aux[Int, v.type]]
+      def maximum: Var.Aux[Int, v.type] = ScrollBar.Maximum.asInstanceOf[Var.Aux[Int, v.type]]
+      def minimum: Var.Aux[Int, v.type] = ScrollBar.Minimum.asInstanceOf[Var.Aux[Int, v.type]]
+      def model: Var.Aux[javax.swing.BoundedRangeModel, v.type] = ScrollBar.Model.asInstanceOf[Var.Aux[javax.swing.BoundedRangeModel, v.type]]
+      def orientation: Var.Aux[Int, v.type] = ScrollBar.Orientation.asInstanceOf[Var.Aux[Int, v.type]]
+      def unitIncrement: Var.Aux[Int, v.type] = ScrollBar.UnitIncrement.asInstanceOf[Var.Aux[Int, v.type]]
+      def value: Var.Aux[Int, v.type] = ScrollBar.Value.asInstanceOf[Var.Aux[Int, v.type]]
+      def valueIsAdjusting: Var.Aux[Boolean, v.type] = ScrollBar.ValueIsAdjusting.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def visibleAmount: Var.Aux[Int, v.type] = ScrollBar.VisibleAmount.asInstanceOf[Var.Aux[Int, v.type]]
 
-    
+      
 
-    def adjustmentListeners: Array[java.awt.event.AdjustmentListener] = v.getAdjustmentListeners.asInstanceOf
-    def unwrap: javax.swing.JScrollBar = v
+      def adjustmentListeners: Array[java.awt.event.AdjustmentListener] = v.getAdjustmentListeners.asInstanceOf
+      def unwrap: javax.swing.JScrollBar = v
+    }
   }
 
   def wrap(v: javax.swing.JScrollBar) = v.asInstanceOf[ScrollBar]

@@ -3,9 +3,9 @@
 package guarana.swing
 
 import language.implicitConversions
-import java.awt.{Component => _, TextComponent => _, TextField => _, _}
+import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, _}
 import java.awt.event._
-import javax.swing._
+import javax.swing.{Action => _, _}
 import javax.swing.event._
 import guarana.swing.util._
 import scala.jdk.CollectionConverters._
@@ -20,16 +20,19 @@ object Spinner extends VarsMap {
 
   
 
-  extension ops on [E](v: Spinner[E]) {
-    def UI: Var.Aux[javax.swing.plaf.SpinnerUI, v.type] = Spinner.UI.asInstanceOf[Var.Aux[javax.swing.plaf.SpinnerUI, v.type]]
-    def editor: Var.Aux[javax.swing.JComponent | Null, v.type] = Spinner.Editor.asInstanceOf[Var.Aux[javax.swing.JComponent | Null, v.type]]
-    def model: Var.Aux[javax.swing.SpinnerModel, v.type] = Spinner.Model.asInstanceOf[Var.Aux[javax.swing.SpinnerModel, v.type]]
-    def value: Var.Aux[E, v.type] = Spinner.Value.asInstanceOf[Var.Aux[E, v.type]]
+  given ops as Ops.type = Ops
+  object Ops {
+    extension [E](v: Spinner[E]) {
+      def UI: Var.Aux[javax.swing.plaf.SpinnerUI, v.type] = Spinner.UI.asInstanceOf[Var.Aux[javax.swing.plaf.SpinnerUI, v.type]]
+      def editor: Var.Aux[javax.swing.JComponent | Null, v.type] = Spinner.Editor.asInstanceOf[Var.Aux[javax.swing.JComponent | Null, v.type]]
+      def model: Var.Aux[javax.swing.SpinnerModel, v.type] = Spinner.Model.asInstanceOf[Var.Aux[javax.swing.SpinnerModel, v.type]]
+      def value: Var.Aux[E, v.type] = Spinner.Value.asInstanceOf[Var.Aux[E, v.type]]
 
-    
+      
 
-    
-    def unwrap: javax.swing.JSpinner = v
+      
+      def unwrap: javax.swing.JSpinner = v
+    }
   }
 
   def wrap[E](v: javax.swing.JSpinner) = v.asInstanceOf[Spinner[E]]

@@ -3,9 +3,9 @@
 package guarana.swing
 
 import language.implicitConversions
-import java.awt.{Component => _, TextComponent => _, TextField => _, _}
+import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, _}
 import java.awt.event._
-import javax.swing._
+import javax.swing.{Action => _, _}
 import javax.swing.event._
 import guarana.swing.util._
 import scala.jdk.CollectionConverters._
@@ -17,13 +17,16 @@ object PasswordField extends VarsMap {
 
   
 
-  extension ops on (v: PasswordField) {
-    def echoChar: Var.Aux[Char, v.type] = PasswordField.EchoChar.asInstanceOf[Var.Aux[Char, v.type]]
+  given ops as Ops.type = Ops
+  object Ops {
+    extension (v: PasswordField) {
+      def echoChar: Var.Aux[Char, v.type] = PasswordField.EchoChar.asInstanceOf[Var.Aux[Char, v.type]]
 
-    
+      
 
-    def password = v.getPassword
-    def unwrap: javax.swing.JPasswordField = v
+      def password = v.getPassword
+      def unwrap: javax.swing.JPasswordField = v
+    }
   }
 
   def wrap(v: javax.swing.JPasswordField) = v.asInstanceOf[PasswordField]

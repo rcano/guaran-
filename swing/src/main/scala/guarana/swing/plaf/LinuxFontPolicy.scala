@@ -67,7 +67,7 @@ object LinuxFontPolicy {
 
         kdeGlobals.get("General").flatMap(_ get "font") foreach { font =>
           try {
-            val parts = font.split(",", 2).nnn  
+            val parts = font.split(",").nnn  
             family = parts(0)
             size = parts(1).toInt
             if ("75" == parts(4)) style |= Font.BOLD

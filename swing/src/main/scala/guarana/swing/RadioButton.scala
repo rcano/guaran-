@@ -3,9 +3,9 @@
 package guarana.swing
 
 import language.implicitConversions
-import java.awt.{Component => _, TextComponent => _, TextField => _, _}
+import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, _}
 import java.awt.event._
-import javax.swing._
+import javax.swing.{Action => _, _}
 import javax.swing.event._
 import guarana.swing.util._
 import scala.jdk.CollectionConverters._
@@ -17,13 +17,16 @@ object RadioButton extends VarsMap {
 
   
 
-  extension ops on (v: RadioButton) {
-    
+  given ops as Ops.type = Ops
+  object Ops {
+    extension (v: RadioButton) {
+      
 
-    
+      
 
-    
-    def unwrap: javax.swing.JRadioButton = v
+      
+      def unwrap: javax.swing.JRadioButton = v
+    }
   }
 
   def wrap(v: javax.swing.JRadioButton) = v.asInstanceOf[RadioButton]
@@ -167,5 +170,5 @@ object RadioButton extends VarsMap {
     ifSet(visible, Node.ops.extension_visible(res) := _)
     res
   }
-  
+  def apply(a: Action): Scenegraph ?=> RadioButton = wrap(javax.swing.JRadioButton(a.unwrap)).tap(init)
 }

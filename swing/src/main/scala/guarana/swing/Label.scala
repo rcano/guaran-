@@ -3,9 +3,9 @@
 package guarana.swing
 
 import language.implicitConversions
-import java.awt.{Component => _, TextComponent => _, TextField => _, _}
+import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, _}
 import java.awt.event._
-import javax.swing._
+import javax.swing.{Action => _, _}
 import javax.swing.event._
 import guarana.swing.util._
 import scala.jdk.CollectionConverters._
@@ -28,24 +28,27 @@ object Label extends VarsMap {
 
   
 
-  extension ops on (v: Label) {
-    def UI: Var.Aux[javax.swing.plaf.LabelUI, v.type] = Label.UI.asInstanceOf[Var.Aux[javax.swing.plaf.LabelUI, v.type]]
-    def disabledIcon: Var.Aux[javax.swing.Icon | Null, v.type] = Label.DisabledIcon.asInstanceOf[Var.Aux[javax.swing.Icon | Null, v.type]]
-    def displayedMnemonic: Var.Aux[Int, v.type] = Label.DisplayedMnemonic.asInstanceOf[Var.Aux[Int, v.type]]
-    def displayedMnemonicIndex: Var.Aux[Int, v.type] = Label.DisplayedMnemonicIndex.asInstanceOf[Var.Aux[Int, v.type]]
-    def horizontalAlignment: Var.Aux[Int, v.type] = Label.HorizontalAlignment.asInstanceOf[Var.Aux[Int, v.type]]
-    def horizontalTextPosition: Var.Aux[Int, v.type] = Label.HorizontalTextPosition.asInstanceOf[Var.Aux[Int, v.type]]
-    def icon: Var.Aux[javax.swing.Icon | Null, v.type] = Label.Icon.asInstanceOf[Var.Aux[javax.swing.Icon | Null, v.type]]
-    def iconTextGap: Var.Aux[Double, v.type] = Label.IconTextGap.asInstanceOf[Var.Aux[Double, v.type]]
-    def labelFor: Var.Aux[java.awt.Component | Null, v.type] = Label.LabelFor.asInstanceOf[Var.Aux[java.awt.Component | Null, v.type]]
-    def text: Var.Aux[java.lang.String | Null, v.type] = Label.Text.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
-    def verticalAlignment: Var.Aux[Int, v.type] = Label.VerticalAlignment.asInstanceOf[Var.Aux[Int, v.type]]
-    def verticalTextPosition: Var.Aux[Int, v.type] = Label.VerticalTextPosition.asInstanceOf[Var.Aux[Int, v.type]]
+  given ops as Ops.type = Ops
+  object Ops {
+    extension (v: Label) {
+      def UI: Var.Aux[javax.swing.plaf.LabelUI, v.type] = Label.UI.asInstanceOf[Var.Aux[javax.swing.plaf.LabelUI, v.type]]
+      def disabledIcon: Var.Aux[javax.swing.Icon | Null, v.type] = Label.DisabledIcon.asInstanceOf[Var.Aux[javax.swing.Icon | Null, v.type]]
+      def displayedMnemonic: Var.Aux[Int, v.type] = Label.DisplayedMnemonic.asInstanceOf[Var.Aux[Int, v.type]]
+      def displayedMnemonicIndex: Var.Aux[Int, v.type] = Label.DisplayedMnemonicIndex.asInstanceOf[Var.Aux[Int, v.type]]
+      def horizontalAlignment: Var.Aux[Int, v.type] = Label.HorizontalAlignment.asInstanceOf[Var.Aux[Int, v.type]]
+      def horizontalTextPosition: Var.Aux[Int, v.type] = Label.HorizontalTextPosition.asInstanceOf[Var.Aux[Int, v.type]]
+      def icon: Var.Aux[javax.swing.Icon | Null, v.type] = Label.Icon.asInstanceOf[Var.Aux[javax.swing.Icon | Null, v.type]]
+      def iconTextGap: Var.Aux[Double, v.type] = Label.IconTextGap.asInstanceOf[Var.Aux[Double, v.type]]
+      def labelFor: Var.Aux[java.awt.Component | Null, v.type] = Label.LabelFor.asInstanceOf[Var.Aux[java.awt.Component | Null, v.type]]
+      def text: Var.Aux[java.lang.String | Null, v.type] = Label.Text.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
+      def verticalAlignment: Var.Aux[Int, v.type] = Label.VerticalAlignment.asInstanceOf[Var.Aux[Int, v.type]]
+      def verticalTextPosition: Var.Aux[Int, v.type] = Label.VerticalTextPosition.asInstanceOf[Var.Aux[Int, v.type]]
 
-    
+      
 
-    
-    def unwrap: javax.swing.JLabel = v
+      
+      def unwrap: javax.swing.JLabel = v
+    }
   }
 
   def wrap(v: javax.swing.JLabel) = v.asInstanceOf[Label]

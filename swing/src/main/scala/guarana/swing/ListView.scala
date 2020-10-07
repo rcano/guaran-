@@ -3,9 +3,9 @@
 package guarana.swing
 
 import language.implicitConversions
-import java.awt.{Component => _, TextComponent => _, TextField => _, _}
+import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, _}
 import java.awt.event._
-import javax.swing._
+import javax.swing.{Action => _, _}
 import javax.swing.event._
 import guarana.swing.util._
 import scala.jdk.CollectionConverters._
@@ -33,42 +33,45 @@ object ListView extends VarsMap {
 
   
 
-  extension ops on [E](v: ListView[E]) {
-    def UI: Var.Aux[javax.swing.plaf.ListUI, v.type] = ListView.UI.asInstanceOf[Var.Aux[javax.swing.plaf.ListUI, v.type]]
-    def cellRenderer: Var.Aux[javax.swing.ListCellRenderer[_ >: E], v.type] = ListView.CellRenderer.asInstanceOf[Var.Aux[javax.swing.ListCellRenderer[_ >: E], v.type]]
-    def dragEnabled: Var.Aux[Boolean, v.type] = ListView.DragEnabled.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def dropMode: Var.Aux[javax.swing.DropMode | Null, v.type] = ListView.DropMode.asInstanceOf[Var.Aux[javax.swing.DropMode | Null, v.type]]
-    def fixedCellHeight: Var.Aux[Int, v.type] = ListView.FixedCellHeight.asInstanceOf[Var.Aux[Int, v.type]]
-    def fixedCellWidth: Var.Aux[Int, v.type] = ListView.FixedCellWidth.asInstanceOf[Var.Aux[Int, v.type]]
-    def layoutOrientation: Var.Aux[Int, v.type] = ListView.LayoutOrientation.asInstanceOf[Var.Aux[Int, v.type]]
-    def model: Var.Aux[javax.swing.ListModel[E], v.type] = ListView.Model.asInstanceOf[Var.Aux[javax.swing.ListModel[E], v.type]]
-    def prototypeCellValue: Var.Aux[E | Null, v.type] = ListView.PrototypeCellValue.asInstanceOf[Var.Aux[E | Null, v.type]]
-    def selectedIndex: Var.Aux[Int, v.type] = ListView.SelectedIndex.asInstanceOf[Var.Aux[Int, v.type]]
-    def selectedIndices: Var.Aux[Array[Int], v.type] = ListView.SelectedIndices.asInstanceOf[Var.Aux[Array[Int], v.type]]
-    def selectionBackground: Var.Aux[java.awt.Color | Null, v.type] = ListView.SelectionBackground.asInstanceOf[Var.Aux[java.awt.Color | Null, v.type]]
-    def selectionForeground: Var.Aux[java.awt.Color | Null, v.type] = ListView.SelectionForeground.asInstanceOf[Var.Aux[java.awt.Color | Null, v.type]]
-    def selectionMode: Var.Aux[Int, v.type] = ListView.SelectionMode.asInstanceOf[Var.Aux[Int, v.type]]
-    def selectionModel: Var.Aux[javax.swing.ListSelectionModel, v.type] = ListView.SelectionModel.asInstanceOf[Var.Aux[javax.swing.ListSelectionModel, v.type]]
-    def valueIsAdjusting: Var.Aux[Boolean, v.type] = ListView.ValueIsAdjusting.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def visibleRowCount: Var.Aux[Int, v.type] = ListView.VisibleRowCount.asInstanceOf[Var.Aux[Int, v.type]]
+  given ops as Ops.type = Ops
+  object Ops {
+    extension [E](v: ListView[E]) {
+      def UI: Var.Aux[javax.swing.plaf.ListUI, v.type] = ListView.UI.asInstanceOf[Var.Aux[javax.swing.plaf.ListUI, v.type]]
+      def cellRenderer: Var.Aux[javax.swing.ListCellRenderer[_ >: E], v.type] = ListView.CellRenderer.asInstanceOf[Var.Aux[javax.swing.ListCellRenderer[_ >: E], v.type]]
+      def dragEnabled: Var.Aux[Boolean, v.type] = ListView.DragEnabled.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def dropMode: Var.Aux[javax.swing.DropMode | Null, v.type] = ListView.DropMode.asInstanceOf[Var.Aux[javax.swing.DropMode | Null, v.type]]
+      def fixedCellHeight: Var.Aux[Int, v.type] = ListView.FixedCellHeight.asInstanceOf[Var.Aux[Int, v.type]]
+      def fixedCellWidth: Var.Aux[Int, v.type] = ListView.FixedCellWidth.asInstanceOf[Var.Aux[Int, v.type]]
+      def layoutOrientation: Var.Aux[Int, v.type] = ListView.LayoutOrientation.asInstanceOf[Var.Aux[Int, v.type]]
+      def model: Var.Aux[javax.swing.ListModel[E], v.type] = ListView.Model.asInstanceOf[Var.Aux[javax.swing.ListModel[E], v.type]]
+      def prototypeCellValue: Var.Aux[E | Null, v.type] = ListView.PrototypeCellValue.asInstanceOf[Var.Aux[E | Null, v.type]]
+      def selectedIndex: Var.Aux[Int, v.type] = ListView.SelectedIndex.asInstanceOf[Var.Aux[Int, v.type]]
+      def selectedIndices: Var.Aux[Array[Int], v.type] = ListView.SelectedIndices.asInstanceOf[Var.Aux[Array[Int], v.type]]
+      def selectionBackground: Var.Aux[java.awt.Color | Null, v.type] = ListView.SelectionBackground.asInstanceOf[Var.Aux[java.awt.Color | Null, v.type]]
+      def selectionForeground: Var.Aux[java.awt.Color | Null, v.type] = ListView.SelectionForeground.asInstanceOf[Var.Aux[java.awt.Color | Null, v.type]]
+      def selectionMode: Var.Aux[Int, v.type] = ListView.SelectionMode.asInstanceOf[Var.Aux[Int, v.type]]
+      def selectionModel: Var.Aux[javax.swing.ListSelectionModel, v.type] = ListView.SelectionModel.asInstanceOf[Var.Aux[javax.swing.ListSelectionModel, v.type]]
+      def valueIsAdjusting: Var.Aux[Boolean, v.type] = ListView.ValueIsAdjusting.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def visibleRowCount: Var.Aux[Int, v.type] = ListView.VisibleRowCount.asInstanceOf[Var.Aux[Int, v.type]]
 
-    
+      
 
-    def anchorSelectionIndex: Int = v.getAnchorSelectionIndex
-    def dropLocation: javax.swing.JList.DropLocation | Null = v.getDropLocation
-    def firstVisibleIndex: Int = v.getFirstVisibleIndex
-    def lastVisibleIndex: Int = v.getLastVisibleIndex
-    def leadSelectionIndex: Int = v.getLeadSelectionIndex
-    def listSelectionListeners: Array[javax.swing.event.ListSelectionListener] = v.getListSelectionListeners.asInstanceOf[Array[javax.swing.event.ListSelectionListener]]
-    def maxSelectionIndex: Int = v.getMaxSelectionIndex
-    def minSelectionIndex: Int = v.getMinSelectionIndex
-    def preferredScrollableViewportSize: java.awt.Dimension | Null = v.getPreferredScrollableViewportSize
-    def scrollableTracksViewportHeight: Boolean = v.getScrollableTracksViewportHeight
-    def scrollableTracksViewportWidth: Boolean = v.getScrollableTracksViewportWidth
-    def selectedValue: Option[E] = { val r = v.getSelectedValue; if (r == null) None else Some(r) }
-    def selectedValues: Seq[E] = v.getSelectedValuesList.nn.asScala.asInstanceOf
-    def selectionEmpty: Boolean = v.isSelectionEmpty
-    def unwrap: javax.swing.JList[_ <: E] = v
+      def anchorSelectionIndex: Int = v.getAnchorSelectionIndex
+      def dropLocation: javax.swing.JList.DropLocation | Null = v.getDropLocation
+      def firstVisibleIndex: Int = v.getFirstVisibleIndex
+      def lastVisibleIndex: Int = v.getLastVisibleIndex
+      def leadSelectionIndex: Int = v.getLeadSelectionIndex
+      def listSelectionListeners: Array[javax.swing.event.ListSelectionListener] = v.getListSelectionListeners.asInstanceOf[Array[javax.swing.event.ListSelectionListener]]
+      def maxSelectionIndex: Int = v.getMaxSelectionIndex
+      def minSelectionIndex: Int = v.getMinSelectionIndex
+      def preferredScrollableViewportSize: java.awt.Dimension | Null = v.getPreferredScrollableViewportSize
+      def scrollableTracksViewportHeight: Boolean = v.getScrollableTracksViewportHeight
+      def scrollableTracksViewportWidth: Boolean = v.getScrollableTracksViewportWidth
+      def selectedValue: Option[E] = { val r = v.getSelectedValue; if (r == null) None else Some(r) }
+      def selectedValues: Seq[E] = v.getSelectedValuesList.nn.asScala.asInstanceOf
+      def selectionEmpty: Boolean = v.isSelectionEmpty
+      def unwrap: javax.swing.JList[_ <: E] = v
+    }
   }
 
   def wrap[E](v: javax.swing.JList[_ <: E]) = v.asInstanceOf[ListView[E]]

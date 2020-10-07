@@ -3,9 +3,9 @@
 package guarana.swing
 
 import language.implicitConversions
-import java.awt.{Component => _, TextComponent => _, TextField => _, _}
+import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, _}
 import java.awt.event._
-import javax.swing._
+import javax.swing.{Action => _, _}
 import javax.swing.event._
 import guarana.swing.util._
 import scala.jdk.CollectionConverters._
@@ -20,16 +20,19 @@ object TextField extends VarsMap {
 
   val ActionEvents = Emitter[java.awt.event.ActionEvent]()
 
-  extension ops on (v: TextField) {
-    def action: Var.Aux[javax.swing.Action | Null, v.type] = TextField.Action.asInstanceOf[Var.Aux[javax.swing.Action | Null, v.type]]
-    def columns: Var.Aux[Int, v.type] = TextField.Columns.asInstanceOf[Var.Aux[Int, v.type]]
-    def horizontalAlignment: Var.Aux[Int, v.type] = TextField.HorizontalAlignment.asInstanceOf[Var.Aux[Int, v.type]]
-    def scrollOffset: Var.Aux[Int, v.type] = TextField.ScrollOffset.asInstanceOf[Var.Aux[Int, v.type]]
+  given ops as Ops.type = Ops
+  object Ops {
+    extension (v: TextField) {
+      def action: Var.Aux[javax.swing.Action | Null, v.type] = TextField.Action.asInstanceOf[Var.Aux[javax.swing.Action | Null, v.type]]
+      def columns: Var.Aux[Int, v.type] = TextField.Columns.asInstanceOf[Var.Aux[Int, v.type]]
+      def horizontalAlignment: Var.Aux[Int, v.type] = TextField.HorizontalAlignment.asInstanceOf[Var.Aux[Int, v.type]]
+      def scrollOffset: Var.Aux[Int, v.type] = TextField.ScrollOffset.asInstanceOf[Var.Aux[Int, v.type]]
 
-    def actionEvents: Emitter.Aux[java.awt.event.ActionEvent, v.type] = TextField.ActionEvents.forInstance(v)
+      def actionEvents: Emitter.Aux[java.awt.event.ActionEvent, v.type] = TextField.ActionEvents.forInstance(v)
 
-    def horizontalVisibility = v.getHorizontalVisibility
-    def unwrap: javax.swing.JTextField = v
+      def horizontalVisibility = v.getHorizontalVisibility
+      def unwrap: javax.swing.JTextField = v
+    }
   }
 
   def wrap(v: javax.swing.JTextField) = v.asInstanceOf[TextField]

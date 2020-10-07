@@ -3,9 +3,9 @@
 package guarana.swing
 
 import language.implicitConversions
-import java.awt.{Component => _, TextComponent => _, TextField => _, _}
+import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, _}
 import java.awt.event._
-import javax.swing._
+import javax.swing.{Action => _, _}
 import javax.swing.event._
 import guarana.swing.util._
 import scala.jdk.CollectionConverters._
@@ -26,23 +26,26 @@ object ProgressBar extends VarsMap {
 
   
 
-  extension ops on (v: ProgressBar) {
-    def UI: Var.Aux[javax.swing.plaf.ProgressBarUI, v.type] = ProgressBar.UI.asInstanceOf[Var.Aux[javax.swing.plaf.ProgressBarUI, v.type]]
-    def borderPainted: Var.Aux[Boolean, v.type] = ProgressBar.BorderPainted.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def indeterminate: Var.Aux[Boolean, v.type] = ProgressBar.Indeterminate.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def max: Var.Aux[Int, v.type] = ProgressBar.Max.asInstanceOf[Var.Aux[Int, v.type]]
-    def min: Var.Aux[Int, v.type] = ProgressBar.Min.asInstanceOf[Var.Aux[Int, v.type]]
-    def model: Var.Aux[javax.swing.BoundedRangeModel | Null, v.type] = ProgressBar.Model.asInstanceOf[Var.Aux[javax.swing.BoundedRangeModel | Null, v.type]]
-    def orientation: Var.Aux[Int, v.type] = ProgressBar.Orientation.asInstanceOf[Var.Aux[Int, v.type]]
-    def string: Var.Aux[java.lang.String | Null, v.type] = ProgressBar.String.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
-    def stringPainted: Var.Aux[Boolean, v.type] = ProgressBar.StringPainted.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def value: Var.Aux[Int, v.type] = ProgressBar.Value.asInstanceOf[Var.Aux[Int, v.type]]
+  given ops as Ops.type = Ops
+  object Ops {
+    extension (v: ProgressBar) {
+      def UI: Var.Aux[javax.swing.plaf.ProgressBarUI, v.type] = ProgressBar.UI.asInstanceOf[Var.Aux[javax.swing.plaf.ProgressBarUI, v.type]]
+      def borderPainted: Var.Aux[Boolean, v.type] = ProgressBar.BorderPainted.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def indeterminate: Var.Aux[Boolean, v.type] = ProgressBar.Indeterminate.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def max: Var.Aux[Int, v.type] = ProgressBar.Max.asInstanceOf[Var.Aux[Int, v.type]]
+      def min: Var.Aux[Int, v.type] = ProgressBar.Min.asInstanceOf[Var.Aux[Int, v.type]]
+      def model: Var.Aux[javax.swing.BoundedRangeModel | Null, v.type] = ProgressBar.Model.asInstanceOf[Var.Aux[javax.swing.BoundedRangeModel | Null, v.type]]
+      def orientation: Var.Aux[Int, v.type] = ProgressBar.Orientation.asInstanceOf[Var.Aux[Int, v.type]]
+      def string: Var.Aux[java.lang.String | Null, v.type] = ProgressBar.String.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
+      def stringPainted: Var.Aux[Boolean, v.type] = ProgressBar.StringPainted.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def value: Var.Aux[Int, v.type] = ProgressBar.Value.asInstanceOf[Var.Aux[Int, v.type]]
 
-    
+      
 
-    def changeListeners = v.getChangeListeners
-    def percentComplete = v.getPercentComplete
-    def unwrap: javax.swing.JProgressBar = v
+      def changeListeners = v.getChangeListeners
+      def percentComplete = v.getPercentComplete
+      def unwrap: javax.swing.JProgressBar = v
+    }
   }
 
   def wrap(v: javax.swing.JProgressBar) = v.asInstanceOf[ProgressBar]

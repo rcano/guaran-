@@ -3,9 +3,9 @@
 package guarana.swing
 
 import language.implicitConversions
-import java.awt.{Component => _, TextComponent => _, TextField => _, _}
+import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, _}
 import java.awt.event._
-import javax.swing._
+import javax.swing.{Action => _, _}
 import javax.swing.event._
 import guarana.swing.util._
 import scala.jdk.CollectionConverters._
@@ -31,27 +31,30 @@ object ScrollPane extends VarsMap {
 
   
 
-  extension ops on (v: ScrollPane) {
-    def UI: Var.Aux[javax.swing.plaf.ScrollPaneUI, v.type] = ScrollPane.UI.asInstanceOf[Var.Aux[javax.swing.plaf.ScrollPaneUI, v.type]]
-    def botLeftCorner: Var.Aux[Node | Null, v.type] = ScrollPane.BotLeftCorner.asInstanceOf[Var.Aux[Node | Null, v.type]]
-    def botRightCorner: Var.Aux[Node | Null, v.type] = ScrollPane.BotRightCorner.asInstanceOf[Var.Aux[Node | Null, v.type]]
-    def columnHeader: Var.Aux[javax.swing.JViewport | Null, v.type] = ScrollPane.ColumnHeader.asInstanceOf[Var.Aux[javax.swing.JViewport | Null, v.type]]
-    def content: Var.Aux[Node | Null, v.type] = ScrollPane.Content.asInstanceOf[Var.Aux[Node | Null, v.type]]
-    def horizontalScrollBar: Var.Aux[javax.swing.JScrollBar, v.type] = ScrollPane.HorizontalScrollBar.asInstanceOf[Var.Aux[javax.swing.JScrollBar, v.type]]
-    def horizontalScrollBarPolicy: Var.Aux[Int, v.type] = ScrollPane.HorizontalScrollBarPolicy.asInstanceOf[Var.Aux[Int, v.type]]
-    def rowHeader: Var.Aux[javax.swing.JViewport | Null, v.type] = ScrollPane.RowHeader.asInstanceOf[Var.Aux[javax.swing.JViewport | Null, v.type]]
-    def topLeftCorner: Var.Aux[Node | Null, v.type] = ScrollPane.TopLeftCorner.asInstanceOf[Var.Aux[Node | Null, v.type]]
-    def topRightCorner: Var.Aux[Node | Null, v.type] = ScrollPane.TopRightCorner.asInstanceOf[Var.Aux[Node | Null, v.type]]
-    def verticalScrollBar: Var.Aux[javax.swing.JScrollBar, v.type] = ScrollPane.VerticalScrollBar.asInstanceOf[Var.Aux[javax.swing.JScrollBar, v.type]]
-    def verticalScrollBarPolicy: Var.Aux[Int, v.type] = ScrollPane.VerticalScrollBarPolicy.asInstanceOf[Var.Aux[Int, v.type]]
-    def viewport: Var.Aux[javax.swing.JViewport, v.type] = ScrollPane.Viewport.asInstanceOf[Var.Aux[javax.swing.JViewport, v.type]]
-    def viewportBorder: Var.Aux[javax.swing.border.Border | Null, v.type] = ScrollPane.ViewportBorder.asInstanceOf[Var.Aux[javax.swing.border.Border | Null, v.type]]
-    def wheelScrollingEnabled: Var.Aux[Boolean, v.type] = ScrollPane.WheelScrollingEnabled.asInstanceOf[Var.Aux[Boolean, v.type]]
+  given ops as Ops.type = Ops
+  object Ops {
+    extension (v: ScrollPane) {
+      def UI: Var.Aux[javax.swing.plaf.ScrollPaneUI, v.type] = ScrollPane.UI.asInstanceOf[Var.Aux[javax.swing.plaf.ScrollPaneUI, v.type]]
+      def botLeftCorner: Var.Aux[Node | Null, v.type] = ScrollPane.BotLeftCorner.asInstanceOf[Var.Aux[Node | Null, v.type]]
+      def botRightCorner: Var.Aux[Node | Null, v.type] = ScrollPane.BotRightCorner.asInstanceOf[Var.Aux[Node | Null, v.type]]
+      def columnHeader: Var.Aux[javax.swing.JViewport | Null, v.type] = ScrollPane.ColumnHeader.asInstanceOf[Var.Aux[javax.swing.JViewport | Null, v.type]]
+      def content: Var.Aux[Node | Null, v.type] = ScrollPane.Content.asInstanceOf[Var.Aux[Node | Null, v.type]]
+      def horizontalScrollBar: Var.Aux[javax.swing.JScrollBar, v.type] = ScrollPane.HorizontalScrollBar.asInstanceOf[Var.Aux[javax.swing.JScrollBar, v.type]]
+      def horizontalScrollBarPolicy: Var.Aux[Int, v.type] = ScrollPane.HorizontalScrollBarPolicy.asInstanceOf[Var.Aux[Int, v.type]]
+      def rowHeader: Var.Aux[javax.swing.JViewport | Null, v.type] = ScrollPane.RowHeader.asInstanceOf[Var.Aux[javax.swing.JViewport | Null, v.type]]
+      def topLeftCorner: Var.Aux[Node | Null, v.type] = ScrollPane.TopLeftCorner.asInstanceOf[Var.Aux[Node | Null, v.type]]
+      def topRightCorner: Var.Aux[Node | Null, v.type] = ScrollPane.TopRightCorner.asInstanceOf[Var.Aux[Node | Null, v.type]]
+      def verticalScrollBar: Var.Aux[javax.swing.JScrollBar, v.type] = ScrollPane.VerticalScrollBar.asInstanceOf[Var.Aux[javax.swing.JScrollBar, v.type]]
+      def verticalScrollBarPolicy: Var.Aux[Int, v.type] = ScrollPane.VerticalScrollBarPolicy.asInstanceOf[Var.Aux[Int, v.type]]
+      def viewport: Var.Aux[javax.swing.JViewport, v.type] = ScrollPane.Viewport.asInstanceOf[Var.Aux[javax.swing.JViewport, v.type]]
+      def viewportBorder: Var.Aux[javax.swing.border.Border | Null, v.type] = ScrollPane.ViewportBorder.asInstanceOf[Var.Aux[javax.swing.border.Border | Null, v.type]]
+      def wheelScrollingEnabled: Var.Aux[Boolean, v.type] = ScrollPane.WheelScrollingEnabled.asInstanceOf[Var.Aux[Boolean, v.type]]
 
-    
+      
 
-    def viewportBorderBounds: java.awt.Rectangle = v.getViewportBorderBounds.nn
-    def unwrap: javax.swing.JScrollPane = v
+      def viewportBorderBounds: java.awt.Rectangle = v.getViewportBorderBounds.nn
+      def unwrap: javax.swing.JScrollPane = v
+    }
   }
 
   def wrap(v: javax.swing.JScrollPane) = v.asInstanceOf[ScrollPane]
