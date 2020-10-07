@@ -1109,7 +1109,7 @@ case object TabbedPane extends NodeDescr(
 
 
     |sc.update {
-    |  sc.varUpdates := EventIterator.foreach {
+    |  v.varUpdates := EventIterator.foreach {
     |    case v.tabs(old, newv) =>
     |      old.foreach(_.observers -= bufferListener)
     |      newv.observers += bufferListener
