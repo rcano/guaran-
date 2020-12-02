@@ -8,7 +8,7 @@ trait RingLike[@scala.specialized T] {
   /** Put one element onto the tail position of the ring buffer. Returns None if failed. */
   def put(o: T): T
   /** Gets one element from the head position of the ring buffer. Returns None if failed. */
-  def take: T
+  def take(): T
 }
 
 /** A very simple, naive and not thread safe ring buffer.
@@ -38,11 +38,11 @@ class RingBuffer[T: ClassTag](val capacity: Int, val sentinel: T) extends RingLi
   // * (head+1) is equal to tail -> the buffer is full
   // * tail always points to a sentinel, which is necessarily free
 
-  private var head: Int = 0
-  private var tail: Int = 0
+  var head: Int = 0
+  var tail: Int = 0
 
-  private val len  = capacity + 1
-  private val ring = new Array[T](len)
+  val len  = capacity + 1
+  val ring = new Array[T](len)
 
   override def size: Int = if (head >= tail) head - tail else len - tail + head
 
@@ -58,7 +58,7 @@ class RingBuffer[T: ClassTag](val capacity: Int, val sentinel: T) extends RingLi
     }
   }
 
-  override def take: T = {
+  override def take(): T = {
     if(head == tail)
       sentinel
     else {

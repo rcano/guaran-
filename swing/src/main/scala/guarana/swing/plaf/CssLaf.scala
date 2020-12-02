@@ -46,6 +46,11 @@ class CssLaf(val scenegraph: Scenegraph) extends MetalLookAndFeel {
     defaults.put("ProgressBarUI", classOf[CssProgressBarUi].getCanonicalName)
   }
 
+  override def uninitialize(): Unit = {
+    val defaults = UIManager.getDefaults.nn
+    defaults.remove(CssLaf.UiDefaultsCssLafKey)
+    defaults.keySet.nn.asScala.filter(_.toString endsWith "border") foreach (k => defaults.remove(k))
+  }
 }
 
 object CssLaf {

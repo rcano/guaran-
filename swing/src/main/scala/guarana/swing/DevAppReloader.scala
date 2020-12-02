@@ -126,7 +126,7 @@ object DevAppReloader {
               val startTime = System.currentTimeMillis
 
 
-              if reloadableClassPattern.findPrefixOf(name.asInstanceOf[String]).isDefined
+              if reloadableClassPattern.findPrefixOf(name.asInstanceOf[String]).isDefined then
                 while res == null && System.currentTimeMillis - startTime < 60000 do//will retry for an entire minute for this class to appear  
                   try res = findClass(name)
                   catch case _: ClassFormatError | _: ClassNotFoundException => Thread.sleep(50) //give it some time

@@ -3,7 +3,8 @@ version := "0.1.0-SNAPSHOT"
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
-scalaVersion := "0.28.0-bin-20200923-af1b4a0-NIGHTLY"
+//scalaVersion := "0.28.0-bin-20201008-64315b7-NIGHTLY"
+scalaVersion := "3.0.0-M2"
 
 scalacOptions ++= Seq(
   "-Yexplicit-nulls",
@@ -25,6 +26,7 @@ libraryDependencies ++= Seq(
   "org.codehaus.griffon.plugins" % "griffon-lookandfeel-napkin" % "2.0.0",
   "com.formdev" % "flatlaf" % "0.26",
 
+  "io.dropwizard.metrics" % "metrics-core" % "4.1.11" % "test",
   //"de.vandermeer" % "asciitable" % "0.3.2",
   //"io.github.classgraph" % "classgraph" % "4.8.60",
   // "org.scalameta" % "munit_0.24" % "0.7.7" % Test,

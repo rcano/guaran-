@@ -11,7 +11,7 @@ import guarana.swing.util._
 import scala.jdk.CollectionConverters._
 import scala.util.chaining._
 
-opaque type Node  = java.awt.Container
+opaque type Node >: java.awt.Component = java.awt.Component
 object Node extends VarsMap {
   val Background: SwingVar.Aux[Node, java.awt.Color | Null] = SwingVar[Node, java.awt.Color | Null]("background", _.getBackground, _.setBackground(_))
   val Bounds: SwingVar.Aux[Node, Bounds] = SwingVar[Node, Bounds]("bounds", _.getBounds.nn, _.setBounds(_))
@@ -61,7 +61,6 @@ object Node extends VarsMap {
       def mouseDrag = Node.MouseDragMut.asObsValIn(v)
       def alignmentX = v.getAlignmentX
       def alignmentY = v.getAlignmentY
-      def insets = v.getInsets
       def location = v.getLocation
       def size = v.getSize
       def location(x: Int, y: Int) = v.setLocation(x, y)
@@ -69,12 +68,11 @@ object Node extends VarsMap {
       def requestFocusInWindow() = v.requestFocusInWindow()
       def size(x: Int, y: Int) = v.setSize(x, y)
       def showing = v.isShowing
-      def children: Seq[Node] = (0 until v.getComponentCount).map(i => v.getComponent(i).asInstanceOf[Container])
-      def unwrap: java.awt.Container = v
+      def unwrap: java.awt.Component = v
     }
   }
 
-  def wrap(v: java.awt.Container) = v.asInstanceOf[Node]
+  def wrap(v: java.awt.Component) = v.asInstanceOf[Node]
 
   def init(v: Node): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     
@@ -100,7 +98,7 @@ object Node extends VarsMap {
       override def componentMoved(e: ComponentEvent | UncheckedNull): Unit = updateBounds()
       override def componentResized(e: ComponentEvent | UncheckedNull): Unit = updateBounds()
       def updateBounds(): Unit = sc.update {
-        summon[VarContext].swingPropertyUpdated(ops.extension_bounds(v), v.getBounds.nn)
+        summon[VarContext].swingPropertyUpdated(ops.bounds(v), v.getBounds.nn)
       }
     
     
@@ -135,20 +133,20 @@ object Node extends VarsMap {
   ): Scenegraph ?=> VarContextAction[Node] = {
     val res = uninitialized()
     Node.init(res)
-    ifSet(background, Node.ops.extension_background(res) := _)
-    ifSet(bounds, Node.ops.extension_bounds(res) := _)
-    ifSet(componentOrientation, Node.ops.extension_componentOrientation(res) := _)
-    ifSet(cursor, Node.ops.extension_cursor(res) := _)
-    ifSet(enabled, Node.ops.extension_enabled(res) := _)
-    ifSet(focusable, Node.ops.extension_focusable(res) := _)
-    ifSet(font, Node.ops.extension_font(res) := _)
-    ifSet(foreground, Node.ops.extension_foreground(res) := _)
-    ifSet(maxSize, Node.ops.extension_maxSize(res) := _)
-    ifSet(minSize, Node.ops.extension_minSize(res) := _)
-    ifSet(mouseDragMut, Node.ops.extension_mouseDragMut(res) := _)
-    ifSet(name, Node.ops.extension_name(res) := _)
-    ifSet(prefSize, Node.ops.extension_prefSize(res) := _)
-    ifSet(visible, Node.ops.extension_visible(res) := _)
+    ifSet(background, Node.ops.background(res) := _)
+    ifSet(bounds, Node.ops.bounds(res) := _)
+    ifSet(componentOrientation, Node.ops.componentOrientation(res) := _)
+    ifSet(cursor, Node.ops.cursor(res) := _)
+    ifSet(enabled, Node.ops.enabled(res) := _)
+    ifSet(focusable, Node.ops.focusable(res) := _)
+    ifSet(font, Node.ops.font(res) := _)
+    ifSet(foreground, Node.ops.foreground(res) := _)
+    ifSet(maxSize, Node.ops.maxSize(res) := _)
+    ifSet(minSize, Node.ops.minSize(res) := _)
+    ifSet(mouseDragMut, Node.ops.mouseDragMut(res) := _)
+    ifSet(name, Node.ops.name(res) := _)
+    ifSet(prefSize, Node.ops.prefSize(res) := _)
+    ifSet(visible, Node.ops.visible(res) := _)
     res
   }
   val MouseLocation: ObsVal[(Int, Int)] = MouseLocationMut

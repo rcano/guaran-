@@ -31,9 +31,9 @@ trait VarsMap {
   }: java.beans.PropertyChangeListener
 }
 
-inline def [T, U](e: T | Null) ? (inline f: T => U): U | Null = if (e != null) f(e) else null
-inline def [T](e: T | Null) toOption: Option[T] = if (e != null) Some(e) else None
-inline def [F[_], T](e: F[T | Null] | Null) nnn: F[T] = e.asInstanceOf[F[T]]
+extension [T, U](e: T | Null) inline def ? (inline f: T => U): U | Null = if (e != null) f(e) else null
+extension [T](e: T | Null) inline def toOption: Option[T] = if (e != null) Some(e) else None
+extension [F[_], T](e: F[T | Null] | Null) inline def nnn: F[T] = e.asInstanceOf[F[T]]
 
 extension (d: javax.swing.text.Document) {
   def defaultRootElement = d.getDefaultRootElement
@@ -104,4 +104,4 @@ object Insets {
   /** Emitter for updates to var for this object.
     * The extension method is only available if a Emitter.Context is present, because it is otherwise useless to use it
     */
-def (a: Any).varUpdates(using Emitter.Context) = ObsVal.VarUpdates.forInstance(a)
+extension (a: Any) def varUpdates(using Emitter.Context) = ObsVal.VarUpdates.forInstance(a)

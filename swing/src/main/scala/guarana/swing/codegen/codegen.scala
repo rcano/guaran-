@@ -40,7 +40,8 @@ abstract class NodeDescr(
   val name: String,
   val underlying: String,
   val tpeParams: Seq[String] = Seq.empty,
-  val parents: Seq[NodeDescr] = Seq.empty,
+  val upperBounds: Seq[NodeDescr | String] = Seq.empty,
+  val lowerBounds: Seq[NodeDescr | String] = Seq.empty,
   val props: Seq[Property] = Seq.empty,
   val opsExtra: Seq[String] = Seq.empty,
   val emitters: Seq[EmitterDescr] = Seq.empty,
@@ -55,6 +56,7 @@ abstract class NodeDescr(
 case object Node extends NodeDescr(
   "Node",
   "java.awt.Container",
+  lowerBounds = Seq("java.awt.Container"),
   props = Seq(
     SwingProp("background", "java.awt.Color | Null"),
     SwingProp("bounds", "Bounds"),
@@ -122,7 +124,7 @@ case object Node extends NodeDescr(
   |  override def componentMoved(e: ComponentEvent | UncheckedNull): Unit = updateBounds()
   |  override def componentResized(e: ComponentEvent | UncheckedNull): Unit = updateBounds()
   |  def updateBounds(): Unit = sc.update {
-  |    summon[VarContext].swingPropertyUpdated(ops.extension_bounds(v), v.getBounds.nn)
+  |    summon[VarContext].swingPropertyUpdated(ops.bounds(v), v.getBounds.nn)
   |  }
 
 
@@ -140,7 +142,7 @@ case object Node extends NodeDescr(
 case object Component extends NodeDescr(
   "Component",
   "javax.swing.JComponent",
-  parents = Seq(Node),
+  upperBounds = Seq(Node),
   props = Seq(
     SwingProp("actionMap", "javax.swing.ActionMap"),
     SwingProp("alignmentX", "Float"),
@@ -171,7 +173,7 @@ case object Component extends NodeDescr(
     "def topLevelAncestor = v.getTopLevelAncestor",
     "def vetoableChangeListeners = v.getVetoableChangeListeners",
     "def visibleRect = v.getVisibleRect",
-    "def uiPrefSize: (Double, Double) | Null = ops.extension_UI(v).?(_.getPreferredSize(v)).?(d => (d.getWidth, d.getHeight))",
+    "def uiPrefSize: (Double, Double) | Null = ops.UI(v).?(_.getPreferredSize(v)).?(d => (d.getWidth, d.getHeight))",
   ),
   isAbstract = true,
 )
@@ -179,7 +181,7 @@ case object Component extends NodeDescr(
 case object WindowBase extends NodeDescr(
   "WindowBase",
   "java.awt.Window",
-  parents = Seq(Node),
+  upperBounds = Seq(Node),
   props = Seq(
     SwingProp("alwaysOnTop", "Boolean"),
     SwingProp("autoRequestFocus", "Boolean"),
@@ -225,7 +227,7 @@ case object WindowBase extends NodeDescr(
 case object Window extends NodeDescr(
   "Window",
   "javax.swing.JWindow",
-  parents = Seq(WindowBase),
+  upperBounds = Seq(WindowBase),
   props = Seq(
     SwingProp("contentPane", "java.awt.Container", "_.getContentPane().nn", "_.setContentPane(_)"),
     SwingProp("glassPane", "java.awt.Component | Null"),
@@ -244,7 +246,7 @@ case object Window extends NodeDescr(
 case object Frame extends NodeDescr(
   "Frame",
   "javax.swing.JFrame",
-  parents = Seq(WindowBase),
+  upperBounds = Seq(WindowBase),
   props = Seq(
     SwingProp("extendedState", "Int"),
     SwingProp("maximizedBounds", "Bounds | Null"),
@@ -271,7 +273,7 @@ case object Frame extends NodeDescr(
 case object Dialog extends NodeDescr(
   "Dialog",
   "javax.swing.JDialog",
-  parents = Seq(WindowBase),
+  upperBounds = Seq(WindowBase),
   props = Seq(
     SwingProp("contentPane", "java.awt.Container | Null"),
     SwingProp("defaultCloseOperation", "Int"),
@@ -303,7 +305,7 @@ case object Dialog extends NodeDescr(
 case object Pane extends NodeDescr(
   "Pane",
   "javax.swing.JPanel",
-  parents = Seq(Component),
+  upperBounds = Seq(Component),
   props = Seq(
     SwingProp("UI", "javax.swing.plaf.PanelUI"),
   ),
@@ -312,7 +314,7 @@ case object Pane extends NodeDescr(
 case object AbsolutePositioningPane extends NodeDescr(
   "AbsolutePositioningPane",
   "javax.swing.JPanel",
-  parents = Seq(Pane),
+  upperBounds = Seq(Pane),
   props = Seq(
     SwingProp("nodes", "Seq[Node]",
       "c => (0 until c.getComponentCount).map(c.getComponent(_).asInstanceOf[Node])",
@@ -324,7 +326,7 @@ case object AbsolutePositioningPane extends NodeDescr(
 case object BorderPane extends NodeDescr(
   "BorderPane",
   "javax.swing.JPanel",
-  parents = Seq(Pane),
+  upperBounds = Seq(Pane),
   props = Seq(
     SwingProp("top", "Node | Null",
       "c => c.getLayout.asInstanceOf[BorderLayout].getLayoutComponent(BorderLayout.NORTH).asInstanceOf[Node | Null]",
@@ -354,7 +356,7 @@ case object BorderPane extends NodeDescr(
 case object GridPane extends NodeDescr(
   "GridPane",
   "javax.swing.JPanel",
-  parents = Seq(Pane),
+  upperBounds = Seq(Pane),
   props = Seq(
     VarProp("rows", "Seq[Seq[Node]]", "Seq.empty"),
     VarProp("hgap", "Double", "0.0"),
@@ -409,7 +411,7 @@ case object GridPane extends NodeDescr(
 case object Hbox extends NodeDescr(
   "Hbox",
   "javax.swing.JPanel",
-  parents = Seq(Pane),
+  upperBounds = Seq(Pane),
   props = Seq(
     SwingProp("nodes", "Seq[Node]",
       "c => (0 until c.getComponentCount).map(c.getComponent(_).asInstanceOf[Node])",
@@ -420,7 +422,7 @@ case object Hbox extends NodeDescr(
 case object Vbox extends NodeDescr(
   "Vbox",
   "javax.swing.JPanel",
-  parents = Seq(Pane),
+  upperBounds = Seq(Pane),
   props = Seq(
     SwingProp("nodes", "Seq[Node]",
       "c => (0 until c.getComponentCount).map(c.getComponent(_).asInstanceOf[Node])",
@@ -437,7 +439,7 @@ case object Vbox extends NodeDescr(
 case object TextComponent extends NodeDescr(
   "TextComponent",
   "javax.swing.text.JTextComponent",
-  parents = Seq(Component),
+  upperBounds = Seq(Component),
   props = Seq(
     SwingProp("UI", "javax.swing.plaf.TextUI"),
     SwingProp("caret", "javax.swing.text.Caret"),
@@ -481,7 +483,7 @@ case object TextComponent extends NodeDescr(
 case object TextArea extends NodeDescr(
   "TextArea",
   "javax.swing.JTextArea",
-  parents = Seq(TextComponent),
+  upperBounds = Seq(TextComponent),
   props = Seq(
     SwingProp("columns", "Int"),
     SwingProp("lineWrap", "Boolean", "_.getLineWrap", "_.setLineWrap(_)"),
@@ -496,7 +498,7 @@ case object TextArea extends NodeDescr(
 case object TextField extends NodeDescr(
   "TextField",
   "javax.swing.JTextField",
-  parents = Seq(TextComponent),
+  upperBounds = Seq(TextComponent),
   props = Seq(
     SwingProp("action", "javax.swing.Action | Null"),
     SwingProp("columns", "Int"),
@@ -516,7 +518,7 @@ case object TextField extends NodeDescr(
 case object PasswordField extends NodeDescr(
   "PasswordField",
   "javax.swing.JPasswordField",
-  parents = Seq(TextField),
+  upperBounds = Seq(TextField),
   props = Seq(
     SwingProp("echoChar", "Char"),
   ),
@@ -527,7 +529,7 @@ case object PasswordField extends NodeDescr(
 case object Label extends NodeDescr(
   "Label",
   "javax.swing.JLabel",
-  parents = Seq(Component),
+  upperBounds = Seq(Component),
   props = Seq(
     SwingProp("UI", "javax.swing.plaf.LabelUI"),
     SwingProp("disabledIcon", "javax.swing.Icon | Null"),
@@ -553,7 +555,7 @@ case object Label extends NodeDescr(
 case object ButtonBase extends NodeDescr(
   "ButtonBase",
   "javax.swing.AbstractButton",
-  parents = Seq(Component),
+  upperBounds = Seq(Component),
   props = Seq(
     SwingProp("UI", "javax.swing.plaf.ButtonUI"),
     SwingProp("action", "javax.swing.Action | Null"),
@@ -605,19 +607,19 @@ case object ButtonBase extends NodeDescr(
     |  val ctx = summon[VarContext]
     |  val m = v.getModel.nn
     |  if (m.isArmed != wasArmed)
-    |    ctx.swingPropertyUpdated(ops.extension_armed(v), m.isArmed)
+    |    ctx.swingPropertyUpdated(ops.armed(v), m.isArmed)
     |  wasArmed = m.isArmed
     |  if (m.isEnabled != wasEnabled)
-    |    ctx.swingPropertyUpdated(ops.extension_enabled(v), m.isEnabled)
+    |    ctx.swingPropertyUpdated(ops.enabled(v), m.isEnabled)
     |  wasEnabled = m.isEnabled
     |  if (m.isPressed != wasPressed)
-    |    ctx.swingPropertyUpdated(ops.extension_pressed(v), m.isPressed)
+    |    ctx.swingPropertyUpdated(ops.pressed(v), m.isPressed)
     |  wasPressed = m.isPressed
     |  if (m.isRollover != wasRollover)
-    |    ctx.swingPropertyUpdated(ops.extension_rollover(v), m.isRollover)
+    |    ctx.swingPropertyUpdated(ops.rollover(v), m.isRollover)
     |  wasRollover = m.isRollover
     |  if (v.isSelected != wasSelected)
-    |    ctx.swingPropertyUpdated(ops.extension_selected(v), v.isSelected)
+    |    ctx.swingPropertyUpdated(ops.selected(v), v.isSelected)
     |  wasSelected = v.isSelected
     |}
     |v.addChangeListener(cl)
@@ -634,7 +636,7 @@ case object ButtonBase extends NodeDescr(
 case object Button extends NodeDescr(
   "Button",
   "javax.swing.JButton",
-  parents = Seq(ButtonBase),
+  upperBounds = Seq(ButtonBase),
   props = Seq(
     SwingProp("defaultCapable", "Boolean"),
   ),
@@ -649,7 +651,7 @@ case object Button extends NodeDescr(
 case object ToggleButton extends NodeDescr(
   "ToggleButton",
   "javax.swing.JToggleButton",
-  parents = Seq(ButtonBase),
+  upperBounds = Seq(ButtonBase),
   companionObjectExtras = Seq(
     "def apply(a: Action): Scenegraph ?=> ToggleButton = wrap(javax.swing.JToggleButton(a.unwrap)).tap(init)"
   )
@@ -658,7 +660,7 @@ case object ToggleButton extends NodeDescr(
 case object CheckBox extends NodeDescr(
   "CheckBox",
   "javax.swing.JCheckBox",
-  parents = Seq(ToggleButton),
+  upperBounds = Seq(ToggleButton),
   props = Seq(
     SwingProp("borderPaintedFlat", "Boolean")
   ),
@@ -670,7 +672,7 @@ case object CheckBox extends NodeDescr(
 case object RadioButton extends NodeDescr(
   "RadioButton",
   "javax.swing.JRadioButton",
-  parents = Seq(ToggleButton),
+  upperBounds = Seq(ToggleButton),
   companionObjectExtras = Seq(
     "def apply(a: Action): Scenegraph ?=> RadioButton = wrap(javax.swing.JRadioButton(a.unwrap)).tap(init)"
   )
@@ -683,7 +685,7 @@ case object RadioButton extends NodeDescr(
 case object MenuItem extends NodeDescr(
   "MenuItem",
   "javax.swing.JMenuItem",
-  parents = Seq(ButtonBase),
+  upperBounds = Seq(ButtonBase),
   props = Seq(
     SwingProp("UI", "javax.swing.plaf.MenuItemUI | Null", "_.getUI.asInstanceOf", "_.setUI(_)"),
     SwingProp("accelerator", "javax.swing.KeyStroke | Null"),
@@ -702,7 +704,7 @@ case object MenuItem extends NodeDescr(
 case object CheckBoxMenuItem extends NodeDescr(
   "CheckBoxMenuItem",
   "javax.swing.JCheckBoxMenuItem",
-  parents = Seq(MenuItem),
+  upperBounds = Seq(MenuItem),
   props = Seq(
     SwingProp("state", "Boolean", "_.getState", "_.setState(_)")
   ),
@@ -714,7 +716,7 @@ case object CheckBoxMenuItem extends NodeDescr(
 case object RadioButtonMenuItem extends NodeDescr(
   "RadioButtonMenuItem",
   "javax.swing.JRadioButtonMenuItem",
-  parents = Seq(MenuItem),
+  upperBounds = Seq(MenuItem),
   props = Seq(),
   companionObjectExtras = Seq(
     "def apply(a: Action): Scenegraph ?=> RadioButtonMenuItem = wrap(javax.swing.JRadioButtonMenuItem(a.unwrap)).tap(init)"
@@ -724,7 +726,7 @@ case object RadioButtonMenuItem extends NodeDescr(
 case object Menu extends NodeDescr(
   "Menu",
   "javax.swing.JMenu",
-  parents = Seq(MenuItem),
+  upperBounds = Seq(MenuItem),
   props = Seq(
     SwingProp("UI", "javax.swing.plaf.MenuBarUI | Null"),
     SwingProp("delay", "Int"),
@@ -752,7 +754,7 @@ case object Menu extends NodeDescr(
 case object MenuBar extends NodeDescr(
   "MenuBar",
   "javax.swing.JMenuBar",
-  parents = Seq(Component),
+  upperBounds = Seq(Component),
   props = Seq(
     SwingProp("UI", "javax.swing.plaf.MenuBarUI | Null"),
     SwingProp("borderPainted", "Boolean"),
@@ -777,7 +779,7 @@ case object MenuBar extends NodeDescr(
 case object Slider extends NodeDescr(
   "Slider",
   "javax.swing.JSlider",
-  parents = Seq(Component),
+  upperBounds = Seq(Component),
   props = Seq(
     SwingProp("UI", "javax.swing.plaf.SliderUI"),
     SwingProp("extent", "Int"),
@@ -800,7 +802,7 @@ case object Slider extends NodeDescr(
     "def changeListeners = v.getChangeListeners",
   ),
   initExtra = 
-    "val l: ChangeListener = (e: ChangeEvent | UncheckedNull) => summon[Scenegraph].update(summon[VarContext].swingPropertyUpdated(ops.extension_value(v), v.getValue))" ::
+    "val l: ChangeListener = (e: ChangeEvent | UncheckedNull) => summon[Scenegraph].update(summon[VarContext].swingPropertyUpdated(ops.value(v), v.getValue))" ::
     "v.addChangeListener(l)" ::
     Nil
 )
@@ -812,7 +814,7 @@ case object Slider extends NodeDescr(
 case object ProgressBar extends NodeDescr(
   "ProgressBar",
   "javax.swing.JProgressBar",
-  parents = Seq(Component),
+  upperBounds = Seq(Component),
   props = Seq(
     SwingProp("UI", "javax.swing.plaf.ProgressBarUI"),
     SwingProp("borderPainted", "Boolean"),
@@ -830,7 +832,7 @@ case object ProgressBar extends NodeDescr(
     "def percentComplete = v.getPercentComplete"
   ),
   initExtra = 
-    "val l: ChangeListener = (e: ChangeEvent | UncheckedNull) => summon[Scenegraph].update(summon[VarContext].swingPropertyUpdated(ops.extension_value(v), v.getValue))" ::
+    "val l: ChangeListener = (e: ChangeEvent | UncheckedNull) => summon[Scenegraph].update(summon[VarContext].swingPropertyUpdated(ops.value(v), v.getValue))" ::
     "v.addChangeListener(l)" ::
     Nil
 )
@@ -845,7 +847,7 @@ case object ListView extends NodeDescr(
   "ListView",
   "javax.swing.JList[_ <: E]",
   tpeParams = Seq("+E"),
-  parents = Seq(Component),
+  upperBounds = Seq(Component),
   props = Seq(
     SwingProp("UI", "javax.swing.plaf.ListUI"),
     SwingProp("cellRenderer", "javax.swing.ListCellRenderer[_ >: E]", "_.getCellRenderer.nn", "(l, c) => l.setCellRenderer(c.asInstanceOf)", overrideTpeInStaticPos = Some("javax.swing.ListCellRenderer[_]")),
@@ -884,9 +886,9 @@ case object ListView extends NodeDescr(
   initExtra = """
     |val lsl: ListSelectionListener = (evt) => sc.update{
     |  val vc = summon[VarContext]
-    |  vc.swingPropertyUpdated(ops.extension_selectedIndex(v), v.getSelectedIndex)
-    |  vc.swingPropertyUpdated(ops.extension_selectedIndices(v), v.getSelectedIndices.nn)
-    |  vc.swingPropertyUpdated(ops.extension_selectedIndices(v), v.getSelectedIndices.nn)
+    |  vc.swingPropertyUpdated(ops.selectedIndex(v), v.getSelectedIndex)
+    |  vc.swingPropertyUpdated(ops.selectedIndices(v), v.getSelectedIndices.nn)
+    |  vc.swingPropertyUpdated(ops.selectedIndices(v), v.getSelectedIndices.nn)
     |}
     |v.addListSelectionListener(lsl)
     """.stripMargin.split("\n").asInstanceOf[Array[String]].toIndexedSeq,
@@ -901,7 +903,7 @@ case object ListView extends NodeDescr(
 case object TableView extends NodeDescr(
   "TableView",
   "javax.swing.JTable",
-  parents = Seq(Component),
+  upperBounds = Seq(Component),
   props = Seq(
     SwingProp("UI", "javax.swing.plaf.TableUI"),
     SwingProp("autoCreateColumnsFromModel", "Boolean", "_.getAutoCreateColumnsFromModel", "_.setAutoCreateColumnsFromModel(_)"),
@@ -961,7 +963,7 @@ case object TableView extends NodeDescr(
 case object ScrollPane extends NodeDescr(
   "ScrollPane",
   "javax.swing.JScrollPane",
-  parents = Seq(Component),
+  upperBounds = Seq(Component),
   props = Seq(
     SwingProp("UI", "javax.swing.plaf.ScrollPaneUI"),
     SwingProp("columnHeader", "javax.swing.JViewport | Null"),
@@ -988,7 +990,7 @@ case object ScrollPane extends NodeDescr(
 case object ScrollBar extends NodeDescr(
   "ScrollBar",
   "javax.swing.JScrollBar",
-  parents = Seq(Component),
+  upperBounds = Seq(Component),
   props = Seq(
     SwingProp("UI", "javax.swing.plaf.ScrollBarUI"),
     SwingProp("blockIncrement", "Int"),
@@ -1013,7 +1015,7 @@ case object ScrollBar extends NodeDescr(
 case object SplitPane extends NodeDescr(
   "SplitPane",
   "javax.swing.JSplitPane",
-  parents = Seq(Component),
+  upperBounds = Seq(Component),
   props = Seq(
     SwingProp("UI", "javax.swing.plaf.SplitPaneUI"),
     SwingProp("continuousLayout", "Boolean"),
@@ -1039,7 +1041,7 @@ case object SplitPane extends NodeDescr(
 case object TabbedPane extends NodeDescr(
   "TabbedPane",
   "javax.swing.JTabbedPane",
-  parents = Seq(Component),
+  upperBounds = Seq(Component),
   props = Seq(
     SwingProp("UI", "javax.swing.plaf.TabbedPaneUI"),
     SwingProp("model", "javax.swing.SingleSelectionModel"),
@@ -1138,7 +1140,7 @@ case object Combobox extends NodeDescr(
   "ComboBox",
   "javax.swing.JComboBox[_ <: E]",
   tpeParams = Seq("+E"),
-  parents = Seq(Component),
+  upperBounds = Seq(Component),
   props = Seq(
     SwingProp("UI", "javax.swing.plaf.ComboBoxUI"),
     SwingProp("action", "javax.swing.Action | Null"),
@@ -1167,9 +1169,9 @@ case object Combobox extends NodeDescr(
   initExtra = """
     |val il: ItemListener = evt => sc.update {
     |  val vc = summon[VarContext]
-    |  vc.swingPropertyUpdated(ops.extension_selectedIndex(v), v.getSelectedIndex)
+    |  vc.swingPropertyUpdated(ops.selectedIndex(v), v.getSelectedIndex)
     |  val si = v.getSelectedItem.asInstanceOf[E | Null]
-    |  vc.swingPropertyUpdated(ops.extension_selectedItem(v), if (si == null) None else Some(si))
+    |  vc.swingPropertyUpdated(ops.selectedItem(v), if (si == null) None else Some(si))
     |}
     |v.addItemListener(il)
   """.trim.nn.stripMargin.split("\n").asInstanceOf[Array[String]].toIndexedSeq
@@ -1182,7 +1184,7 @@ case object Combobox extends NodeDescr(
 case object Separator extends NodeDescr(
   "Separator",
   "javax.swing.JSeparator",
-  parents = Seq(Component),
+  upperBounds = Seq(Component),
   props = Seq(
     SwingProp("UI", "javax.swing.plaf.SeparatorUI"),
     SwingProp("horizontal", "Boolean", "_.getOrientation == SwingConstants.HORIZONTAL", "(s, h) => s.setOrientation(if (h) SwingConstants.HORIZONTAL else SwingConstants.VERTICAL)")
@@ -1197,7 +1199,7 @@ case object Spinner extends NodeDescr(
   "Spinner",
   "javax.swing.JSpinner",
   tpeParams = Seq("+E"),
-  parents = Seq(Component),
+  upperBounds = Seq(Component),
   props = Seq(
     SwingProp("UI", "javax.swing.plaf.SpinnerUI"),
     SwingProp("editor", "javax.swing.JComponent | Null"),
@@ -1205,7 +1207,7 @@ case object Spinner extends NodeDescr(
     SwingProp("value", "E", "_.getValue", "_.setValue(_)", overrideTpeInStaticPos = Some("Any")),
   ),
   initExtra = """
-    |val cl: ChangeListener = evt => sc.update(summon[VarContext].swingPropertyUpdated(ops.extension_value(v), v.getValue.asInstanceOf))
+    |val cl: ChangeListener = evt => sc.update(summon[VarContext].swingPropertyUpdated(ops.value(v), v.getValue.asInstanceOf))
     |v.addChangeListener(cl)
     """.trim.nn.stripMargin.split("\n").asInstanceOf[Array[String]].toIndexedSeq
 )
@@ -1233,7 +1235,7 @@ def genCode(n: NodeDescr): String = {
     case parents => 
       val allParentVars = parents.flatMap(p => p.props.filterNot(prop => seenVars(prop.name) || prop.visibility.exists("private".==)).map(p -> _))
       seenVars ++= allParentVars.map(_._2.name)
-      Some(allParentVars -> parents.flatMap(_.parents))
+      Some(allParentVars -> parents.flatMap(_.upperBounds.collect { case n: NodeDescr => n }))
   }.flatten.toVector.sortBy(_._2.name)
 
   val initializers = if (!n.isAbstract) 
@@ -1249,7 +1251,7 @@ def genCode(n: NodeDescr): String = {
          |): Scenegraph ?=> VarContextAction[${n.name}$tpeParams] = {
          |  val res = uninitialized$tpeParams(${n.uninitExtraParams.filterNot(_.erased).map(_.name).mkString(", ")})
          |  ${n.name}.init(res)
-         |  ${allVars.map(v => s"ifSet(${v._2.name}, ${v._1.name}.ops.extension_${v._2.name}(res) := _)").mkString("\n  ")}
+         |  ${allVars.map(v => s"ifSet(${v._2.name}, ${v._1.name}.ops.${v._2.name}(res) := _)").mkString("\n  ")}
          |  res
          |}
          |
@@ -1260,7 +1262,9 @@ def genCode(n: NodeDescr): String = {
   val nonPrivateSortedProps = sortedProps.filterNot(_.visibility.exists("private".==))
   val sortedEmitters = n.emitters.sortBy(_.name)
 
-  s"""opaque type ${n.name}$tpeParamsDecls ${if (n.parents.nonEmpty) n.parents.mkString("<: ", " & ", "") else ""} = ${(n.underlying +: n.parents).mkString(" & ")}
+  val upperBounds = if (n.upperBounds.nonEmpty) n.upperBounds.mkString("<: ", " & ", "") else ""
+  val lowerBounds = if (n.lowerBounds.nonEmpty) n.lowerBounds.mkString(">: ", " & ", "") else ""
+  s"""opaque type ${n.name}$tpeParamsDecls $upperBounds $lowerBounds = ${(n.underlying +: n.upperBounds).mkString(" & ")}
      |object ${n.name} extends VarsMap {
      |  ${sortedProps.map(propDecl).mkString("\n  ")}
      |
@@ -1281,7 +1285,7 @@ def genCode(n: NodeDescr): String = {
      |  def wrap$tpeParams(v: ${n.underlying}) = v.asInstanceOf[${n.name}$tpeParams]
      |
      |  def init$tpeParams(v: ${n.name}$tpeParams): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
-     |    ${n.parents.headOption.map(p => s"$p.init(v)").getOrElse("")}
+     |    ${n.upperBounds.headOption.map(p => s"$p.init(v)").getOrElse("")}
      |    ${if (n.addsPropertySwingListener) "v.addPropertyChangeListener(varsPropertyListener(v))" else ""}
      |    ${n.initExtra.mkString("\n    ")}
      |    ${sortedEmitters.flatMap(_.initializer).mkString("\n    ")}

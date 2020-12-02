@@ -45,8 +45,7 @@ object ProductLenses {
   }
   import scala.quoted._
   inline def lense[P <: Product](inline label: Any) = ${lenseMacro[P]('label)}
-  private def lenseMacro[P <: Product](labelNameExpr: Expr[Any])(using ctx: QuoteContext, pt: Type[P]) = {
-    import ctx.tasty.{_, given _}
+  private def lenseMacro[P <: Product](labelNameExpr: Expr[Any])(using ctx: Quotes, pt: Type[P]) = {
     
     // val labelName = labelNameExpr.asInstanceOf[Expr[String]].value
     // // TypeApply(Select("", ???), Nil)
@@ -63,9 +62,10 @@ case class DeclaringVal(name: String)
 object DeclaringVal {
   inline given declaringVal as DeclaringVal = ${declaringValMacro}
   import scala.quoted._
-  def declaringValMacro(using ctx: QuoteContext): Expr[DeclaringVal] = {
+  def declaringValMacro(using ctx: Quotes): Expr[DeclaringVal] = {
+    import ctx.reflect._
     def isSynthetic(name: String) = name == "<init>" || (name.startsWith("<local ") && name.endsWith(">"))
-    val owner = Iterator.unfold(ctx.tasty.Symbol.currentOwner(using ctx.tasty.rootContext))(o => if (o == ctx.tasty.Symbol.noSymbol) None else Some(o, o.maybeOwner))
+    val owner = Iterator.unfold(Symbol.spliceOwner)(o => if (o == Symbol.noSymbol) None else Some(o, o.maybeOwner))
       .drop(1)
       .dropWhile(o => o.name.trim.nn.pipe(n => isSynthetic(n) || n == "ev") || o.isLocalDummy)
       .nextOption.getOrElse(throw new AssertionError("failed to detect declaring val")).name

@@ -170,7 +170,7 @@ class ObsBuffer[T] extends
   private val elements = ArrayBuffer[T]()
 
   val observers = ArrayBuffer.empty[PartialFunction[ObsBuffer.Event[T], Unit]]
-  private inline def (f: PartialFunction[ObsBuffer.Event[T], Unit]) applyIfDefined(e: ObsBuffer.Event[T]): Unit =
+  extension (f: PartialFunction[ObsBuffer.Event[T], Unit]) private inline def applyIfDefined(e: ObsBuffer.Event[T]): Unit =
     if (f.isDefinedAt(e)) f(e)
 
   def insert(idx: Int, elem: T): Unit = {

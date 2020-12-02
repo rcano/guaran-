@@ -894,6 +894,6 @@ object Color {
 }
 type Paint = java.awt.Paint
 
-def (c: Color).withOpacity(d: Double): Color = {
+extension (c: Color) def withOpacity(d: Double): Color = {
   Color.rgba(c.getRed, c.getGreen, c.getBlue, (255 * d).toInt)
 }

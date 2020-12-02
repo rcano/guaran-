@@ -20,19 +20,19 @@ class ScriptEngine(scenegraph: Scenegraph, initialBufferSize: Int = 100) {
   def run(s: Script): Unit = {
     if (scripts.put(s) == null) {
       val newScripts = new impl.RingBuffer[Script | Null](scripts.capacity * 2, null)
-      cfor(scripts.take)(_ != null, _ => scripts.take)(s => newScripts.put(s))
+      cfor(scripts.take())(_ != null, _ => scripts.take())(s => newScripts.put(s))
       scripts = newScripts
     }
   }
   private def putNextRun(s: Script): Unit = {
     if (nextRunScripts.put(s) == null) {
       val newNextRunScripts = new impl.RingBuffer[Script | Null](nextRunScripts.capacity * 2, null)
-      cfor(nextRunScripts.take)(_ != null, _ => nextRunScripts.take)(s => newNextRunScripts.put(s))
+      cfor(nextRunScripts.take())(_ != null, _ => nextRunScripts.take())(s => newNextRunScripts.put(s))
       nextRunScripts = newNextRunScripts
     }
   }
   def update(nanoTime: Long): Boolean = scenegraph.update {
-    cfor(scripts.take)(_ != null, _ => scripts.take) { s =>
+    cfor(scripts.take())(_ != null, _ => scripts.take()) { s =>
       val script = s.asInstanceOf[Script] //undo nullability
       val ctx = scriptContexts.getOrElseUpdate(script, new Context(nanoTime))
       val currentStepTime = (nanoTime - ctx.currentStepStart).nanos.toMillis

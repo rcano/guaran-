@@ -64,8 +64,11 @@ object Component extends VarsMap {
       def topLevelAncestor = v.getTopLevelAncestor
       def vetoableChangeListeners = v.getVetoableChangeListeners
       def visibleRect = v.getVisibleRect
-      def uiPrefSize: (Double, Double) | Null = ops.extension_UI(v).?(_.getPreferredSize(v)).?(d => (d.getWidth, d.getHeight))
+      def uiPrefSize: (Double, Double) | Null = ops.UI(v).?(_.getPreferredSize(v)).?(d => (d.getWidth, d.getHeight))
       def unwrap: javax.swing.JComponent = v
+
+      def insets = v.getInsets
+      def children: Seq[Node] = (0 until v.getComponentCount).map(i => v.getComponent(i).asInstanceOf[Node])
     }
   }
 

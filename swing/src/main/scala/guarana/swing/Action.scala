@@ -63,7 +63,7 @@ object Action extends VarsMap {
     ifSet(accelerator, res.accelerator := _)
     ifSet(actionCommand, res.actionCommand := _)
     ifSet(displayedMnemonicIndex, res.displayedMnemonicIndex := _)
-    ifSet(enabled, Ops.extension_enabled(res) := _)
+    ifSet(enabled, Ops.enabled(res) := _)
     ifSet(largeIcon, res.largeIcon := _)
     ifSet(tooltip, res.tooltip := _)
     ifSet(mnemonic, res.mnemonic := _)
