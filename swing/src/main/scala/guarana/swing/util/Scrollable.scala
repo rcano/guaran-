@@ -16,7 +16,7 @@ enum Scrollable {
   )(using sc: Scenegraph): Node = {
     val scrollable = new JPanel(BorderLayout()) with javax.swing.Scrollable {
       def getPreferredScrollableViewportSize() = getPreferredSize
-      def getScrollableBlockIncrement(rect: java.awt.Rectangle | UncheckedNull, orientation: Int, direction: Int): Int = {
+      def getScrollableBlockIncrement(rect: java.awt.Rectangle, orientation: Int, direction: Int): Int = {
         val em = sc.stateReader(sc.emSize)
         orientation match {
           case SwingConstants.HORIZONTAL => horizontalScrollBlock.getOrElse(em * 10).toInt
@@ -25,7 +25,7 @@ enum Scrollable {
       }
       def getScrollableTracksViewportHeight(): Boolean = Scrollable.this == Scrollable.Horizontal
       def getScrollableTracksViewportWidth(): Boolean = Scrollable.this == Scrollable.Vertical
-      def getScrollableUnitIncrement(rect: java.awt.Rectangle | UncheckedNull, orientation: Int, direction: Int): Int = {
+      def getScrollableUnitIncrement(rect: java.awt.Rectangle, orientation: Int, direction: Int): Int = {
         val em = sc.stateReader(sc.emSize)
         orientation match {
           case SwingConstants.HORIZONTAL => horizontalScrollUnit.getOrElse(em * 4).toInt

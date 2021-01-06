@@ -144,9 +144,9 @@ class Scenegraph {
       val emitter = Node.KeyEvents.forInstance(source)
       if (emitterStation.hasEmitter(emitter)) update(summon[Emitter.Context].emit(emitter, evt))
     }
-    def keyPressed(evt: java.awt.event.KeyEvent | UncheckedNull): Unit = keyEvent(evt.nn, KeyPressed(evt.nn))
-    def keyReleased(evt: java.awt.event.KeyEvent | UncheckedNull): Unit = keyEvent(evt.nn, KeyReleased(evt.nn))
-    def keyTyped(evt: java.awt.event.KeyEvent | UncheckedNull): Unit = keyEvent(evt.nn, KeyTyped(evt.nn))
+    def keyPressed(evt: java.awt.event.KeyEvent): Unit = keyEvent(evt.nn, KeyPressed(evt.nn))
+    def keyReleased(evt: java.awt.event.KeyEvent): Unit = keyEvent(evt.nn, KeyReleased(evt.nn))
+    def keyTyped(evt: java.awt.event.KeyEvent): Unit = keyEvent(evt.nn, KeyTyped(evt.nn))
     
     // Members declared in java.awt.event.MouseListener
     private def mouseEvent(rawEvent: java.awt.event.MouseEvent, evt: MouseEvent): Unit = {
@@ -154,17 +154,17 @@ class Scenegraph {
       val emitter = Node.MouseEvents.forInstance(source)
       if (emitterStation.hasEmitter(emitter)) update(summon[Emitter.Context].emit(emitter, evt))
     }
-    def mouseClicked(evt: java.awt.event.MouseEvent | UncheckedNull): Unit = mouseEvent(evt.nn, MouseClicked(evt.nn))
-    def mouseEntered(evt: java.awt.event.MouseEvent | UncheckedNull): Unit = mouseEvent(evt.nn, MouseEntered(evt.nn))
-    def mouseExited(evt: java.awt.event.MouseEvent | UncheckedNull): Unit = mouseEvent(evt.nn, MouseExited(evt.nn))
-    def mousePressed(evt: java.awt.event.MouseEvent | UncheckedNull): Unit = mouseEvent(evt.nn, MousePressed(evt.nn))
+    def mouseClicked(evt: java.awt.event.MouseEvent): Unit = mouseEvent(evt.nn, MouseClicked(evt.nn))
+    def mouseEntered(evt: java.awt.event.MouseEvent): Unit = mouseEvent(evt.nn, MouseEntered(evt.nn))
+    def mouseExited(evt: java.awt.event.MouseEvent): Unit = mouseEvent(evt.nn, MouseExited(evt.nn))
+    def mousePressed(evt: java.awt.event.MouseEvent): Unit = mouseEvent(evt.nn, MousePressed(evt.nn))
 
     /** variable for tracking dragging. Only one is needed because only one node can be
         dragged at any given time */
     private var dragStart: Option[java.awt.event.MouseEvent] = None
 
     // Members declared in java.awt.event.MouseMotionListener
-    def mouseDragged(evt: java.awt.event.MouseEvent | UncheckedNull): Unit = update {
+    def mouseDragged(evt: java.awt.event.MouseEvent): Unit = update {
       // manually inline mouseEvent since we are running update anyway 
       val source = evt.getSource()
       val emitter = Node.MouseEvents.forInstance(source)
@@ -182,7 +182,7 @@ class Scenegraph {
       }
     }
 
-    def mouseReleased(evt: java.awt.event.MouseEvent | UncheckedNull): Unit = update {
+    def mouseReleased(evt: java.awt.event.MouseEvent): Unit = update {
       // manually inline mouseEvent since we are running update anyway 
       val source = evt.getSource()
       val emitter = Node.MouseEvents.forInstance(source)
@@ -201,7 +201,7 @@ class Scenegraph {
           dragStart = None
       }
     }
-    def mouseMoved(evt: java.awt.event.MouseEvent | UncheckedNull): Unit = update {
+    def mouseMoved(evt: java.awt.event.MouseEvent): Unit = update {
       // manually inline mouseEvent since we are running update anyway 
       val source = evt.getSource()
       val emitter = Node.MouseEvents.forInstance(source)

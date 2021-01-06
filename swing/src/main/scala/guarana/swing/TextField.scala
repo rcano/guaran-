@@ -3,7 +3,7 @@
 package guarana.swing
 
 import language.implicitConversions
-import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, _}
+import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, PopupMenu => _, _}
 import java.awt.event._
 import javax.swing.{Action => _, _}
 import javax.swing.event._
@@ -11,7 +11,7 @@ import guarana.swing.util._
 import scala.jdk.CollectionConverters._
 import scala.util.chaining._
 
-opaque type TextField <: TextComponent = javax.swing.JTextField & TextComponent
+opaque type TextField <: TextComponent  = javax.swing.JTextField & TextComponent
 object TextField extends VarsMap {
   val Action: SwingVar.Aux[TextField, javax.swing.Action | Null] = SwingVar[TextField, javax.swing.Action | Null]("action", _.getAction, _.setAction(_))
   val Columns: SwingVar.Aux[TextField, Int] = SwingVar[TextField, Int]("columns", _.getColumns, _.setColumns(_))
@@ -65,7 +65,7 @@ object TextField extends VarsMap {
     caretColor: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     columns: Opt[Binding[Int]] = UnsetParam,
     componentOrientation: Opt[Binding[java.awt.ComponentOrientation]] = UnsetParam,
-    componentPopupMenu: Opt[Binding[javax.swing.JPopupMenu | Null]] = UnsetParam,
+    componentPopupMenu: Opt[Binding[PopupMenu | Null]] = UnsetParam,
     cursor: Opt[Binding[java.awt.Cursor | Null]] = UnsetParam,
     debugGraphicsOptions: Opt[Binding[Int]] = UnsetParam,
     disabledTextColor: Opt[Binding[java.awt.Color | Null]] = UnsetParam,

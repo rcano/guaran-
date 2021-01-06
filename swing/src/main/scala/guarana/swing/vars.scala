@@ -200,8 +200,9 @@ class ObsBuffer[T] extends
   
   // Members declared in scala.collection.mutable.Clearable
   def clear(): Unit = {
+    val size = elements.size
     elements.clear()
-    observers foreach (_.applyIfDefined(Cleared))
+    observers foreach (_.applyIfDefined(Cleared(size)))
   }
   
   // Members declared in scala.collection.mutable.Growable
@@ -218,7 +219,10 @@ class ObsBuffer[T] extends
   }
   
   // Members declared in scala.collection.mutable.SeqOps
-  def update(idx: Int, elem: T): Unit = elements(idx) = elem
+  def update(idx: Int, elem: T): Unit =
+    val oldv = elements(idx)
+    elements(idx) = elem
+    observers foreach (_.applyIfDefined(Replaced(oldv, elem, idx)))
   
   // Members declared in scala.collection.SeqOps
   def apply(i: Int): T = elements(i)
@@ -230,8 +234,8 @@ object ObsBuffer {
     case Added(elems: Seq[T])
     case Inserted(elems: Seq[T], at: Int)
     case Removed(elems: Seq[T], at: Int)
-    case Replaced(oldElem: T, newElem: T)
-    case Cleared
+    case Replaced(oldElem: T, newElem: T, at: Int)
+    case Cleared(numberOfElements: Int)
   }
 
   def apply[T](elems: T*): ObsBuffer[T] = {

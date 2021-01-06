@@ -8,7 +8,7 @@ import scala.annotation.static
 
 class CssButtonUi extends MetalButtonUI, CssUi {
 
-  override def update(g: Graphics | UncheckedNull, c: JComponent | UncheckedNull) = {
+  override def update(g: Graphics, c: JComponent) = {
     val b = c.asInstanceOf[AbstractButton]
     if (c.isOpaque()) {
       g.setColor(c.getBackground())
@@ -24,10 +24,10 @@ class CssButtonUi extends MetalButtonUI, CssUi {
     super.paint(g, c)
   }
 
-  override def paintButtonPressed(g: Graphics | UncheckedNull, b: AbstractButton | UncheckedNull) = {
+  override def paintButtonPressed(g: Graphics, b: AbstractButton) = {
 
   }
 }
 object CssButtonUi extends CssButtonUi {
-  @static def createUI(c: JComponent | UncheckedNull): CssButtonUi = this
+  @static def createUI(c: JComponent): CssButtonUi = this
 }

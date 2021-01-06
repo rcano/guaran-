@@ -8,7 +8,7 @@ import scala.annotation.static
 import scala.util.chaining._
 
 class CssProgressBarUi extends MetalProgressBarUI, CssUi {
-  override def paintDeterminate(g: Graphics | UncheckedNull, c: JComponent | UncheckedNull): Unit = withinRegion(c.nn) { (x, y, w, h) =>
+  override def paintDeterminate(g: Graphics, c: JComponent): Unit = withinRegion(c.nn) { (x, y, w, h) =>
     val sg = scenegraph
     val bckgr = style.CssProperties.Background.forInstance(c) pipe sg.stateReader.apply
     RegionPainter.paintRegion(bckgr, g.upgrade, x, y, w, h)
@@ -30,11 +30,11 @@ class CssProgressBarUi extends MetalProgressBarUI, CssUi {
     val barBckgr = style.CssProperties.ProgressBarBarBackground.forInstance(c) pipe sg.stateReader.apply
     RegionPainter.paintRegion(barBckgr, g.upgrade, x + borderInsets.left, y + borderInsets.top, barWidth - borderInsets.left - borderInsets.right, barHeight - borderInsets.top - borderInsets.bottom)
   }
-  override def paintIndeterminate(g: Graphics | UncheckedNull, c: JComponent | UncheckedNull): Unit = {
+  override def paintIndeterminate(g: Graphics, c: JComponent): Unit = {
     super.paintIndeterminate(g, c)
   }
 }
 
 object CssProgressBarUi {
-  @static def createUI(c: JComponent | UncheckedNull): CssProgressBarUi = CssProgressBarUi() //sadly we have to instantiate a new one, because of how BasicProgressBarUI is defined...
+  @static def createUI(c: JComponent): CssProgressBarUi = CssProgressBarUi() //sadly we have to instantiate a new one, because of how BasicProgressBarUI is defined...
 }

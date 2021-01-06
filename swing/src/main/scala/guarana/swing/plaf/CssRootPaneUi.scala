@@ -7,7 +7,7 @@ import javax.swing.plaf.metal.MetalRootPaneUI
 import scala.annotation.static
 
 class CssRootPaneUi extends MetalRootPaneUI, CssUi {
-  override def paint(g: Graphics | UncheckedNull, c: JComponent | UncheckedNull) = {
+  override def paint(g: Graphics, c: JComponent) = {
     val bckProp = style.CssProperties.Background.forInstance(c)
     val bck = scenegraph.stateReader(bckProp)
     if (bck.fills.isEmpty && bck.images.isEmpty) super.paint(g, c)

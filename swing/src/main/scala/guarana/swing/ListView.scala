@@ -3,7 +3,7 @@
 package guarana.swing
 
 import language.implicitConversions
-import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, _}
+import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, PopupMenu => _, _}
 import java.awt.event._
 import javax.swing.{Action => _, _}
 import javax.swing.event._
@@ -11,7 +11,7 @@ import guarana.swing.util._
 import scala.jdk.CollectionConverters._
 import scala.util.chaining._
 
-opaque type ListView[+E] <: Component = javax.swing.JList[_ <: E] & Component
+opaque type ListView[+E] <: Component  = javax.swing.JList[_ <: E] & Component
 object ListView extends VarsMap {
   val UI: SwingVar.Aux[ListView[Any], javax.swing.plaf.ListUI] = SwingVar[ListView[Any], javax.swing.plaf.ListUI]("UI", _.getUI.nn, _.setUI(_))
   val CellRenderer: SwingVar.Aux[ListView[Any], javax.swing.ListCellRenderer[_]] = SwingVar[ListView[Any], javax.swing.ListCellRenderer[_]]("cellRenderer", _.getCellRenderer.nn, (l, c) => l.setCellRenderer(c.asInstanceOf))
@@ -108,7 +108,7 @@ object ListView extends VarsMap {
     bounds: Opt[Binding[Bounds]] = UnsetParam,
     cellRenderer: Opt[Binding[javax.swing.ListCellRenderer[_ >: E]]] = UnsetParam,
     componentOrientation: Opt[Binding[java.awt.ComponentOrientation]] = UnsetParam,
-    componentPopupMenu: Opt[Binding[javax.swing.JPopupMenu | Null]] = UnsetParam,
+    componentPopupMenu: Opt[Binding[PopupMenu | Null]] = UnsetParam,
     cursor: Opt[Binding[java.awt.Cursor | Null]] = UnsetParam,
     debugGraphicsOptions: Opt[Binding[Int]] = UnsetParam,
     doubleBuffered: Opt[Binding[Boolean]] = UnsetParam,

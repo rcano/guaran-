@@ -3,7 +3,7 @@
 package guarana.swing
 
 import language.implicitConversions
-import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, _}
+import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, PopupMenu => _, _}
 import java.awt.event._
 import javax.swing.{Action => _, _}
 import javax.swing.event._
@@ -11,7 +11,7 @@ import guarana.swing.util._
 import scala.jdk.CollectionConverters._
 import scala.util.chaining._
 
-opaque type Node >: java.awt.Component = java.awt.Component
+opaque type Node  >: java.awt.Component = java.awt.Component
 object Node extends VarsMap {
   val Background: SwingVar.Aux[Node, java.awt.Color | Null] = SwingVar[Node, java.awt.Color | Null]("background", _.getBackground, _.setBackground(_))
   val Bounds: SwingVar.Aux[Node, Bounds] = SwingVar[Node, Bounds]("bounds", _.getBounds.nn, _.setBounds(_))
@@ -22,12 +22,12 @@ object Node extends VarsMap {
   private val FocusedMut: Var[Boolean] = Var[Boolean]("focusedMut", false, false)
   val Font: SwingVar.Aux[Node, java.awt.Font | Null] = SwingVar[Node, java.awt.Font | Null]("font", _.getFont, _.setFont(_))
   val Foreground: SwingVar.Aux[Node, java.awt.Color | Null] = SwingVar[Node, java.awt.Color | Null]("foreground", _.getForeground, _.setForeground(_))
-  val MaxSize: SwingVar.Aux[Node, (Double, Double) | Null] = SwingVar[Node, (Double, Double) | Null]("maxSize", {n => val d = n.getMaximumSize; if (d != null) (d.getWidth, d.getHeight) else null}, {(n, d) => n.setMaximumSize(if (d == null) null else java.awt.Dimension(d._1.toInt, d._2.toInt))})
-  val MinSize: SwingVar.Aux[Node, (Double, Double) | Null] = SwingVar[Node, (Double, Double) | Null]("minSize", {n => val d = n.getMinimumSize; if (d != null) (d.getWidth, d.getHeight) else null}, {(n, d) => n.setMinimumSize(if (d == null) null else java.awt.Dimension(d._1.toInt, d._2.toInt))})
+  val MaxSize: SwingVar.Aux[Node, (Double, Double) | Null] = SwingVar[Node, (Double, Double) | Null]("maxSize", {n => val d = n.getMaximumSize; if (d != null) (d.getWidth, d.getHeight) else null}, {(n, d) => n.setMaximumSize(d.?(d => java.awt.Dimension(d._1.toInt, d._2.toInt)))})
+  val MinSize: SwingVar.Aux[Node, (Double, Double) | Null] = SwingVar[Node, (Double, Double) | Null]("minSize", {n => val d = n.getMinimumSize; if (d != null) (d.getWidth, d.getHeight) else null}, {(n, d) => n.setMinimumSize(d.?(d => java.awt.Dimension(d._1.toInt, d._2.toInt)))})
   private[guarana] val MouseDragMut: Var[Option[MouseDrag]] = Var[Option[MouseDrag]]("mouseDragMut", None, false)
   private val MouseLocationMut: Var[(Int, Int)] = Var[(Int, Int)]("mouseLocationMut", (0, 0), false)
   val Name: SwingVar.Aux[Node, String | Null] = SwingVar[Node, String | Null]("name", _.getName, _.setName(_))
-  val PrefSize: SwingVar.Aux[Node, (Double, Double) | Null] = SwingVar[Node, (Double, Double) | Null]("prefSize", {n => val d = n.getPreferredSize; if (d != null) (d.getWidth, d.getHeight) else null}, {(n, d) => n.setPreferredSize(if (d == null) null else java.awt.Dimension(d._1.toInt, d._2.toInt))})
+  val PrefSize: SwingVar.Aux[Node, (Double, Double) | Null] = SwingVar[Node, (Double, Double) | Null]("prefSize", {n => val d = n.getPreferredSize; if (d != null) (d.getWidth, d.getHeight) else null}, {(n, d) => n.setPreferredSize(d.?(d => java.awt.Dimension(d._1.toInt, d._2.toInt)))})
   val Visible: SwingVar.Aux[Node, Boolean] = SwingVar[Node, Boolean]("visible", _.isVisible, _.setVisible(_))
 
   val FocusEvents = Emitter[(FocusEvent, Boolean)]()
@@ -85,18 +85,18 @@ object Node extends VarsMap {
       }
     }
     v addFocusListener new FocusListener {
-      def focusGained(evt: FocusEvent | UncheckedNull) = sc.update {
+      def focusGained(evt: FocusEvent) = sc.update {
         Node.FocusedMut.forInstance(v) := true 
         summon[Emitter.Context].emit(v.focusEvents, (evt.nn -> true))
       }
-      def focusLost(evt: FocusEvent | UncheckedNull) = sc.update {
+      def focusLost(evt: FocusEvent) = sc.update {
         Node.FocusedMut.forInstance(v) := false
         summon[Emitter.Context].emit(v.focusEvents, (evt.nn -> false))
       }
     }
     v addComponentListener new ComponentAdapter {
-      override def componentMoved(e: ComponentEvent | UncheckedNull): Unit = updateBounds()
-      override def componentResized(e: ComponentEvent | UncheckedNull): Unit = updateBounds()
+      override def componentMoved(e: ComponentEvent): Unit = updateBounds()
+      override def componentResized(e: ComponentEvent): Unit = updateBounds()
       def updateBounds(): Unit = sc.update {
         summon[VarContext].swingPropertyUpdated(ops.bounds(v), v.getBounds.nn)
       }

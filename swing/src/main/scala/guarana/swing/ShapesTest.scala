@@ -26,7 +26,7 @@ import plaf.{upgrade, withAliasing}
             style.Border(strokes = IArray(
               // border,
               style.BorderStroke.simple(
-                java.awt.LinearGradientPaint(0, 0, 0, h.toFloat.max(1), Array[Float](0, 1), Array[Color | UncheckedNull](Color.Lavender, Color.Lavender.darker.nn)),
+                java.awt.LinearGradientPaint(0, 0, 0, h.toFloat.max(1), Array[Float](0, 1), Array[Color](Color.Lavender, Color.Lavender.darker.nn)),
                 BasicStroke((emSize / 14).toInt), corners, Insets.all(emSize * 0.3))
             ))
           ).asInstanceOf[Option[T]]
@@ -49,7 +49,7 @@ import plaf.{upgrade, withAliasing}
 
     val p = Pane.wrap(new javax.swing.JPanel {
 
-      override def paintComponent(g: java.awt.Graphics | UncheckedNull): Unit = {
+      override def paintComponent(g: java.awt.Graphics): Unit = {
         val g2 = g.create().upgrade.withAliasing
         val zeroX = getWidth() * 0.2
         val zeroY = getHeight() * 0.2
@@ -71,11 +71,11 @@ import plaf.{upgrade, withAliasing}
     Pane.init(p)
     
     val buttonPlaf = new javax.swing.plaf.basic.BasicButtonUI() {
-      override def installDefaults(b: javax.swing.AbstractButton | UncheckedNull) = {
+      override def installDefaults(b: javax.swing.AbstractButton) = {
         super.installDefaults(b)
         b.setBorder(plaf.CssBorder(summon[Scenegraph]))
       }
-      override def paint(g: java.awt.Graphics | UncheckedNull, comp: javax.swing.JComponent | UncheckedNull): Unit = {
+      override def paint(g: java.awt.Graphics, comp: javax.swing.JComponent): Unit = {
         plaf.RegionPainter.paintRegion(style.CssProperties.Background.forInstance(comp)(), g.upgrade.withAliasing, 0, 0, comp.getWidth, comp.getHeight)
         super.paint(g, comp)
       }

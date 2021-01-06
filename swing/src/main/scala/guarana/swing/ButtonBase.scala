@@ -3,7 +3,7 @@
 package guarana.swing
 
 import language.implicitConversions
-import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, _}
+import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, PopupMenu => _, _}
 import java.awt.event._
 import javax.swing.{Action => _, _}
 import javax.swing.event._
@@ -11,7 +11,7 @@ import guarana.swing.util._
 import scala.jdk.CollectionConverters._
 import scala.util.chaining._
 
-opaque type ButtonBase <: Component = javax.swing.AbstractButton & Component
+opaque type ButtonBase <: Component  = javax.swing.AbstractButton & Component
 object ButtonBase extends VarsMap {
   val UI: SwingVar.Aux[ButtonBase, javax.swing.plaf.ButtonUI] = SwingVar[ButtonBase, javax.swing.plaf.ButtonUI]("UI", _.getUI.nn, _.setUI(_))
   val Action: SwingVar.Aux[ButtonBase, javax.swing.Action | Null] = SwingVar[ButtonBase, javax.swing.Action | Null]("action", _.getAction, _.setAction(_))

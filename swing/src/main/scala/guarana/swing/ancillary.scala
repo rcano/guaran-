@@ -31,8 +31,8 @@ trait VarsMap {
   }: java.beans.PropertyChangeListener
 }
 
-extension [T, U](e: T | Null) inline def ? (inline f: T => U): U | Null = if (e != null) f(e) else null
-extension [T](e: T | Null) inline def toOption: Option[T] = if (e != null) Some(e) else None
+extension [T, U](e: T | Null) inline def ? (inline f: T => U): U | Null = if (e != null) f(e.asInstanceOf[T]) else null
+extension [T](e: T | Null) inline def toOption: Option[T] = if (e != null) Some(e.asInstanceOf[T]) else None
 extension [F[_], T](e: F[T | Null] | Null) inline def nnn: F[T] = e.asInstanceOf[F[T]]
 
 extension (d: javax.swing.text.Document) {

@@ -3,7 +3,7 @@
 package guarana.swing
 
 import language.implicitConversions
-import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, _}
+import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, PopupMenu => _, _}
 import java.awt.event._
 import javax.swing.{Action => _, _}
 import javax.swing.event._
@@ -11,7 +11,7 @@ import guarana.swing.util._
 import scala.jdk.CollectionConverters._
 import scala.util.chaining._
 
-opaque type Window <: WindowBase = javax.swing.JWindow & WindowBase
+opaque type Window <: WindowBase  = javax.swing.JWindow & WindowBase
 object Window extends VarsMap {
   val ContentPane: SwingVar.Aux[Window, java.awt.Container] = SwingVar[Window, java.awt.Container]("contentPane", _.getContentPane().nn, _.setContentPane(_))
   val GlassPane: SwingVar.Aux[Window, java.awt.Component | Null] = SwingVar[Window, java.awt.Component | Null]("glassPane", _.getGlassPane, _.setGlassPane(_))

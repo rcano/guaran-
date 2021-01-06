@@ -55,8 +55,8 @@ abstract class NodeDescr(
 
 case object Node extends NodeDescr(
   "Node",
-  "java.awt.Container",
-  lowerBounds = Seq("java.awt.Container"),
+  "java.awt.Component",
+  lowerBounds = Seq("java.awt.Component"),
   props = Seq(
     SwingProp("background", "java.awt.Color | Null"),
     SwingProp("bounds", "Bounds"),
@@ -69,14 +69,14 @@ case object Node extends NodeDescr(
     SwingProp("foreground", "java.awt.Color | Null"),
     SwingProp("maxSize", "(Double, Double) | Null",
       "{n => val d = n.getMaximumSize; if (d != null) (d.getWidth, d.getHeight) else null}",
-      "{(n, d) => n.setMaximumSize(if (d == null) null else java.awt.Dimension(d._1.toInt, d._2.toInt))}"),
+      "{(n, d) => n.setMaximumSize(d.?(d => java.awt.Dimension(d._1.toInt, d._2.toInt)))}"),
     SwingProp("minSize", "(Double, Double) | Null",
       "{n => val d = n.getMinimumSize; if (d != null) (d.getWidth, d.getHeight) else null}",
-      "{(n, d) => n.setMinimumSize(if (d == null) null else java.awt.Dimension(d._1.toInt, d._2.toInt))}"),
+      "{(n, d) => n.setMinimumSize(d.?(d => java.awt.Dimension(d._1.toInt, d._2.toInt)))}"),
     SwingProp("name", "String | Null"),
     SwingProp("prefSize", "(Double, Double) | Null",
       "{n => val d = n.getPreferredSize; if (d != null) (d.getWidth, d.getHeight) else null}",
-      "{(n, d) => n.setPreferredSize(if (d == null) null else java.awt.Dimension(d._1.toInt, d._2.toInt))}"),
+      "{(n, d) => n.setPreferredSize(d.?(d => java.awt.Dimension(d._1.toInt, d._2.toInt)))}"),
     SwingProp("visible", "Boolean"),
     VarProp("mouseLocationMut", "(Int, Int)", "(0, 0)", Some("private")),
     VarProp("mouseDragMut", "Option[MouseDrag]", "None", Some("private[guarana]")),
@@ -87,7 +87,6 @@ case object Node extends NodeDescr(
     |def mouseDrag = Node.MouseDragMut.asObsValIn(v)
     |def alignmentX = v.getAlignmentX
     |def alignmentY = v.getAlignmentY
-    |def insets = v.getInsets
     |def location = v.getLocation
     |def size = v.getSize
     |def location(x: Int, y: Int) = v.setLocation(x, y)
@@ -95,7 +94,6 @@ case object Node extends NodeDescr(
     |def requestFocusInWindow() = v.requestFocusInWindow()
     |def size(x: Int, y: Int) = v.setSize(x, y)
     |def showing = v.isShowing
-    |def children: Seq[Node] = (0 until v.getComponentCount).map(i => v.getComponent(i).asInstanceOf[Container])
     """.stripMargin.trim.split("\n").asInstanceOf[Array[String]].toIndexedSeq,
   emitters = Seq(
     EmitterDescr("focusEvents", "(FocusEvent, Boolean)", Nil),
@@ -111,18 +109,18 @@ case object Node extends NodeDescr(
   |  }
   |}
   |v addFocusListener new FocusListener {
-  |  def focusGained(evt: FocusEvent | UncheckedNull) = sc.update {
+  |  def focusGained(evt: FocusEvent) = sc.update {
   |    Node.FocusedMut.forInstance(v) := true 
   |    summon[Emitter.Context].emit(v.focusEvents, (evt.nn -> true))
   |  }
-  |  def focusLost(evt: FocusEvent | UncheckedNull) = sc.update {
+  |  def focusLost(evt: FocusEvent) = sc.update {
   |    Node.FocusedMut.forInstance(v) := false
   |    summon[Emitter.Context].emit(v.focusEvents, (evt.nn -> false))
   |  }
   |}
   |v addComponentListener new ComponentAdapter {
-  |  override def componentMoved(e: ComponentEvent | UncheckedNull): Unit = updateBounds()
-  |  override def componentResized(e: ComponentEvent | UncheckedNull): Unit = updateBounds()
+  |  override def componentMoved(e: ComponentEvent): Unit = updateBounds()
+  |  override def componentResized(e: ComponentEvent): Unit = updateBounds()
   |  def updateBounds(): Unit = sc.update {
   |    summon[VarContext].swingPropertyUpdated(ops.bounds(v), v.getBounds.nn)
   |  }
@@ -149,7 +147,7 @@ case object Component extends NodeDescr(
     SwingProp("alignmentY", "Float"),
     SwingProp("autoscrolls", "Boolean", "_.getAutoscrolls", "_.setAutoscrolls(_)"),
     SwingProp("border", "javax.swing.border.Border | Null"),
-    SwingProp("componentPopupMenu", "javax.swing.JPopupMenu | Null"),
+    SwingProp("componentPopupMenu", "PopupMenu | Null", "_.getComponentPopupMenu.asInstanceOf", "(c, p) => c.setComponentPopupMenu(p.asInstanceOf)"),
     SwingProp("debugGraphicsOptions", "Int"),
     SwingProp("doubleBuffered", "Boolean"),
     SwingProp("inheritsPopupMenu", "Boolean", "_.getInheritsPopupMenu", "_.setInheritsPopupMenu(_)"),
@@ -174,6 +172,8 @@ case object Component extends NodeDescr(
     "def vetoableChangeListeners = v.getVetoableChangeListeners",
     "def visibleRect = v.getVisibleRect",
     "def uiPrefSize: (Double, Double) | Null = ops.UI(v).?(_.getPreferredSize(v)).?(d => (d.getWidth, d.getHeight))",
+    "def insets = v.getInsets",
+    "def children: Seq[Node] = (0 until v.getComponentCount).map(i => v.getComponent(i).asInstanceOf[Node])",
   ),
   isAbstract = true,
 )
@@ -296,6 +296,35 @@ case object Dialog extends NodeDescr(
     Parameter("modalityType", "_", "null: java.awt.Dialog.ModalityType | Null", true),
     Parameter("gc", "GraphicsConfiguration | Null = null", "gc")
   )
+)
+
+case object PopupMenu extends NodeDescr(
+  "PopupMenu",
+  "javax.swing.JPopupMenu",
+  upperBounds = Seq(Component),
+  props = Seq(
+    SwingProp("UI", "javax.swing.plaf.PopupMenuUI | Null"),
+    SwingProp("borderPainted", "Boolean"),
+    SwingProp("invoker", "java.awt.Component | Null"),
+    SwingProp("label", "java.lang.String | Null"),
+    SwingProp("lightWeightPopupEnabled", "Boolean"),
+    SwingProp("selectionModel", "javax.swing.SingleSelectionModel | Null"),
+    SwingProp("items", "Seq[MenuItem]", "c => (0 until c.getComponentCount).map(c.getComponent(_).asInstanceOf[MenuItem])", "(c, items) => { c.removeAll(); items foreach (i => c.add(i.unwrap)) }"),
+  ),
+  opsExtra = Seq(
+    "def component: java.awt.Component | Null = v.getComponent",
+    "def margin: java.awt.Insets | Null = v.getMargin",
+    "def menuKeyListeners: Array[javax.swing.event.MenuKeyListener | Null] = v.getMenuKeyListeners",
+    "def pack(): Unit = v.pack()",
+    "def popupMenuListeners: Array[javax.swing.event.PopupMenuListener | Null] = v.getPopupMenuListeners",
+    "def popupSize(x: Int, y: Int): Unit = v.setPopupSize(x, y)",
+    "def select(n: Node): Unit = v.setSelected(n.unwrap)",
+    "def show(invoker: Node, x: Int, y: Int): Unit = v.show(invoker.unwrap, x, y)",
+    "def subElements: Array[javax.swing.MenuElement | Null] = v.getSubElements",
+  ),
+  uninitExtraParams = Seq(
+    Parameter("title", "String | Null = null", "title")
+  ),
 )
 
 ////////////////////////////////////////////////////////////////////////////
@@ -802,7 +831,7 @@ case object Slider extends NodeDescr(
     "def changeListeners = v.getChangeListeners",
   ),
   initExtra = 
-    "val l: ChangeListener = (e: ChangeEvent | UncheckedNull) => summon[Scenegraph].update(summon[VarContext].swingPropertyUpdated(ops.value(v), v.getValue))" ::
+    "val l: ChangeListener = (e: ChangeEvent) => summon[Scenegraph].update(summon[VarContext].swingPropertyUpdated(ops.value(v), v.getValue))" ::
     "v.addChangeListener(l)" ::
     Nil
 )
@@ -832,7 +861,7 @@ case object ProgressBar extends NodeDescr(
     "def percentComplete = v.getPercentComplete"
   ),
   initExtra = 
-    "val l: ChangeListener = (e: ChangeEvent | UncheckedNull) => summon[Scenegraph].update(summon[VarContext].swingPropertyUpdated(ops.value(v), v.getValue))" ::
+    "val l: ChangeListener = (e: ChangeEvent) => summon[Scenegraph].update(summon[VarContext].swingPropertyUpdated(ops.value(v), v.getValue))" ::
     "v.addChangeListener(l)" ::
     Nil
 )
@@ -921,11 +950,11 @@ case object TableView extends NodeDescr(
     SwingProp("gridColor", "java.awt.Color | Null"),
     SwingProp("intercellSpacing", "(Double, Double) | Null",
       "{n => val d = n.getIntercellSpacing; if (d != null) (d.getWidth, d.getHeight) else null}",
-      "{(n, d) => n.setIntercellSpacing(if (d == null) null else java.awt.Dimension(d._1.toInt, d._2.toInt))}"),
+      "{(n, d) => n.setIntercellSpacing(d.?(d => java.awt.Dimension(d._1.toInt, d._2.toInt)))}"),
     SwingProp("model", "javax.swing.table.TableModel"),
     SwingProp("preferredScrollableViewportSize", "(Double, Double) | Null",
       "{n => val d = n.getPreferredScrollableViewportSize; if (d != null) (d.getWidth, d.getHeight) else null}",
-      "{(n, d) => n.setPreferredScrollableViewportSize(if (d == null) null else java.awt.Dimension(d._1.toInt, d._2.toInt))}"),
+      "{(n, d) => n.setPreferredScrollableViewportSize(d.?(d => java.awt.Dimension(d._1.toInt, d._2.toInt)))}"),
     SwingProp("rowHeight", "Int"),
     SwingProp("rowMargin", "Int"),
     SwingProp("rowSelectionAllowed", "Boolean", "_.getRowSelectionAllowed", "_.setRowSelectionAllowed(_)"),
@@ -938,13 +967,18 @@ case object TableView extends NodeDescr(
     SwingProp("surrendersFocusOnKeystroke", "Boolean", "_.getSurrendersFocusOnKeystroke", "_.setSurrendersFocusOnKeystroke(_)"),
     SwingProp("tableHeader", "javax.swing.table.JTableHeader | Null"),
     SwingProp("updateSelectionOnSort", "Boolean", "_.getUpdateSelectionOnSort", "_.setUpdateSelectionOnSort(_)"),
+    VarProp("selectedRowsMut", "Array[Int]", "Array()", Some("private")),
   ),
   opsExtra = Seq(
     "def columnCount: Int = v.getColumnCount",
+    "def columnIndexToModel(row: Int): Int = v.convertColumnIndexToModel(row)",
+    "def columnIndexToView(row: Int): Int = v.convertColumnIndexToView(row)",
     "def dropLocation: javax.swing.JTable.DropLocation | Null = v.getDropLocation",
     "def editing: Boolean = v.isEditing",
     "def editorComponent: java.awt.Component | Null = v.getEditorComponent",
     "def rowCount: Int = v.getRowCount",
+    "def rowIndexToModel(row: Int): Int = v.convertRowIndexToModel(row)",
+    "def rowIndexToView(row: Int): Int = v.convertRowIndexToView(row)",
     "def scrollableTracksViewportHeight: Boolean = v.getScrollableTracksViewportHeight",
     "def scrollableTracksViewportWidth: Boolean = v.getScrollableTracksViewportWidth",
     "def selectedColumn: Int = v.getSelectedColumn",
@@ -952,8 +986,12 @@ case object TableView extends NodeDescr(
     "def selectedColumns: Array[Int] = v.getSelectedColumns.nn",
     "def selectedRow: Int = v.getSelectedRow",
     "def selectedRowCount: Int = v.getSelectedRowCount",
-    "def selectedRows: Array[Int] = v.getSelectedRows.nn"
+    "def selectedRows = TableView.SelectedRowsMut.asObsValIn(v)"
   ),
+  initExtra = """
+    |v.getSelectionModel.addListSelectionListener(selectionEvt => 
+    |  sc.update(SelectedRowsMut.forInstance(v) := v.getSelectedRows))
+    """.stripMargin.trim.split("\n").asInstanceOf[Array[String]].toIndexedSeq,
 )
 
 ////////////////////////////////////////////////////////////////////////////
@@ -1105,7 +1143,7 @@ case object TabbedPane extends NodeDescr(
     |  case ObsBuffer.Event.Added(elems) => elems foreach addTab
     |  case ObsBuffer.Event.Inserted(elems, at) => elems.zipWithIndex foreach ((e, i) => insertTab(e, at + i))
     |  case ObsBuffer.Event.Removed(elems, at) => elems foreach (_ => removeTab(at))
-    |  case ObsBuffer.Event.Replaced(oldElem, newElem) => replaceTab(oldElem, newElem)
+    |  case ObsBuffer.Event.Replaced(oldElem, newElem, at) => replaceTab(oldElem, newElem)
     |  case ObsBuffer.Event.Cleared => v.removeAll()
     |}
 
@@ -1157,7 +1195,7 @@ case object Combobox extends NodeDescr(
     SwingProp("selectedIndex", "Int"),
     SwingProp("selectedItem", "Option[E]", "{c => val v = c.getSelectedItem; if (v != null) Some(v) else None}", "_.setSelectedItem(_)", overrideTpeInStaticPos = Some("Option[?]")),
     SwingProp("items", "Seq[E]", "{c => val m = c.getModel.nn; (0 until m.getSize).map(m.getElementAt(_).asInstanceOf)}",
-      "(c, i) => c.setModel(DefaultComboBoxModel(i.toArray.asInstanceOf[Array[AnyRef | UncheckedNull]]).asInstanceOf)", overrideTpeInStaticPos = Some("Seq[Any]")),
+      "(c, i) => c.setModel(DefaultComboBoxModel(i.toArray.asInstanceOf[Array[AnyRef]]).asInstanceOf)", overrideTpeInStaticPos = Some("Seq[Any]")),
   ),
   opsExtra = Seq(
     "def actionListeners: Array[java.awt.event.ActionListener] = v.getActionListeners.asInstanceOf",
@@ -1212,6 +1250,71 @@ case object Spinner extends NodeDescr(
     """.trim.nn.stripMargin.split("\n").asInstanceOf[Array[String]].toIndexedSeq
 )
 
+
+////////////////////////////////////////////////////////////////////////////
+// TreeView
+////////////////////////////////////////////////////////////////////////////
+
+case object TreeView extends NodeDescr(
+  "TreeView",
+  "javax.swing.JTree",
+  tpeParams = Seq("+E"),
+  upperBounds = Seq(Component),
+  props = Seq(
+    SwingProp("UI", "javax.swing.plaf.TreeUI | Null"),
+    SwingProp("anchorSelectionPath", "javax.swing.tree.TreePath | Null"),
+    SwingProp("cellEditor", "javax.swing.tree.TreeCellEditor | Null"),
+    SwingProp("cellRenderer", "javax.swing.tree.TreeCellRenderer"),
+    SwingProp("dragEnabled", "Boolean", "_.getDragEnabled", "_.setDragEnabled(_)"),
+    SwingProp("dropMode", "javax.swing.DropMode | Null"),
+    SwingProp("editable", "Boolean"),
+    SwingProp("expandsSelectedPaths", "Boolean", "_.getExpandsSelectedPaths", "_.setExpandsSelectedPaths(_)"),
+    SwingProp("invokesStopCellEditing", "Boolean", "_.getInvokesStopCellEditing", "_.setInvokesStopCellEditing(_)"),
+    SwingProp("largeModel", "Boolean"),
+    SwingProp("leadSelectionPath", "javax.swing.tree.TreePath | Null"),
+    SwingProp("model", "javax.swing.tree.TreeModel"),
+    SwingProp("rootVisible", "Boolean"),
+    SwingProp("rowHeight", "Int"),
+    SwingProp("scrollsOnExpand", "Boolean", "_.getScrollsOnExpand", "_.setScrollsOnExpand(_)"),
+    SwingProp("selectionModel", "javax.swing.tree.TreeSelectionModel"),
+    SwingProp("selectionPath", "javax.swing.tree.TreePath | Null"),
+    SwingProp("selectionPaths", "Array[javax.swing.tree.TreePath | Null]"),
+    SwingProp("selectionRows", "Array[Int]"),
+    SwingProp("showsRootHandles", "Boolean", "_.getShowsRootHandles", "_.setShowsRootHandles(_)"),
+    SwingProp("toggleClickCount", "Int"),
+    SwingProp("visibleRowCount", "Int"),
+  ),
+  opsExtra = Seq(
+    "def dropLocation: javax.swing.JTree.DropLocation | Null = v.getDropLocation",
+    "def editing: Boolean = v.isEditing",
+    "def editingPath: javax.swing.tree.TreePath | Null = v.getEditingPath",
+    "def fixedRowHeight: Boolean = v.isFixedRowHeight",
+    "def lastSelectedPathComponent: java.lang.Object | Null = v.getLastSelectedPathComponent",
+    "def leadSelectionRow: Int = v.getLeadSelectionRow",
+    "def maxSelectionRow: Int = v.getMaxSelectionRow",
+    "def minSelectionRow: Int = v.getMinSelectionRow",
+    "def preferredScrollableViewportSize: java.awt.Dimension | Null = v.getPreferredScrollableViewportSize",
+    "def rowCount: Int = v.getRowCount",
+    "def scrollableTracksViewportHeight: Boolean = v.getScrollableTracksViewportHeight",
+    "def scrollableTracksViewportWidth: Boolean = v.getScrollableTracksViewportWidth",
+    "def selectionCount: Int = v.getSelectionCount",
+    "def selectionEmpty: Boolean = v.isSelectionEmpty",
+    "def treeExpansionListeners: Array[javax.swing.event.TreeExpansionListener] = v.getTreeExpansionListeners",
+    "def treeSelectionListeners: Array[javax.swing.event.TreeSelectionListener] = v.getTreeSelectionListeners",
+    "def treeWillExpandListeners: Array[javax.swing.event.TreeWillExpandListener] = v.getTreeWillExpandListeners"
+  ),
+  initExtra = """
+    |val tsl: TreeSelectionListener = evt => sc.update {
+    |  val vc = summon[VarContext]
+    |  vc.swingPropertyUpdated(ops.leadSelectionPath(v), v.getLeadSelectionPath)
+    |  vc.swingPropertyUpdated(ops.selectionPath(v), v.getSelectionPath)
+    |  vc.swingPropertyUpdated(ops.selectionPaths(v), v.getSelectionPaths)
+    |  vc.swingPropertyUpdated(ops.selectionRows(v), v.getSelectionRows)
+    |}
+    |v.addTreeSelectionListener(tsl)
+    """.trim.nn.stripMargin.split("\n").asInstanceOf[Array[String]].toIndexedSeq
+)
+
 ////////////////////////////////////////////////////////////////////////////
 // main function
 ////////////////////////////////////////////////////////////////////////////
@@ -1222,7 +1325,7 @@ def genCode(n: NodeDescr): String = {
 
   val emptyTpeParams = tpeParams.replaceAll(raw"\w|_ [><]: \w+", "Any")
 
-  def propDecl(p: Property) = p.visibility.map(s => s + " ").getOrElse("") + (p match {
+  def propDecl(p: Property): String = p.visibility.map(s => s + " ").getOrElse("") + (p match {
     case p@SwingProp(name, tpe, getter, setter, _, _) => 
       s"""val ${name.capitalize}: SwingVar.Aux[${n.name}$emptyTpeParams, ${p.tpeInStaticPos}] = SwingVar[${n.name}$emptyTpeParams, ${p.tpeInStaticPos}]("$name", $getter, $setter)"""
     case p@VarProp(name, tpe, initValue, _, _, eval) => 
@@ -1240,7 +1343,7 @@ def genCode(n: NodeDescr): String = {
 
   val initializers = if (!n.isAbstract) 
       s"""def uninitialized$tpeParams(${n.uninitExtraParams.filterNot(_.erased).map(t => s"${t.name}: ${t.tpe}").mkString(", ")}): ${n.name}$tpeParams = {
-         |  val res = ${n.underlying.replaceAll(raw"_ <: ", "")}(${n.uninitExtraParams.map(_.passAs).mkString(", ")}).asInstanceOf[${n.name}$tpeParams]
+         |  val res = ${if (n != Node) n.underlying.replaceAll(raw"_ <: ", "") else "java.awt.Container"}(${n.uninitExtraParams.map(_.passAs).mkString(", ")}).asInstanceOf[${n.name}$tpeParams]
          |  ${n.uninitExtra.mkString("\n    ")}
          |  res
          |}
@@ -1294,6 +1397,7 @@ def genCode(n: NodeDescr): String = {
      |  ${n.companionObjectExtras.mkString("\n  ")}
      |}
   """.stripMargin.trim.nn
+    .replace(" | UncheckedNull", "")
 }
 
 @main def run(): Unit = {
@@ -1304,7 +1408,7 @@ def genCode(n: NodeDescr): String = {
     |package guarana.swing
 
     |import language.implicitConversions
-    |import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, _}
+    |import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, PopupMenu => _, _}
     |import java.awt.event._
     |import javax.swing.{Action => _, _}
     |import javax.swing.event._
@@ -1321,6 +1425,7 @@ def genCode(n: NodeDescr): String = {
     Window,
     Frame,
     Dialog,
+    PopupMenu,
     Pane,
     AbsolutePositioningPane,
     BorderPane,
@@ -1352,6 +1457,7 @@ def genCode(n: NodeDescr): String = {
     Separator,
     Spinner,
     TabbedPane,
+    TreeView,
   )) {
     val dest = dir / s"${node.name}.scala"
     dest.clear().append(preamble).append("\n\n")

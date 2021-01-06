@@ -3,7 +3,7 @@
 package guarana.swing
 
 import language.implicitConversions
-import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, _}
+import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, PopupMenu => _, _}
 import java.awt.event._
 import javax.swing.{Action => _, _}
 import javax.swing.event._
@@ -11,7 +11,7 @@ import guarana.swing.util._
 import scala.jdk.CollectionConverters._
 import scala.util.chaining._
 
-opaque type TextComponent <: Component = javax.swing.text.JTextComponent & Component
+opaque type TextComponent <: Component  = javax.swing.text.JTextComponent & Component
 object TextComponent extends VarsMap {
   val UI: SwingVar.Aux[TextComponent, javax.swing.plaf.TextUI] = SwingVar[TextComponent, javax.swing.plaf.TextUI]("UI", _.getUI.nn, _.setUI(_))
   val Caret: SwingVar.Aux[TextComponent, javax.swing.text.Caret] = SwingVar[TextComponent, javax.swing.text.Caret]("caret", _.getCaret.nn, _.setCaret(_))

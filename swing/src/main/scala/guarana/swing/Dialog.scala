@@ -3,7 +3,7 @@
 package guarana.swing
 
 import language.implicitConversions
-import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, _}
+import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, PopupMenu => _, _}
 import java.awt.event._
 import javax.swing.{Action => _, _}
 import javax.swing.event._
@@ -11,7 +11,7 @@ import guarana.swing.util._
 import scala.jdk.CollectionConverters._
 import scala.util.chaining._
 
-opaque type Dialog <: WindowBase = javax.swing.JDialog & WindowBase
+opaque type Dialog <: WindowBase  = javax.swing.JDialog & WindowBase
 object Dialog extends VarsMap {
   val ContentPane: SwingVar.Aux[Dialog, java.awt.Container | Null] = SwingVar[Dialog, java.awt.Container | Null]("contentPane", _.getContentPane, _.setContentPane(_))
   val DefaultCloseOperation: SwingVar.Aux[Dialog, Int] = SwingVar[Dialog, Int]("defaultCloseOperation", _.getDefaultCloseOperation, _.setDefaultCloseOperation(_))

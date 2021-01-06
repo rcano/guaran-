@@ -36,7 +36,7 @@ class CssLaf(val scenegraph: Scenegraph) extends MetalLookAndFeel {
     defaults
   }
 
-  override protected def initClassDefaults(defaults: UIDefaults | UncheckedNull) = {
+  override protected def initClassDefaults(defaults: UIDefaults) = {
     super.initClassDefaults(defaults)
     defaults.put("RootPaneUI", classOf[CssRootPaneUi].getCanonicalName)
     defaults.put("PanelUI", classOf[CssPanelUi].getCanonicalName)

@@ -3,7 +3,7 @@
 package guarana.swing
 
 import language.implicitConversions
-import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, _}
+import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, PopupMenu => _, _}
 import java.awt.event._
 import javax.swing.{Action => _, _}
 import javax.swing.event._
@@ -11,7 +11,7 @@ import guarana.swing.util._
 import scala.jdk.CollectionConverters._
 import scala.util.chaining._
 
-opaque type Label <: Component = javax.swing.JLabel & Component
+opaque type Label <: Component  = javax.swing.JLabel & Component
 object Label extends VarsMap {
   val UI: SwingVar.Aux[Label, javax.swing.plaf.LabelUI] = SwingVar[Label, javax.swing.plaf.LabelUI]("UI", _.getUI.nn, _.setUI(_))
   val DisabledIcon: SwingVar.Aux[Label, javax.swing.Icon | Null] = SwingVar[Label, javax.swing.Icon | Null]("disabledIcon", _.getDisabledIcon, _.setDisabledIcon(_))
@@ -76,7 +76,7 @@ object Label extends VarsMap {
     border: Opt[Binding[javax.swing.border.Border | Null]] = UnsetParam,
     bounds: Opt[Binding[Bounds]] = UnsetParam,
     componentOrientation: Opt[Binding[java.awt.ComponentOrientation]] = UnsetParam,
-    componentPopupMenu: Opt[Binding[javax.swing.JPopupMenu | Null]] = UnsetParam,
+    componentPopupMenu: Opt[Binding[PopupMenu | Null]] = UnsetParam,
     cursor: Opt[Binding[java.awt.Cursor | Null]] = UnsetParam,
     debugGraphicsOptions: Opt[Binding[Int]] = UnsetParam,
     disabledIcon: Opt[Binding[javax.swing.Icon | Null]] = UnsetParam,

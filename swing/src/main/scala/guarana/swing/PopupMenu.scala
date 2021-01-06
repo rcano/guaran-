@@ -11,52 +11,61 @@ import guarana.swing.util._
 import scala.jdk.CollectionConverters._
 import scala.util.chaining._
 
-opaque type MenuBar <: Component  = javax.swing.JMenuBar & Component
-object MenuBar extends VarsMap {
-  val UI: SwingVar.Aux[MenuBar, javax.swing.plaf.MenuBarUI | Null] = SwingVar[MenuBar, javax.swing.plaf.MenuBarUI | Null]("UI", _.getUI, _.setUI(_))
-  val BorderPainted: SwingVar.Aux[MenuBar, Boolean] = SwingVar[MenuBar, Boolean]("borderPainted", _.isBorderPainted, _.setBorderPainted(_))
-  val HelpMenu: SwingVar.Aux[MenuBar, javax.swing.JMenu | Null] = SwingVar[MenuBar, javax.swing.JMenu | Null]("helpMenu", _.getHelpMenu, _.setHelpMenu(_))
-  val Margin: SwingVar.Aux[MenuBar, java.awt.Insets | Null] = SwingVar[MenuBar, java.awt.Insets | Null]("margin", _.getMargin, _.setMargin(_))
-  val SelectionModel: SwingVar.Aux[MenuBar, javax.swing.SingleSelectionModel | Null] = SwingVar[MenuBar, javax.swing.SingleSelectionModel | Null]("selectionModel", _.getSelectionModel, _.setSelectionModel(_))
+opaque type PopupMenu <: Component  = javax.swing.JPopupMenu & Component
+object PopupMenu extends VarsMap {
+  val UI: SwingVar.Aux[PopupMenu, javax.swing.plaf.PopupMenuUI | Null] = SwingVar[PopupMenu, javax.swing.plaf.PopupMenuUI | Null]("UI", _.getUI, _.setUI(_))
+  val BorderPainted: SwingVar.Aux[PopupMenu, Boolean] = SwingVar[PopupMenu, Boolean]("borderPainted", _.isBorderPainted, _.setBorderPainted(_))
+  val Invoker: SwingVar.Aux[PopupMenu, java.awt.Component | Null] = SwingVar[PopupMenu, java.awt.Component | Null]("invoker", _.getInvoker, _.setInvoker(_))
+  val Items: SwingVar.Aux[PopupMenu, Seq[MenuItem]] = SwingVar[PopupMenu, Seq[MenuItem]]("items", c => (0 until c.getComponentCount).map(c.getComponent(_).asInstanceOf[MenuItem]), (c, items) => { c.removeAll(); items foreach (i => c.add(i.unwrap)) })
+  val Label: SwingVar.Aux[PopupMenu, java.lang.String | Null] = SwingVar[PopupMenu, java.lang.String | Null]("label", _.getLabel, _.setLabel(_))
+  val LightWeightPopupEnabled: SwingVar.Aux[PopupMenu, Boolean] = SwingVar[PopupMenu, Boolean]("lightWeightPopupEnabled", _.isLightWeightPopupEnabled, _.setLightWeightPopupEnabled(_))
+  val SelectionModel: SwingVar.Aux[PopupMenu, javax.swing.SingleSelectionModel | Null] = SwingVar[PopupMenu, javax.swing.SingleSelectionModel | Null]("selectionModel", _.getSelectionModel, _.setSelectionModel(_))
 
   
 
   given ops as Ops.type = Ops
   object Ops {
-    extension (v: MenuBar) {
-      def UI: Var.Aux[javax.swing.plaf.MenuBarUI | Null, v.type] = MenuBar.UI.asInstanceOf[Var.Aux[javax.swing.plaf.MenuBarUI | Null, v.type]]
-      def borderPainted: Var.Aux[Boolean, v.type] = MenuBar.BorderPainted.asInstanceOf[Var.Aux[Boolean, v.type]]
-      def helpMenu: Var.Aux[javax.swing.JMenu | Null, v.type] = MenuBar.HelpMenu.asInstanceOf[Var.Aux[javax.swing.JMenu | Null, v.type]]
-      def margin: Var.Aux[java.awt.Insets | Null, v.type] = MenuBar.Margin.asInstanceOf[Var.Aux[java.awt.Insets | Null, v.type]]
-      def selectionModel: Var.Aux[javax.swing.SingleSelectionModel | Null, v.type] = MenuBar.SelectionModel.asInstanceOf[Var.Aux[javax.swing.SingleSelectionModel | Null, v.type]]
+    extension (v: PopupMenu) {
+      def UI: Var.Aux[javax.swing.plaf.PopupMenuUI | Null, v.type] = PopupMenu.UI.asInstanceOf[Var.Aux[javax.swing.plaf.PopupMenuUI | Null, v.type]]
+      def borderPainted: Var.Aux[Boolean, v.type] = PopupMenu.BorderPainted.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def invoker: Var.Aux[java.awt.Component | Null, v.type] = PopupMenu.Invoker.asInstanceOf[Var.Aux[java.awt.Component | Null, v.type]]
+      def items: Var.Aux[Seq[MenuItem], v.type] = PopupMenu.Items.asInstanceOf[Var.Aux[Seq[MenuItem], v.type]]
+      def label: Var.Aux[java.lang.String | Null, v.type] = PopupMenu.Label.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
+      def lightWeightPopupEnabled: Var.Aux[Boolean, v.type] = PopupMenu.LightWeightPopupEnabled.asInstanceOf[Var.Aux[Boolean, v.type]]
+      def selectionModel: Var.Aux[javax.swing.SingleSelectionModel | Null, v.type] = PopupMenu.SelectionModel.asInstanceOf[Var.Aux[javax.swing.SingleSelectionModel | Null, v.type]]
 
       
 
       def component: java.awt.Component | Null = v.getComponent
-      def menuCount: Int = v.getMenuCount
-      def selected: Boolean = v.isSelected
-      def subElements: Array[javax.swing.MenuElement | Null] = v.getSubElements.nn
-      def unwrap: javax.swing.JMenuBar = v
+      def margin: java.awt.Insets | Null = v.getMargin
+      def menuKeyListeners: Array[javax.swing.event.MenuKeyListener | Null] = v.getMenuKeyListeners
+      def pack(): Unit = v.pack()
+      def popupMenuListeners: Array[javax.swing.event.PopupMenuListener | Null] = v.getPopupMenuListeners
+      def popupSize(x: Int, y: Int): Unit = v.setPopupSize(x, y)
+      def select(n: Node): Unit = v.setSelected(n.unwrap)
+      def show(invoker: Node, x: Int, y: Int): Unit = v.show(invoker.unwrap, x, y)
+      def subElements: Array[javax.swing.MenuElement | Null] = v.getSubElements
+      def unwrap: javax.swing.JPopupMenu = v
     }
   }
 
-  def wrap(v: javax.swing.JMenuBar) = v.asInstanceOf[MenuBar]
+  def wrap(v: javax.swing.JPopupMenu) = v.asInstanceOf[PopupMenu]
 
-  def init(v: MenuBar): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
+  def init(v: PopupMenu): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     Component.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
     
     
   }
-  def uninitialized(): MenuBar = {
-    val res = javax.swing.JMenuBar().asInstanceOf[MenuBar]
+  def uninitialized(title: String | Null = null): PopupMenu = {
+    val res = javax.swing.JPopupMenu(title).asInstanceOf[PopupMenu]
     
     res
   }
   
   def apply(
-    
-    UI: Opt[Binding[javax.swing.plaf.MenuBarUI | Null]] = UnsetParam,
+    title: String | Null = null,
+    UI: Opt[Binding[javax.swing.plaf.PopupMenuUI | Null]] = UnsetParam,
     actionMap: Opt[Binding[javax.swing.ActionMap]] = UnsetParam,
     alignmentX: Opt[Binding[Float]] = UnsetParam,
     alignmentY: Opt[Binding[Float]] = UnsetParam,
@@ -74,10 +83,12 @@ object MenuBar extends VarsMap {
     focusable: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
-    helpMenu: Opt[Binding[javax.swing.JMenu | Null]] = UnsetParam,
     inheritsPopupMenu: Opt[Binding[Boolean]] = UnsetParam,
     inputVerifier: Opt[Binding[javax.swing.InputVerifier | Null]] = UnsetParam,
-    margin: Opt[Binding[java.awt.Insets | Null]] = UnsetParam,
+    invoker: Opt[Binding[java.awt.Component | Null]] = UnsetParam,
+    items: Opt[Binding[Seq[MenuItem]]] = UnsetParam,
+    label: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    lightWeightPopupEnabled: Opt[Binding[Boolean]] = UnsetParam,
     maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     mouseDragMut: Opt[Binding[Option[MouseDrag]]] = UnsetParam,
@@ -90,17 +101,17 @@ object MenuBar extends VarsMap {
     transferHandler: Opt[Binding[javax.swing.TransferHandler | Null]] = UnsetParam,
     verifyInputWhenFocusTarget: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Scenegraph ?=> VarContextAction[MenuBar] = {
-    val res = uninitialized()
-    MenuBar.init(res)
-    ifSet(UI, MenuBar.ops.UI(res) := _)
+  ): Scenegraph ?=> VarContextAction[PopupMenu] = {
+    val res = uninitialized(title)
+    PopupMenu.init(res)
+    ifSet(UI, PopupMenu.ops.UI(res) := _)
     ifSet(actionMap, Component.ops.actionMap(res) := _)
     ifSet(alignmentX, Component.ops.alignmentX(res) := _)
     ifSet(alignmentY, Component.ops.alignmentY(res) := _)
     ifSet(autoscrolls, Component.ops.autoscrolls(res) := _)
     ifSet(background, Node.ops.background(res) := _)
     ifSet(border, Component.ops.border(res) := _)
-    ifSet(borderPainted, MenuBar.ops.borderPainted(res) := _)
+    ifSet(borderPainted, PopupMenu.ops.borderPainted(res) := _)
     ifSet(bounds, Node.ops.bounds(res) := _)
     ifSet(componentOrientation, Node.ops.componentOrientation(res) := _)
     ifSet(componentPopupMenu, Component.ops.componentPopupMenu(res) := _)
@@ -111,10 +122,12 @@ object MenuBar extends VarsMap {
     ifSet(focusable, Node.ops.focusable(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
-    ifSet(helpMenu, MenuBar.ops.helpMenu(res) := _)
     ifSet(inheritsPopupMenu, Component.ops.inheritsPopupMenu(res) := _)
     ifSet(inputVerifier, Component.ops.inputVerifier(res) := _)
-    ifSet(margin, MenuBar.ops.margin(res) := _)
+    ifSet(invoker, PopupMenu.ops.invoker(res) := _)
+    ifSet(items, PopupMenu.ops.items(res) := _)
+    ifSet(label, PopupMenu.ops.label(res) := _)
+    ifSet(lightWeightPopupEnabled, PopupMenu.ops.lightWeightPopupEnabled(res) := _)
     ifSet(maxSize, Node.ops.maxSize(res) := _)
     ifSet(minSize, Node.ops.minSize(res) := _)
     ifSet(mouseDragMut, Node.ops.mouseDragMut(res) := _)
@@ -122,7 +135,7 @@ object MenuBar extends VarsMap {
     ifSet(opaque, Component.ops.opaque(res) := _)
     ifSet(prefSize, Node.ops.prefSize(res) := _)
     ifSet(requestFocusEnabled, Component.ops.requestFocusEnabled(res) := _)
-    ifSet(selectionModel, MenuBar.ops.selectionModel(res) := _)
+    ifSet(selectionModel, PopupMenu.ops.selectionModel(res) := _)
     ifSet(toolTipText, Component.ops.toolTipText(res) := _)
     ifSet(transferHandler, Component.ops.transferHandler(res) := _)
     ifSet(verifyInputWhenFocusTarget, Component.ops.verifyInputWhenFocusTarget(res) := _)

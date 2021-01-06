@@ -3,7 +3,7 @@
 package guarana.swing
 
 import language.implicitConversions
-import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, _}
+import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, PopupMenu => _, _}
 import java.awt.event._
 import javax.swing.{Action => _, _}
 import javax.swing.event._
@@ -11,7 +11,7 @@ import guarana.swing.util._
 import scala.jdk.CollectionConverters._
 import scala.util.chaining._
 
-opaque type TabbedPane <: Component = javax.swing.JTabbedPane & Component
+opaque type TabbedPane <: Component  = javax.swing.JTabbedPane & Component
 object TabbedPane extends VarsMap {
   val UI: SwingVar.Aux[TabbedPane, javax.swing.plaf.TabbedPaneUI] = SwingVar[TabbedPane, javax.swing.plaf.TabbedPaneUI]("UI", _.getUI.nn, _.setUI(_))
   val Model: SwingVar.Aux[TabbedPane, javax.swing.SingleSelectionModel] = SwingVar[TabbedPane, javax.swing.SingleSelectionModel]("model", _.getModel.nn, _.setModel(_))
@@ -96,7 +96,7 @@ object TabbedPane extends VarsMap {
       case ObsBuffer.Event.Added(elems) => elems foreach addTab
       case ObsBuffer.Event.Inserted(elems, at) => elems.zipWithIndex foreach ((e, i) => insertTab(e, at + i))
       case ObsBuffer.Event.Removed(elems, at) => elems foreach (_ => removeTab(at))
-      case ObsBuffer.Event.Replaced(oldElem, newElem) => replaceTab(oldElem, newElem)
+      case ObsBuffer.Event.Replaced(oldElem, newElem, at) => replaceTab(oldElem, newElem)
       case ObsBuffer.Event.Cleared => v.removeAll()
     }
     
@@ -139,7 +139,7 @@ object TabbedPane extends VarsMap {
     border: Opt[Binding[javax.swing.border.Border | Null]] = UnsetParam,
     bounds: Opt[Binding[Bounds]] = UnsetParam,
     componentOrientation: Opt[Binding[java.awt.ComponentOrientation]] = UnsetParam,
-    componentPopupMenu: Opt[Binding[javax.swing.JPopupMenu | Null]] = UnsetParam,
+    componentPopupMenu: Opt[Binding[PopupMenu | Null]] = UnsetParam,
     cursor: Opt[Binding[java.awt.Cursor | Null]] = UnsetParam,
     debugGraphicsOptions: Opt[Binding[Int]] = UnsetParam,
     doubleBuffered: Opt[Binding[Boolean]] = UnsetParam,

@@ -38,12 +38,12 @@ object EventIterator extends EventIterator[Any] {
   def step(t: Any) = Some(this)
 
   private val step0 = EventIteratorImpl[Any](Seq.empty)
-  def foreach[U <: Any](f: Scenegraph.ContextAction[U => Any]) = step0.foreach(f)
-  def filter[U <: Any](pred: Scenegraph.ContextAction[U => Boolean]) = step0.filter(pred)
+  def foreach[U <: Any](f: Scenegraph.ContextAction[U => Any]): EventIterator[U] = step0.foreach(f)
+  def filter[U <: Any](pred: Scenegraph.ContextAction[U => Boolean]): EventIterator[U] = step0.filter(pred)
   def take(size: Int) = step0.take(size)
-  def takeWhile[U <: Any](pred: Scenegraph.ContextAction[U => Boolean]) = step0.takeWhile(pred)
+  def takeWhile[U <: Any](pred: Scenegraph.ContextAction[U => Boolean]): EventIterator[U] = step0.takeWhile(pred)
   def drop(size: Int) = step0.drop(size)
-  def dropWhile[U <: Any](pred: Scenegraph.ContextAction[U => Boolean]) = step0.dropWhile(pred)
+  def dropWhile[U <: Any](pred: Scenegraph.ContextAction[U => Boolean]): EventIterator[U] = step0.dropWhile(pred)
 
   private type Step[-T] = (VarContext & Emitter.Context, T) => StepResult[T]
   private case class StepResult[-T](stepNewState: Option[Step[T]], abortIteartor: Boolean, passThroughElem: Boolean)

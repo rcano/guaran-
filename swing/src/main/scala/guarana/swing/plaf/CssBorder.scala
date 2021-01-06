@@ -8,14 +8,14 @@ import scala.util.chaining._
 class CssBorder(scenegraph: Scenegraph) extends javax.swing.border.Border {
 
   private var lastComputedInsets: Option[java.awt.Insets] = None
-  def getBorderInsets(awtc: AwtComponent | UncheckedNull): java.awt.Insets | UncheckedNull = {
+  def getBorderInsets(awtc: AwtComponent): java.awt.Insets = {
     val border = style.CssProperties.Border.forInstance(awtc) pipe (scenegraph.stateReader(_))
     val res = CssBorder.getBorderInsets(border)
     lastComputedInsets = Some(res)
     res
   }
   def isBorderOpaque(): Boolean = true
-  def paintBorder(awtc: AwtComponent | UncheckedNull, g: Graphics | UncheckedNull, x: Int, y: Int, width: Int, height: Int): Unit = {
+  def paintBorder(awtc: AwtComponent, g: Graphics, x: Int, y: Int, width: Int, height: Int): Unit = {
     val g2 = g.create().upgrade.withAliasing
     val borderSpec = style.CssProperties.Border.forInstance(awtc) pipe (scenegraph.stateReader(_))
 

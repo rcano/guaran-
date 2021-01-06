@@ -3,7 +3,7 @@
 package guarana.swing
 
 import language.implicitConversions
-import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, _}
+import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, PopupMenu => _, _}
 import java.awt.event._
 import javax.swing.{Action => _, _}
 import javax.swing.event._
@@ -11,14 +11,14 @@ import guarana.swing.util._
 import scala.jdk.CollectionConverters._
 import scala.util.chaining._
 
-opaque type Component <: Node = javax.swing.JComponent & Node
+opaque type Component <: Node  = javax.swing.JComponent & Node
 object Component extends VarsMap {
   val ActionMap: SwingVar.Aux[Component, javax.swing.ActionMap] = SwingVar[Component, javax.swing.ActionMap]("actionMap", _.getActionMap.nn, _.setActionMap(_))
   val AlignmentX: SwingVar.Aux[Component, Float] = SwingVar[Component, Float]("alignmentX", _.getAlignmentX, _.setAlignmentX(_))
   val AlignmentY: SwingVar.Aux[Component, Float] = SwingVar[Component, Float]("alignmentY", _.getAlignmentY, _.setAlignmentY(_))
   val Autoscrolls: SwingVar.Aux[Component, Boolean] = SwingVar[Component, Boolean]("autoscrolls", _.getAutoscrolls, _.setAutoscrolls(_))
   val Border: SwingVar.Aux[Component, javax.swing.border.Border | Null] = SwingVar[Component, javax.swing.border.Border | Null]("border", _.getBorder, _.setBorder(_))
-  val ComponentPopupMenu: SwingVar.Aux[Component, javax.swing.JPopupMenu | Null] = SwingVar[Component, javax.swing.JPopupMenu | Null]("componentPopupMenu", _.getComponentPopupMenu, _.setComponentPopupMenu(_))
+  val ComponentPopupMenu: SwingVar.Aux[Component, PopupMenu | Null] = SwingVar[Component, PopupMenu | Null]("componentPopupMenu", _.getComponentPopupMenu.asInstanceOf, (c, p) => c.setComponentPopupMenu(p.asInstanceOf))
   val DebugGraphicsOptions: SwingVar.Aux[Component, Int] = SwingVar[Component, Int]("debugGraphicsOptions", _.getDebugGraphicsOptions, _.setDebugGraphicsOptions(_))
   val DoubleBuffered: SwingVar.Aux[Component, Boolean] = SwingVar[Component, Boolean]("doubleBuffered", _.isDoubleBuffered, _.setDoubleBuffered(_))
   val InheritsPopupMenu: SwingVar.Aux[Component, Boolean] = SwingVar[Component, Boolean]("inheritsPopupMenu", _.getInheritsPopupMenu, _.setInheritsPopupMenu(_))
@@ -39,7 +39,7 @@ object Component extends VarsMap {
       def alignmentY: Var.Aux[Float, v.type] = Component.AlignmentY.asInstanceOf[Var.Aux[Float, v.type]]
       def autoscrolls: Var.Aux[Boolean, v.type] = Component.Autoscrolls.asInstanceOf[Var.Aux[Boolean, v.type]]
       def border: Var.Aux[javax.swing.border.Border | Null, v.type] = Component.Border.asInstanceOf[Var.Aux[javax.swing.border.Border | Null, v.type]]
-      def componentPopupMenu: Var.Aux[javax.swing.JPopupMenu | Null, v.type] = Component.ComponentPopupMenu.asInstanceOf[Var.Aux[javax.swing.JPopupMenu | Null, v.type]]
+      def componentPopupMenu: Var.Aux[PopupMenu | Null, v.type] = Component.ComponentPopupMenu.asInstanceOf[Var.Aux[PopupMenu | Null, v.type]]
       def debugGraphicsOptions: Var.Aux[Int, v.type] = Component.DebugGraphicsOptions.asInstanceOf[Var.Aux[Int, v.type]]
       def doubleBuffered: Var.Aux[Boolean, v.type] = Component.DoubleBuffered.asInstanceOf[Var.Aux[Boolean, v.type]]
       def inheritsPopupMenu: Var.Aux[Boolean, v.type] = Component.InheritsPopupMenu.asInstanceOf[Var.Aux[Boolean, v.type]]
@@ -65,10 +65,9 @@ object Component extends VarsMap {
       def vetoableChangeListeners = v.getVetoableChangeListeners
       def visibleRect = v.getVisibleRect
       def uiPrefSize: (Double, Double) | Null = ops.UI(v).?(_.getPreferredSize(v)).?(d => (d.getWidth, d.getHeight))
-      def unwrap: javax.swing.JComponent = v
-
       def insets = v.getInsets
       def children: Seq[Node] = (0 until v.getComponentCount).map(i => v.getComponent(i).asInstanceOf[Node])
+      def unwrap: javax.swing.JComponent = v
     }
   }
 

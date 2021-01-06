@@ -55,10 +55,10 @@ import util.UnsetParam
 @main def FormTest: Unit = {
   // val orig = System.getProperties().nn
   // new java.util.Properties() {
-  //   override def getProperty(prop: String | UncheckedNull) = 
+  //   override def getProperty(prop: String) = 
   //     println(s"Reading $prop")
   //     orig.getProperty(prop).tap(r => println(s"  = $r"))
-  //   override def getProperty(prop: String | UncheckedNull, default: String | UncheckedNull) = 
+  //   override def getProperty(prop: String, default: String) = 
   //     println(s"Reading $prop def $default")
   //     orig.getProperty(prop, default).tap(r => println(s"  = $r"))
   //   override def get(a: Any) = 
@@ -84,7 +84,7 @@ import util.UnsetParam
             style.Border(strokes = IArray(
               // border,
               style.BorderStroke.simple(
-                java.awt.LinearGradientPaint(0, 0, 0, h.toFloat.max(1), Array[Float](0, 1), Array[Color | UncheckedNull](Color.LavenderBlush, Color.LavenderBlush.darker.nn)),
+                java.awt.LinearGradientPaint(0, 0, 0, h.toFloat.max(1), Array[Float](0, 1), Array[Color](Color.LavenderBlush, Color.LavenderBlush.darker.nn)),
                 BasicStroke((emSize / 10).toInt), corners, Insets.all(emSize / 10))
             ))
           ).asInstanceOf[Option[T]]
@@ -203,7 +203,7 @@ import util.UnsetParam
       Movie("Pom Poko", "1994", 6, false),
     ))
     tabs += Tab(title = "A table", content = ScrollPane(content = TableView(
-      model = td.tableModel,
+      model = td.defaultTableModel,
       columnModel = td.columnModel
     )))
 

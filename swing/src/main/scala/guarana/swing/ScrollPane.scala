@@ -3,7 +3,7 @@
 package guarana.swing
 
 import language.implicitConversions
-import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, _}
+import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, PopupMenu => _, _}
 import java.awt.event._
 import javax.swing.{Action => _, _}
 import javax.swing.event._
@@ -11,7 +11,7 @@ import guarana.swing.util._
 import scala.jdk.CollectionConverters._
 import scala.util.chaining._
 
-opaque type ScrollPane <: Component = javax.swing.JScrollPane & Component
+opaque type ScrollPane <: Component  = javax.swing.JScrollPane & Component
 object ScrollPane extends VarsMap {
   val UI: SwingVar.Aux[ScrollPane, javax.swing.plaf.ScrollPaneUI] = SwingVar[ScrollPane, javax.swing.plaf.ScrollPaneUI]("UI", _.getUI.nn, _.setUI(_))
   val BotLeftCorner: SwingVar.Aux[ScrollPane, Node | Null] = SwingVar[ScrollPane, Node | Null]("botLeftCorner", _.getCorner(ScrollPaneConstants.LOWER_LEFT_CORNER).asInstanceOf[Node | Null], (s, n) => s.setCorner(ScrollPaneConstants.LOWER_LEFT_CORNER, if (n != null) n.unwrap else null))
@@ -85,7 +85,7 @@ object ScrollPane extends VarsMap {
     bounds: Opt[Binding[Bounds]] = UnsetParam,
     columnHeader: Opt[Binding[javax.swing.JViewport | Null]] = UnsetParam,
     componentOrientation: Opt[Binding[java.awt.ComponentOrientation]] = UnsetParam,
-    componentPopupMenu: Opt[Binding[javax.swing.JPopupMenu | Null]] = UnsetParam,
+    componentPopupMenu: Opt[Binding[PopupMenu | Null]] = UnsetParam,
     content: Opt[Binding[Node | Null]] = UnsetParam,
     cursor: Opt[Binding[java.awt.Cursor | Null]] = UnsetParam,
     debugGraphicsOptions: Opt[Binding[Int]] = UnsetParam,

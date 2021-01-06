@@ -3,7 +3,7 @@
 package guarana.swing
 
 import language.implicitConversions
-import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, _}
+import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, PopupMenu => _, _}
 import java.awt.event._
 import javax.swing.{Action => _, _}
 import javax.swing.event._
@@ -11,7 +11,7 @@ import guarana.swing.util._
 import scala.jdk.CollectionConverters._
 import scala.util.chaining._
 
-opaque type BorderPane <: Pane = javax.swing.JPanel & Pane
+opaque type BorderPane <: Pane  = javax.swing.JPanel & Pane
 object BorderPane extends VarsMap {
   val Bottom: SwingVar.Aux[BorderPane, Node | Null] = SwingVar[BorderPane, Node | Null]("bottom", c => c.getLayout.asInstanceOf[BorderLayout].getLayoutComponent(BorderLayout.SOUTH).asInstanceOf[Node | Null], (p, n) => { p.add(if (n == null) null else n.unwrap, BorderLayout.SOUTH) })
   val Center: SwingVar.Aux[BorderPane, Node | Null] = SwingVar[BorderPane, Node | Null]("center", c => c.getLayout.asInstanceOf[BorderLayout].getLayoutComponent(BorderLayout.CENTER).asInstanceOf[Node | Null], (p, n) => { p.add(if (n == null) null else n.unwrap, BorderLayout.CENTER) })
@@ -68,7 +68,7 @@ object BorderPane extends VarsMap {
     bounds: Opt[Binding[Bounds]] = UnsetParam,
     center: Opt[Binding[Node | Null]] = UnsetParam,
     componentOrientation: Opt[Binding[java.awt.ComponentOrientation]] = UnsetParam,
-    componentPopupMenu: Opt[Binding[javax.swing.JPopupMenu | Null]] = UnsetParam,
+    componentPopupMenu: Opt[Binding[PopupMenu | Null]] = UnsetParam,
     cursor: Opt[Binding[java.awt.Cursor | Null]] = UnsetParam,
     debugGraphicsOptions: Opt[Binding[Int]] = UnsetParam,
     doubleBuffered: Opt[Binding[Boolean]] = UnsetParam,

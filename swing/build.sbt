@@ -7,7 +7,7 @@ Global / onChangedBuildSource := ReloadOnSourceChanges
 scalaVersion := "3.0.0-M2"
 
 scalacOptions ++= Seq(
-  "-Yexplicit-nulls",
+  //"-Yexplicit-nulls",
   "-deprecation", "-unchecked",
   "-Ysemanticdb",
 )
@@ -20,7 +20,6 @@ fork := true
 //scalacOptions += "-Yexplicit-nulls"
 libraryDependencies += "com.novocode" % "junit-interface" % "0.11" % "test"
 
-
 libraryDependencies ++= Seq(
   ("com.github.pathikrit" % "better-files_2.13" % "3.8.0"), //.withDottyCompat(scalaVersion.value),
   "org.codehaus.griffon.plugins" % "griffon-lookandfeel-napkin" % "2.0.0",
@@ -30,6 +29,8 @@ libraryDependencies ++= Seq(
   //"de.vandermeer" % "asciitable" % "0.3.2",
   //"io.github.classgraph" % "classgraph" % "4.8.60",
   // "org.scalameta" % "munit_0.24" % "0.7.7" % Test,
+  ("com.typesafe.play" %% "play-json" % "2.9.1" % "test").withDottyCompat(scalaVersion.value)
+
 )
 // testFrameworks += new TestFramework("munit.Framework")
 

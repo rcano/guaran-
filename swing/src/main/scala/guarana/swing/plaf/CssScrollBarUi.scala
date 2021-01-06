@@ -9,7 +9,7 @@ import scala.annotation.static
 import scala.util.chaining._
 
 class CssScrollBarUi extends MetalScrollBarUI, CssUi {
-  override def paint(g: Graphics | UncheckedNull, c: JComponent | UncheckedNull) = super.paint(g.upgrade.withAliasing, c)
+  override def paint(g: Graphics, c: JComponent) = super.paint(g.upgrade.withAliasing, c)
 
   override protected def createIncreaseButton(orientation: Int) = createInvisibleButton()
   override protected def createDecreaseButton(orientation: Int) = createInvisibleButton()
@@ -22,13 +22,13 @@ class CssScrollBarUi extends MetalScrollBarUI, CssUi {
     
   }
 
-  override protected def paintTrack(g: Graphics | UncheckedNull, c: JComponent | UncheckedNull, trackBounds: Rectangle | UncheckedNull) = {
+  override protected def paintTrack(g: Graphics, c: JComponent, trackBounds: Rectangle) = {
     val sb = scrollbar //must make it a val
     val background = style.CssProperties.Background.forInstance(sb)
     RegionPainter.paintRegion(scenegraph.stateReader(background), g.asInstanceOf, trackBounds.x, trackBounds.y, trackBounds.width, trackBounds.height)
   }
 
-  override protected def paintThumb(g: Graphics | UncheckedNull, c: JComponent | UncheckedNull, thumbBounds: Rectangle | UncheckedNull) = {
+  override protected def paintThumb(g: Graphics, c: JComponent, thumbBounds: Rectangle) = {
     val sb = scrollbar //must make it a val
     val background = style.CssProperties.ScrollbarThumbBackground.forInstance(sb)
     RegionPainter.paintRegion(scenegraph.stateReader(background), g.upgrade, thumbBounds.x, thumbBounds.y, thumbBounds.width, thumbBounds.height)
@@ -38,5 +38,5 @@ class CssScrollBarUi extends MetalScrollBarUI, CssUi {
 }
 
 object CssScrollBarUi {
-  @static def createUI(c: JComponent | UncheckedNull) = CssScrollBarUi() //sadly we have to instantiate a new one, because of how BasicScrollBarUI is defined...
+  @static def createUI(c: JComponent) = CssScrollBarUi() //sadly we have to instantiate a new one, because of how BasicScrollBarUI is defined...
 }

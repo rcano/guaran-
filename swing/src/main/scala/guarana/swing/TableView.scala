@@ -3,7 +3,7 @@
 package guarana.swing
 
 import language.implicitConversions
-import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, _}
+import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, PopupMenu => _, _}
 import java.awt.event._
 import javax.swing.{Action => _, _}
 import javax.swing.event._
@@ -11,7 +11,7 @@ import guarana.swing.util._
 import scala.jdk.CollectionConverters._
 import scala.util.chaining._
 
-opaque type TableView <: Component = javax.swing.JTable & Component
+opaque type TableView <: Component  = javax.swing.JTable & Component
 object TableView extends VarsMap {
   val UI: SwingVar.Aux[TableView, javax.swing.plaf.TableUI] = SwingVar[TableView, javax.swing.plaf.TableUI]("UI", _.getUI.nn, _.setUI(_))
   val AutoCreateColumnsFromModel: SwingVar.Aux[TableView, Boolean] = SwingVar[TableView, Boolean]("autoCreateColumnsFromModel", _.getAutoCreateColumnsFromModel, _.setAutoCreateColumnsFromModel(_))
@@ -27,13 +27,14 @@ object TableView extends VarsMap {
   val EditingRow: SwingVar.Aux[TableView, Int] = SwingVar[TableView, Int]("editingRow", _.getEditingRow, _.setEditingRow(_))
   val FillsViewportHeight: SwingVar.Aux[TableView, Boolean] = SwingVar[TableView, Boolean]("fillsViewportHeight", _.getFillsViewportHeight, _.setFillsViewportHeight(_))
   val GridColor: SwingVar.Aux[TableView, java.awt.Color | Null] = SwingVar[TableView, java.awt.Color | Null]("gridColor", _.getGridColor, _.setGridColor(_))
-  val IntercellSpacing: SwingVar.Aux[TableView, (Double, Double) | Null] = SwingVar[TableView, (Double, Double) | Null]("intercellSpacing", {n => val d = n.getIntercellSpacing; if (d != null) (d.getWidth, d.getHeight) else null}, {(n, d) => n.setIntercellSpacing(if (d == null) null else java.awt.Dimension(d._1.toInt, d._2.toInt))})
+  val IntercellSpacing: SwingVar.Aux[TableView, (Double, Double) | Null] = SwingVar[TableView, (Double, Double) | Null]("intercellSpacing", {n => val d = n.getIntercellSpacing; if (d != null) (d.getWidth, d.getHeight) else null}, {(n, d) => n.setIntercellSpacing(d.?(d => java.awt.Dimension(d._1.toInt, d._2.toInt)))})
   val Model: SwingVar.Aux[TableView, javax.swing.table.TableModel] = SwingVar[TableView, javax.swing.table.TableModel]("model", _.getModel.nn, _.setModel(_))
-  val PreferredScrollableViewportSize: SwingVar.Aux[TableView, (Double, Double) | Null] = SwingVar[TableView, (Double, Double) | Null]("preferredScrollableViewportSize", {n => val d = n.getPreferredScrollableViewportSize; if (d != null) (d.getWidth, d.getHeight) else null}, {(n, d) => n.setPreferredScrollableViewportSize(if (d == null) null else java.awt.Dimension(d._1.toInt, d._2.toInt))})
+  val PreferredScrollableViewportSize: SwingVar.Aux[TableView, (Double, Double) | Null] = SwingVar[TableView, (Double, Double) | Null]("preferredScrollableViewportSize", {n => val d = n.getPreferredScrollableViewportSize; if (d != null) (d.getWidth, d.getHeight) else null}, {(n, d) => n.setPreferredScrollableViewportSize(d.?(d => java.awt.Dimension(d._1.toInt, d._2.toInt)))})
   val RowHeight: SwingVar.Aux[TableView, Int] = SwingVar[TableView, Int]("rowHeight", _.getRowHeight, _.setRowHeight(_))
   val RowMargin: SwingVar.Aux[TableView, Int] = SwingVar[TableView, Int]("rowMargin", _.getRowMargin, _.setRowMargin(_))
   val RowSelectionAllowed: SwingVar.Aux[TableView, Boolean] = SwingVar[TableView, Boolean]("rowSelectionAllowed", _.getRowSelectionAllowed, _.setRowSelectionAllowed(_))
   val RowSorter: SwingVar.Aux[TableView, javax.swing.RowSorter[_ <: javax.swing.table.TableModel] | Null] = SwingVar[TableView, javax.swing.RowSorter[_ <: javax.swing.table.TableModel] | Null]("rowSorter", _.getRowSorter, _.setRowSorter(_))
+  private val SelectedRowsMut: Var[Array[Int]] = Var[Array[Int]]("selectedRowsMut", Array(), false)
   val SelectionBackground: SwingVar.Aux[TableView, java.awt.Color | Null] = SwingVar[TableView, java.awt.Color | Null]("selectionBackground", _.getSelectionBackground, _.setSelectionBackground(_))
   val SelectionForeground: SwingVar.Aux[TableView, java.awt.Color | Null] = SwingVar[TableView, java.awt.Color | Null]("selectionForeground", _.getSelectionForeground, _.setSelectionForeground(_))
   val SelectionModel: SwingVar.Aux[TableView, javax.swing.ListSelectionModel] = SwingVar[TableView, javax.swing.ListSelectionModel]("selectionModel", _.getSelectionModel.nn, _.setSelectionModel(_))
@@ -81,10 +82,14 @@ object TableView extends VarsMap {
       
 
       def columnCount: Int = v.getColumnCount
+      def columnIndexToModel(row: Int): Int = v.convertColumnIndexToModel(row)
+      def columnIndexToView(row: Int): Int = v.convertColumnIndexToView(row)
       def dropLocation: javax.swing.JTable.DropLocation | Null = v.getDropLocation
       def editing: Boolean = v.isEditing
       def editorComponent: java.awt.Component | Null = v.getEditorComponent
       def rowCount: Int = v.getRowCount
+      def rowIndexToModel(row: Int): Int = v.convertRowIndexToModel(row)
+      def rowIndexToView(row: Int): Int = v.convertRowIndexToView(row)
       def scrollableTracksViewportHeight: Boolean = v.getScrollableTracksViewportHeight
       def scrollableTracksViewportWidth: Boolean = v.getScrollableTracksViewportWidth
       def selectedColumn: Int = v.getSelectedColumn
@@ -92,7 +97,7 @@ object TableView extends VarsMap {
       def selectedColumns: Array[Int] = v.getSelectedColumns.nn
       def selectedRow: Int = v.getSelectedRow
       def selectedRowCount: Int = v.getSelectedRowCount
-      def selectedRows: Array[Int] = v.getSelectedRows.nn
+      def selectedRows = TableView.SelectedRowsMut.asObsValIn(v)
       def unwrap: javax.swing.JTable = v
     }
   }
@@ -102,7 +107,8 @@ object TableView extends VarsMap {
   def init(v: TableView): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
     Component.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
-    
+    v.getSelectionModel.addListSelectionListener(selectionEvt => 
+      sc.update(SelectedRowsMut.forInstance(v) := v.getSelectedRows))
     
   }
   def uninitialized(): TableView = {
@@ -129,7 +135,7 @@ object TableView extends VarsMap {
     columnModel: Opt[Binding[javax.swing.table.TableColumnModel]] = UnsetParam,
     columnSelectionAllowed: Opt[Binding[Boolean]] = UnsetParam,
     componentOrientation: Opt[Binding[java.awt.ComponentOrientation]] = UnsetParam,
-    componentPopupMenu: Opt[Binding[javax.swing.JPopupMenu | Null]] = UnsetParam,
+    componentPopupMenu: Opt[Binding[PopupMenu | Null]] = UnsetParam,
     cursor: Opt[Binding[java.awt.Cursor | Null]] = UnsetParam,
     debugGraphicsOptions: Opt[Binding[Int]] = UnsetParam,
     doubleBuffered: Opt[Binding[Boolean]] = UnsetParam,

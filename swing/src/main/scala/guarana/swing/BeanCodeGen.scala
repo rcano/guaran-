@@ -83,7 +83,7 @@ import scala.util.control.NonFatal
   def generate(destFile: File | Null, classpath: Array[File], patterns: Seq[String]): File | Null = {
     // destFile.parent.createDirectory()
 
-    val inheritedJars = Iterator.iterate[ClassLoader | UncheckedNull](ClassLoader.getSystemClassLoader)(_.getParent).takeWhile(_ != null).flatMap {
+    val inheritedJars = Iterator.iterate[ClassLoader](ClassLoader.getSystemClassLoader)(_.getParent).takeWhile(_ != null).flatMap {
       case ucl: java.net.URLClassLoader => ucl.getURLs.nn.map(u => File(u.nn))
       case _ => Iterator.empty
     }.filter(_.extension.exists(".jar".==))
@@ -110,7 +110,7 @@ import scala.util.control.NonFatal
     val out = System.out.nn
     def Option[T](o: T | Null) = scala.Option(o).asInstanceOf[Option[T]]
 
-    var classpathClassLoader = new java.net.URLClassLoader(classpath.map(_.url).to(Array).asInstanceOf[Array[java.net.URL | UncheckedNull]])
+    var classpathClassLoader = new java.net.URLClassLoader(classpath.map(_.url).to(Array).asInstanceOf[Array[java.net.URL]])
     val valueClasses = (for {
         entry <- (allClasses ++ jmodClasses)
         c = Class.forName(entry.replace("/", ".").replace(".class", ""), false, classpathClassLoader).nn
@@ -122,7 +122,7 @@ import scala.util.control.NonFatal
         if beanProperties.nonEmpty
       } yield {
 
-        val parentMethods = Iterator.unfold(c.getSuperclass: Class[_] | UncheckedNull)(Option(_).map(c => c.nn.getDeclaredMethods -> c.nn.getSuperclass))
+        val parentMethods = Iterator.unfold(c.getSuperclass: Class[_])(Option(_).map(c => c.nn.getDeclaredMethods -> c.nn.getSuperclass))
           .flatMap(_.nn.map(m => m.nn.getName -> m.nn.getGenericParameterTypes.nn.toSeq)).toSet
         def inParents(m: (String, String, PropertyDescriptor, java.lang.reflect.Method)): Boolean =
           parentMethods(m._4.getName -> m._4.getGenericParameterTypes.nn.toSeq)

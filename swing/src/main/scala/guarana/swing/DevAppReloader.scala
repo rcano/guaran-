@@ -26,17 +26,17 @@ object DevAppReloader {
     val fileWatcher = classesDirectories.head.getFileSystem.newWatchService.nn
     classesDirectories foreach { classesDir =>
       Files.walkFileTree(classesDir, new FileVisitor[Path] {
-          override def preVisitDirectory(dir: Path | UncheckedNull, attrs: BasicFileAttributes | UncheckedNull) = {
+          override def preVisitDirectory(dir: Path, attrs: BasicFileAttributes) = {
             dir.register(fileWatcher, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY)
             FileVisitResult.CONTINUE
           }
-          override def postVisitDirectory(dir: Path | UncheckedNull, excec: IOException | UncheckedNull) = {
+          override def postVisitDirectory(dir: Path, excec: IOException) = {
             FileVisitResult.CONTINUE
           }
-          override def visitFile(file: Path | UncheckedNull, attrs: BasicFileAttributes | UncheckedNull) = {
+          override def visitFile(file: Path, attrs: BasicFileAttributes) = {
             FileVisitResult.CONTINUE
           }
-          override def visitFileFailed(file: Path | UncheckedNull, excec: IOException | UncheckedNull) = {
+          override def visitFileFailed(file: Path, excec: IOException) = {
             FileVisitResult.TERMINATE
           }
         })
@@ -79,7 +79,7 @@ object DevAppReloader {
   }
 
   var reloadCounter = 0
-  var lastApplication: Class[?] | UncheckedNull = _
+  var lastApplication: Class[?] = _
   @volatile var recompiling = false
   def reloadApp(classesDirectories: Array[Path], reloadableClassPattern: Regex, mainApp: String, otherArgs: Array[String]): Unit = {
     if (!recompiling) { // if I'm already recompiling, ignore the request. This might happen if the watcher thread detects many file changing in quick not not so quick intervals
@@ -121,8 +121,8 @@ object DevAppReloader {
           println(classesDirectories.mkString("Root urls:[\n", "\n", "\n]"))
           val loader = new URLClassLoader(classesDirectories.map(_.toAbsolutePath.toUri.toURL).toArray) {
             //override default class loader behaviour to prioritize classes in this classloader
-            override def loadClass(name: String | UncheckedNull, resolve: Boolean): Class[_] | UncheckedNull = {
-              var res: Class[_] | UncheckedNull = findLoadedClass(name)
+            override def loadClass(name: String, resolve: Boolean): Class[_] = {
+              var res: Class[_] = findLoadedClass(name)
               val startTime = System.currentTimeMillis
 
 

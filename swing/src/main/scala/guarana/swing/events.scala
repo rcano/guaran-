@@ -39,7 +39,9 @@ case class KeyTyped(peer: java.awt.event.KeyEvent) extends KeyEvent
 
 sealed trait MouseEvent {
   val peer: java.awt.event.MouseEvent
-  export peer.{toString => _, getModifiers => _, setModifiers => _, _}
+  export peer.{toString => _, getModifiers => _, setModifiers => _, getButton => _, _}
+
+  def button = MouseButton.from(peer.getButton)
 }
 
 case class MouseMoved(peer: java.awt.event.MouseEvent) extends MouseEvent

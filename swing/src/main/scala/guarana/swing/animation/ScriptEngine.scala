@@ -94,9 +94,9 @@ class ScriptEngine(scenegraph: Scenegraph, initialBufferSize: Int = 100) {
       
     //track for particular events to be done
     var childCount = 0
-    var childDone: java.util.BitSet | UncheckedNull = null
+    var childDone: java.util.BitSet = null
     //track context that caused this script to exists (i.e: in case of parallel steps)
-    var parentContext: Context | UncheckedNull = _
+    var parentContext: Context = _
     var indexInParent: Int = _
   }
 }

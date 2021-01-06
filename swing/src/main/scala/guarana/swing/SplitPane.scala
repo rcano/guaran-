@@ -3,7 +3,7 @@
 package guarana.swing
 
 import language.implicitConversions
-import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, _}
+import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, PopupMenu => _, _}
 import java.awt.event._
 import javax.swing.{Action => _, _}
 import javax.swing.event._
@@ -11,7 +11,7 @@ import guarana.swing.util._
 import scala.jdk.CollectionConverters._
 import scala.util.chaining._
 
-opaque type SplitPane <: Component = javax.swing.JSplitPane & Component
+opaque type SplitPane <: Component  = javax.swing.JSplitPane & Component
 object SplitPane extends VarsMap {
   val UI: SwingVar.Aux[SplitPane, javax.swing.plaf.SplitPaneUI] = SwingVar[SplitPane, javax.swing.plaf.SplitPaneUI]("UI", _.getUI.nn, _.setUI(_))
   val ComponentA: SwingVar.Aux[SplitPane, Component | Null] = SwingVar[SplitPane, Component | Null]("componentA", _.getLeftComponent.asInstanceOf, (p, c) => p.setLeftComponent(c.?(_.unwrap)))
@@ -75,7 +75,7 @@ object SplitPane extends VarsMap {
     componentA: Opt[Binding[Component | Null]] = UnsetParam,
     componentB: Opt[Binding[Component | Null]] = UnsetParam,
     componentOrientation: Opt[Binding[java.awt.ComponentOrientation]] = UnsetParam,
-    componentPopupMenu: Opt[Binding[javax.swing.JPopupMenu | Null]] = UnsetParam,
+    componentPopupMenu: Opt[Binding[PopupMenu | Null]] = UnsetParam,
     continuousLayout: Opt[Binding[Boolean]] = UnsetParam,
     cursor: Opt[Binding[java.awt.Cursor | Null]] = UnsetParam,
     debugGraphicsOptions: Opt[Binding[Int]] = UnsetParam,

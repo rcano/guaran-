@@ -3,7 +3,7 @@
 package guarana.swing
 
 import language.implicitConversions
-import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, _}
+import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, PopupMenu => _, _}
 import java.awt.event._
 import javax.swing.{Action => _, _}
 import javax.swing.event._
@@ -11,14 +11,14 @@ import guarana.swing.util._
 import scala.jdk.CollectionConverters._
 import scala.util.chaining._
 
-opaque type ComboBox[+E] <: Component = javax.swing.JComboBox[_ <: E] & Component
+opaque type ComboBox[+E] <: Component  = javax.swing.JComboBox[_ <: E] & Component
 object ComboBox extends VarsMap {
   val UI: SwingVar.Aux[ComboBox[Any], javax.swing.plaf.ComboBoxUI] = SwingVar[ComboBox[Any], javax.swing.plaf.ComboBoxUI]("UI", _.getUI.nn, _.setUI(_))
   val Action: SwingVar.Aux[ComboBox[Any], javax.swing.Action | Null] = SwingVar[ComboBox[Any], javax.swing.Action | Null]("action", _.getAction, _.setAction(_))
   val ActionCommand: SwingVar.Aux[ComboBox[Any], java.lang.String | Null] = SwingVar[ComboBox[Any], java.lang.String | Null]("actionCommand", _.getActionCommand, _.setActionCommand(_))
   val Editable: SwingVar.Aux[ComboBox[Any], Boolean] = SwingVar[ComboBox[Any], Boolean]("editable", _.isEditable, _.setEditable(_))
   val Editor: SwingVar.Aux[ComboBox[Any], javax.swing.ComboBoxEditor | Null] = SwingVar[ComboBox[Any], javax.swing.ComboBoxEditor | Null]("editor", _.getEditor, _.setEditor(_))
-  val Items: SwingVar.Aux[ComboBox[Any], Seq[Any]] = SwingVar[ComboBox[Any], Seq[Any]]("items", {c => val m = c.getModel.nn; (0 until m.getSize).map(m.getElementAt(_).asInstanceOf)}, (c, i) => c.setModel(DefaultComboBoxModel(i.toArray.asInstanceOf[Array[AnyRef | UncheckedNull]]).asInstanceOf))
+  val Items: SwingVar.Aux[ComboBox[Any], Seq[Any]] = SwingVar[ComboBox[Any], Seq[Any]]("items", {c => val m = c.getModel.nn; (0 until m.getSize).map(m.getElementAt(_).asInstanceOf)}, (c, i) => c.setModel(DefaultComboBoxModel(i.toArray.asInstanceOf[Array[AnyRef]]).asInstanceOf))
   val KeySelectionManager: SwingVar.Aux[ComboBox[Any], javax.swing.JComboBox.KeySelectionManager | Null] = SwingVar[ComboBox[Any], javax.swing.JComboBox.KeySelectionManager | Null]("keySelectionManager", _.getKeySelectionManager, _.setKeySelectionManager(_))
   val LightWeightPopupEnabled: SwingVar.Aux[ComboBox[Any], Boolean] = SwingVar[ComboBox[Any], Boolean]("lightWeightPopupEnabled", _.isLightWeightPopupEnabled, _.setLightWeightPopupEnabled(_))
   val MaximumRowCount: SwingVar.Aux[ComboBox[Any], Int] = SwingVar[ComboBox[Any], Int]("maximumRowCount", _.getMaximumRowCount, _.setMaximumRowCount(_))
@@ -94,7 +94,7 @@ object ComboBox extends VarsMap {
     border: Opt[Binding[javax.swing.border.Border | Null]] = UnsetParam,
     bounds: Opt[Binding[Bounds]] = UnsetParam,
     componentOrientation: Opt[Binding[java.awt.ComponentOrientation]] = UnsetParam,
-    componentPopupMenu: Opt[Binding[javax.swing.JPopupMenu | Null]] = UnsetParam,
+    componentPopupMenu: Opt[Binding[PopupMenu | Null]] = UnsetParam,
     cursor: Opt[Binding[java.awt.Cursor | Null]] = UnsetParam,
     debugGraphicsOptions: Opt[Binding[Int]] = UnsetParam,
     doubleBuffered: Opt[Binding[Boolean]] = UnsetParam,

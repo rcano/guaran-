@@ -3,7 +3,7 @@
 package guarana.swing
 
 import language.implicitConversions
-import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, _}
+import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, PopupMenu => _, _}
 import java.awt.event._
 import javax.swing.{Action => _, _}
 import javax.swing.event._
@@ -11,7 +11,7 @@ import guarana.swing.util._
 import scala.jdk.CollectionConverters._
 import scala.util.chaining._
 
-opaque type Spinner[+E] <: Component = javax.swing.JSpinner & Component
+opaque type Spinner[+E] <: Component  = javax.swing.JSpinner & Component
 object Spinner extends VarsMap {
   val UI: SwingVar.Aux[Spinner[Any], javax.swing.plaf.SpinnerUI] = SwingVar[Spinner[Any], javax.swing.plaf.SpinnerUI]("UI", _.getUI.nn, _.setUI(_))
   val Editor: SwingVar.Aux[Spinner[Any], javax.swing.JComponent | Null] = SwingVar[Spinner[Any], javax.swing.JComponent | Null]("editor", _.getEditor, _.setEditor(_))
@@ -61,7 +61,7 @@ object Spinner extends VarsMap {
     border: Opt[Binding[javax.swing.border.Border | Null]] = UnsetParam,
     bounds: Opt[Binding[Bounds]] = UnsetParam,
     componentOrientation: Opt[Binding[java.awt.ComponentOrientation]] = UnsetParam,
-    componentPopupMenu: Opt[Binding[javax.swing.JPopupMenu | Null]] = UnsetParam,
+    componentPopupMenu: Opt[Binding[PopupMenu | Null]] = UnsetParam,
     cursor: Opt[Binding[java.awt.Cursor | Null]] = UnsetParam,
     debugGraphicsOptions: Opt[Binding[Int]] = UnsetParam,
     doubleBuffered: Opt[Binding[Boolean]] = UnsetParam,
