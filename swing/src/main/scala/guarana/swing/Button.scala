@@ -17,7 +17,7 @@ object Button extends VarsMap {
 
   
 
-  given ops as Ops.type = Ops
+  given ops: Ops.type = Ops
   object Ops {
     extension (v: Button) {
       def defaultCapable: Var.Aux[Boolean, v.type] = Button.DefaultCapable.asInstanceOf[Var.Aux[Boolean, v.type]]
@@ -31,7 +31,7 @@ object Button extends VarsMap {
 
   def wrap(v: javax.swing.JButton) = v.asInstanceOf[Button]
 
-  def init(v: Button): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
+  def init(v: Button): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
     ButtonBase.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
     

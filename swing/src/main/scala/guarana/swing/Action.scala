@@ -20,7 +20,7 @@ object Action extends VarsMap {
   def customProperty[T](name: String): SwingVar.Aux[Action, T | Null] =
     SwingVar[Action, T | Null](name, _.getValue(name).asInstanceOf[T | Null], _.putValue(name, _))
 
-  given ops as Ops.type = Ops
+  given ops: Ops.type = Ops
   object Ops {
     extension (v: Action) {
       def accelerator = Accelerator.forInstance(v)
@@ -39,7 +39,7 @@ object Action extends VarsMap {
   }
 
 
-  def init(v: Action): Scenegraph ?=> Unit = (using sc: Scenegraph) =>
+  def init(v: Action): Scenegraph ?=> Unit = (sc: Scenegraph) ?=>
     v.addPropertyChangeListener(varsPropertyListener(v))
   def wrap(v: JAction): Action = v.asInstanceOf[Action]
 

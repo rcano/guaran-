@@ -17,7 +17,7 @@ object CheckBox extends VarsMap {
 
   
 
-  given ops as Ops.type = Ops
+  given ops: Ops.type = Ops
   object Ops {
     extension (v: CheckBox) {
       def borderPaintedFlat: Var.Aux[Boolean, v.type] = CheckBox.BorderPaintedFlat.asInstanceOf[Var.Aux[Boolean, v.type]]
@@ -31,7 +31,7 @@ object CheckBox extends VarsMap {
 
   def wrap(v: javax.swing.JCheckBox) = v.asInstanceOf[CheckBox]
 
-  def init(v: CheckBox): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
+  def init(v: CheckBox): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
     ToggleButton.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
     

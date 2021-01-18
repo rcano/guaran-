@@ -12,6 +12,9 @@ import scala.util.chaining._
 
 class CssLaf(val scenegraph: Scenegraph) extends MetalLookAndFeel {
 
+  private val fontKeys = collection.mutable.Set.empty[Object]
+  private val smallFontKeys = collection.mutable.Set.empty[Object]
+
   override def getDescription = "Look And Feel integrated to the scenegraph that uses the Var system to style swing components"
   override def getID = "GuaranáCSS"
   override def getName = "Guaraná CSS LAF"
@@ -20,16 +23,31 @@ class CssLaf(val scenegraph: Scenegraph) extends MetalLookAndFeel {
 
   override def getDefaults: UIDefaults = {
     val defaults = super.getDefaults().nn
+    defaults.put(CssLaf.UiDefaultsCssLafKey, this)
 
-    CssLaf.fontDeterminedByOs foreach { font =>
-      val smallerFont = FontUIResource(font.deriveFont(font.getSize2D * 0.8f))
-      defaults.keySet.nn.asScala foreach {
-        case k if k.toString endsWith ".acceleratorFont" => defaults.put(k, smallerFont)
-        case k if k.toString.pipe(s => s.endsWith(".font") || s.endsWith("Font")) => defaults.put(k, font)
+    defaults.keySet.nn.asScala.foreach {
+      case k if k.toString endsWith ".acceleratorFont" => smallFontKeys += k
+      case k if k.toString.pipe(s => s.endsWith(".font") || s.endsWith("Font")) => fontKeys += k
+      case _ =>
+    }
+
+    var rootFont = CssLaf.fontDeterminedByOs.getOrElse(defaults.getFont("TextField.font").asInstanceOf[FontUIResource])
+    var smallerFont = FontUIResource(rootFont.deriveFont(rootFont.getSize2D * 0.8f))
+
+    fontKeys foreach (defaults.put(_, rootFont))
+    smallFontKeys foreach (defaults.put(_, smallerFont))
+
+    scenegraph.update {
+      scenegraph.varUpdates := EventIterator.foreach {
+        case scenegraph.emSize(oldv, newv) =>
+          rootFont = FontUIResource(rootFont.deriveFont(newv.toFloat))
+          smallerFont = FontUIResource(rootFont.deriveFont(rootFont.getSize2D * 0.8f))
+
+          fontKeys foreach (defaults.put(_, rootFont))
+          smallFontKeys foreach (defaults.put(_, smallerFont))
         case _ =>
       }
     }
-    defaults.put(CssLaf.UiDefaultsCssLafKey, this)
 
     defaults.keySet.nn.asScala.filter(_.toString endsWith "border") foreach (k => defaults.put(k, CssBorder(scenegraph)))
 
@@ -44,6 +62,7 @@ class CssLaf(val scenegraph: Scenegraph) extends MetalLookAndFeel {
     defaults.put("ToggleButtonUI", classOf[CssButtonUi].getCanonicalName)
     defaults.put("ScrollBarUI", classOf[CssScrollBarUi].getCanonicalName)
     defaults.put("ProgressBarUI", classOf[CssProgressBarUi].getCanonicalName)
+    defaults.put("TabbedPaneUI", classOf[CssTabbedPaneUi].getCanonicalName)
   }
 
   override def uninitialize(): Unit = {
@@ -54,6 +73,7 @@ class CssLaf(val scenegraph: Scenegraph) extends MetalLookAndFeel {
 }
 
 object CssLaf {
+
   val UiDefaultsCssLafKey = "CssLafInstance"
   def install(): Scenegraph ?=> Unit = {
     UIManager.setLookAndFeel(CssLaf(summon))

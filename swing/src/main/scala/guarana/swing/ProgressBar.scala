@@ -26,7 +26,7 @@ object ProgressBar extends VarsMap {
 
   
 
-  given ops as Ops.type = Ops
+  given ops: Ops.type = Ops
   object Ops {
     extension (v: ProgressBar) {
       def UI: Var.Aux[javax.swing.plaf.ProgressBarUI, v.type] = ProgressBar.UI.asInstanceOf[Var.Aux[javax.swing.plaf.ProgressBarUI, v.type]]
@@ -50,7 +50,7 @@ object ProgressBar extends VarsMap {
 
   def wrap(v: javax.swing.JProgressBar) = v.asInstanceOf[ProgressBar]
 
-  def init(v: ProgressBar): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
+  def init(v: ProgressBar): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
     Component.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
     val l: ChangeListener = (e: ChangeEvent) => summon[Scenegraph].update(summon[VarContext].swingPropertyUpdated(ops.value(v), v.getValue))

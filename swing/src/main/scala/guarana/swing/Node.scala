@@ -34,7 +34,7 @@ object Node extends VarsMap {
   val KeyEvents = Emitter[guarana.swing.KeyEvent]()
   val MouseEvents = Emitter[guarana.swing.MouseEvent]()
 
-  given ops as Ops.type = Ops
+  given ops: Ops.type = Ops
   object Ops {
     extension (v: Node) {
       def background: Var.Aux[java.awt.Color | Null, v.type] = Node.Background.asInstanceOf[Var.Aux[java.awt.Color | Null, v.type]]
@@ -74,7 +74,7 @@ object Node extends VarsMap {
 
   def wrap(v: java.awt.Component) = v.asInstanceOf[Node]
 
-  def init(v: Node): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
+  def init(v: Node): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
     
     v.addPropertyChangeListener(varsPropertyListener(v))
     v addMouseMotionListener new java.awt.event.MouseMotionListener {

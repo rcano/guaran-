@@ -18,7 +18,7 @@ object Separator extends VarsMap {
 
   
 
-  given ops as Ops.type = Ops
+  given ops: Ops.type = Ops
   object Ops {
     extension (v: Separator) {
       def UI: Var.Aux[javax.swing.plaf.SeparatorUI, v.type] = Separator.UI.asInstanceOf[Var.Aux[javax.swing.plaf.SeparatorUI, v.type]]
@@ -33,7 +33,7 @@ object Separator extends VarsMap {
 
   def wrap(v: javax.swing.JSeparator) = v.asInstanceOf[Separator]
 
-  def init(v: Separator): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
+  def init(v: Separator): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
     Component.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
     

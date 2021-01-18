@@ -32,7 +32,7 @@ object Slider extends VarsMap {
 
   
 
-  given ops as Ops.type = Ops
+  given ops: Ops.type = Ops
   object Ops {
     extension (v: Slider) {
       def UI: Var.Aux[javax.swing.plaf.SliderUI, v.type] = Slider.UI.asInstanceOf[Var.Aux[javax.swing.plaf.SliderUI, v.type]]
@@ -61,7 +61,7 @@ object Slider extends VarsMap {
 
   def wrap(v: javax.swing.JSlider) = v.asInstanceOf[Slider]
 
-  def init(v: Slider): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
+  def init(v: Slider): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
     Component.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
     val l: ChangeListener = (e: ChangeEvent) => summon[Scenegraph].update(summon[VarContext].swingPropertyUpdated(ops.value(v), v.getValue))

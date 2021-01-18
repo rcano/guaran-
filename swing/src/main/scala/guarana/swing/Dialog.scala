@@ -27,7 +27,7 @@ object Dialog extends VarsMap {
 
   
 
-  given ops as Ops.type = Ops
+  given ops: Ops.type = Ops
   object Ops {
     extension (v: Dialog) {
       def contentPane: Var.Aux[java.awt.Container | Null, v.type] = Dialog.ContentPane.asInstanceOf[Var.Aux[java.awt.Container | Null, v.type]]
@@ -51,7 +51,7 @@ object Dialog extends VarsMap {
 
   def wrap(v: javax.swing.JDialog) = v.asInstanceOf[Dialog]
 
-  def init(v: Dialog): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
+  def init(v: Dialog): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
     WindowBase.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
     

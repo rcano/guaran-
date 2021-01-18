@@ -46,7 +46,7 @@ object TableView extends VarsMap {
 
   
 
-  given ops as Ops.type = Ops
+  given ops: Ops.type = Ops
   object Ops {
     extension (v: TableView) {
       def UI: Var.Aux[javax.swing.plaf.TableUI, v.type] = TableView.UI.asInstanceOf[Var.Aux[javax.swing.plaf.TableUI, v.type]]
@@ -104,7 +104,7 @@ object TableView extends VarsMap {
 
   def wrap(v: javax.swing.JTable) = v.asInstanceOf[TableView]
 
-  def init(v: TableView): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
+  def init(v: TableView): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
     Component.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
     v.getSelectionModel.addListSelectionListener(selectionEvt => 

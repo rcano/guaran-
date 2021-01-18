@@ -114,7 +114,7 @@ class Scenegraph {
   }
 
   /**
-   * ContextImpl uses a snapshotted switchboard so the changes can be applied as they are seen (this is in order to properly implement sequence in code)
+   * ContextImpl uses a snapshotted switchboard so the changes can be applied: they are seen (this is in order to properly implement sequence in code)
    * After the lambda that uses this context is done, the updated switchboard replaces the old one, and we update our tracking.
    */
   private class ContextImpl(

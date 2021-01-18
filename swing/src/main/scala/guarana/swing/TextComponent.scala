@@ -32,7 +32,7 @@ object TextComponent extends VarsMap {
 
   
 
-  given ops as Ops.type = Ops
+  given ops: Ops.type = Ops
   object Ops {
     extension (v: TextComponent) {
       def UI: Var.Aux[javax.swing.plaf.TextUI, v.type] = TextComponent.UI.asInstanceOf[Var.Aux[javax.swing.plaf.TextUI, v.type]]
@@ -69,7 +69,7 @@ object TextComponent extends VarsMap {
 
   def wrap(v: javax.swing.text.JTextComponent) = v.asInstanceOf[TextComponent]
 
-  def init(v: TextComponent): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
+  def init(v: TextComponent): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
     Component.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
     v.getDocument.addDocumentListener(new DocumentListener {

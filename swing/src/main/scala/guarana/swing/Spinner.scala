@@ -20,7 +20,7 @@ object Spinner extends VarsMap {
 
   
 
-  given ops as Ops.type = Ops
+  given ops: Ops.type = Ops
   object Ops {
     extension [E](v: Spinner[E]) {
       def UI: Var.Aux[javax.swing.plaf.SpinnerUI, v.type] = Spinner.UI.asInstanceOf[Var.Aux[javax.swing.plaf.SpinnerUI, v.type]]
@@ -37,7 +37,7 @@ object Spinner extends VarsMap {
 
   def wrap[E](v: javax.swing.JSpinner) = v.asInstanceOf[Spinner[E]]
 
-  def init[E](v: Spinner[E]): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
+  def init[E](v: Spinner[E]): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
     Component.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
     val cl: ChangeListener = evt => sc.update(summon[VarContext].swingPropertyUpdated(ops.value(v), v.getValue.asInstanceOf))

@@ -27,7 +27,7 @@ object WindowBase extends VarsMap {
 
   
 
-  given ops as Ops.type = Ops
+  given ops: Ops.type = Ops
   object Ops {
     extension (v: WindowBase) {
       def alwaysOnTop: Var.Aux[Boolean, v.type] = WindowBase.AlwaysOnTop.asInstanceOf[Var.Aux[Boolean, v.type]]
@@ -74,7 +74,7 @@ object WindowBase extends VarsMap {
 
   def wrap(v: java.awt.Window) = v.asInstanceOf[WindowBase]
 
-  def init(v: WindowBase): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
+  def init(v: WindowBase): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
     Node.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
     

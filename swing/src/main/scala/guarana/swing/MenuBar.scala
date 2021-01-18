@@ -21,7 +21,7 @@ object MenuBar extends VarsMap {
 
   
 
-  given ops as Ops.type = Ops
+  given ops: Ops.type = Ops
   object Ops {
     extension (v: MenuBar) {
       def UI: Var.Aux[javax.swing.plaf.MenuBarUI | Null, v.type] = MenuBar.UI.asInstanceOf[Var.Aux[javax.swing.plaf.MenuBarUI | Null, v.type]]
@@ -42,7 +42,7 @@ object MenuBar extends VarsMap {
 
   def wrap(v: javax.swing.JMenuBar) = v.asInstanceOf[MenuBar]
 
-  def init(v: MenuBar): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
+  def init(v: MenuBar): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
     Component.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
     

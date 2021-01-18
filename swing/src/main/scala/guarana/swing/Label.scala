@@ -28,7 +28,7 @@ object Label extends VarsMap {
 
   
 
-  given ops as Ops.type = Ops
+  given ops: Ops.type = Ops
   object Ops {
     extension (v: Label) {
       def UI: Var.Aux[javax.swing.plaf.LabelUI, v.type] = Label.UI.asInstanceOf[Var.Aux[javax.swing.plaf.LabelUI, v.type]]
@@ -53,7 +53,7 @@ object Label extends VarsMap {
 
   def wrap(v: javax.swing.JLabel) = v.asInstanceOf[Label]
 
-  def init(v: Label): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
+  def init(v: Label): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
     Component.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
     

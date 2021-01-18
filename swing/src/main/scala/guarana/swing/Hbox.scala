@@ -17,7 +17,7 @@ object Hbox extends VarsMap {
 
   
 
-  given ops as Ops.type = Ops
+  given ops: Ops.type = Ops
   object Ops {
     extension (v: Hbox) {
       def nodes: Var.Aux[Seq[Node], v.type] = Hbox.Nodes.asInstanceOf[Var.Aux[Seq[Node], v.type]]
@@ -31,7 +31,7 @@ object Hbox extends VarsMap {
 
   def wrap(v: javax.swing.JPanel) = v.asInstanceOf[Hbox]
 
-  def init(v: Hbox): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
+  def init(v: Hbox): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
     Pane.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
     

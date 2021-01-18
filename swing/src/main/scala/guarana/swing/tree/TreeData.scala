@@ -20,7 +20,7 @@ object TreeData {
     def isLeaf(node: T): Boolean
 
   object TreeNode:
-    inline given derived[T](using mirror: deriving.Mirror.Of[T]) as TreeNode[T] =
+    inline given derived[T](using mirror: deriving.Mirror.Of[T]): TreeNode[T] =
       inline mirror match {
         case m: deriving.Mirror.SumOf[T] =>
           val treeNodes = deriveSumType[m.MirroredElemTypes, T]

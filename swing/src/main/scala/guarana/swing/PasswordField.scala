@@ -17,7 +17,7 @@ object PasswordField extends VarsMap {
 
   
 
-  given ops as Ops.type = Ops
+  given ops: Ops.type = Ops
   object Ops {
     extension (v: PasswordField) {
       def echoChar: Var.Aux[Char, v.type] = PasswordField.EchoChar.asInstanceOf[Var.Aux[Char, v.type]]
@@ -31,7 +31,7 @@ object PasswordField extends VarsMap {
 
   def wrap(v: javax.swing.JPasswordField) = v.asInstanceOf[PasswordField]
 
-  def init(v: PasswordField): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
+  def init(v: PasswordField): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
     TextField.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
     

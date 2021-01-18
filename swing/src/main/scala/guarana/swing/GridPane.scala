@@ -21,7 +21,7 @@ object GridPane extends VarsMap {
 
   
 
-  given ops as Ops.type = Ops
+  given ops: Ops.type = Ops
   object Ops {
     extension (v: GridPane) {
       def autoCreateContainerGaps: Var.Aux[Boolean, v.type] = GridPane.AutoCreateContainerGaps.asInstanceOf[Var.Aux[Boolean, v.type]]
@@ -39,7 +39,7 @@ object GridPane extends VarsMap {
 
   def wrap(v: javax.swing.JPanel) = v.asInstanceOf[GridPane]
 
-  def init(v: GridPane): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
+  def init(v: GridPane): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
     Pane.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
     sc.update(LayoutVar.forInstance(v) := Binding.dyn {

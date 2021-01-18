@@ -21,7 +21,7 @@ object TextArea extends VarsMap {
 
   
 
-  given ops as Ops.type = Ops
+  given ops: Ops.type = Ops
   object Ops {
     extension (v: TextArea) {
       def columns: Var.Aux[Int, v.type] = TextArea.Columns.asInstanceOf[Var.Aux[Int, v.type]]
@@ -39,7 +39,7 @@ object TextArea extends VarsMap {
 
   def wrap(v: javax.swing.JTextArea) = v.asInstanceOf[TextArea]
 
-  def init(v: TextArea): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
+  def init(v: TextArea): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
     TextComponent.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
     

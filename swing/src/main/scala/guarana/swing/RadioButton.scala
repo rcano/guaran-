@@ -17,7 +17,7 @@ object RadioButton extends VarsMap {
 
   
 
-  given ops as Ops.type = Ops
+  given ops: Ops.type = Ops
   object Ops {
     extension (v: RadioButton) {
       
@@ -31,7 +31,7 @@ object RadioButton extends VarsMap {
 
   def wrap(v: javax.swing.JRadioButton) = v.asInstanceOf[RadioButton]
 
-  def init(v: RadioButton): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
+  def init(v: RadioButton): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
     ToggleButton.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
     

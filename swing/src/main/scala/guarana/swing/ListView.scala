@@ -33,7 +33,7 @@ object ListView extends VarsMap {
 
   
 
-  given ops as Ops.type = Ops
+  given ops: Ops.type = Ops
   object Ops {
     extension [E](v: ListView[E]) {
       def UI: Var.Aux[javax.swing.plaf.ListUI, v.type] = ListView.UI.asInstanceOf[Var.Aux[javax.swing.plaf.ListUI, v.type]]
@@ -76,7 +76,7 @@ object ListView extends VarsMap {
 
   def wrap[E](v: javax.swing.JList[_ <: E]) = v.asInstanceOf[ListView[E]]
 
-  def init[E](v: ListView[E]): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
+  def init[E](v: ListView[E]): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
     Component.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
     

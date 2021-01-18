@@ -38,7 +38,7 @@ object TreeView extends VarsMap {
 
   
 
-  given ops as Ops.type = Ops
+  given ops: Ops.type = Ops
   object Ops {
     extension [E](v: TreeView[E]) {
       def UI: Var.Aux[javax.swing.plaf.TreeUI | Null, v.type] = TreeView.UI.asInstanceOf[Var.Aux[javax.swing.plaf.TreeUI | Null, v.type]]
@@ -89,7 +89,7 @@ object TreeView extends VarsMap {
 
   def wrap[E](v: javax.swing.JTree) = v.asInstanceOf[TreeView[E]]
 
-  def init[E](v: TreeView[E]): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
+  def init[E](v: TreeView[E]): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
     Component.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
     val tsl: TreeSelectionListener = evt => sc.update {

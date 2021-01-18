@@ -48,7 +48,7 @@ object ButtonBase extends VarsMap {
 
   val ActionEvents = Emitter[java.awt.event.ActionEvent]()
 
-  given ops as Ops.type = Ops
+  given ops: Ops.type = Ops
   object Ops {
     extension (v: ButtonBase) {
       def UI: Var.Aux[javax.swing.plaf.ButtonUI, v.type] = ButtonBase.UI.asInstanceOf[Var.Aux[javax.swing.plaf.ButtonUI, v.type]]
@@ -96,7 +96,7 @@ object ButtonBase extends VarsMap {
 
   def wrap(v: javax.swing.AbstractButton) = v.asInstanceOf[ButtonBase]
 
-  def init(v: ButtonBase): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
+  def init(v: ButtonBase): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
     Component.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
     val m = v.getModel.nn

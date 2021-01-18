@@ -23,7 +23,7 @@ object TabbedPane extends VarsMap {
 
   
 
-  given ops as Ops.type = Ops
+  given ops: Ops.type = Ops
   object Ops {
     extension (v: TabbedPane) {
       def UI: Var.Aux[javax.swing.plaf.TabbedPaneUI, v.type] = TabbedPane.UI.asInstanceOf[Var.Aux[javax.swing.plaf.TabbedPaneUI, v.type]]
@@ -45,7 +45,7 @@ object TabbedPane extends VarsMap {
 
   def wrap(v: javax.swing.JTabbedPane) = v.asInstanceOf[TabbedPane]
 
-  def init(v: TabbedPane): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
+  def init(v: TabbedPane): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
     Component.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
     object LocatedTab {

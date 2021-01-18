@@ -17,7 +17,7 @@ object AbsolutePositioningPane extends VarsMap {
 
   
 
-  given ops as Ops.type = Ops
+  given ops: Ops.type = Ops
   object Ops {
     extension (v: AbsolutePositioningPane) {
       def nodes: Var.Aux[Seq[Node], v.type] = AbsolutePositioningPane.Nodes.asInstanceOf[Var.Aux[Seq[Node], v.type]]
@@ -31,7 +31,7 @@ object AbsolutePositioningPane extends VarsMap {
 
   def wrap(v: javax.swing.JPanel) = v.asInstanceOf[AbsolutePositioningPane]
 
-  def init(v: AbsolutePositioningPane): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
+  def init(v: AbsolutePositioningPane): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
     Pane.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
     v.asInstanceOf[JPanel].setLayout(null)

@@ -28,7 +28,7 @@ object Frame extends VarsMap {
 
   
 
-  given ops as Ops.type = Ops
+  given ops: Ops.type = Ops
   object Ops {
     extension (v: Frame) {
       def contentPane: Var.Aux[java.awt.Container, v.type] = Frame.ContentPane.asInstanceOf[Var.Aux[java.awt.Container, v.type]]
@@ -53,7 +53,7 @@ object Frame extends VarsMap {
 
   def wrap(v: javax.swing.JFrame) = v.asInstanceOf[Frame]
 
-  def init(v: Frame): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
+  def init(v: Frame): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
     WindowBase.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
     

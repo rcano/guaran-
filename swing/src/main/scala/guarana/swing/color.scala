@@ -2,8 +2,9 @@ package guarana.swing
 
 type Color = java.awt.Color
 object Color {
-  def rgba(r: Int, g: Int, b: Int, a: Int = 255): Color = Color(r, g, b, a)
-  def rgba(rgba: Int): Color = Color(rgba)
+  def apply(r: Float, g: Float, b: Float, a: Float = 1f) = java.awt.Color(r, g, b, a)
+  def rgba(r: Int, g: Int, b: Int, a: Int = 255): Color = java.awt.Color(r, g, b, a)
+  def rgba(rgba: Int): Color = java.awt.Color(rgba)
   def hsb(hue: Double, saturation: Double, brightness: Double): Color = java.awt.Color.getHSBColor(hue.toFloat, saturation.toFloat, brightness.toFloat).nn
   def web(code: String): Color = 
     if (code.startsWith("#")) rgba(java.lang.Integer.parseInt(code.substring(1), 16)) 

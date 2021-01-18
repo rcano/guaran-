@@ -12,7 +12,6 @@ import util.UnsetParam
     val presses = Var[Int]("presses", 0)
 
     val root = AbsolutePositioningPane()
-    println("binding text")
     val label: Label = Label(
       toolTipText = "Report the location of the mouse",
       text = dyn {
@@ -49,7 +48,7 @@ import util.UnsetParam
   val out = new java.io.PrintStream("target/log.txt")
   System.setErr(out)
   System.setOut(out)
-  DevAppReloader.launch(Array(java.nio.file.Paths.get("target/scala-0.28/classes").nn, java.nio.file.Paths.get("target/scala-0.28/test-classes").nn), "guarana.swing.*".r, "guarana.swing.FormTest", Array())
+  DevAppReloader.launch(Array(java.nio.file.Paths.get("target/scala-3.0.0-M3/classes").nn, java.nio.file.Paths.get("target/scala-3.0.0-M3/test-classes").nn), "guarana.swing.*".r, "guarana.swing.FormTest", Array())
 }
 
 @main def FormTest: Unit = {
@@ -72,6 +71,8 @@ import util.UnsetParam
     import java.awt.BasicStroke
     val corners = style.CornerRadii.all(4)
     val rootBackground = style.Background(fills = IArray(style.BackgroundFill(Color.WhiteSmoke, corners, Insets.all(0))))
+    val tabBackground = style.Background(fills = IArray(style.BackgroundFill(Color.WhiteSmoke, style.CornerRadii.all(0), Insets.all(0))))
+    val tabHighlightedBackground = style.Background(fills = IArray(style.BackgroundFill(Color.White, style.CornerRadii.simple(25, 0, 0, 0), Insets.all(0))))
     val bck = style.Background(fills = IArray(style.BackgroundFill(Color.LightSalmon, style.CornerRadii.all(0), Insets.all(0))))
     val hoverBck = style.Background(fills = IArray(style.BackgroundFill(Color.LightPink, style.CornerRadii.all(0), Insets.all(0))))
     val pressedBck = style.Background(fills = IArray(style.BackgroundFill(Color.DarkSalmon, style.CornerRadii.all(0), Insets.all(0))))
@@ -85,7 +86,7 @@ import util.UnsetParam
               // border,
               style.BorderStroke.simple(
                 java.awt.LinearGradientPaint(0, 0, 0, h.toFloat.max(1), Array[Float](0, 1), Array[Color](Color.LavenderBlush, Color.LavenderBlush.darker.nn)),
-                BasicStroke((emSize / 10).toInt), corners, Insets.all(emSize / 10))
+                BasicStroke((emSize / 10).toFloat), corners, Insets.all(emSize / 10))
             ))
           ).asInstanceOf[Option[T]]
         case Keyed(style.CssProperties.Background, b: javax.swing.AbstractButton) => Some(
@@ -93,7 +94,7 @@ import util.UnsetParam
           else if (b.getModel.isRollover) hoverBck
           else bck
         ).asInstanceOf[Option[T]]
-        case Keyed(style.CssProperties.Background, rp: javax.swing.JRootPane) => Some(
+        case Keyed(style.CssProperties.Background, _: javax.swing.JRootPane) => Some(
           rootBackground
         ).asInstanceOf[Option[T]]
         case Keyed(style.CssProperties.Background, sb: javax.swing.JScrollBar) => Some(
@@ -110,6 +111,14 @@ import util.UnsetParam
         ).asInstanceOf[Option[T]]
         case Keyed(style.CssProperties.ProgressBarBarBorder, sb: javax.swing.JProgressBar) => Some(
           style.Border(strokes = IArray(style.BorderStroke.simple(Color.DarkSalmon.darker.nn, BasicStroke(3), corners, Insets(0, 0, 3, 0))))
+        ).asInstanceOf[Option[T]]
+        // case Keyed(style.CssProperties.TabBorder, sb: javax.swing.JTabbedPane) => Some(
+        //   (tabInfo: style.TabInfo) =>  style.Border(
+        //     strokes = IArray(style.BorderStroke.simple(if tabInfo.selected then Color.DarkSalmon.darker.nn else Color.LightSalmon, BasicStroke(3), corners, Insets.all(3))))
+        // ).asInstanceOf[Option[T]]
+        case Keyed(style.CssProperties.TabBackground, sb: javax.swing.JTabbedPane) => Some(
+          (tabInfo: style.TabInfo) =>
+            if !tabInfo.selected then tabBackground else tabHighlightedBackground
         ).asInstanceOf[Option[T]]
         case _ => 
           None
@@ -207,13 +216,20 @@ import util.UnsetParam
       columnModel = td.columnModel
     )))
 
+    for (i <- 0 until 10) {
+      tabs += Tab(title = s"$i", content = Pane())
+    }
+
     Frame(
       title = "Guaraná test",
       // bounds = Rect(1300, 300, 300, 300),
       locationByPlatform = true,
       visible = true,
       defaultCloseOperation = 3, //exit on close
-      root = TabbedPane(tabs = tabs)
+      root = TabbedPane(
+        tabs = tabs,
+        tabLayoutPolicy = javax.swing.JTabbedPane.SCROLL_TAB_LAYOUT,
+      )
       // root = tab1Content
     ).pack()
   }

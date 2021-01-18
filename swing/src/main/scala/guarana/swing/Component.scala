@@ -31,7 +31,7 @@ object Component extends VarsMap {
 
   
 
-  given ops as Ops.type = Ops
+  given ops: Ops.type = Ops
   object Ops {
     extension (v: Component) {
       def actionMap: Var.Aux[javax.swing.ActionMap, v.type] = Component.ActionMap.asInstanceOf[Var.Aux[javax.swing.ActionMap, v.type]]
@@ -73,7 +73,7 @@ object Component extends VarsMap {
 
   def wrap(v: javax.swing.JComponent) = v.asInstanceOf[Component]
 
-  def init(v: Component): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
+  def init(v: Component): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
     Node.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
     

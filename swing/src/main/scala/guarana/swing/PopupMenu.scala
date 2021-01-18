@@ -23,7 +23,7 @@ object PopupMenu extends VarsMap {
 
   
 
-  given ops as Ops.type = Ops
+  given ops: Ops.type = Ops
   object Ops {
     extension (v: PopupMenu) {
       def UI: Var.Aux[javax.swing.plaf.PopupMenuUI | Null, v.type] = PopupMenu.UI.asInstanceOf[Var.Aux[javax.swing.plaf.PopupMenuUI | Null, v.type]]
@@ -51,7 +51,7 @@ object PopupMenu extends VarsMap {
 
   def wrap(v: javax.swing.JPopupMenu) = v.asInstanceOf[PopupMenu]
 
-  def init(v: PopupMenu): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
+  def init(v: PopupMenu): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
     Component.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
     

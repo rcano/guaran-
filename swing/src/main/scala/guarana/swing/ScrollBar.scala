@@ -26,7 +26,7 @@ object ScrollBar extends VarsMap {
 
   
 
-  given ops as Ops.type = Ops
+  given ops: Ops.type = Ops
   object Ops {
     extension (v: ScrollBar) {
       def UI: Var.Aux[javax.swing.plaf.ScrollBarUI, v.type] = ScrollBar.UI.asInstanceOf[Var.Aux[javax.swing.plaf.ScrollBarUI, v.type]]
@@ -49,7 +49,7 @@ object ScrollBar extends VarsMap {
 
   def wrap(v: javax.swing.JScrollBar) = v.asInstanceOf[ScrollBar]
 
-  def init(v: ScrollBar): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
+  def init(v: ScrollBar): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
     Component.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
     

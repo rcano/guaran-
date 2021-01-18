@@ -23,7 +23,7 @@ object BorderPane extends VarsMap {
 
   
 
-  given ops as Ops.type = Ops
+  given ops: Ops.type = Ops
   object Ops {
     extension (v: BorderPane) {
       def bottom: Var.Aux[Node | Null, v.type] = BorderPane.Bottom.asInstanceOf[Var.Aux[Node | Null, v.type]]
@@ -43,7 +43,7 @@ object BorderPane extends VarsMap {
 
   def wrap(v: javax.swing.JPanel) = v.asInstanceOf[BorderPane]
 
-  def init(v: BorderPane): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
+  def init(v: BorderPane): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
     Pane.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
     v.asInstanceOf[JPanel].setLayout(BorderLayout())

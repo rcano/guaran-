@@ -31,7 +31,7 @@ object ComboBox extends VarsMap {
 
   
 
-  given ops as Ops.type = Ops
+  given ops: Ops.type = Ops
   object Ops {
     extension [E](v: ComboBox[E]) {
       def UI: Var.Aux[javax.swing.plaf.ComboBoxUI, v.type] = ComboBox.UI.asInstanceOf[Var.Aux[javax.swing.plaf.ComboBoxUI, v.type]]
@@ -63,7 +63,7 @@ object ComboBox extends VarsMap {
 
   def wrap[E](v: javax.swing.JComboBox[_ <: E]) = v.asInstanceOf[ComboBox[E]]
 
-  def init[E](v: ComboBox[E]): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
+  def init[E](v: ComboBox[E]): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
     Component.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
     val il: ItemListener = evt => sc.update {

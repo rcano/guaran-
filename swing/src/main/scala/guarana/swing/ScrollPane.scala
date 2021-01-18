@@ -31,7 +31,7 @@ object ScrollPane extends VarsMap {
 
   
 
-  given ops as Ops.type = Ops
+  given ops: Ops.type = Ops
   object Ops {
     extension (v: ScrollPane) {
       def UI: Var.Aux[javax.swing.plaf.ScrollPaneUI, v.type] = ScrollPane.UI.asInstanceOf[Var.Aux[javax.swing.plaf.ScrollPaneUI, v.type]]
@@ -59,7 +59,7 @@ object ScrollPane extends VarsMap {
 
   def wrap(v: javax.swing.JScrollPane) = v.asInstanceOf[ScrollPane]
 
-  def init(v: ScrollPane): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
+  def init(v: ScrollPane): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
     Component.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
     

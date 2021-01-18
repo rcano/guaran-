@@ -26,7 +26,7 @@ object SplitPane extends VarsMap {
 
   
 
-  given ops as Ops.type = Ops
+  given ops: Ops.type = Ops
   object Ops {
     extension (v: SplitPane) {
       def UI: Var.Aux[javax.swing.plaf.SplitPaneUI, v.type] = SplitPane.UI.asInstanceOf[Var.Aux[javax.swing.plaf.SplitPaneUI, v.type]]
@@ -50,7 +50,7 @@ object SplitPane extends VarsMap {
 
   def wrap(v: javax.swing.JSplitPane) = v.asInstanceOf[SplitPane]
 
-  def init(v: SplitPane): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
+  def init(v: SplitPane): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
     Component.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
     

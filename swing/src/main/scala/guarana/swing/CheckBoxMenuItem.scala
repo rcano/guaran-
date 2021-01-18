@@ -17,7 +17,7 @@ object CheckBoxMenuItem extends VarsMap {
 
   
 
-  given ops as Ops.type = Ops
+  given ops: Ops.type = Ops
   object Ops {
     extension (v: CheckBoxMenuItem) {
       def state: Var.Aux[Boolean, v.type] = CheckBoxMenuItem.State.asInstanceOf[Var.Aux[Boolean, v.type]]
@@ -31,7 +31,7 @@ object CheckBoxMenuItem extends VarsMap {
 
   def wrap(v: javax.swing.JCheckBoxMenuItem) = v.asInstanceOf[CheckBoxMenuItem]
 
-  def init(v: CheckBoxMenuItem): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
+  def init(v: CheckBoxMenuItem): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
     MenuItem.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
     

@@ -17,7 +17,7 @@ object ToggleButton extends VarsMap {
 
   
 
-  given ops as Ops.type = Ops
+  given ops: Ops.type = Ops
   object Ops {
     extension (v: ToggleButton) {
       
@@ -31,7 +31,7 @@ object ToggleButton extends VarsMap {
 
   def wrap(v: javax.swing.JToggleButton) = v.asInstanceOf[ToggleButton]
 
-  def init(v: ToggleButton): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
+  def init(v: ToggleButton): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
     ButtonBase.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
     

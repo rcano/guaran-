@@ -6,7 +6,7 @@ import language.implicitConversions
 
 /** Since there's no way in scala to abstract over method parameters, and the builders guaraná provides
   * are based on factory methods, we need a way to generate the node mappings trying to avoid manual coding
-  * mistakes. This class is used to encode the properties per type as well as inheritance, so that the code
+  * mistakes. This class is used to encode the properties per type: well: inheritance, so that the code
   * for each node type can be generated.
   */
 
@@ -1373,7 +1373,7 @@ def genCode(n: NodeDescr): String = {
      |
      |  ${sortedEmitters.map(e => s"val ${e.name.capitalize} = Emitter[${e.tpe}]()").mkString("\n  ")}
      |
-     |  given ops as Ops.type = Ops
+     |  given ops: Ops.type = Ops
      |  object Ops {
      |    extension $tpeParams(v: ${n.name}$tpeParams) {
      |      ${nonPrivateSortedProps.map(p => s"def ${p.name}: Var.Aux[${p.tpe}, v.type] = ${n.name}.${p.name.capitalize}.asInstanceOf[Var.Aux[${p.tpe}, v.type]]").mkString("\n      ")}
@@ -1387,7 +1387,7 @@ def genCode(n: NodeDescr): String = {
      |
      |  def wrap$tpeParams(v: ${n.underlying}) = v.asInstanceOf[${n.name}$tpeParams]
      |
-     |  def init$tpeParams(v: ${n.name}$tpeParams): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
+     |  def init$tpeParams(v: ${n.name}$tpeParams): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
      |    ${n.upperBounds.headOption.map(p => s"$p.init(v)").getOrElse("")}
      |    ${if (n.addsPropertySwingListener) "v.addPropertyChangeListener(varsPropertyListener(v))" else ""}
      |    ${n.initExtra.mkString("\n    ")}

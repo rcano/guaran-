@@ -30,7 +30,7 @@ sealed trait ObsVal[+T] {
     */
   def initialValue(v: Any)(using v.type <:< ForInstance): T
 
-  def apply()(using instance: ValueOf[ForInstance]): VarContextAction[T] = (using c) => c(this)
+  def apply()(using instance: ValueOf[ForInstance]): VarContextAction[T] = c ?=> c(this)
 
   override def toString = s"ObsVal($name)"
 
@@ -54,7 +54,7 @@ object ObsVal {
 
 sealed trait Var[T] extends ObsVal[T] {
   @alpha("assign")
-  def :=(b: Binding[T])(using instance: ValueOf[ForInstance]): VarContextAction[this.type] = (using ctx) => { ctx(this) = b; this }
+  def :=(b: Binding[T])(using instance: ValueOf[ForInstance]): VarContextAction[this.type] = ctx ?=> { ctx(this) = b; this }
   // final def :=(n: Null)(using instance: ValueOf[ForInstance], nullEv: Null <:< T): VarContextAction[this.type] = (using ctx) => { ctx(this) = Binding.Const(() => nullEv(null)); this }
   def eagerEvaluation: Boolean
 
@@ -109,7 +109,7 @@ enum Binding[+T] {
 }
 
 object Binding {
-  given const[T] as Conversion[T, Const[T]] = t => new Const(() => t)
+  given const[T]: Conversion[T, Const[T]] = t => new Const(() => t)
   def bind[T](compute: VarContext => T): Compute[T] = new Compute(compute)
 
   inline def dyn[T](f: VarContextAction[T]) = Compute(c => f(using c))
@@ -139,7 +139,7 @@ trait SwingVar[T] extends Var[T] with SwingObsVal[T] {
           set(instance.value, t)
           t
         }
-        ctx(this) //because swing is not really reactive, we need to compute this as eagerly as possible because it may trigger re rendering
+        ctx(this) //because swing is not really reactive, we need to compute this: eagerly: possible because it may trigger re rendering
     }
     this
   }

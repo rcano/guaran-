@@ -4,7 +4,7 @@ version := "0.1.0-SNAPSHOT"
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
 //scalaVersion := "0.28.0-bin-20201008-64315b7-NIGHTLY"
-scalaVersion := "3.0.0-M2"
+scalaVersion := "3.0.0-M3"
 
 scalacOptions ++= Seq(
   //"-Yexplicit-nulls",
@@ -59,5 +59,5 @@ javaOptions ++= {
 }
 
 javaOptions += "-Xmx100m"
-// javaOptions ++= Seq("-Dsun.java2d.uiScale.enabled=true", "-Dsun.java2d.uiScale=2")
+javaOptions ++= Seq("-Dsun.java2d.uiScale.enabled=true", "-Dsun.java2d.uiScale=1")
 outputStrategy := Some(StdoutOutput)

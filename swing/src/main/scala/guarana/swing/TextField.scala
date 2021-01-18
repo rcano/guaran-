@@ -20,7 +20,7 @@ object TextField extends VarsMap {
 
   val ActionEvents = Emitter[java.awt.event.ActionEvent]()
 
-  given ops as Ops.type = Ops
+  given ops: Ops.type = Ops
   object Ops {
     extension (v: TextField) {
       def action: Var.Aux[javax.swing.Action | Null, v.type] = TextField.Action.asInstanceOf[Var.Aux[javax.swing.Action | Null, v.type]]
@@ -37,7 +37,7 @@ object TextField extends VarsMap {
 
   def wrap(v: javax.swing.JTextField) = v.asInstanceOf[TextField]
 
-  def init(v: TextField): Scenegraph ?=> Unit = (using sc: Scenegraph) => {
+  def init(v: TextField): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
     TextComponent.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
     
