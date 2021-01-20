@@ -7,11 +7,14 @@ import javax.swing.plaf.synth._
 import scala.util.chaining._
 
 object RegionPainter {
-  def paintRegion(background: style.Background, g2: Graphics2D, x: Double, y: Double, w: Double, h: Double): Unit = {
+  def paintRegion(background: style.Background, g2: Graphics2D, x: Double, y: Double, w: Double, h: Double, regionShape: Shape = null): Unit = {
     for (bf <- background.fills) {
       val style.BackgroundFill(fill, radii, insets) = bf
       g2.setPaint(fill)
-      g2.fill(shapeForRegion(x + insets.left, y + insets.top, w - insets.right, h - insets.bot, radii))
+      if regionShape == null then
+        g2.fill(shapeForRegion(x + insets.left, y + insets.top, w - insets.right, h - insets.bot, radii))
+      else
+        g2.fill(regionShape)
     }
 
     for (bi <- background.images) {

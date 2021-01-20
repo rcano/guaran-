@@ -7,6 +7,7 @@ import javax.swing.{UIManager, UIDefaults}
 import javax.swing.plaf.FontUIResource
 import javax.swing.plaf.metal.MetalLookAndFeel
 import javax.swing.plaf.basic.BasicLookAndFeel
+import scala.annotation.unchecked.uncheckedStable
 import scala.jdk.CollectionConverters._
 import scala.util.chaining._
 
@@ -45,6 +46,10 @@ class CssLaf(val scenegraph: Scenegraph) extends MetalLookAndFeel {
 
           fontKeys foreach (defaults.put(_, rootFont))
           smallFontKeys foreach (defaults.put(_, smallerFont))
+
+          //this messes up with the current events being handled (like mouse drags) so it's better for
+          //user controls to issue this command after they are done altering the em size
+          // java.awt.Frame.getFrames foreach javax.swing.SwingUtilities.updateComponentTreeUI
         case _ =>
       }
     }
@@ -63,6 +68,7 @@ class CssLaf(val scenegraph: Scenegraph) extends MetalLookAndFeel {
     defaults.put("ScrollBarUI", classOf[CssScrollBarUi].getCanonicalName)
     defaults.put("ProgressBarUI", classOf[CssProgressBarUi].getCanonicalName)
     defaults.put("TabbedPaneUI", classOf[CssTabbedPaneUi].getCanonicalName)
+    defaults.put("SliderUI", classOf[CssSliderUi].getCanonicalName)
   }
 
   override def uninitialize(): Unit = {
@@ -100,6 +106,7 @@ object CssLaf {
 }
 
 trait CssUi {
+  @uncheckedStable
   def scenegraph = UIManager.getDefaults.get(CssLaf.UiDefaultsCssLafKey).toOption.fold(
     throw new IllegalStateException(s"Running CssLaf without a Scenegraph?")
   )(_.asInstanceOf[CssLaf].scenegraph)

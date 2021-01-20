@@ -70,7 +70,7 @@ class CssTabbedPaneUi extends MetalTabbedPaneUI, CssUi {
   }
 
   override protected def getTabInsets(tabPlacement: Int, tabIndex: Int): java.awt.Insets = {
-    CssBorder.getBorderInsets(tabBorder(tabIndex, false))
+    CssBorder.getBorderInsets(tabBorder(tabIndex, false)).toAwt
   }
 
   override protected def paintTabBorder(g: Graphics, tabPlacement: Int, tabIndex: Int,
@@ -95,7 +95,7 @@ class CssTabbedPaneUi extends MetalTabbedPaneUI, CssUi {
                                        iconRect: Rectangle, textRect: Rectangle,
                                        isSelected: Boolean) = {}
 }
-object CssTabbedPaneUi extends CssTabbedPaneUi {
-  @static def createUI(c: JComponent): CssTabbedPaneUi = this
+object CssTabbedPaneUi {
+  @static def createUI(c: JComponent): CssTabbedPaneUi = CssTabbedPaneUi()
 
 }

@@ -67,65 +67,7 @@ import util.UnsetParam
 
   val scenegraph = Scenegraph()
 
-  scenegraph.stylist = new Stylist {
-    import java.awt.BasicStroke
-    val corners = style.CornerRadii.all(4)
-    val rootBackground = style.Background(fills = IArray(style.BackgroundFill(Color.WhiteSmoke, corners, Insets.all(0))))
-    val tabBackground = style.Background(fills = IArray(style.BackgroundFill(Color.WhiteSmoke, style.CornerRadii.all(0), Insets.all(0))))
-    val tabHighlightedBackground = style.Background(fills = IArray(style.BackgroundFill(Color.White, style.CornerRadii.simple(25, 0, 0, 0), Insets.all(0))))
-    val bck = style.Background(fills = IArray(style.BackgroundFill(Color.LightSalmon, style.CornerRadii.all(0), Insets.all(0))))
-    val hoverBck = style.Background(fills = IArray(style.BackgroundFill(Color.LightPink, style.CornerRadii.all(0), Insets.all(0))))
-    val pressedBck = style.Background(fills = IArray(style.BackgroundFill(Color.DarkSalmon, style.CornerRadii.all(0), Insets.all(0))))
-    def apply[T](info: Stylist.ScenegraphInfo)(prop: Keyed[ObsVal[T]]) = {
-      lazy val emSize = scenegraph.stateReader(scenegraph.emSize)
-      prop match {
-        case Keyed(style.CssProperties.Border, jb: javax.swing.AbstractButton) =>
-          val h = jb.getBounds.getHeight
-          Some(
-            style.Border(strokes = IArray(
-              // border,
-              style.BorderStroke.simple(
-                java.awt.LinearGradientPaint(0, 0, 0, h.toFloat.max(1), Array[Float](0, 1), Array[Color](Color.LavenderBlush, Color.LavenderBlush.darker.nn)),
-                BasicStroke((emSize / 10).toFloat), corners, Insets.all(emSize / 10))
-            ))
-          ).asInstanceOf[Option[T]]
-        case Keyed(style.CssProperties.Background, b: javax.swing.AbstractButton) => Some(
-          if (b.getModel.isPressed || b.isSelected) pressedBck 
-          else if (b.getModel.isRollover) hoverBck
-          else bck
-        ).asInstanceOf[Option[T]]
-        case Keyed(style.CssProperties.Background, _: javax.swing.JRootPane) => Some(
-          rootBackground
-        ).asInstanceOf[Option[T]]
-        case Keyed(style.CssProperties.Background, sb: javax.swing.JScrollBar) => Some(
-          style.Background(fills = IArray(style.BackgroundFill(Color.LavenderBlush, corners, Insets.all(0))))
-        ).asInstanceOf[Option[T]]
-        case Keyed(style.CssProperties.ScrollbarThumbBackground, jb: javax.swing.JScrollBar) => Some(
-          style.Background(fills = IArray(style.BackgroundFill(Color.LightSalmon, style.CornerRadii.simple(emSize / 2, emSize / 4, emSize / 2,  emSize / 4), Insets.all(0))))
-        ).asInstanceOf[Option[T]]
-        case Keyed(style.CssProperties.Background, sb: javax.swing.JProgressBar) => Some(
-          style.Background(fills = IArray(style.BackgroundFill(Color.LavenderBlush, corners, Insets.all(0))))
-        ).asInstanceOf[Option[T]]
-        case Keyed(style.CssProperties.ProgressBarBarBackground, sb: javax.swing.JProgressBar) => Some(
-          style.Background(fills = IArray(style.BackgroundFill(Color.LightSalmon, style.CornerRadii.all(0), Insets.all(0))))
-        ).asInstanceOf[Option[T]]
-        case Keyed(style.CssProperties.ProgressBarBarBorder, sb: javax.swing.JProgressBar) => Some(
-          style.Border(strokes = IArray(style.BorderStroke.simple(Color.DarkSalmon.darker.nn, BasicStroke(3), corners, Insets(0, 0, 3, 0))))
-        ).asInstanceOf[Option[T]]
-        // case Keyed(style.CssProperties.TabBorder, sb: javax.swing.JTabbedPane) => Some(
-        //   (tabInfo: style.TabInfo) =>  style.Border(
-        //     strokes = IArray(style.BorderStroke.simple(if tabInfo.selected then Color.DarkSalmon.darker.nn else Color.LightSalmon, BasicStroke(3), corners, Insets.all(3))))
-        // ).asInstanceOf[Option[T]]
-        case Keyed(style.CssProperties.TabBackground, sb: javax.swing.JTabbedPane) => Some(
-          (tabInfo: style.TabInfo) =>
-            if !tabInfo.selected then tabBackground else tabHighlightedBackground
-        ).asInstanceOf[Option[T]]
-        case _ => 
-          None
-      }
-    }
-    def invalidateCache(node: Any) = ()
-  }
+  scenegraph.stylist = TestStyle()
 
   // com.formdev.flatlaf.FlatLightLaf.install()
   // javax.swing.UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel")
@@ -150,7 +92,9 @@ import util.UnsetParam
       value = scenegraph.emSize().toInt,
       paintTicks = true,
       paintLabels = true,
-      orientation = javax.swing.SwingConstants.VERTICAL
+      orientation = javax.swing.SwingConstants.HORIZONTAL,
+      componentOrientation = java.awt.ComponentOrientation.RIGHT_TO_LEFT,
+      opaque = true,
     )
       
     scenegraph.emSize := dyn { emModifier.value() }

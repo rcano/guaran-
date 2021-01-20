@@ -94,6 +94,8 @@ class Scenegraph {
 
   private val scenegraphInfo = new Stylist.ScenegraphInfo {
     def get[T](property: Keyed[ObsVal[T]]): Option[T] = switchboard.get(property)
+    def emSize: Double = switchboard.get(ObsVal.obs2Keyed(Scenegraph.this.emSize)(ValueOf(Scenegraph.this)))
+      .getOrElse(Scenegraph.this.emSize.initialValue(Scenegraph.this))
   }
 
   private class SwitchboardAsVarContext(switchboard: SignalSwitchboard[Signal]) extends VarContext {

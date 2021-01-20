@@ -21,6 +21,8 @@ object Stylist {
      * Reads a property from the scenegraph state system. May not be defined and hence return None
      */
     def get[T](property: Keyed[ObsVal[T]]): Option[T]
+
+    def emSize: Double
   }
 
   val NoOp = new Stylist {

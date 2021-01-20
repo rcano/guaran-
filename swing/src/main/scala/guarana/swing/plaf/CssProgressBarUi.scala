@@ -28,7 +28,7 @@ class CssProgressBarUi extends MetalProgressBarUI, CssUi {
     CssBorder.paintBorder(barBorder, borderInsets, g.nn, x, y, barWidth, barHeight)
 
     val barBckgr = style.CssProperties.ProgressBarBarBackground.forInstance(c) pipe sg.stateReader.apply
-    RegionPainter.paintRegion(barBckgr, g.upgrade, x + borderInsets.left, y + borderInsets.top, barWidth - borderInsets.left - borderInsets.right, barHeight - borderInsets.top - borderInsets.bottom)
+    RegionPainter.paintRegion(barBckgr, g.upgrade, x + borderInsets.left, y + borderInsets.top, barWidth - borderInsets.left - borderInsets.right, barHeight - borderInsets.top - borderInsets.bot)
   }
   override def paintIndeterminate(g: Graphics, c: JComponent): Unit = {
     super.paintIndeterminate(g, c)

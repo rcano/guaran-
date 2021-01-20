@@ -96,9 +96,12 @@ type Bounds = java.awt.Rectangle
 def Bounds(x: Double = 0, y: Double = 0, width: Double = 0, height: Double = 0) =
   java.awt.Rectangle(x.toInt, y.toInt, width.toInt, height.toInt)
 
-case class Insets(top: Double = 0, right: Double = 0, bot: Double = 0, left: Double = 0)
+case class Insets(top: Double = 0, right: Double = 0, bot: Double = 0, left: Double = 0) {
+  def toAwt = java.awt.Insets(top.round.toInt, left.round.toInt, bot.round.toInt, right.round.toInt)
+}
 object Insets {
   def all(topRightBottomLeft: Double): Insets = Insets(topRightBottomLeft, topRightBottomLeft, topRightBottomLeft, topRightBottomLeft)
+  def fromAwt(i: java.awt.Insets): Insets = Insets(i.top, i.right, i.bottom, i.left)
 }
 
   /** Emitter for updates to var for this object.

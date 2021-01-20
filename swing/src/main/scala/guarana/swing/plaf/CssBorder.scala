@@ -2,17 +2,17 @@ package guarana.swing
 package plaf
 
 import language.implicitConversions
-import java.awt.{Component => AwtComponent, Graphics, Graphics2D, Polygon, geom}
+import java.awt.{Component => AwtComponent, Graphics, Graphics2D, Polygon, Shape, geom}
 import scala.util.chaining._
 
 class CssBorder(scenegraph: Scenegraph) extends javax.swing.border.Border {
 
-  private var lastComputedInsets: Option[java.awt.Insets] = None
+  private var lastComputedInsets: Option[Insets] = None
   def getBorderInsets(awtc: AwtComponent): java.awt.Insets = {
     val border = style.CssProperties.Border.forInstance(awtc) pipe (scenegraph.stateReader(_))
     val res = CssBorder.getBorderInsets(border)
     lastComputedInsets = Some(res)
-    res
+    res.toAwt
   }
   def isBorderOpaque(): Boolean = true
   def paintBorder(awtc: AwtComponent, g: Graphics, x: Int, y: Int, width: Int, height: Int): Unit = {
@@ -25,17 +25,18 @@ class CssBorder(scenegraph: Scenegraph) extends javax.swing.border.Border {
 }
 object CssBorder {
 
-  def getBorderInsets(border: style.Border): java.awt.Insets = {
-    (border.strokes.iterator.map(_.insets) ++ border.images.iterator.map(_.insets)).foldLeft(java.awt.Insets(0, 0, 0, 0)) { (res, i) =>
-      res.top = i.top.round.toInt max res.top
-      res.left = i.left.round.toInt max res.left
-      res.bottom = i.bot.round.toInt max res.bottom
-      res.right = i.right.round.toInt max res.right
-      res
+  def getBorderInsets(border: style.Border): Insets = {
+    var top, left, bottom, right = 0.0
+    for (insets <- border.strokes.iterator.map(_.insets) ++ border.images.iterator.map(_.insets)) {
+      top = insets.top max top
+      left = insets.left max left
+      bottom = insets.bot max bottom
+      right = insets.right max right
     }
+    Insets(top, right, bottom, left)
   }
 
-  def paintBorder(borderSpec: style.Border, insets: java.awt.Insets, g: Graphics, x: Int, y: Int, width: Int, height: Int): Unit = {
+  def paintBorder(borderSpec: style.Border, insets: Insets, g: Graphics, x: Double, y: Double, width: Double, height: Double, regionShape: Shape = null, debug: Boolean = false): Unit = {
     val g2 = g.create().upgrade.withAliasing
 
     /** helper function to relocate x, y, width and height accordingly to its insets */
@@ -43,20 +44,22 @@ object CssBorder {
       f(x + insets.left - strokeInsets.left,
         y + insets.top - strokeInsets.top,
         width - (insets.left - strokeInsets.left) - (insets.right - strokeInsets.right),
-        height - (insets.top - strokeInsets.top) - (insets.bottom - strokeInsets.bot))
+        height - (insets.top - strokeInsets.top) - (insets.bot - strokeInsets.bot))
     } 
 
     // For each stroke border, we need to ensure each of the sides is properly clipper
     // to respect the color chosen. For that, we compute a diagonal line from the corner
     // to the middle of the rectangle, and the proceed to render with the specified paint
     for (stroke <- borderSpec.strokes) atBorder(stroke.insets) { (x, y, width, height) =>
-      val shape = RegionPainter.shapeForRegion(
-        x + stroke.leftStyle.getLineWidth / 2,
-        y + stroke.topStyle.getLineWidth / 2,
-        width - stroke.leftStyle.getLineWidth / 2 - stroke.rightStyle.getLineWidth / 2,
-        height - stroke.topStyle.getLineWidth / 2 - stroke.botStyle.getLineWidth / 2,
-        stroke.radii
-      )
+      val shape = Option(regionShape).getOrElse {
+        RegionPainter.shapeForRegion(
+          x + stroke.leftStyle.getLineWidth / 2,
+          y + stroke.topStyle.getLineWidth / 2,
+          width - stroke.leftStyle.getLineWidth / 2 - stroke.rightStyle.getLineWidth / 2,
+          height - stroke.topStyle.getLineWidth / 2 - stroke.botStyle.getLineWidth / 2,
+          stroke.radii
+        )
+      }
 
       val boxSize = width.min(height) / 2
 
