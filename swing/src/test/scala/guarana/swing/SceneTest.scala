@@ -1,8 +1,10 @@
 package guarana.swing
 
 import language.implicitConversions
-import Binding.dyn
+import scala.concurrent.{impl => _, _}, ExecutionContext.Implicits.given
+import scala.util.Try
 import scala.util.chaining._
+import Binding.dyn
 import util.UnsetParam
 
 @main def Test: Unit = {
@@ -92,8 +94,8 @@ import util.UnsetParam
       value = scenegraph.emSize().toInt,
       paintTicks = true,
       paintLabels = true,
-      orientation = javax.swing.SwingConstants.HORIZONTAL,
-      componentOrientation = java.awt.ComponentOrientation.RIGHT_TO_LEFT,
+      orientation = javax.swing.SwingConstants.VERTICAL,
+      // componentOrientation = java.awt.ComponentOrientation.RIGHT_TO_LEFT,
       opaque = true,
     )
       
@@ -159,6 +161,23 @@ import util.UnsetParam
       model = td.defaultTableModel,
       columnModel = td.columnModel
     )))
+
+    val asyncTask = Var.autoName[Option[Try[Double]]](Some(Try(0.0)))
+    tabs += Tab(title = "Async test", content = Vbox(
+      nodes = Seq(
+        Button(Action(name = "Launch async task") { evt =>
+          val task = Future { Thread.sleep(2000); math.random() * 100 }.asObsVal
+          asyncTask := dyn { task() }
+        }),
+        ProgressBar(indeterminate = true, visible = dyn {asyncTask().isEmpty}),
+        Label(text = dyn {
+          asyncTask() match {
+            case None => "..."
+            case Some(v) => s"Your value is ${v.get}"
+          }
+        })
+      ),
+    ))
 
     for (i <- 0 until 10) {
       tabs += Tab(title = s"$i", content = Pane())

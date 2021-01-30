@@ -80,6 +80,7 @@ object TextArea extends VarsMap {
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     highlighter: Opt[Binding[javax.swing.text.Highlighter | Null]] = UnsetParam,
+    hoveredMut: Opt[Binding[Boolean]] = UnsetParam,
     inheritsPopupMenu: Opt[Binding[Boolean]] = UnsetParam,
     inputVerifier: Opt[Binding[javax.swing.InputVerifier | Null]] = UnsetParam,
     keymap: Opt[Binding[javax.swing.text.Keymap | Null]] = UnsetParam,
@@ -132,6 +133,7 @@ object TextArea extends VarsMap {
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
     ifSet(highlighter, TextComponent.ops.highlighter(res) := _)
+    ifSet(hoveredMut, Node.ops.hoveredMut(res) := _)
     ifSet(inheritsPopupMenu, Component.ops.inheritsPopupMenu(res) := _)
     ifSet(inputVerifier, Component.ops.inputVerifier(res) := _)
     ifSet(keymap, TextComponent.ops.keymap(res) := _)

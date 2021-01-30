@@ -27,6 +27,16 @@ object CssProperties {
   val SliderTrackBorder = Var[Border]("css-slider-track-border", EmptyBorder)
   val SliderTrackFillBackground = Var[Background]("css-slider-track-fill-background", EmptyBackground)
   val SliderTrackFillBorder = Var[Border]("css-slider-track-fill-border", EmptyBorder)
+
+  // Radio button specific
+  val RadioButtonTickShape = Var[Shape]("css-radio-button-tick-shape", null)
+  val RadioButtonTickBackground = Var[Background]("css-radio-buttoncheckbox-tick-background", null)
+  val RadioButtonTickBorder = Var[Background]("css-radio-button-tick-border", null)
+
+  // Check box specific
+  val CheckboxTickShape = Var[Shape]("css-checkbox-tick-shape", null)
+  val CheckboxTickBackground = Var[Background]("css-checkbox-tick-background", null)
+  val CheckboxTickBorder = Var[Background]("css-checkbox-tick-border", null)
 }
 
 case class TabInfo(tabIndex: Int, selected: Boolean)

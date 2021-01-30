@@ -67,6 +67,7 @@ case object Node extends NodeDescr(
     VarProp("focusedMut", "Boolean", "false", Some("private")),
     SwingProp("font", "java.awt.Font | Null"),
     SwingProp("foreground", "java.awt.Color | Null"),
+    VarProp("hoveredMut", "Boolean", "false", Some("private[guarana]")),
     SwingProp("maxSize", "(Double, Double) | Null",
       "{n => val d = n.getMaximumSize; if (d != null) (d.getWidth, d.getHeight) else null}",
       "{(n, d) => n.setMaximumSize(d.?(d => java.awt.Dimension(d._1.toInt, d._2.toInt)))}"),
@@ -83,6 +84,7 @@ case object Node extends NodeDescr(
   ),
   opsExtra = """
     |def focused = Node.FocusedMut.asObsValIn(v)
+    |def hovered = Node.HoveredMut.asObsValIn(v)
     |def mouseLocation = Node.MouseLocationMut.asObsValIn(v)
     |def mouseDrag = Node.MouseDragMut.asObsValIn(v)
     |def alignmentX = v.getAlignmentX
@@ -122,7 +124,7 @@ case object Node extends NodeDescr(
   |  override def componentMoved(e: ComponentEvent): Unit = updateBounds()
   |  override def componentResized(e: ComponentEvent): Unit = updateBounds()
   |  def updateBounds(): Unit = sc.update {
-  |    summon[VarContext].swingPropertyUpdated(ops.bounds(v), v.getBounds.nn)
+  |    summon[VarContext].externalPropertyUpdated(ops.bounds(v), v.getBounds.nn)
   |  }
 
 
@@ -636,19 +638,19 @@ case object ButtonBase extends NodeDescr(
     |  val ctx = summon[VarContext]
     |  val m = v.getModel.nn
     |  if (m.isArmed != wasArmed)
-    |    ctx.swingPropertyUpdated(ops.armed(v), m.isArmed)
+    |    ctx.externalPropertyUpdated(ops.armed(v), m.isArmed)
     |  wasArmed = m.isArmed
     |  if (m.isEnabled != wasEnabled)
-    |    ctx.swingPropertyUpdated(ops.enabled(v), m.isEnabled)
+    |    ctx.externalPropertyUpdated(ops.enabled(v), m.isEnabled)
     |  wasEnabled = m.isEnabled
     |  if (m.isPressed != wasPressed)
-    |    ctx.swingPropertyUpdated(ops.pressed(v), m.isPressed)
+    |    ctx.externalPropertyUpdated(ops.pressed(v), m.isPressed)
     |  wasPressed = m.isPressed
     |  if (m.isRollover != wasRollover)
-    |    ctx.swingPropertyUpdated(ops.rollover(v), m.isRollover)
+    |    ctx.externalPropertyUpdated(ops.rollover(v), m.isRollover)
     |  wasRollover = m.isRollover
     |  if (v.isSelected != wasSelected)
-    |    ctx.swingPropertyUpdated(ops.selected(v), v.isSelected)
+    |    ctx.externalPropertyUpdated(ops.selected(v), v.isSelected)
     |  wasSelected = v.isSelected
     |}
     |v.addChangeListener(cl)
@@ -831,7 +833,7 @@ case object Slider extends NodeDescr(
     "def changeListeners = v.getChangeListeners",
   ),
   initExtra = 
-    "val l: ChangeListener = (e: ChangeEvent) => summon[Scenegraph].update(summon[VarContext].swingPropertyUpdated(ops.value(v), v.getValue))" ::
+    "val l: ChangeListener = (e: ChangeEvent) => summon[Scenegraph].update(summon[VarContext].externalPropertyUpdated(ops.value(v), v.getValue))" ::
     "v.addChangeListener(l)" ::
     Nil
 )
@@ -861,7 +863,7 @@ case object ProgressBar extends NodeDescr(
     "def percentComplete = v.getPercentComplete"
   ),
   initExtra = 
-    "val l: ChangeListener = (e: ChangeEvent) => summon[Scenegraph].update(summon[VarContext].swingPropertyUpdated(ops.value(v), v.getValue))" ::
+    "val l: ChangeListener = (e: ChangeEvent) => summon[Scenegraph].update(summon[VarContext].externalPropertyUpdated(ops.value(v), v.getValue))" ::
     "v.addChangeListener(l)" ::
     Nil
 )
@@ -915,9 +917,9 @@ case object ListView extends NodeDescr(
   initExtra = """
     |val lsl: ListSelectionListener = (evt) => sc.update{
     |  val vc = summon[VarContext]
-    |  vc.swingPropertyUpdated(ops.selectedIndex(v), v.getSelectedIndex)
-    |  vc.swingPropertyUpdated(ops.selectedIndices(v), v.getSelectedIndices.nn)
-    |  vc.swingPropertyUpdated(ops.selectedIndices(v), v.getSelectedIndices.nn)
+    |  vc.externalPropertyUpdated(ops.selectedIndex(v), v.getSelectedIndex)
+    |  vc.externalPropertyUpdated(ops.selectedIndices(v), v.getSelectedIndices.nn)
+    |  vc.externalPropertyUpdated(ops.selectedIndices(v), v.getSelectedIndices.nn)
     |}
     |v.addListSelectionListener(lsl)
     """.stripMargin.split("\n").asInstanceOf[Array[String]].toIndexedSeq,
@@ -1162,8 +1164,8 @@ case object TabbedPane extends NodeDescr(
 
     |  val cl: ChangeListener = evt => sc.update{
     |    val vc = summon[VarContext]
-    |    vc.swingPropertyUpdated(v.selectedComponent, v.getSelectedComponent.toOption.asInstanceOf)
-    |    vc.swingPropertyUpdated(v.selectedIndex, v.getSelectedIndex)
+    |    vc.externalPropertyUpdated(v.selectedComponent, v.getSelectedComponent.toOption.asInstanceOf)
+    |    vc.externalPropertyUpdated(v.selectedIndex, v.getSelectedIndex)
     |  }
     |  v.addChangeListener(cl)
     |}
@@ -1207,9 +1209,9 @@ case object Combobox extends NodeDescr(
   initExtra = """
     |val il: ItemListener = evt => sc.update {
     |  val vc = summon[VarContext]
-    |  vc.swingPropertyUpdated(ops.selectedIndex(v), v.getSelectedIndex)
+    |  vc.externalPropertyUpdated(ops.selectedIndex(v), v.getSelectedIndex)
     |  val si = v.getSelectedItem.asInstanceOf[E | Null]
-    |  vc.swingPropertyUpdated(ops.selectedItem(v), if (si == null) None else Some(si))
+    |  vc.externalPropertyUpdated(ops.selectedItem(v), if (si == null) None else Some(si))
     |}
     |v.addItemListener(il)
   """.trim.nn.stripMargin.split("\n").asInstanceOf[Array[String]].toIndexedSeq
@@ -1245,7 +1247,7 @@ case object Spinner extends NodeDescr(
     SwingProp("value", "E", "_.getValue", "_.setValue(_)", overrideTpeInStaticPos = Some("Any")),
   ),
   initExtra = """
-    |val cl: ChangeListener = evt => sc.update(summon[VarContext].swingPropertyUpdated(ops.value(v), v.getValue.asInstanceOf))
+    |val cl: ChangeListener = evt => sc.update(summon[VarContext].externalPropertyUpdated(ops.value(v), v.getValue.asInstanceOf))
     |v.addChangeListener(cl)
     """.trim.nn.stripMargin.split("\n").asInstanceOf[Array[String]].toIndexedSeq
 )
@@ -1306,10 +1308,10 @@ case object TreeView extends NodeDescr(
   initExtra = """
     |val tsl: TreeSelectionListener = evt => sc.update {
     |  val vc = summon[VarContext]
-    |  vc.swingPropertyUpdated(ops.leadSelectionPath(v), v.getLeadSelectionPath)
-    |  vc.swingPropertyUpdated(ops.selectionPath(v), v.getSelectionPath)
-    |  vc.swingPropertyUpdated(ops.selectionPaths(v), v.getSelectionPaths)
-    |  vc.swingPropertyUpdated(ops.selectionRows(v), v.getSelectionRows)
+    |  vc.externalPropertyUpdated(ops.leadSelectionPath(v), v.getLeadSelectionPath)
+    |  vc.externalPropertyUpdated(ops.selectionPath(v), v.getSelectionPath)
+    |  vc.externalPropertyUpdated(ops.selectionPaths(v), v.getSelectionPaths)
+    |  vc.externalPropertyUpdated(ops.selectionRows(v), v.getSelectionRows)
     |}
     |v.addTreeSelectionListener(tsl)
     """.trim.nn.stripMargin.split("\n").asInstanceOf[Array[String]].toIndexedSeq

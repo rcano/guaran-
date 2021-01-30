@@ -109,19 +109,19 @@ object ButtonBase extends VarsMap {
       val ctx = summon[VarContext]
       val m = v.getModel.nn
       if (m.isArmed != wasArmed)
-        ctx.swingPropertyUpdated(ops.armed(v), m.isArmed)
+        ctx.externalPropertyUpdated(ops.armed(v), m.isArmed)
       wasArmed = m.isArmed
       if (m.isEnabled != wasEnabled)
-        ctx.swingPropertyUpdated(ops.enabled(v), m.isEnabled)
+        ctx.externalPropertyUpdated(ops.enabled(v), m.isEnabled)
       wasEnabled = m.isEnabled
       if (m.isPressed != wasPressed)
-        ctx.swingPropertyUpdated(ops.pressed(v), m.isPressed)
+        ctx.externalPropertyUpdated(ops.pressed(v), m.isPressed)
       wasPressed = m.isPressed
       if (m.isRollover != wasRollover)
-        ctx.swingPropertyUpdated(ops.rollover(v), m.isRollover)
+        ctx.externalPropertyUpdated(ops.rollover(v), m.isRollover)
       wasRollover = m.isRollover
       if (v.isSelected != wasSelected)
-        ctx.swingPropertyUpdated(ops.selected(v), v.isSelected)
+        ctx.externalPropertyUpdated(ops.selected(v), v.isSelected)
       wasSelected = v.isSelected
     }
     v.addChangeListener(cl)

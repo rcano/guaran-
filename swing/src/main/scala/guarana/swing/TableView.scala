@@ -149,6 +149,7 @@ object TableView extends VarsMap {
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     gridColor: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
+    hoveredMut: Opt[Binding[Boolean]] = UnsetParam,
     inheritsPopupMenu: Opt[Binding[Boolean]] = UnsetParam,
     inputVerifier: Opt[Binding[javax.swing.InputVerifier | Null]] = UnsetParam,
     intercellSpacing: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
@@ -210,6 +211,7 @@ object TableView extends VarsMap {
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
     ifSet(gridColor, TableView.ops.gridColor(res) := _)
+    ifSet(hoveredMut, Node.ops.hoveredMut(res) := _)
     ifSet(inheritsPopupMenu, Component.ops.inheritsPopupMenu(res) := _)
     ifSet(inputVerifier, Component.ops.inputVerifier(res) := _)
     ifSet(intercellSpacing, TableView.ops.intercellSpacing(res) := _)

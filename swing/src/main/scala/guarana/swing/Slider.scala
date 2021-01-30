@@ -64,7 +64,7 @@ object Slider extends VarsMap {
   def init(v: Slider): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
     Component.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
-    val l: ChangeListener = (e: ChangeEvent) => summon[Scenegraph].update(summon[VarContext].swingPropertyUpdated(ops.value(v), v.getValue))
+    val l: ChangeListener = (e: ChangeEvent) => summon[Scenegraph].update(summon[VarContext].externalPropertyUpdated(ops.value(v), v.getValue))
     v.addChangeListener(l)
     
   }
@@ -94,6 +94,7 @@ object Slider extends VarsMap {
     focusable: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
+    hoveredMut: Opt[Binding[Boolean]] = UnsetParam,
     inheritsPopupMenu: Opt[Binding[Boolean]] = UnsetParam,
     inputVerifier: Opt[Binding[javax.swing.InputVerifier | Null]] = UnsetParam,
     inverted: Opt[Binding[Boolean]] = UnsetParam,
@@ -142,6 +143,7 @@ object Slider extends VarsMap {
     ifSet(focusable, Node.ops.focusable(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
+    ifSet(hoveredMut, Node.ops.hoveredMut(res) := _)
     ifSet(inheritsPopupMenu, Component.ops.inheritsPopupMenu(res) := _)
     ifSet(inputVerifier, Component.ops.inputVerifier(res) := _)
     ifSet(inverted, Slider.ops.inverted(res) := _)

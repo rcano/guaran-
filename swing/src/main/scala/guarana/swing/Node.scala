@@ -22,6 +22,7 @@ object Node extends VarsMap {
   private val FocusedMut: Var[Boolean] = Var[Boolean]("focusedMut", false, false)
   val Font: SwingVar.Aux[Node, java.awt.Font | Null] = SwingVar[Node, java.awt.Font | Null]("font", _.getFont, _.setFont(_))
   val Foreground: SwingVar.Aux[Node, java.awt.Color | Null] = SwingVar[Node, java.awt.Color | Null]("foreground", _.getForeground, _.setForeground(_))
+  private[guarana] val HoveredMut: Var[Boolean] = Var[Boolean]("hoveredMut", false, false)
   val MaxSize: SwingVar.Aux[Node, (Double, Double) | Null] = SwingVar[Node, (Double, Double) | Null]("maxSize", {n => val d = n.getMaximumSize; if (d != null) (d.getWidth, d.getHeight) else null}, {(n, d) => n.setMaximumSize(d.?(d => java.awt.Dimension(d._1.toInt, d._2.toInt)))})
   val MinSize: SwingVar.Aux[Node, (Double, Double) | Null] = SwingVar[Node, (Double, Double) | Null]("minSize", {n => val d = n.getMinimumSize; if (d != null) (d.getWidth, d.getHeight) else null}, {(n, d) => n.setMinimumSize(d.?(d => java.awt.Dimension(d._1.toInt, d._2.toInt)))})
   private[guarana] val MouseDragMut: Var[Option[MouseDrag]] = Var[Option[MouseDrag]]("mouseDragMut", None, false)
@@ -45,6 +46,7 @@ object Node extends VarsMap {
       def focusable: Var.Aux[Boolean, v.type] = Node.Focusable.asInstanceOf[Var.Aux[Boolean, v.type]]
       def font: Var.Aux[java.awt.Font | Null, v.type] = Node.Font.asInstanceOf[Var.Aux[java.awt.Font | Null, v.type]]
       def foreground: Var.Aux[java.awt.Color | Null, v.type] = Node.Foreground.asInstanceOf[Var.Aux[java.awt.Color | Null, v.type]]
+      def hoveredMut: Var.Aux[Boolean, v.type] = Node.HoveredMut.asInstanceOf[Var.Aux[Boolean, v.type]]
       def maxSize: Var.Aux[(Double, Double) | Null, v.type] = Node.MaxSize.asInstanceOf[Var.Aux[(Double, Double) | Null, v.type]]
       def minSize: Var.Aux[(Double, Double) | Null, v.type] = Node.MinSize.asInstanceOf[Var.Aux[(Double, Double) | Null, v.type]]
       def mouseDragMut: Var.Aux[Option[MouseDrag], v.type] = Node.MouseDragMut.asInstanceOf[Var.Aux[Option[MouseDrag], v.type]]
@@ -57,6 +59,7 @@ object Node extends VarsMap {
       def mouseEvents: Emitter.Aux[guarana.swing.MouseEvent, v.type] = Node.MouseEvents.forInstance(v)
 
       def focused = Node.FocusedMut.asObsValIn(v)
+      def hovered = Node.HoveredMut.asObsValIn(v)
       def mouseLocation = Node.MouseLocationMut.asObsValIn(v)
       def mouseDrag = Node.MouseDragMut.asObsValIn(v)
       def alignmentX = v.getAlignmentX
@@ -98,7 +101,7 @@ object Node extends VarsMap {
       override def componentMoved(e: ComponentEvent): Unit = updateBounds()
       override def componentResized(e: ComponentEvent): Unit = updateBounds()
       def updateBounds(): Unit = sc.update {
-        summon[VarContext].swingPropertyUpdated(ops.bounds(v), v.getBounds.nn)
+        summon[VarContext].externalPropertyUpdated(ops.bounds(v), v.getBounds.nn)
       }
     
     
@@ -124,6 +127,7 @@ object Node extends VarsMap {
     focusable: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
+    hoveredMut: Opt[Binding[Boolean]] = UnsetParam,
     maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     mouseDragMut: Opt[Binding[Option[MouseDrag]]] = UnsetParam,
@@ -141,6 +145,7 @@ object Node extends VarsMap {
     ifSet(focusable, Node.ops.focusable(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
+    ifSet(hoveredMut, Node.ops.hoveredMut(res) := _)
     ifSet(maxSize, Node.ops.maxSize(res) := _)
     ifSet(minSize, Node.ops.minSize(res) := _)
     ifSet(mouseDragMut, Node.ops.mouseDragMut(res) := _)

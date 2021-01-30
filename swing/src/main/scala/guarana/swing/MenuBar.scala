@@ -75,6 +75,7 @@ object MenuBar extends VarsMap {
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     helpMenu: Opt[Binding[javax.swing.JMenu | Null]] = UnsetParam,
+    hoveredMut: Opt[Binding[Boolean]] = UnsetParam,
     inheritsPopupMenu: Opt[Binding[Boolean]] = UnsetParam,
     inputVerifier: Opt[Binding[javax.swing.InputVerifier | Null]] = UnsetParam,
     margin: Opt[Binding[java.awt.Insets | Null]] = UnsetParam,
@@ -112,6 +113,7 @@ object MenuBar extends VarsMap {
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
     ifSet(helpMenu, MenuBar.ops.helpMenu(res) := _)
+    ifSet(hoveredMut, Node.ops.hoveredMut(res) := _)
     ifSet(inheritsPopupMenu, Component.ops.inheritsPopupMenu(res) := _)
     ifSet(inputVerifier, Component.ops.inputVerifier(res) := _)
     ifSet(margin, MenuBar.ops.margin(res) := _)

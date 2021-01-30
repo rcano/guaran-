@@ -82,9 +82,9 @@ object ListView extends VarsMap {
     
     val lsl: ListSelectionListener = (evt) => sc.update{
       val vc = summon[VarContext]
-      vc.swingPropertyUpdated(ops.selectedIndex(v), v.getSelectedIndex)
-      vc.swingPropertyUpdated(ops.selectedIndices(v), v.getSelectedIndices.nn)
-      vc.swingPropertyUpdated(ops.selectedIndices(v), v.getSelectedIndices.nn)
+      vc.externalPropertyUpdated(ops.selectedIndex(v), v.getSelectedIndex)
+      vc.externalPropertyUpdated(ops.selectedIndices(v), v.getSelectedIndices.nn)
+      vc.externalPropertyUpdated(ops.selectedIndices(v), v.getSelectedIndices.nn)
     }
     v.addListSelectionListener(lsl)
         
@@ -120,6 +120,7 @@ object ListView extends VarsMap {
     focusable: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
+    hoveredMut: Opt[Binding[Boolean]] = UnsetParam,
     inheritsPopupMenu: Opt[Binding[Boolean]] = UnsetParam,
     inputVerifier: Opt[Binding[javax.swing.InputVerifier | Null]] = UnsetParam,
     layoutOrientation: Opt[Binding[Int]] = UnsetParam,
@@ -169,6 +170,7 @@ object ListView extends VarsMap {
     ifSet(focusable, Node.ops.focusable(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
+    ifSet(hoveredMut, Node.ops.hoveredMut(res) := _)
     ifSet(inheritsPopupMenu, Component.ops.inheritsPopupMenu(res) := _)
     ifSet(inputVerifier, Component.ops.inputVerifier(res) := _)
     ifSet(layoutOrientation, ListView.ops.layoutOrientation(res) := _)

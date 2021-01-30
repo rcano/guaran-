@@ -108,7 +108,7 @@ class Scenegraph {
         case Binding.Compute(c) => switchboard.bind(v)(sb => c(new SwitchboardAsVarContext(sb)))
       }
     }
-    private[guarana] def swingPropertyUpdated[T](v: Var[T], value: T)(using instance: ValueOf[v.ForInstance]): Unit = {
+    def externalPropertyUpdated[T](v: Var[T], value: T)(using instance: ValueOf[v.ForInstance]): Unit = {
       if (!reactingSwingVars(v) && !switchboard.get(v).exists(_ == value)) {
         switchboard(v) = value
       }
@@ -157,8 +157,18 @@ class Scenegraph {
       if (emitterStation.hasEmitter(emitter)) update(summon[Emitter.Context].emit(emitter, evt))
     }
     def mouseClicked(evt: java.awt.event.MouseEvent): Unit = mouseEvent(evt.nn, MouseClicked(evt.nn))
-    def mouseEntered(evt: java.awt.event.MouseEvent): Unit = mouseEvent(evt.nn, MouseEntered(evt.nn))
-    def mouseExited(evt: java.awt.event.MouseEvent): Unit = mouseEvent(evt.nn, MouseExited(evt.nn))
+    def mouseEntered(evt: java.awt.event.MouseEvent): Unit = update {
+      mouseEvent(evt.nn, MouseEntered(evt.nn))
+      val source = evt.getSource()
+      val hovered = Node.HoveredMut.forInstance(source)
+      hovered := true
+    }
+    def mouseExited(evt: java.awt.event.MouseEvent): Unit = update {
+      mouseEvent(evt.nn, MouseExited(evt.nn))
+      val source = evt.getSource()
+      val hovered = Node.HoveredMut.forInstance(source)
+      hovered := false
+    }
     def mousePressed(evt: java.awt.event.MouseEvent): Unit = mouseEvent(evt.nn, MousePressed(evt.nn))
 
     /** variable for tracking dragging. Only one is needed because only one node can be

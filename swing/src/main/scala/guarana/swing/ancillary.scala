@@ -26,7 +26,7 @@ trait VarsMap {
     VarsMap.get(property) foreach {
       case sv: SwingVar[t] =>
         if (debug) println("  found swing var")
-        sg.update(summon[VarContext].swingPropertyUpdated(sv, evt.getNewValue.asInstanceOf[t])(using ValueOf(instance.asInstanceOf[sv.ForInstance])))
+        sg.update(summon[VarContext].externalPropertyUpdated(sv, evt.getNewValue.asInstanceOf[t])(using ValueOf(instance.asInstanceOf[sv.ForInstance])))
     }
   }: java.beans.PropertyChangeListener
 }
@@ -108,3 +108,21 @@ object Insets {
     * The extension method is only available if a Emitter.Context is present, because it is otherwise useless to use it
     */
 extension (a: Any) def varUpdates(using Emitter.Context) = ObsVal.VarUpdates.forInstance(a)
+
+/** Support async Futures as vars */
+extension [T](f: scala.concurrent.Future[T]) def asObsVal(using sc: Scenegraph): ExternalObsVal[Option[scala.util.Try[T]]] { type ForInstance = scala.concurrent.Future.type } = 
+  new ExternalVar[Option[scala.util.Try[T]]] {
+    lazy val name = f.toString
+    type ForInstance = scala.concurrent.Future.type
+    def get(n: ForInstance) = f.value
+    private[swing] def set(n: ForInstance, v: Option[scala.util.Try[T]]): Unit = ()
+    def eagerEvaluation = false
+
+    f.onComplete(res => sc.update(summon[VarContext].externalPropertyUpdated(this, Some(res))))
+      (SwingExecutionContext) //we're going to do scenegrph.update, so it makes sense to already be in the right thread
+  }
+
+object SwingExecutionContext extends scala.concurrent.ExecutionContext {
+  def execute(runnable: Runnable): Unit = javax.swing.SwingUtilities.invokeLater(runnable)
+  def reportFailure(cause: Throwable): Unit = cause.printStackTrace()
+}

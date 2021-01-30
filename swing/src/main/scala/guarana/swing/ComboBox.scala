@@ -68,9 +68,9 @@ object ComboBox extends VarsMap {
     v.addPropertyChangeListener(varsPropertyListener(v))
     val il: ItemListener = evt => sc.update {
       val vc = summon[VarContext]
-      vc.swingPropertyUpdated(ops.selectedIndex(v), v.getSelectedIndex)
+      vc.externalPropertyUpdated(ops.selectedIndex(v), v.getSelectedIndex)
       val si = v.getSelectedItem.asInstanceOf[E | Null]
-      vc.swingPropertyUpdated(ops.selectedItem(v), if (si == null) None else Some(si))
+      vc.externalPropertyUpdated(ops.selectedItem(v), if (si == null) None else Some(si))
     }
     v.addItemListener(il)
     
@@ -104,6 +104,7 @@ object ComboBox extends VarsMap {
     focusable: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
+    hoveredMut: Opt[Binding[Boolean]] = UnsetParam,
     inheritsPopupMenu: Opt[Binding[Boolean]] = UnsetParam,
     inputVerifier: Opt[Binding[javax.swing.InputVerifier | Null]] = UnsetParam,
     items: Opt[Binding[Seq[E]]] = UnsetParam,
@@ -151,6 +152,7 @@ object ComboBox extends VarsMap {
     ifSet(focusable, Node.ops.focusable(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
+    ifSet(hoveredMut, Node.ops.hoveredMut(res) := _)
     ifSet(inheritsPopupMenu, Component.ops.inheritsPopupMenu(res) := _)
     ifSet(inputVerifier, Component.ops.inputVerifier(res) := _)
     ifSet(items, ComboBox.ops.items(res) := _)

@@ -74,6 +74,7 @@ object ToggleButton extends VarsMap {
     hideActionText: Opt[Binding[Boolean]] = UnsetParam,
     horizontalAlignment: Opt[Binding[Int]] = UnsetParam,
     horizontalTextPosition: Opt[Binding[Int]] = UnsetParam,
+    hoveredMut: Opt[Binding[Boolean]] = UnsetParam,
     icon: Opt[Binding[javax.swing.Icon | Null]] = UnsetParam,
     iconTextGap: Opt[Binding[Int]] = UnsetParam,
     inheritsPopupMenu: Opt[Binding[Boolean]] = UnsetParam,
@@ -137,6 +138,7 @@ object ToggleButton extends VarsMap {
     ifSet(hideActionText, ButtonBase.ops.hideActionText(res) := _)
     ifSet(horizontalAlignment, ButtonBase.ops.horizontalAlignment(res) := _)
     ifSet(horizontalTextPosition, ButtonBase.ops.horizontalTextPosition(res) := _)
+    ifSet(hoveredMut, Node.ops.hoveredMut(res) := _)
     ifSet(icon, ButtonBase.ops.icon(res) := _)
     ifSet(iconTextGap, ButtonBase.ops.iconTextGap(res) := _)
     ifSet(inheritsPopupMenu, Component.ops.inheritsPopupMenu(res) := _)

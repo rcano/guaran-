@@ -94,10 +94,10 @@ object TreeView extends VarsMap {
     v.addPropertyChangeListener(varsPropertyListener(v))
     val tsl: TreeSelectionListener = evt => sc.update {
       val vc = summon[VarContext]
-      vc.swingPropertyUpdated(ops.leadSelectionPath(v), v.getLeadSelectionPath)
-      vc.swingPropertyUpdated(ops.selectionPath(v), v.getSelectionPath)
-      vc.swingPropertyUpdated(ops.selectionPaths(v), v.getSelectionPaths)
-      vc.swingPropertyUpdated(ops.selectionRows(v), v.getSelectionRows)
+      vc.externalPropertyUpdated(ops.leadSelectionPath(v), v.getLeadSelectionPath)
+      vc.externalPropertyUpdated(ops.selectionPath(v), v.getSelectionPath)
+      vc.externalPropertyUpdated(ops.selectionPaths(v), v.getSelectionPaths)
+      vc.externalPropertyUpdated(ops.selectionRows(v), v.getSelectionRows)
     }
     v.addTreeSelectionListener(tsl)
     
@@ -134,6 +134,7 @@ object TreeView extends VarsMap {
     focusable: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
+    hoveredMut: Opt[Binding[Boolean]] = UnsetParam,
     inheritsPopupMenu: Opt[Binding[Boolean]] = UnsetParam,
     inputVerifier: Opt[Binding[javax.swing.InputVerifier | Null]] = UnsetParam,
     invokesStopCellEditing: Opt[Binding[Boolean]] = UnsetParam,
@@ -188,6 +189,7 @@ object TreeView extends VarsMap {
     ifSet(focusable, Node.ops.focusable(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
+    ifSet(hoveredMut, Node.ops.hoveredMut(res) := _)
     ifSet(inheritsPopupMenu, Component.ops.inheritsPopupMenu(res) := _)
     ifSet(inputVerifier, Component.ops.inputVerifier(res) := _)
     ifSet(invokesStopCellEditing, TreeView.ops.invokesStopCellEditing(res) := _)

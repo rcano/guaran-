@@ -89,6 +89,7 @@ object Label extends VarsMap {
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     horizontalAlignment: Opt[Binding[Int]] = UnsetParam,
     horizontalTextPosition: Opt[Binding[Int]] = UnsetParam,
+    hoveredMut: Opt[Binding[Boolean]] = UnsetParam,
     icon: Opt[Binding[javax.swing.Icon | Null]] = UnsetParam,
     iconTextGap: Opt[Binding[Double]] = UnsetParam,
     inheritsPopupMenu: Opt[Binding[Boolean]] = UnsetParam,
@@ -133,6 +134,7 @@ object Label extends VarsMap {
     ifSet(foreground, Node.ops.foreground(res) := _)
     ifSet(horizontalAlignment, Label.ops.horizontalAlignment(res) := _)
     ifSet(horizontalTextPosition, Label.ops.horizontalTextPosition(res) := _)
+    ifSet(hoveredMut, Node.ops.hoveredMut(res) := _)
     ifSet(icon, Label.ops.icon(res) := _)
     ifSet(iconTextGap, Label.ops.iconTextGap(res) := _)
     ifSet(inheritsPopupMenu, Component.ops.inheritsPopupMenu(res) := _)

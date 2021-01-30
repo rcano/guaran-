@@ -100,6 +100,7 @@ object WindowBase extends VarsMap {
     focusableWindowState: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
+    hoveredMut: Opt[Binding[Boolean]] = UnsetParam,
     iconImages: Opt[Binding[Seq[java.awt.Image]]] = UnsetParam,
     locationByPlatform: Opt[Binding[Boolean]] = UnsetParam,
     maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
@@ -128,6 +129,7 @@ object WindowBase extends VarsMap {
     ifSet(focusableWindowState, WindowBase.ops.focusableWindowState(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
+    ifSet(hoveredMut, Node.ops.hoveredMut(res) := _)
     ifSet(iconImages, WindowBase.ops.iconImages(res) := _)
     ifSet(locationByPlatform, WindowBase.ops.locationByPlatform(res) := _)
     ifSet(maxSize, Node.ops.maxSize(res) := _)

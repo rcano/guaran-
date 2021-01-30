@@ -12,7 +12,7 @@ trait VarContext {
   def update[T](v: Var[T], binding: Binding[T])(using instance: ValueOf[v.ForInstance]): Unit
   def apply[T](v: ObsVal[T])(using instance: ValueOf[v.ForInstance]): T
 
-  private[guarana] def swingPropertyUpdated[T](v: Var[T], value: T)(using instance: ValueOf[v.ForInstance]): Unit
+  def externalPropertyUpdated[T](v: Var[T], value: T)(using instance: ValueOf[v.ForInstance]): Unit
 }
 object VarContext {
   @compileTimeOnly("No VarContext available")
@@ -117,13 +117,13 @@ object Binding {
   val Null = Const[Null](() => null)
 }
 
-trait SwingObsVal[+T] extends ObsVal[T] {
+trait ExternalObsVal[+T] extends ObsVal[T] {
   type ForInstance <: Singleton
   private[swing] def get(n: ForInstance): T
   def initialValue(v: Any)(using ev: v.type <:< ForInstance) = get(ev(v))
 }
 
-trait SwingVar[T] extends Var[T] with SwingObsVal[T] {
+trait ExternalVar[T] extends Var[T] with ExternalObsVal[T] {
   private[swing] def set(n: ForInstance, v: T): Unit
   @alpha("assign")
   override def :=(b: Binding[T])(using instance: ValueOf[ForInstance]): VarContextAction[this.type] = {
@@ -139,25 +139,43 @@ trait SwingVar[T] extends Var[T] with SwingObsVal[T] {
           set(instance.value, t)
           t
         }
-        ctx(this) //because swing is not really reactive, we need to compute this: eagerly: possible because it may trigger re rendering
+        if (eagerEvaluation) ctx(this) //assume external properties are not reactive, we need to compute this as eagerly as possible
     }
     this
   }
-  def eagerEvaluation = true
 }
 
+object ExternalVar {
+  type Aux[N, T] = ExternalVar[T] {
+    type ForInstance <: N & Singleton
+  }
+  def apply[N, T](varName: => String, getter: N => T, setter: (N, T) => Unit, eagerEvaluation: Boolean = false): Aux[N, T] = {
+    val ev = eagerEvaluation
+    new ExternalVar[T] {
+      lazy val name = varName
+      type ForInstance <: N & Singleton
+      def get(n: ForInstance) = getter(n)
+      def set(n: ForInstance, t: T) = setter(n, t)
+      def eagerEvaluation = ev
+    }
+  }
+}
+
+trait SwingVar[T] extends ExternalVar[T]
 object SwingVar {
   type Aux[N, T] = SwingVar[T] {
     type ForInstance <: N & Singleton
   }
-  def apply[N, T](varName: => String, getter: N => T, setter: (N, T) => Unit): Aux[N, T] = new SwingVar[T] {
-    lazy val name = varName
-    type ForInstance <: N & Singleton
-    def get(n: ForInstance) = getter(n)
-    def set(n: ForInstance, t: T) = setter(n, t)
+  def apply[N, T](varName: => String, getter: N => T, setter: (N, T) => Unit): Aux[N, T] = {
+    new SwingVar[T] {
+      lazy val name = varName
+      type ForInstance <: N & Singleton
+      def get(n: ForInstance) = getter(n)
+      def set(n: ForInstance, t: T) = setter(n, t)
+      def eagerEvaluation = true
+    }
   }
 }
-
 
 import collection.mutable.{AbstractBuffer, ArrayBuffer, IndexedBuffer, IndexedSeqOps}
 class ObsBuffer[T] extends 
