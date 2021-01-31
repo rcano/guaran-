@@ -46,10 +46,8 @@ object Node extends VarsMap {
       def focusable: Var.Aux[Boolean, v.type] = Node.Focusable.asInstanceOf[Var.Aux[Boolean, v.type]]
       def font: Var.Aux[java.awt.Font | Null, v.type] = Node.Font.asInstanceOf[Var.Aux[java.awt.Font | Null, v.type]]
       def foreground: Var.Aux[java.awt.Color | Null, v.type] = Node.Foreground.asInstanceOf[Var.Aux[java.awt.Color | Null, v.type]]
-      def hoveredMut: Var.Aux[Boolean, v.type] = Node.HoveredMut.asInstanceOf[Var.Aux[Boolean, v.type]]
       def maxSize: Var.Aux[(Double, Double) | Null, v.type] = Node.MaxSize.asInstanceOf[Var.Aux[(Double, Double) | Null, v.type]]
       def minSize: Var.Aux[(Double, Double) | Null, v.type] = Node.MinSize.asInstanceOf[Var.Aux[(Double, Double) | Null, v.type]]
-      def mouseDragMut: Var.Aux[Option[MouseDrag], v.type] = Node.MouseDragMut.asInstanceOf[Var.Aux[Option[MouseDrag], v.type]]
       def name: Var.Aux[String | Null, v.type] = Node.Name.asInstanceOf[Var.Aux[String | Null, v.type]]
       def prefSize: Var.Aux[(Double, Double) | Null, v.type] = Node.PrefSize.asInstanceOf[Var.Aux[(Double, Double) | Null, v.type]]
       def visible: Var.Aux[Boolean, v.type] = Node.Visible.asInstanceOf[Var.Aux[Boolean, v.type]]
@@ -127,10 +125,8 @@ object Node extends VarsMap {
     focusable: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
-    hoveredMut: Opt[Binding[Boolean]] = UnsetParam,
     maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
-    mouseDragMut: Opt[Binding[Option[MouseDrag]]] = UnsetParam,
     name: Opt[Binding[String | Null]] = UnsetParam,
     prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
@@ -145,10 +141,8 @@ object Node extends VarsMap {
     ifSet(focusable, Node.ops.focusable(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
-    ifSet(hoveredMut, Node.ops.hoveredMut(res) := _)
     ifSet(maxSize, Node.ops.maxSize(res) := _)
     ifSet(minSize, Node.ops.minSize(res) := _)
-    ifSet(mouseDragMut, Node.ops.mouseDragMut(res) := _)
     ifSet(name, Node.ops.name(res) := _)
     ifSet(prefSize, Node.ops.prefSize(res) := _)
     ifSet(visible, Node.ops.visible(res) := _)

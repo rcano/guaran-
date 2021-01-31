@@ -48,6 +48,7 @@ abstract class NodeDescr(
   val initExtra: Seq[String] = Seq.empty,
   val uninitExtraParams: Seq[Parameter] = Seq.empty,
   val uninitExtra: Seq[String] = Seq.empty,
+  val customCreator: Seq[String] = Seq.empty,
   val isAbstract: Boolean = false,
   val addsPropertySwingListener: Boolean = true,
   val companionObjectExtras: Seq[String] = Seq.empty,
@@ -382,6 +383,35 @@ case object BorderPane extends NodeDescr(
       "(p, g) => p.getLayout.asInstanceOf[BorderLayout].setVgap(g.toInt)"),
   ),
   initExtra = Seq("v.asInstanceOf[JPanel].setLayout(BorderLayout())"),
+)
+
+case object CanvasPane extends NodeDescr(
+  "CanvasPane",
+  "javax.swing.JPanel",
+  upperBounds = Seq(BorderPane),
+  props = Seq(
+    VarProp("paintFunction", "Graphics2D => Unit", "NoOpPaintFunction", eagerEvaluation = true)
+  ),
+  initExtra = """
+    |v.putClientProperty(Scenegraph, sc)
+    |
+    |sc.update {
+    |  v.varUpdates := EventIterator.foreach {
+    |    case v.paintFunction(_, _) => 
+    |      v.repaint()
+    |    case _ =>
+    |  }
+    |}""".stripMargin.trim.split("\n").toIndexedSeq,
+  customCreator = """
+    |new javax.swing.JPanel() {
+    |  override def paintComponent(g: Graphics) = {
+    |    val sc = getClientProperty(Scenegraph).asInstanceOf[Scenegraph]
+    |    val paintFunction = sc.stateReader(PaintFunction.forInstance(this))(using ValueOf(this))
+    |    paintFunction(g.asInstanceOf[Graphics2D])
+    |  }
+    |}.asInstanceOf[CanvasPane]""".stripMargin.trim.split("\n").toIndexedSeq,
+  uninitExtra = Seq(),
+  companionObjectExtras = Seq("private val NoOpPaintFunction: Graphics2D => Unit = _ => ()")
 )
 
 case object GridPane extends NodeDescr(
@@ -1338,14 +1368,19 @@ def genCode(n: NodeDescr): String = {
   val allVars: Vector[(NodeDescr, Property)] = Iterator.unfold(Seq(n)) {
     case Seq() => None
     case parents => 
-      val allParentVars = parents.flatMap(p => p.props.filterNot(prop => seenVars(prop.name) || prop.visibility.exists("private".==)).map(p -> _))
+      val allParentVars = parents.flatMap(p => p.props.filterNot(prop => seenVars(prop.name) || prop.visibility.exists(_ startsWith "private")).map(p -> _))
       seenVars ++= allParentVars.map(_._2.name)
       Some(allParentVars -> parents.flatMap(_.upperBounds.collect { case n: NodeDescr => n }))
   }.flatten.toVector.sortBy(_._2.name)
 
-  val initializers = if (!n.isAbstract) 
+  val initializers = 
+    if (!n.isAbstract) {
+      val instantiation = if (n.customCreator.isEmpty)
+          s"${if (n != Node) n.underlying.replaceAll(raw"_ <: ", "") else "java.awt.Container"}(${n.uninitExtraParams.map(_.passAs).mkString(", ")}).asInstanceOf[${n.name}$tpeParams]"
+        else
+          n.customCreator.mkString("\n  ")
       s"""def uninitialized$tpeParams(${n.uninitExtraParams.filterNot(_.erased).map(t => s"${t.name}: ${t.tpe}").mkString(", ")}): ${n.name}$tpeParams = {
-         |  val res = ${if (n != Node) n.underlying.replaceAll(raw"_ <: ", "") else "java.awt.Container"}(${n.uninitExtraParams.map(_.passAs).mkString(", ")}).asInstanceOf[${n.name}$tpeParams]
+         |  val res = $instantiation
          |  ${n.uninitExtra.mkString("\n    ")}
          |  res
          |}
@@ -1361,10 +1396,10 @@ def genCode(n: NodeDescr): String = {
          |}
          |
       """.stripMargin.trim.split("\n").asInstanceOf[Array[String]].toSeq
-    else Seq.empty 
+    } else Seq.empty 
 
   val sortedProps = n.props.sortBy(_.name)
-  val nonPrivateSortedProps = sortedProps.filterNot(_.visibility.exists("private".==))
+  val nonPrivateSortedProps = sortedProps.filterNot(_.visibility.exists(_ startsWith "private"))
   val sortedEmitters = n.emitters.sortBy(_.name)
 
   val upperBounds = if (n.upperBounds.nonEmpty) n.upperBounds.mkString("<: ", " & ", "") else ""
@@ -1431,6 +1466,7 @@ def genCode(n: NodeDescr): String = {
     Pane,
     AbsolutePositioningPane,
     BorderPane,
+    CanvasPane,
     GridPane,
     Hbox,
     Vbox,

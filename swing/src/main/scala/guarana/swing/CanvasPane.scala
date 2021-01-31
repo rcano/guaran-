@@ -11,24 +11,16 @@ import guarana.swing.util._
 import scala.jdk.CollectionConverters._
 import scala.util.chaining._
 
-opaque type GridPane <: Pane  = javax.swing.JPanel & Pane
-object GridPane extends VarsMap {
-  val AutoCreateContainerGaps: SwingVar.Aux[GridPane, Boolean] = SwingVar[GridPane, Boolean]("autoCreateContainerGaps", _.getLayout.asInstanceOf[GroupLayout].getAutoCreateContainerGaps(), _.getLayout.asInstanceOf[GroupLayout].setAutoCreateContainerGaps(_))
-  val Hgap: Var[Double] = Var[Double]("hgap", 0.0, false)
-  val LayoutVar: SwingVar.Aux[GridPane, Unit] = SwingVar[GridPane, Unit]("layoutVar", _ => (), (_, _) => ())
-  val Rows: Var[Seq[Seq[Node]]] = Var[Seq[Seq[Node]]]("rows", Seq.empty, false)
-  val Vgap: Var[Double] = Var[Double]("vgap", 0.0, false)
+opaque type CanvasPane <: BorderPane  = javax.swing.JPanel & BorderPane
+object CanvasPane extends VarsMap {
+  val PaintFunction: Var[Graphics2D => Unit] = Var[Graphics2D => Unit]("paintFunction", NoOpPaintFunction, true)
 
   
 
   given ops: Ops.type = Ops
   object Ops {
-    extension (v: GridPane) {
-      def autoCreateContainerGaps: Var.Aux[Boolean, v.type] = GridPane.AutoCreateContainerGaps.asInstanceOf[Var.Aux[Boolean, v.type]]
-      def hgap: Var.Aux[Double, v.type] = GridPane.Hgap.asInstanceOf[Var.Aux[Double, v.type]]
-      def layoutVar: Var.Aux[Unit, v.type] = GridPane.LayoutVar.asInstanceOf[Var.Aux[Unit, v.type]]
-      def rows: Var.Aux[Seq[Seq[Node]], v.type] = GridPane.Rows.asInstanceOf[Var.Aux[Seq[Seq[Node]], v.type]]
-      def vgap: Var.Aux[Double, v.type] = GridPane.Vgap.asInstanceOf[Var.Aux[Double, v.type]]
+    extension (v: CanvasPane) {
+      def paintFunction: Var.Aux[Graphics2D => Unit, v.type] = CanvasPane.PaintFunction.asInstanceOf[Var.Aux[Graphics2D => Unit, v.type]]
 
       
 
@@ -37,53 +29,31 @@ object GridPane extends VarsMap {
     }
   }
 
-  def wrap(v: javax.swing.JPanel) = v.asInstanceOf[GridPane]
+  def wrap(v: javax.swing.JPanel) = v.asInstanceOf[CanvasPane]
 
-  def init(v: GridPane): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
-    Pane.init(v)
+  def init(v: CanvasPane): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
+    BorderPane.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
-    sc.update(LayoutVar.forInstance(v) := Binding.dyn {
-    val rows = v.rows()
-    val hgap = v.hgap().toInt
-    val vgap = v.vgap().toInt
+    v.putClientProperty(Scenegraph, sc)
     
-    val layout = v.getLayout.asInstanceOf[GroupLayout]
-    val hgroup = layout.createSequentialGroup().nn
-    val vgroup = layout.createSequentialGroup().nn
-    
-    val hSeqGroups = collection.mutable.Map.empty[Int, GroupLayout#ParallelGroup]
-    val vSeqGroups = collection.mutable.Map.empty[Int, GroupLayout#ParallelGroup]
-    
-    val rowSize = rows.size
-    
-    for {
-      (row, rowIdx) <- rows.zipWithIndex
-      colSize = row.length
-      (node, colIdx) <- row.zipWithIndex
-    } {
-      hSeqGroups
-        .getOrElseUpdate(colIdx, layout.createParallelGroup().nn.tap { g => 
-          hgroup.addGroup(g)
-          if (hgap > 0 && colIdx < colSize - 1) hgroup.addGap(hgap)
-        })
-        .addComponent(node.unwrap)
-    
-      vSeqGroups
-        .getOrElseUpdate(rowIdx, layout.createBaselineGroup(true, false).nn.tap { g => 
-          vgroup.addGroup(g)
-          if (vgap > 0 && rowIdx < rowSize - 1) vgroup.addGap(vgap)
-        })
-        .addComponent(node.unwrap)
+    sc.update {
+      v.varUpdates := EventIterator.foreach {
+        case v.paintFunction(_, _) => 
+          v.repaint()
+        case _ =>
+      }
     }
     
-    layout.setHorizontalGroup(hgroup)
-    layout.setVerticalGroup(vgroup)
-    })
-    
   }
-  def uninitialized(): GridPane = {
-    val res = javax.swing.JPanel().asInstanceOf[GridPane]
-    res.asInstanceOf[JPanel].setLayout(GroupLayout(res))
+  def uninitialized(): CanvasPane = {
+    val res = new javax.swing.JPanel() {
+      override def paintComponent(g: Graphics) = {
+        val sc = getClientProperty(Scenegraph).asInstanceOf[Scenegraph]
+        val paintFunction = sc.stateReader(PaintFunction.forInstance(this))(using ValueOf(this))
+        paintFunction(g.asInstanceOf[Graphics2D])
+      }
+    }.asInstanceOf[CanvasPane]
+    
     res
   }
   
@@ -93,11 +63,12 @@ object GridPane extends VarsMap {
     actionMap: Opt[Binding[javax.swing.ActionMap]] = UnsetParam,
     alignmentX: Opt[Binding[Float]] = UnsetParam,
     alignmentY: Opt[Binding[Float]] = UnsetParam,
-    autoCreateContainerGaps: Opt[Binding[Boolean]] = UnsetParam,
     autoscrolls: Opt[Binding[Boolean]] = UnsetParam,
     background: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     border: Opt[Binding[javax.swing.border.Border | Null]] = UnsetParam,
+    bottom: Opt[Binding[Node | Null]] = UnsetParam,
     bounds: Opt[Binding[Bounds]] = UnsetParam,
+    center: Opt[Binding[Node | Null]] = UnsetParam,
     componentOrientation: Opt[Binding[java.awt.ComponentOrientation]] = UnsetParam,
     componentPopupMenu: Opt[Binding[PopupMenu | Null]] = UnsetParam,
     cursor: Opt[Binding[java.awt.Cursor | Null]] = UnsetParam,
@@ -110,31 +81,34 @@ object GridPane extends VarsMap {
     hgap: Opt[Binding[Double]] = UnsetParam,
     inheritsPopupMenu: Opt[Binding[Boolean]] = UnsetParam,
     inputVerifier: Opt[Binding[javax.swing.InputVerifier | Null]] = UnsetParam,
-    layoutVar: Opt[Binding[Unit]] = UnsetParam,
+    left: Opt[Binding[Node | Null]] = UnsetParam,
     maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     name: Opt[Binding[String | Null]] = UnsetParam,
     opaque: Opt[Binding[Boolean]] = UnsetParam,
+    paintFunction: Opt[Binding[Graphics2D => Unit]] = UnsetParam,
     prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     requestFocusEnabled: Opt[Binding[Boolean]] = UnsetParam,
-    rows: Opt[Binding[Seq[Seq[Node]]]] = UnsetParam,
+    right: Opt[Binding[Node | Null]] = UnsetParam,
     toolTipText: Opt[Binding[String | Null]] = UnsetParam,
+    top: Opt[Binding[Node | Null]] = UnsetParam,
     transferHandler: Opt[Binding[javax.swing.TransferHandler | Null]] = UnsetParam,
     verifyInputWhenFocusTarget: Opt[Binding[Boolean]] = UnsetParam,
     vgap: Opt[Binding[Double]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Scenegraph ?=> VarContextAction[GridPane] = {
+  ): Scenegraph ?=> VarContextAction[CanvasPane] = {
     val res = uninitialized()
-    GridPane.init(res)
+    CanvasPane.init(res)
     ifSet(UI, Pane.ops.UI(res) := _)
     ifSet(actionMap, Component.ops.actionMap(res) := _)
     ifSet(alignmentX, Component.ops.alignmentX(res) := _)
     ifSet(alignmentY, Component.ops.alignmentY(res) := _)
-    ifSet(autoCreateContainerGaps, GridPane.ops.autoCreateContainerGaps(res) := _)
     ifSet(autoscrolls, Component.ops.autoscrolls(res) := _)
     ifSet(background, Node.ops.background(res) := _)
     ifSet(border, Component.ops.border(res) := _)
+    ifSet(bottom, BorderPane.ops.bottom(res) := _)
     ifSet(bounds, Node.ops.bounds(res) := _)
+    ifSet(center, BorderPane.ops.center(res) := _)
     ifSet(componentOrientation, Node.ops.componentOrientation(res) := _)
     ifSet(componentPopupMenu, Component.ops.componentPopupMenu(res) := _)
     ifSet(cursor, Node.ops.cursor(res) := _)
@@ -144,23 +118,25 @@ object GridPane extends VarsMap {
     ifSet(focusable, Node.ops.focusable(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
-    ifSet(hgap, GridPane.ops.hgap(res) := _)
+    ifSet(hgap, BorderPane.ops.hgap(res) := _)
     ifSet(inheritsPopupMenu, Component.ops.inheritsPopupMenu(res) := _)
     ifSet(inputVerifier, Component.ops.inputVerifier(res) := _)
-    ifSet(layoutVar, GridPane.ops.layoutVar(res) := _)
+    ifSet(left, BorderPane.ops.left(res) := _)
     ifSet(maxSize, Node.ops.maxSize(res) := _)
     ifSet(minSize, Node.ops.minSize(res) := _)
     ifSet(name, Node.ops.name(res) := _)
     ifSet(opaque, Component.ops.opaque(res) := _)
+    ifSet(paintFunction, CanvasPane.ops.paintFunction(res) := _)
     ifSet(prefSize, Node.ops.prefSize(res) := _)
     ifSet(requestFocusEnabled, Component.ops.requestFocusEnabled(res) := _)
-    ifSet(rows, GridPane.ops.rows(res) := _)
+    ifSet(right, BorderPane.ops.right(res) := _)
     ifSet(toolTipText, Component.ops.toolTipText(res) := _)
+    ifSet(top, BorderPane.ops.top(res) := _)
     ifSet(transferHandler, Component.ops.transferHandler(res) := _)
     ifSet(verifyInputWhenFocusTarget, Component.ops.verifyInputWhenFocusTarget(res) := _)
-    ifSet(vgap, GridPane.ops.vgap(res) := _)
+    ifSet(vgap, BorderPane.ops.vgap(res) := _)
     ifSet(visible, Node.ops.visible(res) := _)
     res
   }
-  
+  private val NoOpPaintFunction: Graphics2D => Unit = _ => ()
 }

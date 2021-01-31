@@ -81,7 +81,6 @@ object ScrollBar extends VarsMap {
     focusable: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
-    hoveredMut: Opt[Binding[Boolean]] = UnsetParam,
     inheritsPopupMenu: Opt[Binding[Boolean]] = UnsetParam,
     inputVerifier: Opt[Binding[javax.swing.InputVerifier | Null]] = UnsetParam,
     maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
@@ -89,7 +88,6 @@ object ScrollBar extends VarsMap {
     minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     minimum: Opt[Binding[Int]] = UnsetParam,
     model: Opt[Binding[javax.swing.BoundedRangeModel]] = UnsetParam,
-    mouseDragMut: Opt[Binding[Option[MouseDrag]]] = UnsetParam,
     name: Opt[Binding[String | Null]] = UnsetParam,
     opaque: Opt[Binding[Boolean]] = UnsetParam,
     orientation: Opt[Binding[Int]] = UnsetParam,
@@ -124,7 +122,6 @@ object ScrollBar extends VarsMap {
     ifSet(focusable, Node.ops.focusable(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
-    ifSet(hoveredMut, Node.ops.hoveredMut(res) := _)
     ifSet(inheritsPopupMenu, Component.ops.inheritsPopupMenu(res) := _)
     ifSet(inputVerifier, Component.ops.inputVerifier(res) := _)
     ifSet(maxSize, Node.ops.maxSize(res) := _)
@@ -132,7 +129,6 @@ object ScrollBar extends VarsMap {
     ifSet(minSize, Node.ops.minSize(res) := _)
     ifSet(minimum, ScrollBar.ops.minimum(res) := _)
     ifSet(model, ScrollBar.ops.model(res) := _)
-    ifSet(mouseDragMut, Node.ops.mouseDragMut(res) := _)
     ifSet(name, Node.ops.name(res) := _)
     ifSet(opaque, Component.ops.opaque(res) := _)
     ifSet(orientation, ScrollBar.ops.orientation(res) := _)

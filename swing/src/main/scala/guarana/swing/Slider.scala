@@ -94,7 +94,6 @@ object Slider extends VarsMap {
     focusable: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
-    hoveredMut: Opt[Binding[Boolean]] = UnsetParam,
     inheritsPopupMenu: Opt[Binding[Boolean]] = UnsetParam,
     inputVerifier: Opt[Binding[javax.swing.InputVerifier | Null]] = UnsetParam,
     inverted: Opt[Binding[Boolean]] = UnsetParam,
@@ -106,7 +105,6 @@ object Slider extends VarsMap {
     minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     minorTickSpacing: Opt[Binding[Int]] = UnsetParam,
     model: Opt[Binding[javax.swing.BoundedRangeModel | Null]] = UnsetParam,
-    mouseDragMut: Opt[Binding[Option[MouseDrag]]] = UnsetParam,
     name: Opt[Binding[String | Null]] = UnsetParam,
     opaque: Opt[Binding[Boolean]] = UnsetParam,
     orientation: Opt[Binding[Int]] = UnsetParam,
@@ -143,7 +141,6 @@ object Slider extends VarsMap {
     ifSet(focusable, Node.ops.focusable(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
-    ifSet(hoveredMut, Node.ops.hoveredMut(res) := _)
     ifSet(inheritsPopupMenu, Component.ops.inheritsPopupMenu(res) := _)
     ifSet(inputVerifier, Component.ops.inputVerifier(res) := _)
     ifSet(inverted, Slider.ops.inverted(res) := _)
@@ -155,7 +152,6 @@ object Slider extends VarsMap {
     ifSet(minSize, Node.ops.minSize(res) := _)
     ifSet(minorTickSpacing, Slider.ops.minorTickSpacing(res) := _)
     ifSet(model, Slider.ops.model(res) := _)
-    ifSet(mouseDragMut, Node.ops.mouseDragMut(res) := _)
     ifSet(name, Node.ops.name(res) := _)
     ifSet(opaque, Component.ops.opaque(res) := _)
     ifSet(orientation, Slider.ops.orientation(res) := _)

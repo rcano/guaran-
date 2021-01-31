@@ -87,13 +87,11 @@ object SplitPane extends VarsMap {
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     horizontal: Opt[Binding[Boolean]] = UnsetParam,
-    hoveredMut: Opt[Binding[Boolean]] = UnsetParam,
     inheritsPopupMenu: Opt[Binding[Boolean]] = UnsetParam,
     inputVerifier: Opt[Binding[javax.swing.InputVerifier | Null]] = UnsetParam,
     lastDividerLocation: Opt[Binding[Int]] = UnsetParam,
     maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
-    mouseDragMut: Opt[Binding[Option[MouseDrag]]] = UnsetParam,
     name: Opt[Binding[String | Null]] = UnsetParam,
     oneTouchExpandable: Opt[Binding[Boolean]] = UnsetParam,
     opaque: Opt[Binding[Boolean]] = UnsetParam,
@@ -130,13 +128,11 @@ object SplitPane extends VarsMap {
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
     ifSet(horizontal, SplitPane.ops.horizontal(res) := _)
-    ifSet(hoveredMut, Node.ops.hoveredMut(res) := _)
     ifSet(inheritsPopupMenu, Component.ops.inheritsPopupMenu(res) := _)
     ifSet(inputVerifier, Component.ops.inputVerifier(res) := _)
     ifSet(lastDividerLocation, SplitPane.ops.lastDividerLocation(res) := _)
     ifSet(maxSize, Node.ops.maxSize(res) := _)
     ifSet(minSize, Node.ops.minSize(res) := _)
-    ifSet(mouseDragMut, Node.ops.mouseDragMut(res) := _)
     ifSet(name, Node.ops.name(res) := _)
     ifSet(oneTouchExpandable, SplitPane.ops.oneTouchExpandable(res) := _)
     ifSet(opaque, Component.ops.opaque(res) := _)

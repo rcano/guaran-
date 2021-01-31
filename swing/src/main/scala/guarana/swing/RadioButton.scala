@@ -74,7 +74,6 @@ object RadioButton extends VarsMap {
     hideActionText: Opt[Binding[Boolean]] = UnsetParam,
     horizontalAlignment: Opt[Binding[Int]] = UnsetParam,
     horizontalTextPosition: Opt[Binding[Int]] = UnsetParam,
-    hoveredMut: Opt[Binding[Boolean]] = UnsetParam,
     icon: Opt[Binding[javax.swing.Icon | Null]] = UnsetParam,
     iconTextGap: Opt[Binding[Int]] = UnsetParam,
     inheritsPopupMenu: Opt[Binding[Boolean]] = UnsetParam,
@@ -85,7 +84,6 @@ object RadioButton extends VarsMap {
     minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     mnemonic: Opt[Binding[Int]] = UnsetParam,
     model: Opt[Binding[javax.swing.ButtonModel | Null]] = UnsetParam,
-    mouseDragMut: Opt[Binding[Option[MouseDrag]]] = UnsetParam,
     multiClickThreshhold: Opt[Binding[Long]] = UnsetParam,
     name: Opt[Binding[String | Null]] = UnsetParam,
     opaque: Opt[Binding[Boolean]] = UnsetParam,
@@ -138,7 +136,6 @@ object RadioButton extends VarsMap {
     ifSet(hideActionText, ButtonBase.ops.hideActionText(res) := _)
     ifSet(horizontalAlignment, ButtonBase.ops.horizontalAlignment(res) := _)
     ifSet(horizontalTextPosition, ButtonBase.ops.horizontalTextPosition(res) := _)
-    ifSet(hoveredMut, Node.ops.hoveredMut(res) := _)
     ifSet(icon, ButtonBase.ops.icon(res) := _)
     ifSet(iconTextGap, ButtonBase.ops.iconTextGap(res) := _)
     ifSet(inheritsPopupMenu, Component.ops.inheritsPopupMenu(res) := _)
@@ -149,7 +146,6 @@ object RadioButton extends VarsMap {
     ifSet(minSize, Node.ops.minSize(res) := _)
     ifSet(mnemonic, ButtonBase.ops.mnemonic(res) := _)
     ifSet(model, ButtonBase.ops.model(res) := _)
-    ifSet(mouseDragMut, Node.ops.mouseDragMut(res) := _)
     ifSet(multiClickThreshhold, ButtonBase.ops.multiClickThreshhold(res) := _)
     ifSet(name, Node.ops.name(res) := _)
     ifSet(opaque, Component.ops.opaque(res) := _)

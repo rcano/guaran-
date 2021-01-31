@@ -104,7 +104,6 @@ object ComboBox extends VarsMap {
     focusable: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
-    hoveredMut: Opt[Binding[Boolean]] = UnsetParam,
     inheritsPopupMenu: Opt[Binding[Boolean]] = UnsetParam,
     inputVerifier: Opt[Binding[javax.swing.InputVerifier | Null]] = UnsetParam,
     items: Opt[Binding[Seq[E]]] = UnsetParam,
@@ -114,7 +113,6 @@ object ComboBox extends VarsMap {
     maximumRowCount: Opt[Binding[Int]] = UnsetParam,
     minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     model: Opt[Binding[javax.swing.ComboBoxModel[E]]] = UnsetParam,
-    mouseDragMut: Opt[Binding[Option[MouseDrag]]] = UnsetParam,
     name: Opt[Binding[String | Null]] = UnsetParam,
     opaque: Opt[Binding[Boolean]] = UnsetParam,
     popupVisible: Opt[Binding[Boolean]] = UnsetParam,
@@ -152,7 +150,6 @@ object ComboBox extends VarsMap {
     ifSet(focusable, Node.ops.focusable(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
-    ifSet(hoveredMut, Node.ops.hoveredMut(res) := _)
     ifSet(inheritsPopupMenu, Component.ops.inheritsPopupMenu(res) := _)
     ifSet(inputVerifier, Component.ops.inputVerifier(res) := _)
     ifSet(items, ComboBox.ops.items(res) := _)
@@ -162,7 +159,6 @@ object ComboBox extends VarsMap {
     ifSet(maximumRowCount, ComboBox.ops.maximumRowCount(res) := _)
     ifSet(minSize, Node.ops.minSize(res) := _)
     ifSet(model, ComboBox.ops.model(res) := _)
-    ifSet(mouseDragMut, Node.ops.mouseDragMut(res) := _)
     ifSet(name, Node.ops.name(res) := _)
     ifSet(opaque, Component.ops.opaque(res) := _)
     ifSet(popupVisible, ComboBox.ops.popupVisible(res) := _)

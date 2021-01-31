@@ -80,7 +80,6 @@ object Dialog extends VarsMap {
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     glassPane: Opt[Binding[java.awt.Component | Null]] = UnsetParam,
-    hoveredMut: Opt[Binding[Boolean]] = UnsetParam,
     iconImages: Opt[Binding[Seq[java.awt.Image]]] = UnsetParam,
     layeredPane: Opt[Binding[javax.swing.JLayeredPane | Null]] = UnsetParam,
     locationByPlatform: Opt[Binding[Boolean]] = UnsetParam,
@@ -90,7 +89,6 @@ object Dialog extends VarsMap {
     modal: Opt[Binding[Boolean]] = UnsetParam,
     modalExclusionType: Opt[Binding[java.awt.Dialog.ModalExclusionType]] = UnsetParam,
     modalityType: Opt[Binding[java.awt.Dialog.ModalityType | Null]] = UnsetParam,
-    mouseDragMut: Opt[Binding[Option[MouseDrag]]] = UnsetParam,
     name: Opt[Binding[String | Null]] = UnsetParam,
     opacity: Opt[Binding[Float]] = UnsetParam,
     prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
@@ -120,7 +118,6 @@ object Dialog extends VarsMap {
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
     ifSet(glassPane, Dialog.ops.glassPane(res) := _)
-    ifSet(hoveredMut, Node.ops.hoveredMut(res) := _)
     ifSet(iconImages, WindowBase.ops.iconImages(res) := _)
     ifSet(layeredPane, Dialog.ops.layeredPane(res) := _)
     ifSet(locationByPlatform, WindowBase.ops.locationByPlatform(res) := _)
@@ -130,7 +127,6 @@ object Dialog extends VarsMap {
     ifSet(modal, Dialog.ops.modal(res) := _)
     ifSet(modalExclusionType, WindowBase.ops.modalExclusionType(res) := _)
     ifSet(modalityType, Dialog.ops.modalityType(res) := _)
-    ifSet(mouseDragMut, Node.ops.mouseDragMut(res) := _)
     ifSet(name, Node.ops.name(res) := _)
     ifSet(opacity, WindowBase.ops.opacity(res) := _)
     ifSet(prefSize, Node.ops.prefSize(res) := _)

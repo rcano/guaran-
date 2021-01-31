@@ -83,7 +83,6 @@ object Frame extends VarsMap {
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     glassPane: Opt[Binding[java.awt.Component | Null]] = UnsetParam,
-    hoveredMut: Opt[Binding[Boolean]] = UnsetParam,
     iconImages: Opt[Binding[Seq[java.awt.Image]]] = UnsetParam,
     layeredPane: Opt[Binding[javax.swing.JLayeredPane | Null]] = UnsetParam,
     locationByPlatform: Opt[Binding[Boolean]] = UnsetParam,
@@ -92,7 +91,6 @@ object Frame extends VarsMap {
     menuBar: Opt[Binding[guarana.swing.MenuBar | Null]] = UnsetParam,
     minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     modalExclusionType: Opt[Binding[java.awt.Dialog.ModalExclusionType]] = UnsetParam,
-    mouseDragMut: Opt[Binding[Option[MouseDrag]]] = UnsetParam,
     name: Opt[Binding[String | Null]] = UnsetParam,
     opacity: Opt[Binding[Float]] = UnsetParam,
     prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
@@ -124,7 +122,6 @@ object Frame extends VarsMap {
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
     ifSet(glassPane, Frame.ops.glassPane(res) := _)
-    ifSet(hoveredMut, Node.ops.hoveredMut(res) := _)
     ifSet(iconImages, WindowBase.ops.iconImages(res) := _)
     ifSet(layeredPane, Frame.ops.layeredPane(res) := _)
     ifSet(locationByPlatform, WindowBase.ops.locationByPlatform(res) := _)
@@ -133,7 +130,6 @@ object Frame extends VarsMap {
     ifSet(menuBar, Frame.ops.menuBar(res) := _)
     ifSet(minSize, Node.ops.minSize(res) := _)
     ifSet(modalExclusionType, WindowBase.ops.modalExclusionType(res) := _)
-    ifSet(mouseDragMut, Node.ops.mouseDragMut(res) := _)
     ifSet(name, Node.ops.name(res) := _)
     ifSet(opacity, WindowBase.ops.opacity(res) := _)
     ifSet(prefSize, Node.ops.prefSize(res) := _)

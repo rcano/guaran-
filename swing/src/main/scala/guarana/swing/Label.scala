@@ -89,7 +89,6 @@ object Label extends VarsMap {
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     horizontalAlignment: Opt[Binding[Int]] = UnsetParam,
     horizontalTextPosition: Opt[Binding[Int]] = UnsetParam,
-    hoveredMut: Opt[Binding[Boolean]] = UnsetParam,
     icon: Opt[Binding[javax.swing.Icon | Null]] = UnsetParam,
     iconTextGap: Opt[Binding[Double]] = UnsetParam,
     inheritsPopupMenu: Opt[Binding[Boolean]] = UnsetParam,
@@ -97,7 +96,6 @@ object Label extends VarsMap {
     labelFor: Opt[Binding[java.awt.Component | Null]] = UnsetParam,
     maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
-    mouseDragMut: Opt[Binding[Option[MouseDrag]]] = UnsetParam,
     name: Opt[Binding[String | Null]] = UnsetParam,
     opaque: Opt[Binding[Boolean]] = UnsetParam,
     prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
@@ -134,7 +132,6 @@ object Label extends VarsMap {
     ifSet(foreground, Node.ops.foreground(res) := _)
     ifSet(horizontalAlignment, Label.ops.horizontalAlignment(res) := _)
     ifSet(horizontalTextPosition, Label.ops.horizontalTextPosition(res) := _)
-    ifSet(hoveredMut, Node.ops.hoveredMut(res) := _)
     ifSet(icon, Label.ops.icon(res) := _)
     ifSet(iconTextGap, Label.ops.iconTextGap(res) := _)
     ifSet(inheritsPopupMenu, Component.ops.inheritsPopupMenu(res) := _)
@@ -142,7 +139,6 @@ object Label extends VarsMap {
     ifSet(labelFor, Label.ops.labelFor(res) := _)
     ifSet(maxSize, Node.ops.maxSize(res) := _)
     ifSet(minSize, Node.ops.minSize(res) := _)
-    ifSet(mouseDragMut, Node.ops.mouseDragMut(res) := _)
     ifSet(name, Node.ops.name(res) := _)
     ifSet(opaque, Component.ops.opaque(res) := _)
     ifSet(prefSize, Node.ops.prefSize(res) := _)
