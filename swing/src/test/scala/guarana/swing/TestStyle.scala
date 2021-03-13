@@ -13,6 +13,9 @@ class TestStyle extends Stylist {
   val hoverBck = style.Background(fills = IArray(style.BackgroundFill(Color.LightPink, style.CornerRadii.all(0), Insets.all(0))))
   val pressedBck = style.Background(fills = IArray(style.BackgroundFill(Color.DarkSalmon, style.CornerRadii.all(0), Insets.all(0))))
 
+  val textFieldBck = style.Background(fills = IArray(style.BackgroundFill(Color.Lavender, style.CornerRadii.all(0), Insets.all(0))))
+  val textFieldBckHover = style.Background(fills = IArray(style.BackgroundFill(Color.Lavender.deriveHSB(1.1, 1, 1, 1), style.CornerRadii.all(0), Insets.all(0))))
+
 
   def apply[T](info: Stylist.ScenegraphInfo)(prop: Keyed[ObsVal[T]]) = {
     lazy val emSize = info.emSize
@@ -117,9 +120,18 @@ class TestStyle extends Stylist {
         style.Background(fills = IArray(style.BackgroundFill(Color.MediumTurquoise, style.CornerRadii.all(5), Insets.all(0))))
       ).asInstanceOf[Option[T]]
 
+      case Keyed(style.CssProperties.Background, tf: TextField) => Some(
+        if info.get(tf.hovered).exists(identity) then textFieldBckHover
+        else textFieldBck
+      ).asInstanceOf[Option[T]]
+
       case _ => 
         None
     }
   }
   def invalidateCache(node: Any) = ()
+
+  def stateChanged(node: Any, state: Any, change: StateChange): Unit = ()
+  def installDefaults(node: Any): Unit = ()
+  def uninstallDefaults(node: Any): Unit = ()
 }

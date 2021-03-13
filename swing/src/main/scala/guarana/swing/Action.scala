@@ -1,7 +1,7 @@
 package guarana.swing
 
 import javax.swing.{Action => JAction, Icon, KeyStroke}
-import util._
+import util.*
 
 opaque type Action = javax.swing.AbstractAction
 object Action extends VarsMap {

@@ -3,13 +3,13 @@ package plaf
 
 import language.implicitConversions
 import java.awt.Font
-import javax.swing.{UIManager, UIDefaults}
-import javax.swing.plaf.FontUIResource
+import javax.swing.{UIManager, UIDefaults, JComponent}
+import javax.swing.plaf.{FontUIResource, UIResource}
 import javax.swing.plaf.metal.MetalLookAndFeel
 import javax.swing.plaf.basic.BasicLookAndFeel
 import scala.annotation.unchecked.uncheckedStable
-import scala.jdk.CollectionConverters._
-import scala.util.chaining._
+import scala.jdk.CollectionConverters.*
+import scala.util.chaining.*
 
 class CssLaf(val scenegraph: Scenegraph) extends MetalLookAndFeel {
 
@@ -25,6 +25,7 @@ class CssLaf(val scenegraph: Scenegraph) extends MetalLookAndFeel {
   override def getDefaults: UIDefaults = {
     val defaults = super.getDefaults().nn
     defaults.put(CssLaf.UiDefaultsCssLafKey, this)
+    CssLaf.associateScenegraph(scenegraph)
 
     defaults.keySet.nn.asScala.foreach {
       case k if k.toString endsWith ".acceleratorFont" => smallFontKeys += k
@@ -69,6 +70,7 @@ class CssLaf(val scenegraph: Scenegraph) extends MetalLookAndFeel {
     defaults.put("ProgressBarUI", classOf[CssProgressBarUi].getCanonicalName)
     defaults.put("TabbedPaneUI", classOf[CssTabbedPaneUi].getCanonicalName)
     defaults.put("SliderUI", classOf[CssSliderUi].getCanonicalName)
+    defaults.put("TextFieldUI", classOf[CssTextFieldUi].getCanonicalName)
   }
 
   override def uninitialize(): Unit = {
@@ -81,9 +83,13 @@ class CssLaf(val scenegraph: Scenegraph) extends MetalLookAndFeel {
 object CssLaf {
 
   val UiDefaultsCssLafKey = "CssLafInstance"
+  val UiDefaultsScenegraphKey = "ScenegraphInstance"
   def install(): Scenegraph ?=> Unit = {
     UIManager.setLookAndFeel(CssLaf(summon))
   }
+
+  def associateScenegraph(sc: Scenegraph): Unit =
+    UIManager.getDefaults.put(UiDefaultsScenegraphKey, sc)
 
 
   private enum DesktopEnvironment {
@@ -107,9 +113,9 @@ object CssLaf {
 
 trait CssUi {
   @uncheckedStable
-  def scenegraph = UIManager.getDefaults.get(CssLaf.UiDefaultsCssLafKey).toOption.fold(
-    throw new IllegalStateException(s"Running CssLaf without a Scenegraph?")
-  )(_.asInstanceOf[CssLaf].scenegraph)
+  def scenegraph = UIManager.getDefaults.get(CssLaf.UiDefaultsScenegraphKey).toOption.fold(
+    throw new IllegalStateException(s"Running CssUi without a Scenegraph?")
+  )(_.asInstanceOf[Scenegraph])
 
   inline protected def withinRegion(c: javax.swing.JComponent)(inline f: (Int, Int, Int, Int) => Unit): Unit = {
     val insets = c.getInsets.nn
@@ -119,4 +125,9 @@ trait CssUi {
     val height = c.getHeight - insets.top - insets.bottom
     f(x, y, width, height)
   }
+
+  inline protected def getUiProperty[T, C <: JComponent](property: Var[T], instance: C, inline getter: C => T): T =
+    getter(instance) match
+      case res: UIResource => scenegraph.stylist(scenegraph.scenegraphInfo)(property.forInstance(instance)).getOrElse(res)
+      case other => other
 }

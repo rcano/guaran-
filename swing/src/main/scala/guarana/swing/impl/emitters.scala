@@ -15,7 +15,7 @@ object EmitterStation {
   def apply(): EmitterStation = EmitterStationImpl()
 }
 private[impl] class EmitterStationImpl extends EmitterStation {
-  import EmitterStationImpl._
+  import EmitterStationImpl.*
   private val emittersData = KeyedWeakHashMap[Emitter[_], EmitterData[_]]
 
   def hasEmitter[A](emitter: Emitter[A])(using ValueOf[emitter.ForInstance]): Boolean = emittersData.contains(emitter)

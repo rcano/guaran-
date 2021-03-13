@@ -3,8 +3,8 @@ package plaf
 
 import language.implicitConversions
 import java.awt.{Graphics, Graphics2D, Shape, geom}
-import javax.swing.plaf.synth._
-import scala.util.chaining._
+import javax.swing.plaf.synth.*
+import scala.util.chaining.*
 
 object RegionPainter {
   def paintRegion(background: style.Background, g2: Graphics2D, x: Double, y: Double, w: Double, h: Double, regionShape: Shape = null): Unit = {

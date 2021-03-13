@@ -7,9 +7,9 @@ import javax.swing.{AbstractButton, JButton, JComponent, UIManager, SwingConstan
 import javax.swing.plaf.UIResource
 import javax.swing.plaf.metal.MetalTabbedPaneUI
 import scala.annotation.static
-import scala.util.chaining._
+import scala.util.chaining.*
 
-class CssTabbedPaneUi extends MetalTabbedPaneUI, CssUi {
+class CssTabbedPaneUi extends MetalTabbedPaneUI, CssSwingControlUi {
 
   protected var tabsOverlapBorder: Boolean = false
   protected var contentOpaque: Boolean = true

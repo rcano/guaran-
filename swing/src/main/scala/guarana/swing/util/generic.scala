@@ -1,7 +1,7 @@
 package guarana.swing.util
 
 import compiletime.{constValue, erasedValue, summonFrom, error}
-import scala.util.chaining._
+import scala.util.chaining.*
 
 trait ProductFields[P <: Product] {
   def fields: Seq[(String, scala.reflect.ClassTag[_])]
@@ -43,7 +43,7 @@ object ProductLenses {
     // allLabels.map(l => lense[P](l))
     ???
   }
-  import scala.quoted._
+  import scala.quoted.*
   inline def lense[P <: Product](inline label: Any) = ${lenseMacro[P]('label)}
   private def lenseMacro[P <: Product](labelNameExpr: Expr[Any])(using ctx: Quotes, pt: Type[P]) = {
     
@@ -61,9 +61,9 @@ object ProductLenses {
 case class DeclaringVal(name: String)
 object DeclaringVal {
   inline given declaringVal: DeclaringVal = ${declaringValMacro}
-  import scala.quoted._
+  import scala.quoted.*
   def declaringValMacro(using ctx: Quotes): Expr[DeclaringVal] = {
-    import ctx.reflect._
+    import ctx.reflect.*
     def isSynthetic(name: String) = name == "<init>" || (name.startsWith("<local ") && name.endsWith(">"))
     val owner = Iterator.unfold(Symbol.spliceOwner)(o => if (o == Symbol.noSymbol) None else Some(o, o.maybeOwner))
       .drop(1)

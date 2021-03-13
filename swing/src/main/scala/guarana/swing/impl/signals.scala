@@ -2,7 +2,7 @@ package guarana.swing
 package impl
 
 import language.higherKinds
-import SignalSwitchboard._
+import SignalSwitchboard.*
 
 trait SignalSwitchboard[Signal[+T]] {
   /**
@@ -55,7 +55,7 @@ trait SignalSwitchboard[Signal[+T]] {
 }
 
 private[impl] class SignalSwitchboardImpl[Signal[+T]](val reporter: Reporter[Signal]) extends SignalSwitchboard[Signal] {
-  import State._, Eval._
+  import State.*, Eval._
   private val signalStates = KeyedWeakHashMap[Signal[Any], State]
 
   /**

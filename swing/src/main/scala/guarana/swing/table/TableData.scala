@@ -4,7 +4,7 @@ package table
 import language.implicitConversions
 
 import javax.swing.table.{AbstractTableModel, DefaultTableColumnModel, TableColumn}
-import scala.util.chaining._
+import scala.util.chaining.*
 
 abstract class TableData[T <: Product](val prodFields: util.ProductFields[T]) extends collection.IndexedSeq[T] {
 

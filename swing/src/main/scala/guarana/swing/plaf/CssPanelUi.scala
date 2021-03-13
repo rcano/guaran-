@@ -6,7 +6,7 @@ import javax.swing.{JComponent, LookAndFeel}
 import javax.swing.plaf.basic.BasicPanelUI
 import scala.annotation.static
 
-class CssPanelUi extends BasicPanelUI, CssUi {
+class CssPanelUi extends BasicPanelUI, CssSwingControlUi {
 
   override def installDefaults(p: javax.swing.JPanel) = {
     super.installDefaults(p)

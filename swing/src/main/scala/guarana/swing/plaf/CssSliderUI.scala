@@ -6,9 +6,9 @@ import java.awt.{Dimension, Rectangle}
 import javax.swing.{AbstractButton, JComponent, JButton, UIManager}
 import javax.swing.plaf.metal.MetalSliderUI
 import scala.annotation.static
-import scala.util.chaining._
+import scala.util.chaining.*
 
-class CssSliderUi extends MetalSliderUI, CssUi {
+class CssSliderUi extends MetalSliderUI, CssSwingControlUi {
   transparent inline def scale(d: Int | Double | Dimension): Any = {
     val sc = scenegraph
     val ratio = sc.stateReader(sc.emSize) / 14.0 // try to adjust the scale based on the em size. This is just an heuristic

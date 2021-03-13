@@ -6,9 +6,9 @@ import java.net.URLClassLoader
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.{Files , StandardWatchEventKinds, FileVisitor, FileVisitResult, Path, Paths, WatchEvent}
 import javax.swing.SwingUtilities
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.util.control.NonFatal
-import scala.util.chaining._
+import scala.util.chaining.*
 import scala.util.matching.Regex
 import scala.reflect.Selectable.reflectiveSelectable
 import System.out.println
@@ -56,6 +56,7 @@ object DevAppReloader {
             wk.pollEvents.nn.asScala foreach {
               case watchEvent: WatchEvent[Path @unchecked] =>
                 val context = wk.watchable.asInstanceOf[Path].resolve(watchEvent.context).nn
+                println(s"detected change $context")
 
                 if (watchEvent.kind == StandardWatchEventKinds.ENTRY_CREATE && Files.isDirectory(context)) {
                   context.register(fileWatcher, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY)
@@ -84,7 +85,7 @@ object DevAppReloader {
   def reloadApp(classesDirectories: Array[Path], reloadableClassPattern: Regex, mainApp: String, otherArgs: Array[String]): Unit = {
     if (!recompiling) { // if I'm already recompiling, ignore the request. This might happen if the watcher thread detects many file changing in quick not not so quick intervals
       reloadCounter += 1
-      println(Console.CYAN + "RELOADING #" + reloadCounter + Console.RESET)
+      println(Console.CYAN + s"RELOADING #${reloadCounter} - ${java.time.Instant.now()}" + Console.RESET)
       recompiling = true
 
       val classLoadingMxBean = java.lang.management.ManagementFactory.getClassLoadingMXBean().nn
@@ -101,14 +102,15 @@ object DevAppReloader {
               case _: NoSuchMethodException => //expected
               case NonFatal(e) => println("stopping application failed"); e.printStackTrace()
             }
-            framePosition = java.awt.Frame.getFrames.asInstanceOf[Array[java.awt.Frame]]
-              .collect { case f: javax.swing.JFrame => f }
-              .map { jf =>
-                val pos = jf.getBounds.nn
-                jf.setVisible(false)
-                jf.dispose()
-                pos
-              }.headOption
+            // framePosition = java.awt.Frame.getFrames.asInstanceOf[Array[java.awt.Frame]]
+            //   .collect { case f: javax.swing.JFrame => f }
+            //   .map { jf =>
+            //     val pos = jf.getBounds.nn
+            //     jf.setVisible(false)
+            //     jf.dispose()
+            //     println(s"disposing frame $jf")
+            //     pos
+            //   }.headOption
             
             val cl = lastApplication.getClassLoader.asInstanceOf[URLClassLoader]
             System.gc()
@@ -151,11 +153,11 @@ object DevAppReloader {
           lastApplication = loader.loadClass(mainApp)
           lastApplication.getDeclaredMethod("main", classOf[Array[String]]).nn.invoke(null, otherArgs)
 
-          framePosition foreach { pos =>
-            java.awt.Frame.getFrames.asInstanceOf[Array[java.awt.Frame]]
-              .collectFirst { case f: javax.swing.JFrame => f }
-              .foreach(_.setBounds(pos))
-          }
+          // framePosition foreach { pos =>
+          //   java.awt.Frame.getFrames.asInstanceOf[Array[java.awt.Frame]]
+          //     .collectFirst { case f: javax.swing.JFrame => f }
+          //     .foreach(_.setBounds(pos))
+          // }
           recompiling = false
         }
       }

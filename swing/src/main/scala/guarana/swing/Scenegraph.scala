@@ -92,7 +92,12 @@ class Scenegraph {
     }
   }
 
-  private val scenegraphInfo = new Stylist.ScenegraphInfo {
+  /** Stylist.ScenegraphInfo for this scenegraph.
+    * You don't typically access this instance, since when you are implementing a Stylist
+    * it is passed to you when query properties.
+    * It's public mainly to be used by LaF implementors.
+    */ 
+  val scenegraphInfo = new Stylist.ScenegraphInfo {
     def get[T](property: Keyed[ObsVal[T]]): Option[T] = switchboard.get(property)
     def emSize: Double = switchboard.get(ObsVal.obs2Keyed(Scenegraph.this.emSize)(ValueOf(Scenegraph.this)))
       .getOrElse(Scenegraph.this.emSize.initialValue(Scenegraph.this))

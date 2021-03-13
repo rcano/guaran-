@@ -3,7 +3,7 @@ package plaf
 
 import language.implicitConversions
 import java.awt.{Component => AwtComponent, Graphics, Graphics2D, Polygon, Shape, geom}
-import scala.util.chaining._
+import scala.util.chaining.*
 
 class CssBorder(scenegraph: Scenegraph) extends javax.swing.border.Border {
 
@@ -49,7 +49,9 @@ object CssBorder {
 
     // For each stroke border, we need to ensure each of the sides is properly clipper
     // to respect the color chosen. For that, we compute a diagonal line from the corner
-    // to the middle of the rectangle, and the proceed to render with the specified paint
+    // to the middle of the rectangle, and the proceed to render with the specified paint.
+    // We'll special case against sides which are empty (inset or stroke size of 0) in order to
+    // prevent producint a pointy stroke
     for (stroke <- borderSpec.strokes) atBorder(stroke.insets) { (x, y, width, height) =>
       val shape = Option(regionShape).getOrElse {
         RegionPainter.shapeForRegion(
@@ -63,12 +65,17 @@ object CssBorder {
 
       val boxSize = width.min(height) / 2
 
+      val topStrokeEmpty = stroke.topStyle.getLineWidth == 0
+      val rightStrokeEmpty = stroke.rightStyle.getLineWidth == 0
+      val botStrokeEmpty = stroke.botStyle.getLineWidth == 0
+      val leftStrokeEmpty = stroke.leftStyle.getLineWidth == 0
+
       val clip = geom.Path2D.Float()
-      if (stroke.topStyle.getLineWidth > 0) {
+      if (!topStrokeEmpty) {
         clip.moveTo(x, y)
         clip.lineTo(x + width, y)
-        clip.lineTo(x + width - boxSize, y + boxSize)
-        clip.lineTo(x + boxSize, y + boxSize)
+        clip.lineTo(x + width - (if rightStrokeEmpty then 0 else boxSize), y + (if rightStrokeEmpty then stroke.topStyle.getLineWidth.toDouble else boxSize))
+        clip.lineTo(x + (if leftStrokeEmpty then 0 else boxSize), y + (if leftStrokeEmpty then stroke.topStyle.getLineWidth.toDouble else boxSize))
         clip.closePath()
         
         g2.setClip(clip)
@@ -77,12 +84,12 @@ object CssBorder {
         g2.draw(shape)
       }
 
-      if (stroke.rightStyle.getLineWidth > 0) {
+      if (!rightStrokeEmpty) {
         clip.reset()
         clip.moveTo(x + width, y)
         clip.lineTo(x + width, y + height)
-        clip.lineTo(x + width - boxSize, y + height - boxSize)
-        clip.lineTo(x + width - boxSize, y + boxSize)
+        clip.lineTo(x + width - (if botStrokeEmpty then stroke.rightStyle.getLineWidth.toDouble else boxSize), y + height - (if botStrokeEmpty then 0 else boxSize))
+        clip.lineTo(x + width - (if topStrokeEmpty then stroke.rightStyle.getLineWidth.toDouble else boxSize), y + (if topStrokeEmpty then 0 else boxSize))
         clip.closePath()
         
         g2.setClip(clip)
@@ -91,12 +98,12 @@ object CssBorder {
         g2.draw(shape)
       }
       
-      if (stroke.botStyle.getLineWidth > 0) {
+      if (!botStrokeEmpty) {
         clip.reset()
         clip.moveTo(x + width, y + height)
         clip.lineTo(x, y + height)
-        clip.lineTo(x + boxSize, y + height - boxSize)
-        clip.lineTo(x + width - boxSize, y + height - boxSize)
+        clip.lineTo(x + (if leftStrokeEmpty then 0 else boxSize), y + height - (if leftStrokeEmpty then stroke.botStyle.getLineWidth.toDouble else boxSize))
+        clip.lineTo(x + width - (if rightStrokeEmpty then 0 else boxSize), y + height - (if rightStrokeEmpty then stroke.botStyle.getLineWidth.toDouble else boxSize))
         clip.closePath()
         
         g2.setClip(clip)
@@ -105,12 +112,12 @@ object CssBorder {
         g2.draw(shape)
       }
 
-      if (stroke.leftStyle.getLineWidth > 0) {
+      if (!leftStrokeEmpty) {
         clip.reset()
         clip.moveTo(x, y + height)
         clip.lineTo(x, y)
-        clip.lineTo(x + boxSize, y + boxSize)
-        clip.lineTo(x + boxSize, y + height - boxSize)
+        clip.lineTo(x + (if topStrokeEmpty then stroke.leftStyle.getLineWidth.toDouble else boxSize), y + (if topStrokeEmpty then 0 else boxSize))
+        clip.lineTo(x + (if botStrokeEmpty then stroke.leftStyle.getLineWidth.toDouble else boxSize), y + height - (if botStrokeEmpty then 0 else boxSize))
         clip.closePath()
         
         g2.setClip(clip)

@@ -3,7 +3,7 @@ package guarana.swing
 import language.implicitConversions
 import scala.concurrent.{impl => _, _}, ExecutionContext.Implicits.given
 import scala.util.Try
-import scala.util.chaining._
+import scala.util.chaining.*
 import Binding.dyn
 import util.UnsetParam
 
@@ -80,6 +80,8 @@ import util.UnsetParam
     plaf.CssLaf.install()
 
     val userTf = TextField(columns = 5)
+    style.CssProperties.PlaceholderText.forInstance(userTf) := "username"
+    style.CssProperties.PlaceholderTextPaint.forInstance(userTf) := Color.Red
     val passwordTf = PasswordField(columns = 5)
     val login = Button(
       text = "Login",
@@ -216,7 +218,7 @@ import util.UnsetParam
   lazy val defaultConfiguration = defaultScreenDevice.getDefaultConfiguration().nn
 
   import com.codahale.metrics.{ConsoleReporter, MetricRegistry}
-  import scala.concurrent.duration._
+  import scala.concurrent.duration.*
   val metricsRegistry = MetricRegistry()
   val frameTimer = metricsRegistry.timer("frameTime").nn
   val flakesCounter = metricsRegistry.counter("flakes").nn

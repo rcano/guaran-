@@ -2,9 +2,9 @@ package guarana.swing
 package animation
 
 import javax.swing.Timer
-import scala.compiletime.ops.int._
+import scala.compiletime.ops.int.*
 import scala.concurrent.duration.FiniteDuration
-import scala.util.chaining._
+import scala.util.chaining.*
 
 object Timeline {
   private[this] val noOnStep: Long => Unit = _ => ()

@@ -1,10 +1,10 @@
-package guarana.swing
+package guarana.swing.codegen
 
 import language.implicitConversions
-import better.files._
+import better.files.*
 import java.beans.{IndexedPropertyDescriptor, PropertyDescriptor}
 // import java.nio.file.{Path, Paths, Files}
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.util.control.NonFatal
 
 @main def beanCodeGen(patterns: String*) = {

@@ -3,13 +3,13 @@
 package guarana.swing
 
 import language.implicitConversions
-import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, PopupMenu => _, _}
-import java.awt.event._
-import javax.swing.{Action => _, _}
-import javax.swing.event._
-import guarana.swing.util._
-import scala.jdk.CollectionConverters._
-import scala.util.chaining._
+import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, PopupMenu => _, *}
+import java.awt.event.*
+import javax.swing.{Action => _, *}
+import javax.swing.event.*
+import guarana.swing.util.*
+import scala.jdk.CollectionConverters.*
+import scala.util.chaining.*
 
 opaque type CanvasPane <: BorderPane  = javax.swing.JPanel & BorderPane
 object CanvasPane extends VarsMap {

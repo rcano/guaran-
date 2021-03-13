@@ -1,7 +1,7 @@
 package guarana.swing
 package plaf
 
-import better.files._
+import better.files.*
 import java.awt.{Font, GraphicsEnvironment, Toolkit}
 import javax.swing.text.StyleContext
 import scala.util.control.NonFatal

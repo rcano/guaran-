@@ -4,7 +4,7 @@ package tree
 import javax.swing.tree.{DefaultTreeModel, TreeModel, TreeNode => JTreeNode, DefaultMutableTreeNode}
 import scala.collection.IndexedSeq
 import scala.compiletime.{erasedValue, summonAll, summonInline, codeOf}
-import TreeData._
+import TreeData.*
 
 object TreeData {
   def from[T: TreeNode](t: T): TreeModel =

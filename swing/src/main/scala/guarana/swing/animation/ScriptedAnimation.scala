@@ -9,6 +9,7 @@ object ScriptedAnimation {
     scriptEngine.run(script)
 
     var frameStartedAt = -1l
+    var lastDelta = 0l
     val timer = new Timer(1000 / ups, null) {
       override def start(): Unit = {
         frameStartedAt = -1
@@ -19,9 +20,9 @@ object ScriptedAnimation {
     val al: java.awt.event.ActionListener = _ => {
       if (scriptEngine.isActive) {
         val nanoTime = System.nanoTime
-        if (frameStartedAt == -1) frameStartedAt = nanoTime
-        val delta = nanoTime - frameStartedAt
-        scriptEngine.update(delta)
+        if (frameStartedAt == -1) frameStartedAt = nanoTime - lastDelta
+        lastDelta = nanoTime - frameStartedAt
+        scriptEngine.update(lastDelta)
       } else timer.stop()
     }
     timer.addActionListener(al)

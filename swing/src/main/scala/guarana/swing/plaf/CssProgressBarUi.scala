@@ -5,9 +5,9 @@ import language.implicitConversions
 import javax.swing.{AbstractButton, JComponent, SwingConstants, UIManager}
 import javax.swing.plaf.metal.MetalProgressBarUI
 import scala.annotation.static
-import scala.util.chaining._
+import scala.util.chaining.*
 
-class CssProgressBarUi extends MetalProgressBarUI, CssUi {
+class CssProgressBarUi extends MetalProgressBarUI, CssSwingControlUi {
   override def paintDeterminate(g: Graphics, c: JComponent): Unit = withinRegion(c.nn) { (x, y, w, h) =>
     val sg = scenegraph
     val bckgr = style.CssProperties.Background.forInstance(c) pipe sg.stateReader.apply

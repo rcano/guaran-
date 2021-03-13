@@ -4,10 +4,10 @@ type Color = java.awt.Color
 object Color {
   def apply(r: Float, g: Float, b: Float, a: Float = 1f) = java.awt.Color(r, g, b, a)
   def rgba(r: Int, g: Int, b: Int, a: Int = 255): Color = java.awt.Color(r, g, b, a)
-  def rgba(rgba: Int): Color = java.awt.Color(rgba)
+  def argb(argb: Int): Color = java.awt.Color(argb, true)
   def hsb(hue: Double, saturation: Double, brightness: Double): Color = java.awt.Color.getHSBColor(hue.toFloat, saturation.toFloat, brightness.toFloat).nn
   def web(code: String): Color = 
-    if (code.startsWith("#")) rgba(java.lang.Integer.parseInt(code.substring(1), 16)) 
+    if (code.startsWith("#")) argb(java.lang.Integer.parseInt(code.substring(1), 16)) 
     else throw new IllegalArgumentException("Invalid web code, it should start with #")
 
   /**

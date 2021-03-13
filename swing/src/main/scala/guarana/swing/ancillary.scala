@@ -1,7 +1,7 @@
 package guarana.swing
 
 import language.implicitConversions
-import util._
+import util.*
 
 extension (d: Double | Float | Int) {
   inline def em(using sc: Scenegraph, vc: VarContext) = 
@@ -83,10 +83,12 @@ object Box {
   def verticalStrut(height: Binding[Double]): Scenegraph ?=> VarContextAction[Node] = createFiller(0.0, 0.0, height, height)
   def strut(width: Binding[Double], height: Binding[Double]): Scenegraph ?=> VarContextAction[Node] = createFiller(width, width, height, height)
 }
+
+type Font = java.awt.Font
 def Font(name: String, style: Opt[Int] = UnsetParam, size: Opt[Double] = UnsetParam)(using sc: Scenegraph): java.awt.Font = {
   import java.awt.font.TextAttribute
   val r = sc.stateReader(sc.emSize).toInt
-  var res = new java.awt.Font(java.util.Map.of(TextAttribute.FONT, name))
+  var res = new java.awt.Font(java.util.Map.of(TextAttribute.FAMILY, name))
   ifSet(style, s => res = res.deriveFont(s).nn)
   ifSet(size, s => res = res.deriveFont(s.toFloat).nn)
   res

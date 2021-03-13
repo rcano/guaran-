@@ -183,7 +183,7 @@ class ObsBuffer[T] extends
     IndexedBuffer[T],
     IndexedSeqOps[T, ObsBuffer, ObsBuffer[T]],
     collection.IterableFactoryDefaults[T, ObsBuffer] {
-  import ObsBuffer.Event._
+  import ObsBuffer.Event.*
 
   private val elements = ArrayBuffer[T]()
 

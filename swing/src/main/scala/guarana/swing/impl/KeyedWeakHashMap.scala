@@ -2,7 +2,7 @@ package guarana.swing
 package impl
 
 import java.lang.ref.{WeakReference, ReferenceQueue}
-import KeyedWeakHashMap._
+import KeyedWeakHashMap.*
 
 class KeyedWeakHashMap[K, V] extends collection.mutable.Map[Keyed[K], V] {
   private val underlying = collection.mutable.AnyRefMap.empty[WeakKeyed[K], V]

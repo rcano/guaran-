@@ -3,42 +3,43 @@ version := "0.1.0-SNAPSHOT"
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
-//scalaVersion := "0.28.0-bin-20201008-64315b7-NIGHTLY"
-scalaVersion := "3.0.0-M3"
+ThisBuild / scalaVersion := "3.0.0-RC1"
 
-scalacOptions ++= Seq(
+ThisBuild / scalacOptions ++= Seq(
   //"-Yexplicit-nulls",
   "-deprecation", "-unchecked",
-  "-Ysemanticdb",
+  "-language:implicitConversions"
 )
+
+lazy val root = Project(id = "guarana-swing", base = file("."))
+
+lazy val guaranaTheme = Project(id = "theme", base = file("theme"))
+  .dependsOn(root)
+
+
+ThisBuild / fork := true
 
 Compile / packageDoc / publishArtifact := false
 
-fork := true
 
-//scalacOptions ++= Seq("-Yinfer-argument-types")
 //scalacOptions += "-Yexplicit-nulls"
 libraryDependencies += "com.novocode" % "junit-interface" % "0.11" % "test"
 
 libraryDependencies ++= Seq(
-  ("com.github.pathikrit" % "better-files_2.13" % "3.8.0"), //.withDottyCompat(scalaVersion.value),
+  ("com.github.pathikrit" % "better-files_2.13" % "3.9.1"), //.withDottyCompat(scalaVersion.value),
   "org.codehaus.griffon.plugins" % "griffon-lookandfeel-napkin" % "2.0.0",
-  "com.formdev" % "flatlaf" % "0.26",
+  "com.formdev" % "flatlaf" % "1.0",
+  "com.jhlabs" % "filters" % "2.0.235-1",
 
-  "io.dropwizard.metrics" % "metrics-core" % "4.1.11" % "test",
-  //"de.vandermeer" % "asciitable" % "0.3.2",
-  //"io.github.classgraph" % "classgraph" % "4.8.60",
-  // "org.scalameta" % "munit_0.24" % "0.7.7" % Test,
-  ("com.typesafe.play" %% "play-json" % "2.9.1" % "test").withDottyCompat(scalaVersion.value)
+  "io.dropwizard.metrics" % "metrics-core" % "4.1.18" % "test",
+  "org.scalatest" %% "scalatest-funsuite" % "3.2.5" % "test",
+  ("com.typesafe.play" %% "play-json" % "2.9.2" % "test").withDottyCompat(scalaVersion.value),
 
 )
-// testFrameworks += new TestFramework("munit.Framework")
-
-(reStart/mainClass) := Some("guarana.swing.ShapesTest")
-
+libraryDependencies += "com.github.rssh" %% "dotty-cps-async" % "0.4.0"
 
 lazy val moduleJars = taskKey[Seq[(Attributed[File], java.lang.module.ModuleDescriptor)]]("moduleJars")
-moduleJars := {
+ThisBuild / moduleJars := {
   val attributedJars = (Compile/dependencyClasspathAsJars).value.filterNot(_.metadata(moduleID.key).organization == "org.scala-lang")
   val modules = attributedJars.flatMap { aj =>
     try {
@@ -49,7 +50,7 @@ moduleJars := {
   modules
 }
 
-javaOptions ++= {
+ThisBuild / javaOptions ++= {
   val modules = moduleJars.value
   if (modules.isEmpty) Seq()
   else Seq(
@@ -58,6 +59,6 @@ javaOptions ++= {
   )
 }
 
-javaOptions += "-Xmx100m"
-javaOptions ++= Seq("-Dsun.java2d.uiScale.enabled=true", "-Dsun.java2d.uiScale=1")
-outputStrategy := Some(StdoutOutput)
+ThisBuild / javaOptions += "-Xmx100m"
+ThisBuild / javaOptions ++= Seq("-Dsun.java2d.uiScale.enabled=true", "-Dsun.java2d.uiScale=2")
+ThisBuild / outputStrategy := Some(StdoutOutput)

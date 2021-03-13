@@ -6,9 +6,9 @@ import java.awt.{Dimension, Rectangle}
 import javax.swing.{AbstractButton, JComponent, JButton, UIManager}
 import javax.swing.plaf.metal.MetalScrollBarUI
 import scala.annotation.static
-import scala.util.chaining._
+import scala.util.chaining.*
 
-class CssScrollBarUi extends MetalScrollBarUI, CssUi {
+class CssScrollBarUi extends MetalScrollBarUI, CssSwingControlUi {
   override def paint(g: Graphics, c: JComponent) = super.paint(g.upgrade.withAliasing, c)
 
   override protected def createIncreaseButton(orientation: Int) = createInvisibleButton()
