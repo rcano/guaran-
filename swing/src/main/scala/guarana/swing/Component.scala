@@ -77,8 +77,10 @@ object Component extends VarsMap {
     Node.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
     
-    
+    v.putClientProperty(InitializedKey, true)
   }
+
+  def isInitialized(v: Component): Boolean = v.getClientProperty(InitializedKey) != null
   
-  
+  val InitializedKey = "guarana-initialized-key"
 }

@@ -1,7 +1,12 @@
-package guarana.swing.plaf
+package guarana.swing
+package plaf
 
-import javax.swing.plaf.metal.MetalCheckBoxUI
-
-class CssCheckboxUi() extends MetalCheckBoxUI, CssSwingControlUi {
+import javax.swing.JComponent
+import scala.annotation.static
+class CssCheckboxUi() extends CssRadioButtonUi {
   
+  override def getPropertyPrefix() = "CheckBox."
+}
+object CssCheckboxUi extends CssCheckboxUi {
+  @static def createUI(c: JComponent): CssCheckboxUi = this
 }

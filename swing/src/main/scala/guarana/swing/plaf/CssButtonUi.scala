@@ -5,7 +5,7 @@ import language.implicitConversions
 import javax.swing.{AbstractButton, JComponent, UIManager}
 import javax.swing.plaf.basic.BasicGraphicsUtils
 import javax.swing.plaf.metal.MetalButtonUI
-import scala.annotation.static
+import scala.annotation.{static, targetName}
 import scala.util.chaining._
 
 class CssButtonUi extends MetalButtonUI, CssSwingControlUi {
@@ -40,8 +40,14 @@ class CssButtonUi extends MetalButtonUI, CssSwingControlUi {
 
   }
 
-  /*** Copied over from MetalButtonUI, just so that we can use styled property for foreground */
-  override protected def paintText(g: Graphics, c: JComponent, textRect: Bounds, text: String): Unit = {
+  override protected def paintText(g: Graphics, c: JComponent, textRect: Bounds, text: String): Unit =
+    CssButtonUi.paintButtonText(g, c, textRect, text)
+}
+object CssButtonUi extends CssButtonUi {
+  @static def createUI(c: JComponent): CssButtonUi = this
+
+  /** Copied over from MetalButtonUI, just so that we can use styled property for foreground */
+  def paintButtonText(g: Graphics, c: JComponent, textRect: Bounds, text: String): Unit = {
     val b = c.asInstanceOf[javax.swing.AbstractButton]
     val model = b.getModel()
     val fm = c.getFontMetrics(g.getFont())
@@ -60,7 +66,4 @@ class CssButtonUi extends MetalButtonUI, CssSwingControlUi {
     BasicGraphicsUtils.drawStringUnderlineCharAt(c, g.upgrade, text, mnemIndex,
                               textRect.x.toFloat, textRect.y.toFloat + fm.getAscent())
   }
-}
-object CssButtonUi extends CssButtonUi {
-  @static def createUI(c: JComponent): CssButtonUi = this
 }

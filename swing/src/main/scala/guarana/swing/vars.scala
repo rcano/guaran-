@@ -1,7 +1,7 @@
 package guarana.swing
 
 import language.implicitConversions
-import scala.annotation.{alpha}
+import scala.annotation.targetName
 import scala.annotation.compileTimeOnly
 
 case class Keyed[+T](keyed: T, instance: Any)
@@ -53,17 +53,18 @@ object ObsVal {
 }
 
 sealed trait Var[T] extends ObsVal[T] {
-  @alpha("assign")
+  @targetName("assign")
   def :=(b: Binding[T])(using instance: ValueOf[ForInstance]): VarContextAction[this.type] = ctx ?=> { ctx(this) = b; this }
   // final def :=(n: Null)(using instance: ValueOf[ForInstance], nullEv: Null <:< T): VarContextAction[this.type] = (using ctx) => { ctx(this) = Binding.Const(() => nullEv(null)); this }
   def eagerEvaluation: Boolean
 
+  def forInstance[S <: Singleton]: Var.Aux[T, S] = this.asInstanceOf[Var.Aux[T, S]]
   def forInstance[S <: Singleton](s: S): Var.Aux[T, S] = this.asInstanceOf[Var.Aux[T, S]]
   def asObsValIn[S <: Singleton](s: S): ObsVal.Aux[T, S] = this.asInstanceOf[ObsVal.Aux[T, S]]
 
   override def toString = s"Var($name)"
 }
-object Var {
+object Var extends VarExtensions {
   type Aux[T, Instance <: Singleton] = Var[T] { type ForInstance = Instance }
   def apply[T](varName: => String, initValue: => T, eagerEvaluation: Boolean = false) = {
     val ev = eagerEvaluation
@@ -125,7 +126,7 @@ trait ExternalObsVal[+T] extends ObsVal[T] {
 
 trait ExternalVar[T] extends Var[T] with ExternalObsVal[T] {
   private[swing] def set(n: ForInstance, v: T): Unit
-  @alpha("assign")
+  @targetName("assign")
   override def :=(b: Binding[T])(using instance: ValueOf[ForInstance]): VarContextAction[this.type] = {
     val ctx = summon[VarContext]
     b match {

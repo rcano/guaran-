@@ -3,6 +3,9 @@ package animation
 
 import javax.swing.Timer
 
+/** Creates a javax.swing.Timer setup to run a [[Script]].
+  *
+  */ 
 object ScriptedAnimation {
   def apply(script: Script, ups: Int): Scenegraph ?=> Timer = {
     val scriptEngine = ScriptEngine(summon, 5)

@@ -109,6 +109,8 @@ object RegionPainter {
       if (topLeftHRadius != 0 && topLeftVRadius != 0)
         res.append(new geom.Arc2D.Float(x, y, topLeftHRadius * 2, topLeftVRadius * 2, 180, -90, geom.Arc2D.OPEN), true)  
     
+      res.closePath()
+
       res
     }
   }

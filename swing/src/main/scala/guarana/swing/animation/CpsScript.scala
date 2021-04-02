@@ -30,6 +30,17 @@ case class Script(nextStep: ScriptEngine ?=> Scenegraph.ContextAction[Long => St
 }
 val EndOfScript = Script(_ => StepEvalResult.Done)
 
+/** The Scripting DSL provides the basic combinators for writing arbitrary logic in CPS style
+  * while enjoying cooperative multitasking, enabling writing logic that spans through time
+  * in a transparent.
+  * 
+  * Example:
+  * 
+  * {{{
+  *   TODO: provide example
+  * }}} 
+  *
+  */ 
 object ScriptDsl {
   // type ScriptMonad[T] = Script
   object opaques:

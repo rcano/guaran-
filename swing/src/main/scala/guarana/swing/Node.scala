@@ -76,7 +76,6 @@ object Node extends VarsMap {
   def wrap(v: java.awt.Component) = v.asInstanceOf[Node]
 
   def init(v: Node): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
-    
     v.addPropertyChangeListener(varsPropertyListener(v))
     v addMouseMotionListener new java.awt.event.MouseMotionListener {
       def mouseDragged(evt: java.awt.event.MouseEvent | Null) = ()

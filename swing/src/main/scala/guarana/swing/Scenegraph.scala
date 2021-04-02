@@ -13,8 +13,8 @@ object Scenegraph {
 class Scenegraph {
 
   type Signal[+T] = ObsVal[T]
-  private[this] var switchboard = SignalSwitchboard[Signal](reporter)
-  private[this] var emitterStation = EmitterStation()
+  private[this] val switchboard = SignalSwitchboard[Signal](reporter)
+  private[this] val emitterStation = EmitterStation()
   var stylist: Stylist = Stylist.NoOp
 
   private val systemEm: Double = plaf.CssLaf.fontDeterminedByOs.map(_.getSize2D.toDouble).getOrElse(14)
@@ -32,14 +32,22 @@ class Scenegraph {
       var locallyCreatedContext = false
       var ctx = threadLocalContext.get()
       if (ctx == null) {
-        ctx = new ContextImpl(CopyOnWriteSignalSwitchboard(switchboard, reporter), CopyOnWriteEmitterStation(emitterStation))
+        //in an ideal world, we would use a context like the following:
+        // ctx = new ContextImpl(CopyOnWriteSignalSwitchboard(switchboard, reporter), CopyOnWriteEmitterStation(emitterStation))
+        // this would make the scenegraph immutable, allowing you to rollback change sin case of exception.
+        // Unfortunately, due to the already mutable nature of swing, once you impact a swing property, it would not matter rolling
+        // back, and it doesn't  make sense to track all changes and try to undo them (even though possible) beacuse it's already
+        // contrarian to how swing works anyway. Given all of this, we'll prefer speed here and hence directly mutate the
+        // scenegraph state.
+        ctx = ContextImpl(switchboard, emitterStation)
         threadLocalContext.set(ctx)
         locallyCreatedContext = true
       }
       val res = f(using this)(using ctx)
       if (locallyCreatedContext) {
-        switchboard = ctx.switchboard.theInstance
-        emitterStation = ctx.emitterStation.theInstance
+        // in an immutable world, we would need to update our internal state:
+        // switchboard = ctx.switchboard.theInstance
+        // emitterStation = ctx.emitterStation.theInstance
         threadLocalContext.set(null)
       }
       res
@@ -92,20 +100,9 @@ class Scenegraph {
     }
   }
 
-  /** Stylist.ScenegraphInfo for this scenegraph.
-    * You don't typically access this instance, since when you are implementing a Stylist
-    * it is passed to you when query properties.
-    * It's public mainly to be used by LaF implementors.
-    */ 
-  val scenegraphInfo = new Stylist.ScenegraphInfo {
-    def get[T](property: Keyed[ObsVal[T]]): Option[T] = switchboard.get(property)
-    def emSize: Double = switchboard.get(ObsVal.obs2Keyed(Scenegraph.this.emSize)(ValueOf(Scenegraph.this)))
-      .getOrElse(Scenegraph.this.emSize.initialValue(Scenegraph.this))
-  }
-
   private class SwitchboardAsVarContext(switchboard: SignalSwitchboard[Signal]) extends VarContext {
     def apply[T](v: ObsVal[T])(using instance: ValueOf[v.ForInstance]): T = {
-      switchboard.get(v) orElse stylist(scenegraphInfo)(v) getOrElse v.initialValue(instance.value)
+      switchboard.get(v) orElse stylist(v) getOrElse v.initialValue(instance.value)
     }
     def update[T](v: Var[T], binding: Binding[T])(using instance: ValueOf[v.ForInstance]): Unit = {
       binding match {
@@ -125,8 +122,8 @@ class Scenegraph {
    * After the lambda that uses this context is done, the updated switchboard replaces the old one, and we update our tracking.
    */
   private class ContextImpl(
-    val switchboard: CopyOnWriteSignalSwitchboard[Signal],
-    var emitterStation: CopyOnWriteEmitterStation,
+    val switchboard: SignalSwitchboard[Signal],
+    var emitterStation: EmitterStation,
   ) extends SwitchboardAsVarContext(switchboard) with Emitter.Context {
 
     //Emitter.Context
@@ -139,9 +136,23 @@ class Scenegraph {
 
   /** Read-only view of the current state of vars value in the scenegraph */
   object stateReader {
+    /** Read the current value of ObsVal as it is read by doing `prop()` within a VarContext */
     def apply[T](v: ObsVal[T])(using instance: ValueOf[v.ForInstance]): T = {
-      switchboard.get(v) orElse stylist(scenegraphInfo)(v) getOrElse v.initialValue(instance.value)
+      val keyed: Keyed[ObsVal[T]] = v
+      switchboard.get(keyed) orElse stylist(keyed) getOrElse v.initialValue(instance.value)
     }
+    /** Reads the stored value of the property, if any.*/
+    def get[T](property: ObsVal[T])(using instance: ValueOf[property.ForInstance]): Option[T] = switchboard.get(property)
+
+    /** Reads the stored value of the property or its default (it doesn't asks the stylist) */
+    def getOrDefault[T](property: ObsVal[T])(using instance: ValueOf[property.ForInstance]): T = get(property).getOrElse {
+      val k = property.instance.asInstanceOf[property.keyed.ForInstance]
+      property.keyed.initialValue(k)
+    }
+
+    def emSize: Double = 
+      val prop = Scenegraph.this.emSize
+      getOrDefault(prop)(using ValueOf(Scenegraph.this))
   }
 
   object awtInputListener extends javax.swing.event.MouseInputListener, java.awt.event.KeyListener {

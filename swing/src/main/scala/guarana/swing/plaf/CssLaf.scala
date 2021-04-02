@@ -4,7 +4,7 @@ package plaf
 import language.implicitConversions
 import java.awt.Font
 import javax.swing.{UIManager, UIDefaults, JComponent}
-import javax.swing.plaf.{FontUIResource, UIResource}
+import javax.swing.plaf.{BorderUIResource, FontUIResource, UIResource}
 import javax.swing.plaf.metal.MetalLookAndFeel
 import javax.swing.plaf.basic.BasicLookAndFeel
 import scala.annotation.unchecked.uncheckedStable
@@ -57,6 +57,8 @@ class CssLaf(val scenegraph: Scenegraph) extends MetalLookAndFeel {
 
     defaults.keySet.nn.asScala.filter(_.toString endsWith "border") foreach (k => defaults.put(k, CssBorder(scenegraph)))
 
+    defaults.put("TitledBorder.border", new BorderUIResource(new CssBorder(scenegraph)))
+
     defaults
   }
 
@@ -66,11 +68,16 @@ class CssLaf(val scenegraph: Scenegraph) extends MetalLookAndFeel {
     defaults.put("PanelUI", classOf[CssPanelUi].getCanonicalName)
     defaults.put("ButtonUI", classOf[CssButtonUi].getCanonicalName)
     defaults.put("ToggleButtonUI", classOf[CssButtonUi].getCanonicalName)
+    defaults.put("RadioButtonUI", classOf[CssRadioButtonUi].getCanonicalName)
+    defaults.put("CheckBoxUI", classOf[CssCheckboxUi].getCanonicalName)
     defaults.put("ScrollBarUI", classOf[CssScrollBarUi].getCanonicalName)
     defaults.put("ProgressBarUI", classOf[CssProgressBarUi].getCanonicalName)
     defaults.put("TabbedPaneUI", classOf[CssTabbedPaneUi].getCanonicalName)
     defaults.put("SliderUI", classOf[CssSliderUi].getCanonicalName)
     defaults.put("TextFieldUI", classOf[CssTextFieldUi].getCanonicalName)
+    defaults.put("TextAreaUI", classOf[CssTextAreaUi].getCanonicalName)
+    defaults.put("LabelUI", classOf[CssLabelUi].getCanonicalName)
+    defaults.put("ComboBoxUI", classOf[CssComboBoxUi].getCanonicalName)
   }
 
   override def uninitialize(): Unit = {
@@ -128,6 +135,6 @@ trait CssUi {
 
   inline protected def getUiProperty[T, C <: JComponent](property: Var[T], instance: C, inline getter: C => T): T =
     getter(instance) match
-      case res: UIResource => scenegraph.stylist(scenegraph.scenegraphInfo)(property.forInstance(instance)).getOrElse(res)
+      case res: UIResource => scenegraph.stylist(property.forInstance(instance)).getOrElse(res)
       case other => other
 }

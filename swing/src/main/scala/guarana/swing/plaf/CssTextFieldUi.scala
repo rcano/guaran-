@@ -7,7 +7,7 @@ import javax.swing.plaf.basic.BasicTextFieldUI
 import scala.annotation.static
 import scala.util.chaining.*
 
-class CssTextFieldUi extends BasicTextFieldUI, CssSwingControlUi {
+class CssTextFieldUi extends BasicTextFieldUI, CssTextComponentCommons {
 
   private var uninstalled = false
   override protected def installListeners(): Unit =

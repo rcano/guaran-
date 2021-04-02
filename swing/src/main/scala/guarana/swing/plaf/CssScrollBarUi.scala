@@ -11,6 +11,14 @@ import scala.util.chaining.*
 class CssScrollBarUi extends MetalScrollBarUI, CssSwingControlUi {
   override def paint(g: Graphics, c: JComponent) = super.paint(g.upgrade.withAliasing, c)
 
+  override def installDefaults() =
+    super.installDefaults()
+    scenegraph.stylist.installDefaults(scrollbar)
+
+  override def uninstallDefaults() =
+    super.uninstallDefaults()
+    scenegraph.stylist.uninstallDefaults(scrollbar)
+
   override protected def createIncreaseButton(orientation: Int) = createInvisibleButton()
   override protected def createDecreaseButton(orientation: Int) = createInvisibleButton()
   protected def createInvisibleButton() = JButton().tap { b =>

@@ -3,7 +3,7 @@ package guarana.swing
 import java.awt.BasicStroke
 import javax.swing.SwingConstants
 
-class TestStyle extends Stylist {
+class TestStyle()(using scenegraph: Scenegraph) extends Stylist {
  
   val corners = style.CornerRadii.all(4)
   val rootBackground = style.Background(fills = IArray(style.BackgroundFill(Color.WhiteSmoke, corners, Insets.all(0))))
@@ -17,8 +17,8 @@ class TestStyle extends Stylist {
   val textFieldBckHover = style.Background(fills = IArray(style.BackgroundFill(Color.Lavender.deriveHSB(1.1, 1, 1, 1), style.CornerRadii.all(0), Insets.all(0))))
 
 
-  def apply[T](info: Stylist.ScenegraphInfo)(prop: Keyed[ObsVal[T]]) = {
-    lazy val emSize = info.emSize
+  def apply[T](prop: Keyed[ObsVal[T]]) = {
+    lazy val emSize = scenegraph.stateReader.getOrDefault(scenegraph.emSize)
     prop match {
       case Keyed(style.CssProperties.Border, jb: javax.swing.AbstractButton) =>
         val h = jb.getBounds.getHeight
@@ -121,7 +121,7 @@ class TestStyle extends Stylist {
       ).asInstanceOf[Option[T]]
 
       case Keyed(style.CssProperties.Background, tf: TextField) => Some(
-        if info.get(tf.hovered).exists(identity) then textFieldBckHover
+        if scenegraph.stateReader.get(tf.hovered).exists(identity) then textFieldBckHover
         else textFieldBck
       ).asInstanceOf[Option[T]]
 
@@ -131,7 +131,6 @@ class TestStyle extends Stylist {
   }
   def invalidateCache(node: Any) = ()
 
-  def stateChanged(node: Any, state: Any, change: StateChange): Unit = ()
   def installDefaults(node: Any): Unit = ()
   def uninstallDefaults(node: Any): Unit = ()
 }

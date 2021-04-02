@@ -69,14 +69,13 @@ import util.UnsetParam
 
   val scenegraph = Scenegraph()
 
-  scenegraph.stylist = TestStyle()
-
   // com.formdev.flatlaf.FlatLightLaf.install()
   // javax.swing.UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel")
   // javax.swing.UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel")
   // plaf.CssSynthLaf.install()
 
   scenegraph.update {
+    scenegraph.stylist = TestStyle()
     plaf.CssLaf.install()
 
     val userTf = TextField(columns = 5)

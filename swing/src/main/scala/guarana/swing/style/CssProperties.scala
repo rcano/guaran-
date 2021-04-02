@@ -11,6 +11,12 @@ object CssProperties {
   val Background = Var[style.Background]("css-background", EmptyBackground)
   val Border = Var[style.Border]("css-border", EmptyBorder)
   val Effect = Var[java.awt.image.BufferedImageOp | Null]("css-effect", null)
+  val Opacity = Var[Double]("css-opacity", 1)
+
+  /** Extra classes that you can associate to nodes. It's up to the stylist to use these
+    *
+    */ 
+  val Classes = Var[Set[String]]("css-classes", Set.empty)
 
   /** Dictates padding for a node's content area.
    * 
@@ -46,15 +52,15 @@ object CssProperties {
   val SliderTrackFillBackground = Var[Background]("css-slider-track-fill-background", EmptyBackground)
   val SliderTrackFillBorder = Var[Border]("css-slider-track-fill-border", EmptyBorder)
 
-  // Radio button specific
-  val RadioButtonTickShape = Var[Shape]("css-radio-button-tick-shape", null)
-  val RadioButtonTickBackground = Var[Background]("css-radio-buttoncheckbox-tick-background", null)
-  val RadioButtonTickBorder = Var[Background]("css-radio-button-tick-border", null)
+  //ComboBox specific
+  val ComboBoxValueBackground = Var[Background]("css-slider-thumb-background", EmptyBackground)
+  val ComboBoxValueBorder = Var[Border]("css-slider-thumb-background", EmptyBorder)
 
-  // Check box specific
-  val CheckboxTickShape = Var[Shape]("css-checkbox-tick-shape", null)
-  val CheckboxTickBackground = Var[Background]("css-checkbox-tick-background", null)
-  val CheckboxTickBorder = Var[Background]("css-checkbox-tick-border", null)
+  //ListCellRenderer specific
+  val ListCellRendererItem = Var[Any | Null]("css-list-cell-renderer-item", null)
+  val ListCellRendererItemIndex = Var[Int]("css-list-cell-renderer-item-index", -1)
+  val ListCellRendererSelected = Var[Boolean]("css-list-cell-renderer-selected", false)
+  val ListCellRendererFocused = Var[Boolean]("css-list-cell-renderer-focused", false)
 }
 
 case class TabInfo(tabIndex: Int, selected: Boolean)

@@ -29,19 +29,7 @@ trait AbstractGradientPaint(fractions: Array[Float], colors: Array[Color], color
     }
   }
 
-  private def interpolateColors(c1: Int, c2: Int, interp: Double): Int =
-    val a1 = (c1 >> 24) & 0xFF
-    val a2 = (c2 >> 24) & 0xFF
-    val r1 = (c1 >> 16) & 0xFF
-    val r2 = (c2 >> 16) & 0xFF
-    val g1 = (c1 >> 8) & 0xFF
-    val g2 = (c2 >> 8) & 0xFF
-    val b1 = (c1 >> 0) & 0xFF
-    val b2 = (c2 >> 0) & 0xFF
-    ((a2 - a1) * interp + a1).toInt << 24 |
-    ((r2 - r1) * interp + r1).toInt << 16 |
-    ((g2 - g1) * interp + g1).toInt << 8 |
-    ((b2 - b1) * interp + b1).toInt
+  export Color.interpolateColors
 
   trait GradientPixelContext(requestedColorModel: ColorModel) extends PaintContext {
     final override lazy val getColorModel =

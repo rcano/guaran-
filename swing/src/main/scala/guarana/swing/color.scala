@@ -7,7 +7,7 @@ object Color {
   def argb(argb: Int): Color = java.awt.Color(argb, true)
   def hsb(hue: Double, saturation: Double, brightness: Double): Color = java.awt.Color.getHSBColor(hue.toFloat, saturation.toFloat, brightness.toFloat).nn
   def web(code: String): Color = 
-    if (code.startsWith("#")) argb(java.lang.Integer.parseInt(code.substring(1), 16)) 
+    if (code.startsWith("#")) argb(0xFF << 24 | java.lang.Integer.parseInt(code.substring(1), 16)) 
     else throw new IllegalArgumentException("Invalid web code, it should start with #")
 
   /**
@@ -122,7 +122,7 @@ object Color {
     * The color cornflower blue with an RGB value of #6495ED
     * <div style="border:1px solid blackwidth:40pxheight:20pxbackground-color:#6495EDfloat:rightmargin: 0 10px 0 0"></div>
     */
-  val CornfloweBblue = Color(0.39215687f, 0.58431375f, 0.92941177f)
+  val CornflowerBlue = Color(0.39215687f, 0.58431375f, 0.92941177f)
 
   /**
     * The color cornsilk with an RGB value of #FFF8DC
@@ -892,6 +892,20 @@ object Color {
     * <div style="border:1px solid blackwidth:40pxheight:20pxbackground-color:#9ACD32float:rightmargin: 0 10px 0 0"></div>
     */
   val YellowGreen = Color(0.6039216f, 0.8039216f, 0.19607843f)
+
+  def interpolateColors(c1: Int, c2: Int, interp: Double): Int =
+    val a1 = (c1 >> 24) & 0xFF
+    val a2 = (c2 >> 24) & 0xFF
+    val r1 = (c1 >> 16) & 0xFF
+    val r2 = (c2 >> 16) & 0xFF
+    val g1 = (c1 >> 8) & 0xFF
+    val g2 = (c2 >> 8) & 0xFF
+    val b1 = (c1 >> 0) & 0xFF
+    val b2 = (c2 >> 0) & 0xFF
+    ((a2 - a1) * interp + a1).toInt << 24 |
+    ((r2 - r1) * interp + r1).toInt << 16 |
+    ((g2 - g1) * interp + g1).toInt << 8 |
+    ((b2 - b1) * interp + b1).toInt
 }
 type Paint = java.awt.Paint
 
@@ -910,3 +924,5 @@ extension (c: Color)
     hsb(1) = clamp(hsb(1) * s)
     hsb(2) = clamp(hsb(2) * b)
     Color.hsb(hsb(0), hsb(1), hsb(2)).withOpacity(clamp(alpha * c.getAlpha))
+
+  def interp(b: Color, at: Double): Color = Color.argb(Color.interpolateColors(c.getRGB, b.getRGB, at))

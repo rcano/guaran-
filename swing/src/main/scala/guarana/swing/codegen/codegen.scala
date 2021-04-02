@@ -422,7 +422,7 @@ case object GridPane extends NodeDescr(
     VarProp("rows", "Seq[Seq[Node]]", "Seq.empty"),
     VarProp("hgap", "Double", "0.0"),
     VarProp("vgap", "Double", "0.0"),
-    SwingProp("layoutVar", "Unit", "_ => ()", "(_, _) => ()"),
+    SwingProp("layoutVar", "Unit", "_ => ()", "(_, _) => ()", Some("private")),
     SwingProp("autoCreateContainerGaps", "Boolean",
       "_.getLayout.asInstanceOf[GroupLayout].getAutoCreateContainerGaps()",
       "_.getLayout.asInstanceOf[GroupLayout].setAutoCreateContainerGaps(_)"),
