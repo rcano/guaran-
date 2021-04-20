@@ -1,7 +1,7 @@
 package guarana.swing
 package plaf
 
-import javax.swing.plaf.ColorUIResource
+import javax.swing.plaf.{ColorUIResource, UIResource}
 import javax.swing.plaf.basic.BasicTextUI
 
 trait CssTextComponentCommons extends BasicTextUI, CssSwingControlUi {

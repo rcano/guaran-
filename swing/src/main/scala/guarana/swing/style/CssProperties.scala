@@ -7,6 +7,7 @@ object CssProperties {
   val EmptyBackground = style.Background()
   val EmptyBorder = style.Border()
   val EmptyInsets = Insets()
+  val TransparentBackground = style.Background(fills = IArray(BackgroundFill(Color.Transparent, CornerRadii.all(0), EmptyInsets)))
 
   val Background = Var[style.Background]("css-background", EmptyBackground)
   val Border = Var[style.Border]("css-border", EmptyBorder)
@@ -53,7 +54,7 @@ object CssProperties {
   val SliderTrackFillBorder = Var[Border]("css-slider-track-fill-border", EmptyBorder)
 
   //ComboBox specific
-  val ComboBoxValueBackground = Var[Background]("css-slider-thumb-background", EmptyBackground)
+  val ComboBoxValueBackground = Var[Background]("css-slider-thumb-background", TransparentBackground)
   val ComboBoxValueBorder = Var[Border]("css-slider-thumb-background", EmptyBorder)
 
   //ListCellRenderer specific

@@ -6,15 +6,28 @@ import javax.swing.plaf.basic.{BasicComboBoxUI, BasicComboPopup}
 import scala.annotation.static
 import scala.util.chaining._
 
-class CssComboBoxUi extends BasicComboBoxUI, CssSwingControlUi  {
+class CssComboBoxUi extends BasicComboBoxUI, CssSwingControlUi, CssBackgroundSupport  {
   
+  private var uninstalled = false
   override def installDefaults(): Unit =
     super.installDefaults()
     scenegraph.stylist.installDefaults(comboBox)
+    scenegraph.update {
+      val cb = comboBox
+      val paddingProp = style.CssProperties.Padding.forInstance[cb.type]
+      padding = paddingProp().toAwt
+      cb.varUpdates := EventIterator.takeWhile(_ => !uninstalled).foreach {
+        case paddingProp(_, newPadding) => 
+          padding = newPadding.toAwt
+          comboBox.revalidate()
+        case _ =>
+      }
+    }
 
   override def uninstallDefaults(): Unit =
     super.uninstallDefaults()
     scenegraph.stylist.uninstallDefaults(comboBox)
+    uninstalled = true
 
   override protected def createArrowButton(): JButton = JButton("⮟")
   override protected def createPopup() = Popup()
@@ -70,11 +83,6 @@ class CssComboBoxUi extends BasicComboBoxUI, CssSwingControlUi  {
       if border != null then setBorder(border)
       setOpaque(false)
     }
-
-    // override protected def configureList() = {
-    //   super.configureList()
-    //   list.setCellRenderer(PopupListCellRenderer)
-    // }
   }
 }
 

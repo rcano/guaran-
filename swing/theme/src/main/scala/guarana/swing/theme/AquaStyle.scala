@@ -13,7 +13,7 @@ class AquaStyle()(using scenegraph: Scenegraph) extends Stylist {
   val NoInsets = Insets.all(0)
 
   val baseBackgroundColor = Color.web("#f2f3f5")
-  val baseBackgroundColorShadow = baseBackgroundColor.deriveHSB(1, 1, 0.9, 1)
+  val baseBackgroundColorShadow = baseBackgroundColor.deriveHSB(1, 1, 0.8, 1)
   val baseBackgroundColorHighlight = Color.White
   val baseBackgroundColorLowlight = Color.web("#e8e9eb")
 
@@ -38,19 +38,30 @@ class AquaStyle()(using scenegraph: Scenegraph) extends Stylist {
 
   val textAreaBackground = Background(fills = IArray(BackgroundFill(baseBackgroundColorHighlight, NoCorners, NoInsets)))
 
-  val cellBackgroundEven = Background(fills = IArray(BackgroundFill(baseBackgroundColorLowlight, NoCorners, NoInsets)))
-  val cellBackgroundEvenSelected = Background(fills = IArray(BackgroundFill(baseBackgroundColorLowlight.interp(Color.LightBlue, 0.2), NoCorners, NoInsets)))
-  val cellBackgroundOdd = Background(fills = IArray(BackgroundFill(baseBackgroundColor, NoCorners, NoInsets)))
-  val cellBackgroundOddSelected = Background(fills = IArray(BackgroundFill(baseBackgroundColor.interp(Color.LightBlue, 0.2), NoCorners, NoInsets)))
+  val cellBackgroundEven = Background(fills = IArray(BackgroundFill(baseBackgroundColor, NoCorners, NoInsets)))
+  val cellBackgroundEvenSelected = Background(fills = IArray(BackgroundFill(baseBackgroundColor.interp(Color.LightBlue, 0.2), NoCorners, NoInsets)))
+  val cellBackgroundOdd = Background(fills = IArray(BackgroundFill(baseBackgroundColorLowlight, NoCorners, NoInsets)))
+  val cellBackgroundOddSelected = Background(fills = IArray(BackgroundFill(baseBackgroundColorLowlight.interp(Color.LightBlue, 0.2), NoCorners, NoInsets)))
 
   var emDependentSettings: Settings = null
 
   /** emSize dependent settings, these are recomputed when the emSize changes */
   class Settings(val emSize: Double) {
-
+    val RoundedCorner = CornerRadii.all(emSize / 5)
     val shadowEffect = ShadowFilter(emSize.toFloat, 5, -5, 0.5f)
 
-    val scrollBarBackground = Background(fills = IArray(BackgroundFill(baseBackgroundColorLowlight, CornerRadii.all(emSize / 5), NoInsets)))
+    val width1px = emSize.toFloat / 14
+    val scrollBarBackground = Background(fills = IArray(BackgroundFill(baseBackgroundColorLowlight, RoundedCorner, NoInsets)))
+    val thinBorder = Border(strokes = IArray(BorderStroke.simple(
+      baseBackgroundColorShadow,
+      BasicStroke(width1px),
+      CornerRadii.all(width1px * 3),
+      Insets.all(width1px)
+    )))
+
+    val comboBoxBackground = Background(fills = IArray(BackgroundFill(baseBackgroundColorLowlight, RoundedCorner, NoInsets)))
+
+    val textAreaEmptyBorder = Border(IArray(BorderStroke.simple(baseBackgroundColorHighlight, BasicStroke(emSize.toFloat / 2), NoCorners, Insets.all(emSize/2))))
   }
 
   def apply[T](prop: Keyed[ObsVal[T]]): Option[T] = {
@@ -61,42 +72,51 @@ class AquaStyle()(using scenegraph: Scenegraph) extends Stylist {
     import settings._
 
     val res: Option[?] = prop match
-    case Keyed(CssProperties.Background, _: JRootPane) => Some(rootBackground)
-    
-    case Keyed(CssProperties.Background, jb: JButton) => Some(if jb.getModel.isPressed then buttonBackgroundArmed else buttonBackground)
-    case Keyed(Node.Foreground, _: JButton) => Some(darkBackgroundTextColor)
-    case Keyed(CssProperties.Padding, _: JButton) => Some(Insets(left = emSize))
-    case Keyed(CssProperties.Effect, _: JButton) => Some(shadowEffect)
+      case Keyed(CssProperties.Background, _: JRootPane) => Some(rootBackground)
+      
+      case Keyed(prop, jb: JButton) =>
+        jb.getParent match 
+          case _: JComboBox[?] =>
+            None
+          case _ => prop match
+            case CssProperties.Background => Some(if jb.getModel.isPressed then buttonBackgroundArmed else buttonBackground)
+            case Node.Foreground => Some(darkBackgroundTextColor)
+            case CssProperties.Padding => Some(Insets(left = emSize))
+            case CssProperties.Effect => Some(shadowEffect)
+            case _ => None
 
-    case Keyed(CssProperties.Background, sb: JScrollBar) => Some(scrollBarBackground)
-    case Keyed(CssProperties.ScrollbarThumbBackground, jb: JScrollBar) => 
-      val prefSize = jb.getPreferredSize
-      Some(
-        Background(fills = IArray(BackgroundFill(baseBackgroundColorShadow.darker(), CornerRadii.simple(prefSize.width / 2, prefSize.width / 2, prefSize.width / 2,  prefSize.width / 2), NoInsets)))
-      )
+      case Keyed(CssProperties.Background, sb: JScrollBar) => Some(scrollBarBackground)
+      case Keyed(CssProperties.ScrollbarThumbBackground, jb: JScrollBar) => 
+        val prefSize = jb.getPreferredSize
+        Some(
+          Background(fills = IArray(BackgroundFill(baseBackgroundColorShadow, CornerRadii.simple(prefSize.width / 2, prefSize.width / 2, prefSize.width / 2,  prefSize.width / 2), NoInsets)))
+        )
 
-    case Keyed(CssProperties.Background, sb: JTextArea) => Some(textAreaBackground)
-    case Keyed(TextComponent.SelectionColor, _: text.JTextComponent) => Some(baseBackgroundColorShadow)
+      case Keyed(CssProperties.Background, sb: JTextArea) => Some(textAreaBackground)
+      case Keyed(CssProperties.Border, tf: JTextArea) => Some(textAreaEmptyBorder)
+      case Keyed(TextComponent.SelectionColor, _: text.JTextComponent) => Some(baseBackgroundColorShadow)
 
-    case Keyed(CssProperties.ComboBoxValueBackground, _) => Some(Background(fills = IArray(BackgroundFill(baseBackgroundColor, NoCorners, NoInsets))))
+      case Keyed(CssProperties.Padding, cb: JComboBox[?]) => Some(Insets(0, 0, 0, emSize * 1.15))
+      // case Keyed(CssProperties.Border, cb: JComboBox[?]) => Some(thinBorder)
+      case Keyed(CssProperties.Background, cb: JComboBox[?]) => Some(comboBoxBackground)
 
-    //list cell renderer
-    case Keyed(CssProperties.Background, l: JLabel) if info.getOrDefault(CssProperties.Classes.forInstance[l.type])
-        .contains(guarana.swing.plaf.CssDefaultListRenderer.Class) =>
-      val (item, index, selected, focused) = (
-        info.getOrDefault(CssProperties.ListCellRendererItem.forInstance[l.type]),
-        info.getOrDefault(CssProperties.ListCellRendererItemIndex.forInstance[l.type]),
-        info.getOrDefault(CssProperties.ListCellRendererSelected.forInstance[l.type]),
-        info.getOrDefault(CssProperties.ListCellRendererFocused.forInstance[l.type])
-      )
-      Some(
-        if index % 2 == 0 then 
-          if selected then cellBackgroundEvenSelected else cellBackgroundEven
-        else 
-          if selected then cellBackgroundOddSelected else cellBackgroundOdd
-      )
+      //list cell renderer
+      case Keyed(CssProperties.Background, l: JLabel) if info.getOrDefault(CssProperties.Classes.forInstance[l.type])
+          .contains(guarana.swing.plaf.CssDefaultListRenderer.Class) =>
+        val (item, index, selected, focused) = (
+          info.getOrDefault(CssProperties.ListCellRendererItem.forInstance[l.type]),
+          info.getOrDefault(CssProperties.ListCellRendererItemIndex.forInstance[l.type]),
+          info.getOrDefault(CssProperties.ListCellRendererSelected.forInstance[l.type]),
+          info.getOrDefault(CssProperties.ListCellRendererFocused.forInstance[l.type])
+        )
+        Some(
+          if index % 2 == 0 then 
+            if selected then cellBackgroundEvenSelected else cellBackgroundEven
+          else 
+            if selected then cellBackgroundOddSelected else cellBackgroundOdd
+        )
 
-    case _ => None
+      case _ => None
 
     res.asInstanceOf[Option[T]]
   }

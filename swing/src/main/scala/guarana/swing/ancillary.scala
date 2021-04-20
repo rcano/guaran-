@@ -1,6 +1,7 @@
 package guarana.swing
 
 import language.implicitConversions
+import scala.util.{Try}
 import util.*
 
 extension (d: Double | Float | Int) {
@@ -112,16 +113,27 @@ object Insets {
 extension (a: Any) def varUpdates(using Emitter.Context) = ObsVal.VarUpdates.forInstance(a)
 
 /** Support async Futures as vars */
-extension [T](f: scala.concurrent.Future[T]) def asObsVal(using sc: Scenegraph): ExternalObsVal[Option[scala.util.Try[T]]] { type ForInstance = scala.concurrent.Future.type } = 
-  new ExternalVar[Option[scala.util.Try[T]]] {
+extension [T](f: scala.concurrent.Future[T]) def asObsVal(using sc: Scenegraph): ExternalObsVal[Option[Try[T]]] { type ForInstance = scala.concurrent.Future.type } = 
+  new ExternalVar[Option[Try[T]]] {
     lazy val name = f.toString
     type ForInstance = scala.concurrent.Future.type
     def get(n: ForInstance) = f.value
-    private[swing] def set(n: ForInstance, v: Option[scala.util.Try[T]]): Unit = ()
+    private[swing] def set(n: ForInstance, v: Option[Try[T]]): Unit = ()
     def eagerEvaluation = false
 
     f.onComplete(res => sc.update(summon[VarContext].externalPropertyUpdated(this, Some(res))))
       (SwingExecutionContext) //we're going to do scenegrph.update, so it makes sense to already be in the right thread
+  }
+
+extension [T](f: java.util.concurrent.CompletableFuture[T]) def asObsVal(using sc: Scenegraph): ExternalObsVal[Option[Try[T]]] { type ForInstance = scala.concurrent.Future.type } =
+  new ExternalVar[Option[Try[T]]] {
+    lazy val name = f.toString
+    type ForInstance = scala.concurrent.Future.type
+    def get(n: ForInstance) = if f.isDone then Some(Try(f.get())) else None
+    private[swing] def set(n: ForInstance, v: Option[Try[T]]): Unit = ()
+    def eagerEvaluation = false
+
+    f.handle((_, _) => sc.update(summon[VarContext].externalPropertyUpdated(this, get(scala.concurrent.Future))))
   }
 
 object SwingExecutionContext extends scala.concurrent.ExecutionContext {
