@@ -1,13 +1,13 @@
 package guarana
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 import Binding.dyn
 
-class VarMacroTest extends FunSuite {
+class VarMacroTest extends AnyFunSuite {
 
   val myVar = Var.autoName[Int](0)
   val myVar2 = Var.autoName[Int](0)
-  var varBinding: Binding[Int] = null
+  var varBinding: Binding[Int] = null.asInstanceOf[Binding[Int]]
 
   test("var constants compile") {
     assertCompiles("varBinding = dyn(3)")

@@ -2,26 +2,38 @@ package guarana
 package impl
 
 import language.implicitConversions
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 import scala.util.chaining._
 
-class SignalsTest extends FunSuite {
+class SignalsTest extends AnyFunSuite {
   trait Signal[+T] {}
   implicit def keyedSignal(s: Signal[_]): Keyed[s.type] = Keyed(s, s)
-  def signal[T](initValue: T)(implicit sb: SignalSwitchboard[Signal], name: => sourcecode.Name) = {
+
+  def signal[T](initValue: T)(implicit sb: SignalSwitchboard[Signal], inferredName: guarana.util.DeclaringVal) = {
     new Signal[T] {
-      override def toString = name.value
+      override def toString = inferredName.name
     }.tap(sb(_) = initValue)
   }
 
   val noopReporter = new SignalSwitchboard.Reporter[Signal] {
-    def signalRemoved(s: Keyed[Signal[_]]): Unit = ()
-    def signalInvalidated(s: Keyed[Signal[_]]): Unit = ()
-    def signalUpdated[T](s: Keyed[Signal[T]], oldValue: Option[T], newValue: T, dependencies: collection.Set[Keyed[Signal[_]]], dependents: collection.Set[Keyed[Signal[_]]]): Unit = ()
+    def signalRemoved(sb: guarana.impl.SignalSwitchboard[Signal], s: Keyed[Signal[_]]): Unit = ()
+    def signalInvalidated(sb: guarana.impl.SignalSwitchboard[Signal], s: Keyed[Signal[_]]): Unit = ()
+    def signalUpdated[T](
+      sb: guarana.impl.SignalSwitchboard[Signal],
+      s: Keyed[Signal[T]],
+      oldValue: Option[T],
+      newValue: T,
+      dependencies: collection.Set[Keyed[Signal[_]]],
+      dependents: collection.Set[Keyed[Signal[_]]]
+    ): Unit = ()
+  }
+  val signalDescriptor = new SignalSwitchboard.SignalDescriptor[Signal] {
+    def isExternal[T](s: Signal[T]) = false
+    def getExternal[T](s: Signal[T], instance: Any) = ???
   }
 
   test("simple signal propagation") {
-    implicit val sb = SignalSwitchboard[Signal](noopReporter)
+    implicit val sb = SignalSwitchboard[Signal](noopReporter, signalDescriptor)
     val count = signal(0)
     val text = signal("")
     sb.bind(text)(ctx => s"current count = ${ctx(count)}")
@@ -33,7 +45,7 @@ class SignalsTest extends FunSuite {
   }
 
   test("complex signal propagation") {
-    implicit val sb = SignalSwitchboard[Signal](noopReporter)
+    implicit val sb = SignalSwitchboard[Signal](noopReporter, signalDescriptor)
     val count = signal(0)
     val name = signal("Unk")
     val text = signal("")
@@ -48,7 +60,7 @@ class SignalsTest extends FunSuite {
   }
 
   test("signal rebinding disposes old binding") {
-    implicit val sb = SignalSwitchboard[Signal](noopReporter)
+    implicit val sb = SignalSwitchboard[Signal](noopReporter, signalDescriptor)
     val count = signal(0)
     val text = signal("")
     sb.bind(text)(ctx => s"current count = ${ctx(count)}")
@@ -65,7 +77,7 @@ class SignalsTest extends FunSuite {
 
 
   test("signal self reference") {
-    implicit val sb = SignalSwitchboard[Signal](noopReporter)
+    implicit val sb = SignalSwitchboard[Signal](noopReporter, signalDescriptor)
     val count = signal(0)
     sb.bind(count) { ctx =>
       println(s"current count = ${ctx(count)}")
