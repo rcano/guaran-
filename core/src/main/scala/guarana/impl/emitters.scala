@@ -40,7 +40,7 @@ private[impl] object EmitterStationImpl {
   private case class EmitterData[T](itIdx: Int = 0, listeners: collection.immutable.IntMap[EventIterator[T]] = collection.immutable.IntMap.empty[EventIterator[T]]) {
     def addListener(listener: EventIterator[T]): EmitterData[T] = copy(itIdx + 1, listeners.updated(itIdx, listener))
 
-    def emit(evt: T): Scenegraph.ContextAction[EmitterData[T]] = {
+    def emit(evt: T): ToolkitAction[EmitterData[T]] = {
       var updatedListeners = collection.immutable.IntMap.empty[EventIterator[T]]
       for ((key, listener) <- listeners) {
         listener.step(evt) foreach (newState => updatedListeners = updatedListeners.updated(key, newState))

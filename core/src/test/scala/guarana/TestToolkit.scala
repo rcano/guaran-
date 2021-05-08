@@ -1,7 +1,6 @@
 package guarana
 
-class TestToolkit extends Toolkit {
+class TestToolkit extends AbstractToolkit {
   protected def isOnToolkitThread(): Boolean = true
   protected def runOnToolkitThread(r: () => Any): Unit = r()
-  protected def systemEm: Double = 14
 }

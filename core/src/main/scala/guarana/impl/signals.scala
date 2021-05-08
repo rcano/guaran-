@@ -31,6 +31,10 @@ trait SignalSwitchboard[Signal[+T]] {
    * Change the value of the signal, propagating changes as needed
    */
   def update[T](s: Keyed[Signal[T]], value: T): Unit
+  /** Notifies the switchboard that an externally tracked value changed.
+    * We can't accurately track the old value, that'll depend on the external property system.
+    */
+  def externalPropertyChanged[T](s: Keyed[Signal[T]], oldValue: Option[T]): Unit
   /**
    * Bind a signal to a value computed from other signals.
    * The context passed to the compute function will detect which signals were read and which were written. The former will become dependencies
@@ -75,7 +79,6 @@ private[impl] class SignalSwitchboardImpl[Signal[+T]](
 
   def get[T](s: Keyed[Signal[T]]): Option[T] = {
     (signalStates.get(s): @unchecked) map {
-      case External => signalDescriptor.getExternal(s.keyed, s.instance)
       case Value(null) => null.asInstanceOf[T]
       case Value(value: T @unchecked) => value
       case Recompute(oldv) =>
@@ -98,6 +101,7 @@ private[impl] class SignalSwitchboardImpl[Signal[+T]](
           reporter.signalUpdated(this, s, Option(oldv), result, computedRels.dependencies, computedRels.dependents)
 
         result.asInstanceOf[T]
+      case External => signalDescriptor.getExternal(s.keyed, s.instance)
     }
   }
 
@@ -116,33 +120,40 @@ private[impl] class SignalSwitchboardImpl[Signal[+T]](
     }) {
       unbindPrev(s)
       signalStates(s) = if signalDescriptor.isExternal(s.keyed) then External else Value(value)
-      signalEvaluator -= s
       propagateSignal(None)(s)
       reporter.signalUpdated(this, s, oldv, value, Set.empty, Set.empty)
     }
   }
+
+  def externalPropertyChanged[T](s: Keyed[Signal[T]], oldValue: Option[T]): Unit =
+    unbindPrev(s)
+    signalStates(s) = External
+    propagateSignal(None)(s)
+    reporter.signalUpdated(this, s, oldValue, signalDescriptor.getExternal(s.keyed, s.instance), Set.empty, Set.empty)
   
   def bind[T](s: Keyed[Signal[T]])(compute: SignalSwitchboard[Signal] => T): Unit = {
     unbindPrev(s)
+    signalStates(s) = Recompute(get(s).orNull)
     signalEvaluator(s) = Compute[Signal](compute)
     propagateSignal(None)(s)
   }
 
   private def propagateSignal(parent: Option[Keyed[Signal[Any]]])(s: Keyed[Signal[Any]]): Unit = {
-    signalEvaluator.get(s) match { //due to how propagating signal works, where the set of dependencies is iterated, it is entirely possible to find during the iteration a signal that was removed, hence why we use get here
-      case Some(compute: Compute[Signal]) =>
-        signalStates.get(s) match {
-          case Some(_: Recompute) => //if already recompute, do nothing
-          case Some(Value(oldv)) => signalStates(s) = Recompute(oldv)
-          case Some(External) => signalStates(s) = Recompute(signalDescriptor.getExternal(s.keyed, s.instance))
-          case _ => signalStates(s) = Recompute(null)
-        }
-        signalDeps(s) foreach propagateSignal(Some(s))
+    //due to how propagating signal works, where the set of dependencies is iterated, it is entirely possible to find during
+    // the iteration a signal that was removed, hence why we check here if that's the case by checking the state
+    if !signalStates.contains(s) then return
 
-        reporter.signalInvalidated(this, s)
-
-      case _ =>
+    signalEvaluator.get(s) foreach { compute =>
+      signalStates.get(s) match {
+        case Some(_: Recompute) => //if already recompute, do nothing
+        case Some(Value(oldv)) => signalStates(s) = Recompute(oldv)
+        case Some(External) => signalStates(s) = Recompute(signalDescriptor.getExternal(s.keyed, s.instance))
+        case _ => signalStates(s) = Recompute(null)
+      }
     }
+    signalDeps(s) foreach propagateSignal(Some(s))
+
+    reporter.signalInvalidated(this, s)
   }
 
   def relationships(s: Keyed[Signal[Any]]) = signalRels.get(s)
@@ -185,6 +196,7 @@ private[impl] class SignalSwitchboardImpl[Signal[+T]](
       if (forSignal != s) dependents += s
       outerSb.bind(s)(compute)
     }
+    def externalPropertyChanged[T](s: Keyed[Signal[T]], oldValue: Option[T]): Unit = outerSb.externalPropertyChanged(s, oldValue)
     def relationships(s: Keyed[Signal[Any]]) = outerSb.relationships(s)
     def remove(s: Keyed[Signal[Any]]) = outerSb.remove(s)
     def snapshot(newReporter: Reporter[Signal]) = outerSb.snapshot(newReporter)
@@ -226,6 +238,7 @@ class CopyOnWriteSignalSwitchboard[Signal[+T]](val copy: SignalSwitchboard[Signa
     createCopy()
     theInstance.update(s, value)
   }
+  def externalPropertyChanged[T](s: Keyed[Signal[T]], oldValue: Option[T]): Unit = theInstance.externalPropertyChanged(s, oldValue)
   def bind[T](s: Keyed[Signal[T]])(compute: SignalSwitchboard[Signal] => T) = {
     createCopy()
     theInstance.bind(s)(compute)

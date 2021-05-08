@@ -5,12 +5,12 @@ package guarana
  * Implementors should use appropriate caching systems, since this interface defines notification methods
  * that will be called by the toolkit to inform of nodes not longer being part of it.
  */
-trait Stylist {
+trait Stylist(toolkit: AbstractToolkit) {
 
   /**
    * Return the style defined value for a given property, if defined.
    */
-  def apply[T](property: Keyed[ObsVal[T]]): Option[T]
+  def apply[T](metrics: Stylist.Metrics, property: Keyed[ObsVal[T]]): Option[T]
 
   /** Notifies the stylist that the cache for the given node should be invalidated, typically
     * called when the node is removed from the toolkit.
@@ -33,10 +33,17 @@ trait Stylist {
 }
 
 object Stylist {
-  val NoOp = new Stylist {
-    def apply[T](prop: Keyed[ObsVal[T]]) = None
+  def NoOp(toolkit: AbstractToolkit) = new Stylist(toolkit) {
+    def apply[T](metrics: Stylist.Metrics, prop: Keyed[ObsVal[T]]) = None
     def invalidateCache(node: Any) = ()
     def installDefaults(node: Any): Unit = ()
     def uninstallDefaults(node: Any): Unit = ()
+  }
+
+  case class Metrics(emSize: Double, screenWidth: Int, screenHeight: Int, fontMetrics: FontMetrics)
+  trait FontMetrics {
+    def ascent: Double
+    def descent: Double
+    def stringWidth(s: String): Double
   }
 }

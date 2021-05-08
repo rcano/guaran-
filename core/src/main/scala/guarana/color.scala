@@ -1,5 +1,4 @@
 package guarana
-
 trait ColorDefs {
   type Color
   given ColorLike: ColorLike[Color]

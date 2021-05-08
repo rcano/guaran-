@@ -7,7 +7,7 @@ import javax.swing.Timer
   *
   */ 
 object ScriptedAnimation {
-  def apply(script: Script, ups: Int): Scenegraph ?=> Timer = {
+  def apply(script: Script, ups: Int): AbstractToolkit ?=> Timer = {
     val scriptEngine = ScriptEngine(summon, 5)
     scriptEngine.run(script)
 

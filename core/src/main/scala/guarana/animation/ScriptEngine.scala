@@ -11,7 +11,7 @@ private[animation] inline def cfor[T](inline init: T)(inline cond: T => Boolean,
   }
 }
 
-class ScriptEngine(toolkit: Toolkit, initialBufferSize: Int = 100) {
+class ScriptEngine(toolkit: AbstractToolkit, initialBufferSize: Int = 100) {
 
   private[this] var scripts = impl.RingBuffer[ScheduledStep | Null](initialBufferSize, null)
   private[this] var nextRunScripts = impl.RingBuffer[ScheduledStep | Null](initialBufferSize, null)

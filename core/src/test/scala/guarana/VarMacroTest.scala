@@ -1,5 +1,6 @@
 package guarana
 
+import language.unsafeNulls
 import org.scalatest.funsuite.AnyFunSuite
 import Binding.dyn
 
@@ -7,12 +8,13 @@ class VarMacroTest extends AnyFunSuite {
 
   val myVar = Var.autoName[Int](0)
   val myVar2 = Var.autoName[Int](0)
-  var varBinding: Binding[Int] = null.asInstanceOf[Binding[Int]]
+  var varBinding: Binding[Int] = null
 
   test("var constants compile") {
     assertCompiles("varBinding = dyn(3)")
   }
   test("delimited continuation vars compile") {
+    def someInt = 50
     assertCompiles("""
       varBinding = dyn {
         myVar() + myVar2().toInt + someInt + 23
@@ -26,15 +28,6 @@ class VarMacroTest extends AnyFunSuite {
     """)
   }
 
-  test("can't create dependent variable with no dependencies") {
-    assertDoesNotCompile("""
-      implicit val ctx: VarContext = null
-      myVar := dyn {
-        val subVar = Var[String]("subVar", "init")
-        subVar().length
-      }
-    """)
-  }
   test("dependent variabels compile") {
     assertCompiles("""
       implicit val ctx: VarContext = null
@@ -45,5 +38,4 @@ class VarMacroTest extends AnyFunSuite {
     """)
   }
 
-  def someInt = 50
 }

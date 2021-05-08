@@ -12,7 +12,7 @@ trait VarContext {
   def update[T](v: Var[T], binding: Binding[T])(using instance: ValueOf[v.ForInstance]): Unit
   def apply[T](v: ObsVal[T])(using instance: ValueOf[v.ForInstance]): T
 
-  def externalPropertyUpdated[T](v: Var[T], value: T)(using instance: ValueOf[v.ForInstance]): Unit
+  def externalPropertyUpdated[T](v: ObsVal[T], oldValue: Option[T])(using instance: ValueOf[v.ForInstance]): Unit
 }
 object VarContext {
   @compileTimeOnly("No VarContext available")
@@ -110,6 +110,17 @@ trait ExternalObsVal[+T] extends ObsVal[T] {
   type ForInstance <: Singleton
   private[guarana] def get(n: ForInstance): T
   def initialValue(v: Any)(using ev: v.type <:< ForInstance) = get(ev(v))
+}
+
+object ExternalObsVal {
+  type Aux[N, T] = ExternalObsVal[T] {
+    type ForInstance <: N & Singleton
+  }
+  def apply[N, T](varName: => String, getter: N => T): Aux[N, T] = new ExternalObsVal[T] {
+    lazy val name = varName
+    type ForInstance <: N & Singleton
+    def get(n: ForInstance) = getter(n)
+  }
 }
 
 trait ExternalVar[T] extends Var[T] with ExternalObsVal[T] {

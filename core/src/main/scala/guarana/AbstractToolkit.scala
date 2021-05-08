@@ -8,9 +8,7 @@ import scala.util.Try
 import guarana.impl.{CopyOnWriteEmitterStation, CopyOnWriteSignalSwitchboard, EmitterStation, SignalSwitchboard}
 
 type ToolkitAction[+R] = VarContext & Emitter.Context ?=> R
-object Toolkit {
-}
-abstract class Toolkit {
+abstract class AbstractToolkit {
 
   type Signal[+T] = ObsVal[T]
   private val switchboard = SignalSwitchboard[Signal](reporter, new SignalSwitchboard.SignalDescriptor[Signal] {
@@ -18,20 +16,16 @@ abstract class Toolkit {
     def getExternal[T](s: ObsVal[T], instance: Any) = s.asInstanceOf[ExternalObsVal[T] { type ForInstance = instance.type}].get(instance)
   })
   private val emitterStation = EmitterStation()
-  var stylist: Stylist = Stylist.NoOp
 
-  protected def systemEm: Double
   protected def isOnToolkitThread(): Boolean
   protected def runOnToolkitThread(r: () => Any): Unit
-
-  val emSize = Var[Double]("emSize", systemEm).forInstance(Toolkit.this) 
 
   private val threadLocalContext = new ThreadLocal[ContextImpl] {
     override def initialValue = null
   }
 
-  def update[R](f: Toolkit ?=> ToolkitAction[R]): R = Await.result(updateAsync(f), Duration.Inf)
-  def updateAsync[R](f: Toolkit ?=> ToolkitAction[R]): Future[R] = {
+  def update[R](f: this.type ?=> ToolkitAction[R]): R = Await.result(updateAsync(f), Duration.Inf)
+  def updateAsync[R](f: this.type ?=> ToolkitAction[R]): Future[R] = {
     val res = Promise[R]()
     def impl() = res.complete(Try {
       var locallyCreatedContext = false
@@ -105,7 +99,7 @@ abstract class Toolkit {
 
   private class SwitchboardAsVarContext(switchboard: SignalSwitchboard[Signal]) extends VarContext {
     def apply[T](v: ObsVal[T])(using instance: ValueOf[v.ForInstance]): T = {
-      switchboard.get(v) orElse stylist(v) getOrElse v.initialValue(instance.value)
+      switchboard.get(v) getOrElse v.initialValue(instance.value)
     }
     def update[T](v: Var[T], binding: Binding[T])(using instance: ValueOf[v.ForInstance]): Unit = {
       binding match {
@@ -113,9 +107,9 @@ abstract class Toolkit {
         case Binding.Compute(c) => switchboard.bind(v)(sb => c(new SwitchboardAsVarContext(sb)))
       }
     }
-    def externalPropertyUpdated[T](v: Var[T], value: T)(using instance: ValueOf[v.ForInstance]): Unit = {
-      if (!reactingExtVars(v) && !switchboard.get(v).exists(_ == value)) {
-        switchboard(v) = value
+    def externalPropertyUpdated[T](v: ObsVal[T], oldValue: Option[T])(using instance: ValueOf[v.ForInstance]): Unit = {
+      if (!reactingExtVars(v)) {
+        switchboard.externalPropertyChanged(v, oldValue)
       }
     }
   }
@@ -142,20 +136,10 @@ abstract class Toolkit {
     /** Read the current value of ObsVal as it is read by doing `prop()` within a VarContext */
     def apply[T](v: ObsVal[T])(using instance: ValueOf[v.ForInstance]): T = {
       val keyed: Keyed[ObsVal[T]] = v
-      switchboard.get(keyed) orElse stylist(keyed) getOrElse v.initialValue(instance.value)
+      switchboard.get(keyed) getOrElse v.initialValue(instance.value)
     }
     /** Reads the stored value of the property, if any.*/
     def get[T](property: ObsVal[T])(using instance: ValueOf[property.ForInstance]): Option[T] = switchboard.get(property)
-
-    /** Reads the stored value of the property or its default (it doesn't asks the stylist) */
-    def getOrDefault[T](property: ObsVal[T])(using instance: ValueOf[property.ForInstance]): T = get(property).getOrElse {
-      val k = property.instance.asInstanceOf[property.keyed.ForInstance]
-      property.keyed.initialValue(k)
-    }
-
-    def emSize: Double = 
-      val prop = Toolkit.this.emSize
-      getOrDefault(prop)(using ValueOf(Toolkit.this))
   }
 
 }

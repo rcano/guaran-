@@ -4,18 +4,9 @@ import language.implicitConversions
 import scala.util.{Try}
 import util.*
 
-extension (d: Double | Float | Int) {
-  inline def em(using sc: Scenegraph, vc: VarContext) = 
-    (inline d match {
-      case i: Int => i.toDouble
-      case d: Double => d
-      case f: Float => f.toDouble
-    }) * sc.emSize()
-}
-
 extension [T, U](e: T | Null) inline def ? (inline f: T => U): U | Null = if (e != null) f(e.asInstanceOf[T]) else null
 extension [T](e: T | Null) inline def toOption: Option[T] = if (e != null) Some(e.asInstanceOf[T]) else None
-extension [F[_], T](e: F[T | Null] | Null) inline def nnn: F[T] = e.asInstanceOf[F[T]]
+extension [F[_], T](e: F[T | Null] | Null) inline def nnn: F[T] = e.asInstanceOf[e.type & F[T]]
 
 case class Insets(top: Double = 0, right: Double = 0, bot: Double = 0, left: Double = 0)
 object Insets {
@@ -28,7 +19,7 @@ object Insets {
 extension (a: Any) def varUpdates(using Emitter.Context) = ObsVal.VarUpdates.forInstance(a)
 
 /** Support async Futures as vars */
-extension [T](f: scala.concurrent.Future[T]) def asObsVal(using sc: Scenegraph, ec: scala.concurrent.ExecutionContext): ExternalObsVal[Option[Try[T]]] { type ForInstance = scala.concurrent.Future.type } = 
+extension [T](f: scala.concurrent.Future[T]) def asObsVal(using sc: AbstractToolkit, ec: scala.concurrent.ExecutionContext): ExternalObsVal[Option[Try[T]]] { type ForInstance = scala.concurrent.Future.type } = 
   new ExternalVar[Option[Try[T]]] {
     lazy val name = f.toString
     type ForInstance = scala.concurrent.Future.type
@@ -36,10 +27,10 @@ extension [T](f: scala.concurrent.Future[T]) def asObsVal(using sc: Scenegraph, 
     private[guarana] def set(n: ForInstance, v: Option[Try[T]]): Unit = ()
     def eagerEvaluation = false
 
-    f.onComplete(res => sc.update(summon[VarContext].externalPropertyUpdated(this, Some(res))))(ec)
+    f.onComplete(res => sc.update(summon[VarContext].externalPropertyUpdated(this, Some(None))))(ec)
   }
 
-extension [T](f: java.util.concurrent.CompletableFuture[T]) def asObsVal(using sc: Scenegraph): ExternalObsVal[Option[Try[T]]] { type ForInstance = scala.concurrent.Future.type } =
+extension [T](f: java.util.concurrent.CompletableFuture[T]) def asObsVal(using sc: AbstractToolkit): ExternalObsVal[Option[Try[T]]] { type ForInstance = scala.concurrent.Future.type } =
   new ExternalVar[Option[Try[T]]] {
     lazy val name = f.toString
     type ForInstance = scala.concurrent.Future.type
@@ -47,7 +38,7 @@ extension [T](f: java.util.concurrent.CompletableFuture[T]) def asObsVal(using s
     private[guarana] def set(n: ForInstance, v: Option[Try[T]]): Unit = ()
     def eagerEvaluation = false
 
-    f.handle((_: T | Null, _: Throwable | Null) => sc.update(summon[VarContext].externalPropertyUpdated(this, get(scala.concurrent.Future))))
+    f.handle((_: T | Null, _: Throwable | Null) => sc.update(summon[VarContext].externalPropertyUpdated(this, Some(None))))
   }
 
 /** Definition of a Bounds like shape

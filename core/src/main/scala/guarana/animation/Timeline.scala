@@ -57,14 +57,14 @@ object Timeline {
   }
 
   def KeyFrame[T](duration: FiniteDuration, prop: Var[T], max: T, curve: Curve)(
-      using i: Interpolator[T], v: ValueOf[prop.ForInstance]): Scenegraph ?=> KeyFrame =
-    KeyFrame[T](duration, prop, summon[Scenegraph].stateReader(prop), max, curve)
+      using i: Interpolator[T], v: ValueOf[prop.ForInstance]): AbstractToolkit ?=> KeyFrame =
+    KeyFrame[T](duration, prop, summon[AbstractToolkit].stateReader(prop), max, curve)
 
   def KeyFrame[T](duration: FiniteDuration, prop: Var[T], min: T, max: T, curve: Curve)(
-      using i: Interpolator[T], v: ValueOf[prop.ForInstance]): Scenegraph ?=> KeyFrame = {
+      using i: Interpolator[T], v: ValueOf[prop.ForInstance]): AbstractToolkit ?=> KeyFrame = {
 
     val durationNs = duration.toNanos
-    val sc = summon[Scenegraph]
+    val sc = summon[AbstractToolkit]
     KeyFrame(
       durationNs,
       elapsed => 
