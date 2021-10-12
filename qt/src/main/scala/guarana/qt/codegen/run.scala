@@ -25,11 +25,13 @@ object run extends Panels {
     .copy(upperBounds = Seq(widgetNode))
     .addInitExtra(Seq(
       "v.pressed.nn.connect(slot(Toolkit.update(summon[VarContext].externalPropertyUpdated(Ops.down(v), Some(false)))))",
-      "v.released.nn.connect(slot(Toolkit.update(summon[VarContext].externalPropertyUpdated(Ops.down(v), Some(true)))))"
+      "v.released.nn.connect(slot(Toolkit.update(summon[VarContext].externalPropertyUpdated(Ops.down(v), Some(true)))))",
+      "v.toggled.nn.connect(slot((t: java.lang.Boolean) => Toolkit.update(summon[VarContext].externalPropertyUpdated(Ops.checked(v), Some(t)))))"
     ))
     .addEmitter(EmitterDescr("clicked", "Unit", Seq("v.clicked.nn.connect(slot(Toolkit.update(summon[Emitter.Context].emit(Ops.clicked(v), ()))))")))
-  lazy val buttonNode = genNodeDescsrFromMetaObject(QPushButton.staticMetaObject.nn, "Button", Some(widgetNode))
-    .copy(upperBounds = Seq(buttonBaseNode))
+  lazy val buttonNode = genNodeDescsrFromMetaObject(QPushButton.staticMetaObject.nn, "Button", Some(buttonBaseNode))
+  lazy val checkBoxNode = genNodeDescsrFromMetaObject(QCheckBox.staticMetaObject.nn, "CheckBox", Some(buttonBaseNode))
+  lazy val radioButtonNode = genNodeDescsrFromMetaObject(QRadioButton.staticMetaObject.nn, "RadioButton", Some(buttonBaseNode))
 
   lazy val framedNode = genNodeDescsrFromMetaObject(QFrame.staticMetaObject.nn, "FramedWidget", Some(widgetNode))
     .copy(upperBounds = Seq(widgetNode))
@@ -66,6 +68,7 @@ object run extends Panels {
 
   lazy val scrollAreaNode = genNodeDescsrFromMetaObject(QScrollArea.staticMetaObject.nn, "ScrollArea", Some(widgetNode))
     .copy(upperBounds = Seq(scrollAreaBaseNode))
+    .addProperty(ExternalProp("content", "Widget | Null", "_.widget()", "(c, v) => c.setWidget(v.?(_.unwrap))"))
 
   lazy val svgNode = genNodeDescsrFromMetaObject(io.qt.svg.QSvgWidget.staticMetaObject.nn, "SvgNode", Some(widgetNode))
     .copy(upperBounds = Seq(widgetNode))
@@ -77,6 +80,8 @@ object run extends Panels {
         widgetNode,
         buttonBaseNode,
         buttonNode,
+        checkBoxNode,
+        radioButtonNode,
         framedNode,
         labelNode,
         textFieldNode,

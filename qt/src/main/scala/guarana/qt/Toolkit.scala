@@ -9,10 +9,14 @@ object Toolkit extends AbstractToolkit {
   // private class qtApp extends QApplication(Array[String | Null]()) {
 
   // }
-
-  val qtAppInstance = QApplication.initialize(Array()).nn
-  protected def isOnToolkitThread(): Boolean = true
-  protected def runOnToolkitThread(r: () => Any): Unit = r()
+  /** Set the args for initializing QT, set this _before_ any call to the toolkit or it wont get picked up */
+  var initializationArgs: IArray[String] = IArray()
+  protected def isOnToolkitThread(): Boolean = 
+    qtAppInstance
+    true
+  protected def runOnToolkitThread(r: () => Any): Unit = 
+    qtAppInstance
+    r()
 
   type VarToSignalType[T] = T match {
     case Int => java.lang.Integer
@@ -38,5 +42,11 @@ object Toolkit extends AbstractToolkit {
   }
 
   val applicationState = Var.autoName[Qt.ApplicationState](Qt.ApplicationState.ApplicationInactive)
-  connectVar(applicationState, qtAppInstance.applicationStateChanged.nn)
+
+
+  lazy val qtAppInstance = 
+    println(s"initializing with ${initializationArgs.mkString(" ")}")
+    val qtAppInstance = QApplication.initialize(initializationArgs.asInstanceOf).nn
+    connectVar(applicationState, qtAppInstance.applicationStateChanged.nn)
+    qtAppInstance
 }

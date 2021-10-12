@@ -10,6 +10,7 @@ opaque type ScrollArea <: ScrollAreaBase  = io.qt.widgets.QScrollArea & ScrollAr
 object ScrollArea {
   private val ScrollAreaInitialized: Var[Boolean] = Var[Boolean]("ScrollAreaInitialized", false, false)
   val Alignment: ExternalVar.Aux[ScrollArea, io.qt.core.Qt.Alignment | Null] = ExternalVar[ScrollArea, io.qt.core.Qt.Alignment | Null]("alignment", _.alignment(), _.setAlignment(_), true)
+  val Content: ExternalVar.Aux[ScrollArea, Widget | Null] = ExternalVar[ScrollArea, Widget | Null]("content", _.widget(), (c, v) => c.setWidget(v.?(_.unwrap)), true)
   val FrameRect: ExternalVar.Aux[ScrollArea, io.qt.core.QRect | Null] = ExternalVar[ScrollArea, io.qt.core.QRect | Null]("frameRect", _.frameRect(), _.setFrameRect(_), true)
   val FrameShadow: ExternalVar.Aux[ScrollArea, io.qt.widgets.QFrame.Shadow] = ExternalVar[ScrollArea, io.qt.widgets.QFrame.Shadow]("frameShadow", _.frameShadow().nn, _.setFrameShadow(_), true)
   val FrameShape: ExternalVar.Aux[ScrollArea, io.qt.widgets.QFrame.Shape] = ExternalVar[ScrollArea, io.qt.widgets.QFrame.Shape]("frameShape", _.frameShape().nn, _.setFrameShape(_), true)
@@ -27,6 +28,7 @@ object ScrollArea {
   object Ops {
     extension (v: ScrollArea) {
       def alignment: Var.Aux[io.qt.core.Qt.Alignment | Null, v.type] = ScrollArea.Alignment.asInstanceOf[Var.Aux[io.qt.core.Qt.Alignment | Null, v.type]]
+      def content: Var.Aux[Widget | Null, v.type] = ScrollArea.Content.asInstanceOf[Var.Aux[Widget | Null, v.type]]
       def frameRect: Var.Aux[io.qt.core.QRect | Null, v.type] = ScrollArea.FrameRect.asInstanceOf[Var.Aux[io.qt.core.QRect | Null, v.type]]
       def frameShadow: Var.Aux[io.qt.widgets.QFrame.Shadow, v.type] = ScrollArea.FrameShadow.asInstanceOf[Var.Aux[io.qt.widgets.QFrame.Shadow, v.type]]
       def frameShape: Var.Aux[io.qt.widgets.QFrame.Shape, v.type] = ScrollArea.FrameShape.asInstanceOf[Var.Aux[io.qt.widgets.QFrame.Shape, v.type]]
@@ -71,6 +73,7 @@ object ScrollArea {
     alignment: Opt[Binding[io.qt.core.Qt.Alignment | Null]] = UnsetParam,
     autoFillBackground: Opt[Binding[Boolean]] = UnsetParam,
     baseSize: Opt[Binding[io.qt.core.QSize | Null]] = UnsetParam,
+    content: Opt[Binding[Widget | Null]] = UnsetParam,
     contextMenuPolicy: Opt[Binding[io.qt.core.Qt.ContextMenuPolicy]] = UnsetParam,
     cursor: Opt[Binding[io.qt.gui.QCursor | Null]] = UnsetParam,
     enabled: Opt[Binding[Boolean]] = UnsetParam,
@@ -127,6 +130,7 @@ object ScrollArea {
     ifSet(alignment, ScrollArea.ops.alignment(res) := _)
     ifSet(autoFillBackground, Widget.ops.autoFillBackground(res) := _)
     ifSet(baseSize, Widget.ops.baseSize(res) := _)
+    ifSet(content, ScrollArea.ops.content(res) := _)
     ifSet(contextMenuPolicy, Widget.ops.contextMenuPolicy(res) := _)
     ifSet(cursor, Widget.ops.cursor(res) := _)
     ifSet(enabled, Widget.ops.enabled(res) := _)

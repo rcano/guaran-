@@ -6,43 +6,39 @@ import io.qt.gui.*
 import io.qt.widgets.*
 import util.*
 
-opaque type Button <: ButtonBase  = io.qt.widgets.QPushButton & ButtonBase
-object Button {
-  private val ButtonInitialized: Var[Boolean] = Var[Boolean]("ButtonInitialized", false, false)
-  val AutoDefault: ExternalVar.Aux[Button, Boolean] = ExternalVar[Button, Boolean]("autoDefault", _.autoDefault(), _.setAutoDefault(_), true)
-  val Default: ExternalVar.Aux[Button, Boolean] = ExternalVar[Button, Boolean]("default", _.isDefault(), _.setDefault(_), true)
-  val Flat: ExternalVar.Aux[Button, Boolean] = ExternalVar[Button, Boolean]("flat", _.isFlat(), _.setFlat(_), true)
+opaque type CheckBox <: ButtonBase  = io.qt.widgets.QCheckBox & ButtonBase
+object CheckBox {
+  private val CheckBoxInitialized: Var[Boolean] = Var[Boolean]("CheckBoxInitialized", false, false)
+  val Tristate: ExternalVar.Aux[CheckBox, Boolean] = ExternalVar[CheckBox, Boolean]("tristate", _.isTristate(), _.setTristate(_), true)
 
   
 
   given ops: Ops.type = Ops
   object Ops {
-    extension (v: Button) {
-      def autoDefault: Var.Aux[Boolean, v.type] = Button.AutoDefault.asInstanceOf[Var.Aux[Boolean, v.type]]
-      def default: Var.Aux[Boolean, v.type] = Button.Default.asInstanceOf[Var.Aux[Boolean, v.type]]
-      def flat: Var.Aux[Boolean, v.type] = Button.Flat.asInstanceOf[Var.Aux[Boolean, v.type]]
+    extension (v: CheckBox) {
+      def tristate: Var.Aux[Boolean, v.type] = CheckBox.Tristate.asInstanceOf[Var.Aux[Boolean, v.type]]
 
       
 
-      def showMenu() = v.showMenu()
-      def unwrap: io.qt.widgets.QPushButton = v
+      
+      def unwrap: io.qt.widgets.QCheckBox = v
     }
   }
 
-  def wrap(v: io.qt.widgets.QPushButton): Button = 
-    val res = v.asInstanceOf[Button]
-    if !Toolkit.stateReader(ButtonInitialized.forInstance[v.type]) then init(res)
+  def wrap(v: io.qt.widgets.QCheckBox): CheckBox = 
+    val res = v.asInstanceOf[CheckBox]
+    if !Toolkit.stateReader(CheckBoxInitialized.forInstance[v.type]) then init(res)
     res
 
-  def init(v: Button): Unit = {
+  def init(v: CheckBox): Unit = {
     ButtonBase.init(v)
-    Toolkit.update(ButtonInitialized.forInstance[v.type] := true)
+    Toolkit.update(CheckBoxInitialized.forInstance[v.type] := true)
     
   }
-  def uninitialized(): Button = {
-    val res = new io.qt.widgets.QPushButton()
+  def uninitialized(): CheckBox = {
+    val res = new io.qt.widgets.QCheckBox()
     
-    res.asInstanceOf[Button]
+    res.asInstanceOf[CheckBox]
   }
   
   def apply(
@@ -50,7 +46,6 @@ object Button {
     acceptDrops: Opt[Binding[Boolean]] = UnsetParam,
     accessibleDescription: Opt[Binding[java.lang.String | Null]] = UnsetParam,
     accessibleName: Opt[Binding[java.lang.String | Null]] = UnsetParam,
-    autoDefault: Opt[Binding[Boolean]] = UnsetParam,
     autoExclusive: Opt[Binding[Boolean]] = UnsetParam,
     autoFillBackground: Opt[Binding[Boolean]] = UnsetParam,
     autoRepeat: Opt[Binding[Boolean]] = UnsetParam,
@@ -61,10 +56,8 @@ object Button {
     checked: Opt[Binding[Boolean]] = UnsetParam,
     contextMenuPolicy: Opt[Binding[io.qt.core.Qt.ContextMenuPolicy]] = UnsetParam,
     cursor: Opt[Binding[io.qt.gui.QCursor | Null]] = UnsetParam,
-    default: Opt[Binding[Boolean]] = UnsetParam,
     down: Opt[Binding[Boolean]] = UnsetParam,
     enabled: Opt[Binding[Boolean]] = UnsetParam,
-    flat: Opt[Binding[Boolean]] = UnsetParam,
     focusPolicy: Opt[Binding[io.qt.core.Qt.FocusPolicy]] = UnsetParam,
     font: Opt[Binding[io.qt.gui.QFont | Null]] = UnsetParam,
     geometry: Opt[Binding[io.qt.core.QRect | Null]] = UnsetParam,
@@ -93,6 +86,7 @@ object Button {
     text: Opt[Binding[java.lang.String | Null]] = UnsetParam,
     toolTip: Opt[Binding[java.lang.String | Null]] = UnsetParam,
     toolTipDuration: Opt[Binding[Int]] = UnsetParam,
+    tristate: Opt[Binding[Boolean]] = UnsetParam,
     updatesEnabled: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam,
     whatsThis: Opt[Binding[java.lang.String | Null]] = UnsetParam,
@@ -103,13 +97,12 @@ object Button {
     windowModified: Opt[Binding[Boolean]] = UnsetParam,
     windowOpacity: Opt[Binding[Double]] = UnsetParam,
     windowTitle: Opt[Binding[java.lang.String | Null]] = UnsetParam
-  ): ToolkitAction[Button] = {
+  ): ToolkitAction[CheckBox] = {
     val res = uninitialized()
-    Button.init(res)
+    CheckBox.init(res)
     ifSet(acceptDrops, Widget.ops.acceptDrops(res) := _)
     ifSet(accessibleDescription, Widget.ops.accessibleDescription(res) := _)
     ifSet(accessibleName, Widget.ops.accessibleName(res) := _)
-    ifSet(autoDefault, Button.ops.autoDefault(res) := _)
     ifSet(autoExclusive, ButtonBase.ops.autoExclusive(res) := _)
     ifSet(autoFillBackground, Widget.ops.autoFillBackground(res) := _)
     ifSet(autoRepeat, ButtonBase.ops.autoRepeat(res) := _)
@@ -120,10 +113,8 @@ object Button {
     ifSet(checked, ButtonBase.ops.checked(res) := _)
     ifSet(contextMenuPolicy, Widget.ops.contextMenuPolicy(res) := _)
     ifSet(cursor, Widget.ops.cursor(res) := _)
-    ifSet(default, Button.ops.default(res) := _)
     ifSet(down, ButtonBase.ops.down(res) := _)
     ifSet(enabled, Widget.ops.enabled(res) := _)
-    ifSet(flat, Button.ops.flat(res) := _)
     ifSet(focusPolicy, Widget.ops.focusPolicy(res) := _)
     ifSet(font, Widget.ops.font(res) := _)
     ifSet(geometry, Widget.ops.geometry(res) := _)
@@ -152,6 +143,7 @@ object Button {
     ifSet(text, ButtonBase.ops.text(res) := _)
     ifSet(toolTip, Widget.ops.toolTip(res) := _)
     ifSet(toolTipDuration, Widget.ops.toolTipDuration(res) := _)
+    ifSet(tristate, CheckBox.ops.tristate(res) := _)
     ifSet(updatesEnabled, Widget.ops.updatesEnabled(res) := _)
     ifSet(visible, Widget.ops.visible(res) := _)
     ifSet(whatsThis, Widget.ops.whatsThis(res) := _)

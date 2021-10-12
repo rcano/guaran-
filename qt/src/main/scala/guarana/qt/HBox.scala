@@ -6,17 +6,17 @@ import io.qt.gui.*
 import io.qt.widgets.*
 import util.*
 
-opaque type Hbox <: Widget  = io.qt.widgets.QWidget & Widget
-object Hbox {
-  private val HboxInitialized: Var[Boolean] = Var[Boolean]("HboxInitialized", false, false)
+opaque type HBox <: Widget  = io.qt.widgets.QWidget & Widget
+object HBox {
+  private val HBoxInitialized: Var[Boolean] = Var[Boolean]("HBoxInitialized", false, false)
   val Nodes: Var[Seq[Widget | LayoutItem]] = Var[Seq[Widget | LayoutItem]]("nodes", Seq.empty, true)
 
   
 
   given ops: Ops.type = Ops
   object Ops {
-    extension (v: Hbox) {
-      def nodes: Var.Aux[Seq[Widget | LayoutItem], v.type] = Hbox.Nodes.asInstanceOf[Var.Aux[Seq[Widget | LayoutItem], v.type]]
+    extension (v: HBox) {
+      def nodes: Var.Aux[Seq[Widget | LayoutItem], v.type] = HBox.Nodes.asInstanceOf[Var.Aux[Seq[Widget | LayoutItem], v.type]]
 
       
 
@@ -25,14 +25,14 @@ object Hbox {
     }
   }
 
-  def wrap(v: io.qt.widgets.QWidget): Hbox = 
-    val res = v.asInstanceOf[Hbox]
-    if !Toolkit.stateReader(HboxInitialized.forInstance[v.type]) then init(res)
+  def wrap(v: io.qt.widgets.QWidget): HBox = 
+    val res = v.asInstanceOf[HBox]
+    if !Toolkit.stateReader(HBoxInitialized.forInstance[v.type]) then init(res)
     res
 
-  def init(v: Hbox): Unit = {
+  def init(v: HBox): Unit = {
     Widget.init(v)
-    Toolkit.update(HboxInitialized.forInstance[v.type] := true)
+    Toolkit.update(HBoxInitialized.forInstance[v.type] := true)
     val layout = v.layout().asInstanceOf[QHBoxLayout]
     Toolkit.update {
       v.varUpdates := EventIterator.foreach {
@@ -49,10 +49,10 @@ object Hbox {
     }
     
   }
-  def uninitialized(): Hbox = {
+  def uninitialized(): HBox = {
     val res = new io.qt.widgets.QWidget()
     QHBoxLayout(res)
-    res.asInstanceOf[Hbox]
+    res.asInstanceOf[HBox]
   }
   
   def apply(
@@ -100,9 +100,9 @@ object Hbox {
     windowModified: Opt[Binding[Boolean]] = UnsetParam,
     windowOpacity: Opt[Binding[Double]] = UnsetParam,
     windowTitle: Opt[Binding[java.lang.String | Null]] = UnsetParam
-  ): ToolkitAction[Hbox] = {
+  ): ToolkitAction[HBox] = {
     val res = uninitialized()
-    Hbox.init(res)
+    HBox.init(res)
     ifSet(acceptDrops, Widget.ops.acceptDrops(res) := _)
     ifSet(accessibleDescription, Widget.ops.accessibleDescription(res) := _)
     ifSet(accessibleName, Widget.ops.accessibleName(res) := _)
@@ -124,7 +124,7 @@ object Hbox {
     ifSet(minimumSize, Widget.ops.minimumSize(res) := _)
     ifSet(minimumWidth, Widget.ops.minimumWidth(res) := _)
     ifSet(mouseTracking, Widget.ops.mouseTracking(res) := _)
-    ifSet(nodes, Hbox.ops.nodes(res) := _)
+    ifSet(nodes, HBox.ops.nodes(res) := _)
     ifSet(objectName, Widget.ops.objectName(res) := _)
     ifSet(palette, Widget.ops.palette(res) := _)
     ifSet(pos, Widget.ops.pos(res) := _)
