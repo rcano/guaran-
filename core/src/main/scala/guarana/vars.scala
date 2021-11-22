@@ -167,6 +167,8 @@ class ObsBuffer[T] extends
     IndexedBuffer[T] {
   import ObsBuffer.Event.*
 
+  override def knownSize = length
+
   private val elements = ArrayBuffer[T]()
 
   val observers = ArrayBuffer.empty[PartialFunction[ObsBuffer.Event[T], Unit]]

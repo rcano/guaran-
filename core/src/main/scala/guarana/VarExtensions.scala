@@ -8,7 +8,7 @@ private[guarana] trait VarExtensions {
   
   inline def foldBinding[T](v: Var[T], v2: Binding[T], inline f: (T, T) => T)(using ValueOf[v.ForInstance], VarContext) =
     inline v2 match {
-      case _: Binding.Const[Double] => v := f(v(), v2.asInstanceOf[Binding.Const[T]].value())
+      case _: Binding.Const[_] => v := f(v(), v2.asInstanceOf[Binding.Const[T]].value())
       case _ => v := dyn { f(v(), v2()) }
     }
 

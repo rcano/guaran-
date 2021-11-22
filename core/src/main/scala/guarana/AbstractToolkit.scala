@@ -33,7 +33,7 @@ abstract class AbstractToolkit {
       if (ctx == null) {
         // in an ideal world, we would use a context like the following:
         // ctx = new ContextImpl(CopyOnWriteSignalSwitchboard(switchboard, reporter), CopyOnWriteEmitterStation(emitterStation))
-        // this would make the toolkit immutable, allowing you to rollback change sin case of exception.
+        // this would make the toolkit immutable, allowing you to rollback changes in case of exception.
         // Unfortunately, due to the already mutable nature of of most UI toolkits, like swing, once you impact an external property,
         // it would not matter rolling back, and it doesn't  make sense to track all changes and try to undo them (even though possible)
         // beacuse it's already contrarian to how mutable toolkits works anyway. Given all of this, we'll prefer speed here and hence
