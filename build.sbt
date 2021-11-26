@@ -2,8 +2,6 @@ name := "guarana"
 organization := "guarana"
 version := "0.0.1"
 
-Global / onChangedBuildSource := ReloadOnSourceChanges
-
 inThisBuild(Seq(
   scalaVersion := "3.1.0",
   fork := true,
@@ -45,7 +43,7 @@ lazy val qt = Project(id = "guarana-qt", base = file("qt")).settings(
 lazy val lwjglVersion = "3.2.3"
 lazy val lwjglClassifier = "natives-linux"
 
-lazy val skia = Project(id = "guarana-skia", base = file("skia")).settings(
+lazy val apricot = Project(id = "apricot", base = file("apricot")).settings(
   libraryDependencies ++= Seq(
     "io.github.humbleui.skija" % "skija-linux" % "0.96.0",
     "org.jetbrains" % "annotations" % "23.0.0",
@@ -57,8 +55,12 @@ lazy val skia = Project(id = "guarana-skia", base = file("skia")).settings(
     "org.lwjgl" % "lwjgl-opengl" % lwjglVersion classifier lwjglClassifier,
 
     "io.dropwizard.metrics" % "metrics-core" % "4.2.4",
-  )
-).dependsOn(core)
+
+    "org.scala-lang" %% "scala3-tasty-inspector" % scalaVersion.value % "provided,runtime"
+  ),
+  javaOptions ++= Seq("-Djava.library.path=/home/randa/Development/guarana/qt/lib/qtjambi-5.15-binaries-linux64-gcc/lib:/usr/java/packages/lib:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib")
+  // javaOptions ++= Seq("-Djava.library.path=/usr/java/packages/lib:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib:/home/randa/Development/guarana/qt/lib/qtjambi-5.15-binaries-linux64-gcc/lib")
+).dependsOn(core, qt)
 
 lazy val jmh = Project("jmh", base = file("jmh"))
   .dependsOn(core)
