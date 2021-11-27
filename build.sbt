@@ -40,8 +40,10 @@ lazy val qt = Project(id = "guarana-qt", base = file("qt")).settings(
 ).dependsOn(core)
 
 
-lazy val lwjglVersion = "3.2.3"
+lazy val lwjglVersion = "3.3.0"
 lazy val lwjglClassifier = "natives-linux"
+
+lazy val scribeVersion = "3.6.3"
 
 lazy val apricot = Project(id = "apricot", base = file("apricot")).settings(
   libraryDependencies ++= Seq(
@@ -55,6 +57,9 @@ lazy val apricot = Project(id = "apricot", base = file("apricot")).settings(
     "org.lwjgl" % "lwjgl-opengl" % lwjglVersion classifier lwjglClassifier,
 
     "io.dropwizard.metrics" % "metrics-core" % "4.2.4",
+    
+    "com.outr" %% "scribe" % scribeVersion,
+    "com.outr" %% "scribe-file" % scribeVersion,
 
     "org.scala-lang" %% "scala3-tasty-inspector" % scalaVersion.value % "provided,runtime"
   ),

@@ -36,6 +36,8 @@ class FileSystemResourceLocator(root: File, engine: ApricotEngine[? <: AbstractT
   private def watch(r: FileResource) = {
     val p = root./(r.path.segments.mkString("/"))
     trackedFiles(p) = r
+    p.parent.register(FileSystemWatcher.watcher)
+    scribe.debug(s"Monitoring ${p.parent}")
   }
 
   private class FileResource(file: File, val path: Path) extends Resource {
@@ -75,22 +77,25 @@ class FileSystemResourceLocator(root: File, engine: ApricotEngine[? <: AbstractT
     def poll(): Unit = {
       var key: WatchKey | Null = null
       while {key = watcher.poll(); key != null} do
-        key.pollEvents.unn.forEach {
-          case evt: WatchEvent[JPath @unchecked] if evt.kind == StandardWatchEventKinds.ENTRY_CREATE =>
-            val f = File(evt.context.unn)
-            if f.isDirectory then f.register(watcher, File.Events.all)
-            else maybeNotify(f)
-          case evt: WatchEvent[JPath @unchecked] if evt.kind == StandardWatchEventKinds.ENTRY_MODIFY =>
-            maybeNotify(File(evt.context.unn))
+        key.pollEvents.unn.forEach { evt =>
+          scribe.trace(s"${key.unn.watchable}/${evt.unn.context} - ${evt.unn.kind} - count ${evt.unn.count}")
+          evt match
+          case evt: WatchEvent[JPath @unchecked] if evt.kind == StandardWatchEventKinds.ENTRY_MODIFY || evt.kind == StandardWatchEventKinds.ENTRY_CREATE =>
+            val fullPath = File(key.unn.watchable.asInstanceOf[JPath]) / evt.context.unn.getFileName().toString
+            scribe.debug(s"maybe notify $fullPath")
+            maybeNotify(fullPath)
           case _ => 
         }
         key.reset()
     }
 
-    private def maybeNotify(f: File): Unit = trackedFiles.get(f).foreach(_.reload())
+    private def maybeNotify(f: File): Unit = trackedFiles.get(f).foreach(r =>
+      scribe.debug(s"reloading $r")
+      r.reload()
+    )
   }
 }
 
-class FileSystemResourceLocatorProvider extends ResourceLocatorProvider:
-  @experimental erased def spi = registerSpi
-  def create(engine: ApricotEngine[? <: AbstractToolkit]) = new FileSystemResourceLocator(File.currentWorkingDirectory, engine)
+// class FileSystemResourceLocatorProvider extends ResourceLocatorProvider:
+//   @experimental erased def spi = registerSpi
+//   def create(engine: ApricotEngine[? <: AbstractToolkit]) = new FileSystemResourceLocator(File.currentWorkingDirectory, engine)

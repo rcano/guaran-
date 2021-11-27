@@ -57,8 +57,17 @@ trait Resource {
 
 object Resource {
   enum Type:
-    case Image, Sound, Animation, Scene, Text, Directory, Unk
+    case Image, Sound, DynamicScript, Scene, Text, Directory, Unk
     case Ext(mime: String)
+  object Type {
+    type Image = Image.type
+    type Sound = Sound.type
+    type DynamicScript = DynamicScript.type
+    type Scene = Scene.type
+    type Text = Text.type
+    type Directory = Directory.type
+    type Unk = Unk.type
+  }
 
   trait Listener {
     private val listeners = collection.mutable.ListBuffer.empty[AnyRef]

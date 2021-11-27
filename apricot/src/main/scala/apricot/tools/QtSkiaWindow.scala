@@ -6,10 +6,16 @@ import guarana.qt.Toolkit
 import io.qt.gui.{QOpenGLWindow, QSurfaceFormat}
 import io.github.humbleui.skija.*
 
-/** Setup a QOpenGLWindow with Skia and bind the canvas (every time it changes) to the engine.
-  * VSync is also setup, and on each frame the engine is stepped.
-  * Note that the canvas is not cleared, all work is delegated entirely to the engine
+// FIXME: for reasons beyond me, qt isn't updating the window unless there's a composition event (such as window hiding, or resizing). According
+// to the documentation, it should honor the update() request being done, but oh well.
+
+/** Setup a QOpenGLWindow with Skia and bind the canvas (every time it changes) to the engine. VSync is also setup, and on each frame the
+  * engine is stepped. Note that the canvas is not cleared, all work is delegated entirely to the engine
   */
+@deprecated(
+  "Qt refuses to update the content on update request, as per Qt's documentation, so it can't be used. Use GlfwWindow instead",
+  since = "the beginning"
+)
 class QtSkiaWindow(engine: ApricotEngine[Toolkit]) extends QOpenGLWindow {
   var skiaDirectContext: DirectContext = compiletime.uninitialized
   var skiaSurface: Surface = compiletime.uninitialized

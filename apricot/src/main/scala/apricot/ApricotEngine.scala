@@ -19,7 +19,7 @@ class ApricotEngine[Tk <: AbstractToolkit](val tk: Tk) extends internal.WorkersS
 
   private val pendingTasks = collection.mutable.Queue.empty[() => Any]
   def onNextFrame(task: => Unit): Unit = pendingTasks += (() => task)
-  
+
   var targetFps = 60d // default to 60, but should probably query the screen where the window is going to show up
   private val fpsTimer = metrics.timer("fps").unn
 
@@ -36,18 +36,18 @@ class ApricotEngine[Tk <: AbstractToolkit](val tk: Tk) extends internal.WorkersS
     this.canvas = canvas
   }
 
-  /** This method operates on the canvas performing all the draws of the frame. Should be called from the main loop.
-    * If you override this method, you should call into super.renderFrame()
+  /** This method operates on the canvas performing all the draws of the frame. Should be called from the main loop. If you override this
+    * method, you should call into super.renderFrame()
     */
   protected def renderFrame(): Unit = canvas.? { canvas =>
     cfor(0, _ < layers.length) { i =>
-      layers(i).draw(canvas)
-      i + 1  
+      layers(i).draw(surface.unn, canvas)
+      i + 1
     }
     surface.unn.flush()
   }
 
-  /** Run an engine loop on the caller's thread. Returns the total time that the step took to compute in nanos.*/
+  /** Run an engine loop on the caller's thread. Returns the total time that the step took to compute in nanos. */
   def engineStep(): Long = {
     if (engineStartTime == -1) engineStartTime = System.nanoTime() //on the very first step, set the engine time to start
     val t0 = engineTime()
@@ -56,7 +56,7 @@ class ApricotEngine[Tk <: AbstractToolkit](val tk: Tk) extends internal.WorkersS
       while (pendingTasks.nonEmpty) pendingTasks.dequeue().apply()
       cfor(0, _ < updateables.length) { i =>
         val u = updateables(i)
-        if (u.isParallelizable) scheduleTask(u) 
+        if (u.isParallelizable) scheduleTask(u)
         else u.update(t0)
         i + 1
       }
@@ -70,12 +70,11 @@ class ApricotEngine[Tk <: AbstractToolkit](val tk: Tk) extends internal.WorkersS
     dt
   }
 
-  protected inline def sleepTimeNanos = (1000000000 / targetFps).toLong
+  inline def sleepTimeNanos = (1000000000 / targetFps).toLong
 
   def engineTime(): Long = System.nanoTime() - engineStartTime
 
-  /** Uses the current thread to run the engine continually. This method doesn't return since it enters a while loop
-    * until the system exists
+  /** Uses the current thread to run the engine continually. This method doesn't return since it enters a while loop until the system exists
     */
   def runEngine(): Nothing = {
     while (true) {
@@ -84,7 +83,7 @@ class ApricotEngine[Tk <: AbstractToolkit](val tk: Tk) extends internal.WorkersS
 
       if (stn > dt) LockSupport.parkNanos((stn - dt).toLong)
     }
-    throw new IllegalStateException("Loop shouldn't die except via exceptin. Should not have reached this point")
+    throw new IllegalStateException("Loop shouldn't die except via exception. Should not have reached this point")
   }
 
   /** Creates a new thread and set it to continually run the engineStep(), while sleeping in between */
@@ -99,7 +98,7 @@ class ApricotEngine[Tk <: AbstractToolkit](val tk: Tk) extends internal.WorkersS
   locally {
     val loader = ServiceLoader.load(classOf[locators.ResourceLocatorProvider]).unn
     import scala.jdk.CollectionConverters.*
-    println("Found locators = " + loader.iterator.unn.asScala.mkString("\n"))
+    scribe.info(s"Found locators = ${loader.iterator.unn.asScala.mkString("[", "\n", "]")}")
     loader.forEach(l => resourceManager.register(l.unn.create(this)))
   }
 }

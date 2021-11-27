@@ -25,7 +25,9 @@ trait WorkersSupport { self: ApricotEngine[? <: AbstractToolkit] =>
     */
   def scheduleTask(task: Updateable): Unit = workersTasks += task
 
-  private val workerThreadsPq = scala.collection.mutable.PriorityQueue.tabulate(Runtime.getRuntime.unn.availableProcessors.max(4))(new WorkerThread(_))
+  @threadUnsafe
+  lazy val workersCount: Int = Runtime.getRuntime.unn.availableProcessors.max(4)
+  private val workerThreadsPq = scala.collection.mutable.PriorityQueue.tabulate(workersCount)(new WorkerThread(_))
   private val workerThreads = workerThreadsPq.toArray //store them in an array for fast iteration
   workerThreads.foreach(_.start())
 

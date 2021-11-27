@@ -32,7 +32,7 @@ val EndOfScript = Script(_ => StepEvalResult.Done)
 
 /** The Scripting DSL provides the basic combinators for writing arbitrary logic in CPS style
   * while enjoying cooperative multitasking, enabling writing logic that spans through time
-  * in a transparent.
+  * in a transparent way.
   * 
   * Example:
   * 
@@ -95,13 +95,7 @@ object ScriptDsl {
   }
 
   inline def `yield`: Unit = cps.await[ScriptMonad, Unit](yieldStep)
-  def yieldStep: Script =
-    var firstTime = true
-    doUntilStep { _ => 
-      val res = firstTime
-      firstTime = !firstTime
-      res
-    }
+  val yieldStep: Script = doUntilStep { _ != 0 } // the first time it is executed by the engine, it always starts at 0
 
   def currentTimeNanos(using se: ScriptEngine): Long = se.currentTime
   def currentTimeMillis(using se: ScriptEngine): Long = se.currentTime / 1000000
