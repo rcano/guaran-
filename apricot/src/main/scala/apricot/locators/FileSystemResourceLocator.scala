@@ -43,11 +43,7 @@ class FileSystemResourceLocator(root: File, engine: ApricotEngine[? <: AbstractT
   private class FileResource(file: File, val path: Path) extends Resource {
     lazy val tpe =
       if file.isDirectory then Resource.Type.Directory
-      else file.extension match
-        case Some(".png" | ".jpg" | ".jpeg") => Resource.Type.Image
-        case Some(".opus" | ".wav" | ".ogg") => Resource.Type.Sound
-        case Some(ext) => Resource.Type.Ext("application/x-" + ext.drop(1))
-        case _ => Resource.Type.Unk
+      else Resource.Type.fromFileExtension(file.extension)
 
     protected def loadAndMonitor(): Unit = {
       if file.isRegularFile then watch(this)

@@ -25,7 +25,6 @@ object ResourceManager {
       rec(Path.Root)
 }
 
-
 case class Path(segments: List[String]):
   def /(segment: String): Path = Path(segments :+ segment)
   override def toString() = segments.mkString("/")
@@ -46,10 +45,12 @@ trait Resource {
   private[Resource] def addOnUnload(l: () => Unit): Unit = unloadListenersBuff += WeakReference(l)
   protected final def loadListeners: Iterable[(Array[Byte] => Unit)] = expunge(loadListenersBuff).map(_())
   protected final def unloadListeners: Iterable[() => Unit] = expunge(unloadListenersBuff).map(_())
-  /** Implementors must call [[signalLoaded]] and [[signalUnloaded]] appropriately*/
+
+  /** Implementors must call [[signalLoaded]] and [[signalUnloaded]] appropriately */
   protected def loadAndMonitor(): Unit
 
-  private def expunge[T <: AnyRef](buff: collection.mutable.ListBuffer[WeakReference[T]]): buff.type = buff.filterInPlace(ref => ref.get.isDefined)
+  private def expunge[T <: AnyRef](buff: collection.mutable.ListBuffer[WeakReference[T]]): buff.type =
+    buff.filterInPlace(ref => ref.get.isDefined)
 
   protected final def signalLoaded(content: Array[Byte]): Unit = loadListeners.foreach(_(content))
   protected final def signalUnloaded(): Unit = unloadListeners.foreach(_())
@@ -67,6 +68,13 @@ object Resource {
     type Text = Text.type
     type Directory = Directory.type
     type Unk = Unk.type
+
+    def fromFileExtension(extension: Option[String]): Type =
+      extension match
+        case Some(".png" | ".jpg" | ".jpeg") => Resource.Type.Image
+        case Some(".opus" | ".wav" | ".ogg") => Resource.Type.Sound
+        case Some(ext) => Resource.Type.Ext("application/x-" + extension.drop(1))
+        case _ => Resource.Type.Unk
   }
 
   trait Listener {
@@ -81,13 +89,13 @@ object Resource {
       listeners += f
       r.addOnUnload(f)
 
-    extension (r: Resource) def loadAs[T <: Type](using l: loader.ResourceLoader[T])(f: l.Out => Unit): Unit =
-      onLoad(r)(bytes =>
-        val loaded = l.load(r, bytes)
-        trackedLoadedResources(r) = loaded
-        f(loaded)
-      )
-      onUnload(r)(() => l.unload(r, trackedLoadedResources(r).asInstanceOf[l.Out]))
+    extension (r: Resource)
+      def loadAs[T <: Type](using l: loader.ResourceLoader[T])(f: l.Out => Unit): Unit =
+        onLoad(r)(bytes =>
+          val loaded = l.load(r, bytes)
+          trackedLoadedResources(r) = loaded
+          f(loaded)
+        )
+        onUnload(r)(() => l.unload(r, trackedLoadedResources(r).asInstanceOf[l.Out]))
   }
 }
-

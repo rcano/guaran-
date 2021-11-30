@@ -11,11 +11,18 @@ import scala.annotation.threadUnsafe
 import scala.concurrent.duration._
 import scala.util.chaining.*
 
-class ApricotEngine[Tk <: AbstractToolkit](val tk: Tk) extends internal.WorkersSupport {
+class ApricotEngine[Tk <: AbstractToolkit](val devMode: Boolean, val tk: Tk) extends internal.WorkersSupport {
   protected var engineStartTime: Long = -1
   val resourceManager = ResourceManager()
   val scriptEngine = ScriptEngine(tk)
   @threadUnsafe lazy val metrics = MetricRegistry()
+
+  if devMode then
+    resourceManager.register(new locators.FileSystemResourceLocator(better.files.File("./target/scala-3.1.0/classes/"), this))
+    resourceManager.register(new locators.FileSystemResourceLocator(better.files.File("./target/scala-3.1.0/test-classes/"), this))
+  else
+    resourceManager.register(new locators.ClassLoaderLocator())
+
 
   private val pendingTasks = collection.mutable.Queue.empty[() => Any]
   def onNextFrame(task: => Unit): Unit = pendingTasks += (() => task)

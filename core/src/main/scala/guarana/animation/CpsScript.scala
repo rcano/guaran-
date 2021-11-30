@@ -97,6 +97,8 @@ object ScriptDsl {
   inline def `yield`: Unit = cps.await[ScriptMonad, Unit](yieldStep)
   val yieldStep: Script = doUntilStep { _ != 0 } // the first time it is executed by the engine, it always starts at 0
 
+  inline def endScript: Unit = cps.await[ScriptMonad, Unit](EndOfScript)
+
   def currentTimeNanos(using se: ScriptEngine): Long = se.currentTime
   def currentTimeMillis(using se: ScriptEngine): Long = se.currentTime / 1000000
 }
