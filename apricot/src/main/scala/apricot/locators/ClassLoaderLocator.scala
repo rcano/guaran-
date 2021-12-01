@@ -15,7 +15,7 @@ class ClassLoaderLocator extends ResourceLocator {
     def tpe = Resource.Type.fromFileExtension(File(path.segments.last).extension)
     def loadAndMonitor(): Unit = {
       val bytes = Using(bfResource.getAsStream(path.toString))(_.readAllBytes().unn).get
-      signalLoaded(bytes)
+      signalLoaded(singleContent(bytes))
     }
   }
 }

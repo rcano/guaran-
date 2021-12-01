@@ -47,14 +47,14 @@ class FileSystemResourceLocator(root: File, engine: ApricotEngine[? <: AbstractT
 
     protected def loadAndMonitor(): Unit = {
       if file.isRegularFile then watch(this)
-      val data = file.byteArray
+      val data = singleContent(file.byteArray)
       signalLoaded(data)
     }
 
     def reload(): Unit = {
       try signalUnloaded() catch case NonFatal(e) => new Exception(s"Error unloading $this", e).printStackTrace()
       try {
-        val data = file.byteArray
+        val data = singleContent(file.byteArray)
         signalLoaded(data)
       } catch case NonFatal(e) => new Exception(s"Error loading $this", e).printStackTrace()
     }
