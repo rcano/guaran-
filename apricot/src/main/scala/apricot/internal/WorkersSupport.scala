@@ -31,7 +31,7 @@ trait WorkersSupport { self: ApricotEngine[? <: AbstractToolkit] =>
   private val workerThreads = workerThreadsPq.toArray //store them in an array for fast iteration
   workerThreads.foreach(_.start())
 
-  protected val distributeWorkTimer = metrics.timer("distribute-work").unn
+  val distributeWorkTimer = metrics.timer("distribute-work").unn
   private val needsStarted = collection.mutable.Set.empty[WorkerThread]
   protected def distributeWork(): Unit = if (workersTasks.nonEmpty) {
     val t0 = System.nanoTime()

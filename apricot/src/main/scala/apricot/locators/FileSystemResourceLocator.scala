@@ -25,6 +25,7 @@ class FileSystemResourceLocator(root: File, engine: ApricotEngine[? <: AbstractT
 
   private val trackedFiles = collection.mutable.HashMap.empty[File, FileResource]
 
+  FileSystemWatcher // initialize early
   engine.scriptEngine run script {
     doUntil { _ =>
       FileSystemWatcher.poll()
@@ -35,9 +36,7 @@ class FileSystemResourceLocator(root: File, engine: ApricotEngine[? <: AbstractT
   private def watch(r: FileResource) = {
     val p = root./(r.path.segments.mkString("/"))
     trackedFiles(p) = r
-    val monitored = if p.isDirectory then p else p.parent
-    monitored.register(FileSystemWatcher.watcher)
-    scribe.debug(s"Monitoring $monitored")
+    scribe.debug(s"tracking $p")
   }
 
   private class FileResource(file: File, val path: Path) extends Resource {
@@ -53,11 +52,10 @@ class FileSystemResourceLocator(root: File, engine: ApricotEngine[? <: AbstractT
         else
           scribe.debug(s"Loading directory ${file}'s content")
           file.list
-            .map(f =>
-              scribe.debug(s"  part $f")
-              Resource.ResourcePart(s"$path/${f.name}", f.byteArray.asInstanceOf[IArray[Byte]])
-            )
+            .map(f => Resource.ResourcePart(s"$path/${f.name}", f.byteArray.asInstanceOf[IArray[Byte]]))
             .toArray
+            .sortBy(_.name)
+            .tap(files => scribe.debug(files.mkString("Parts: [\n", "\n", "\n]")))
             .asInstanceOf[IArray[Resource.ResourcePart]]
 
       signalLoaded(data)
@@ -81,36 +79,58 @@ class FileSystemResourceLocator(root: File, engine: ApricotEngine[? <: AbstractT
   object FileSystemWatcher {
     import scala.jdk.CollectionConverters.*
     val watcher = root.newWatchService
-    root.register(watcher, File.Events.all)
+    (Iterator(root) ++ root.listRecursively).filter(_.isDirectory).foreach(f =>
+      scribe.debug(s"Monitoring $f")
+      f.register(watcher, File.Events.all)
+    )
 
-    val seenLastFrame = collection.mutable.Set.empty[JPath]
-    val seeingThisFrame = collection.mutable.Set.empty[JPath]
+    var seenLastFrame = collection.mutable.Set.empty[File]
+    var seeingThisFrame = collection.mutable.Set.empty[File]
 
     def poll(): Unit = {
       var key: WatchKey | Null = null
-      while { key = watcher.poll(); key != null } do
+      while { key = watcher.poll(); key != null } do {
         key.pollEvents.unn.forEach { evt =>
           scribe.trace(s"${key.unn.watchable}/${evt.unn.context} - ${evt.unn.kind} - count ${evt.unn.count}")
           evt match
             case evt: WatchEvent[JPath @unchecked]
                 if evt.kind == StandardWatchEventKinds.ENTRY_MODIFY || evt.kind == StandardWatchEventKinds.ENTRY_CREATE =>
               val keyPath = File(key.unn.watchable.asInstanceOf[JPath])
-              scribe.debug(s"maybe notify $keyPath")
-              maybeNotify(keyPath)
               val fullPath = keyPath / evt.context.unn.getFileName().toString
-              scribe.debug(s"maybe notify $fullPath")
-              maybeNotify(fullPath)
+              seeingThisFrame += keyPath
+              seeingThisFrame += fullPath
+              seenLastFrame -= keyPath
+              seenLastFrame -= fullPath
+
+              // recursively monitor new directories
+              if evt.kind == StandardWatchEventKinds.ENTRY_CREATE && fullPath.isDirectory then
+                (Iterator(fullPath) ++ fullPath.listRecursively).foreach { p =>
+                  if p.isDirectory then
+                    scribe.trace(s"monitoring new direcotry $p")
+                    p.register(watcher, File.Events.all)
+
+                  seeingThisFrame += p // add to the detected list for reporting
+                }
             case _ =>
         }
         key.reset()
+      }
+      // anything that remains in the seenLastFrame means it wasn't seen this frame, we must try to notify
+      for (p <- seenLastFrame) maybeNotify(p)
+      seenLastFrame.clear()
+      // swap the lists
+      seenLastFrame = seeingThisFrame.tap(_ => seeingThisFrame = seenLastFrame)
     }
 
-    private def maybeNotify(f: File): Unit = trackedFiles
-      .get(f)
-      .foreach(r =>
-        scribe.debug(s"reloading $r")
-        r.reload()
-      )
+    private def maybeNotify(f: File): Unit = {
+      scribe.debug(s"maybe notify $f")
+      trackedFiles
+        .get(f)
+        .foreach(r =>
+          scribe.debug(s"reloading $r")
+          r.reload()
+        )
+    }
   }
 }
 

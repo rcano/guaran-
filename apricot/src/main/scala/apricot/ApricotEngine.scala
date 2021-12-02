@@ -1,6 +1,6 @@
 package apricot
 
-import com.codahale.metrics.MetricRegistry
+import com.codahale.metrics.{Gauge, MetricRegistry}
 import guarana.*
 import guarana.animation.ScriptEngine
 import guarana.util.cfor
@@ -17,6 +17,7 @@ class ApricotEngine[Tk <: AbstractToolkit](val devMode: Boolean, val tk: Tk) ext
   val scriptEngine = ScriptEngine(tk)
   @threadUnsafe lazy val metrics = MetricRegistry()
 
+  given ApricotEngine[Tk] = this
   given ScriptEngine = scriptEngine
   given ResourceManager = resourceManager
 
@@ -32,7 +33,18 @@ class ApricotEngine[Tk <: AbstractToolkit](val devMode: Boolean, val tk: Tk) ext
   def onNextFrame(task: => Unit): Unit = pendingTasks += (() => task)
 
   var targetFps = 60d // default to 60, but should probably query the screen where the window is going to show up
-  private val fpsTimer = metrics.timer("fps").unn
+  val fpsTimer = metrics.timer("fps").unn
+  val updateTimer = metrics.timer("updateTimer").unn
+  val renderTimer = metrics.timer("renderTimer").unn
+  val gpuFlushTimer = metrics.timer("gpuFlushTimer").unn
+  private var lastFrameTime: Long = -1
+  val frameTimeGauge = metrics.gauge[Gauge[Long]]("frameTime", (() => () => lastFrameTime): MetricRegistry.MetricSupplier[Gauge[Long]]).unn
+  private var lastRenderTime: Long = -1
+  val renderTimeGauge = metrics.gauge[Gauge[Long]]("renderTime", (() => () => lastRenderTime): MetricRegistry.MetricSupplier[Gauge[Long]]).unn
+  private var gpuFlushTime: Long = -1
+  val gpuFlushGauge = metrics.gauge[Gauge[Long]]("gpuFlushTime", (() => () => gpuFlushTime): MetricRegistry.MetricSupplier[Gauge[Long]]).unn
+  private var lastUpdateTime: Long = -1
+  val updateTimeGauge = metrics.gauge[Gauge[Long]]("updateTime", (() => () => lastUpdateTime): MetricRegistry.MetricSupplier[Gauge[Long]]).unn
 
   private var surface: Surface | Null = null
   private var canvas: Canvas | Null = null
@@ -55,7 +67,10 @@ class ApricotEngine[Tk <: AbstractToolkit](val devMode: Boolean, val tk: Tk) ext
       layers(i).draw(surface.unn, canvas)
       i + 1
     }
+    val t0 = engineTime()
     surface.unn.flush()
+    gpuFlushTime = engineTime() - t0
+    gpuFlushTimer.update(gpuFlushTime, NANOSECONDS)
   }
 
   /** Run an engine loop on the caller's thread. Returns the total time that the step took to compute in nanos. */
@@ -73,11 +88,17 @@ class ApricotEngine[Tk <: AbstractToolkit](val devMode: Boolean, val tk: Tk) ext
       }
       distributeWork()
       scriptEngine.update(t0)
+      lastUpdateTime = engineTime() - t0
+      updateTimer.update(lastUpdateTime, NANOSECONDS)
+
       renderFrame()
+      lastRenderTime = engineTime() - (lastUpdateTime + t0) //use lastUpdate time to get the timestamp at the end up update
+      renderTimer.update(lastRenderTime, NANOSECONDS)
     }
 
     val dt = engineTime() - t0
     fpsTimer.update(dt, NANOSECONDS)
+    lastFrameTime = dt
     dt
   }
 
