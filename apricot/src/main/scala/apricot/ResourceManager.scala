@@ -37,12 +37,12 @@ trait Resource {
   def tpe: Resource.Type
   private val loadListenersBuff = collection.mutable.ListBuffer.empty[WeakReference[(Resource.Content => Unit)]]
   private val unloadListenersBuff = collection.mutable.ListBuffer.empty[WeakReference[() => Unit]]
-  private[Resource] def addOnLoad(l: (Resource.Content => Unit)): Unit = {
+  def addOnLoad(l: (Resource.Content => Unit)): Unit = {
     loadListenersBuff += WeakReference(l)
     //on the first listener, load and start monitoring
     if loadListenersBuff.nonEmpty then loadAndMonitor()
   }
-  private[Resource] def addOnUnload(l: () => Unit): Unit = unloadListenersBuff += WeakReference(l)
+  def addOnUnload(l: () => Unit): Unit = unloadListenersBuff += WeakReference(l)
   protected final def loadListeners: Iterable[(Resource.Content => Unit)] = expunge(loadListenersBuff).map(_())
   protected final def unloadListeners: Iterable[() => Unit] = expunge(unloadListenersBuff).map(_())
 
@@ -55,14 +55,15 @@ trait Resource {
   protected final def signalLoaded(content: Resource.Content): Unit = loadListeners.foreach(_(content))
   protected final def signalUnloaded(): Unit = unloadListeners.foreach(_())
 
-  protected final def singleContent(bytes: IArray[Byte] | Array[Byte]): Resource.Content = IArray(Resource.ResourcePart("content", bytes.asInstanceOf[IArray[Byte]]))
+  protected final def singleContent(bytes: IArray[Byte] | Array[Byte]): Resource.Content = IArray(Resource.ResourcePart(path.toString, bytes.asInstanceOf[IArray[Byte]]))
 }
 
 object Resource {
   enum Type:
-    case Image, Sound, DynamicScript, Scene, Text, Directory, Unk
+    case Animation, Image, Sound, DynamicScript, Scene, Text, Directory, Unk
     case Ext(mime: String)
   object Type {
+    type Animation = Animation.type
     type Image = Image.type
     type Sound = Sound.type
     type DynamicScript = DynamicScript.type
@@ -81,9 +82,11 @@ object Resource {
   type Content = IArray[ResourcePart]
   case class ResourcePart(name: String, content: IArray[Byte])
 
-  trait Listener {
+  trait Holder {
     private val listeners = collection.mutable.ListBuffer.empty[AnyRef]
     private val trackedLoadedResources = collection.mutable.HashMap.empty[Resource, Any]
+
+    given Holder = this
 
     def onLoad(r: Resource)(f: Content => Unit): Unit =
       listeners += f

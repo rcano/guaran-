@@ -17,9 +17,13 @@ class ApricotEngine[Tk <: AbstractToolkit](val devMode: Boolean, val tk: Tk) ext
   val scriptEngine = ScriptEngine(tk)
   @threadUnsafe lazy val metrics = MetricRegistry()
 
+  given ScriptEngine = scriptEngine
+  given ResourceManager = resourceManager
+
   if devMode then
     resourceManager.register(new locators.FileSystemResourceLocator(better.files.File("./target/scala-3.1.0/classes/"), this))
-    resourceManager.register(new locators.FileSystemResourceLocator(better.files.File("./target/scala-3.1.0/test-classes/"), this))
+    val testClasses = better.files.File("./target/scala-3.1.0/test-classes/")
+    if testClasses.exists then resourceManager.register(new locators.FileSystemResourceLocator(testClasses, this))
   else
     resourceManager.register(new locators.ClassLoaderLocator())
 

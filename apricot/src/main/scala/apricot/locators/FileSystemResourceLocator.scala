@@ -3,7 +3,7 @@ package locators
 
 import language.experimental.erasedDefinitions
 
-import better.files.{File, FileMonitor, FileExtensions}
+import better.files.{File, FileExtensions, FileMonitor}
 import guarana.{nnn, unn, AbstractToolkit}
 import guarana.animation.ScriptDsl.{given, *}
 import java.util.concurrent.Executors
@@ -11,18 +11,17 @@ import java.nio.file.{Path => JPath, StandardWatchEventKinds, WatchEvent, WatchK
 import scala.annotation.experimental
 import scala.concurrent.ExecutionContext
 import scala.util.chaining.*
-import scala.util.control.{NonFatal, NoStackTrace}
+import scala.util.control.{NoStackTrace, NonFatal}
 import ResourceManager.*
 
 class FileSystemResourceLocator(root: File, engine: ApricotEngine[? <: AbstractToolkit]) extends ResourceLocator {
 
   def mountPoint: Path = Path(Nil)
-  def locate(subpath: Path): Option[Resource] = 
+  def locate(subpath: Path): Option[Resource] =
     val res = root./(subpath.segments.mkString("/"))
     if res.exists then Some(FileResource(res, subpath))
     else None
   def list(path: Path) = root./(path.segments.mkString("/")).list.map(f => Path(path.segments :+ f.name)).toSeq
-
 
   private val trackedFiles = collection.mutable.HashMap.empty[File, FileResource]
 
@@ -36,8 +35,9 @@ class FileSystemResourceLocator(root: File, engine: ApricotEngine[? <: AbstractT
   private def watch(r: FileResource) = {
     val p = root./(r.path.segments.mkString("/"))
     trackedFiles(p) = r
-    p.parent.register(FileSystemWatcher.watcher)
-    scribe.debug(s"Monitoring ${p.parent}")
+    val monitored = if p.isDirectory then p else p.parent
+    monitored.register(FileSystemWatcher.watcher)
+    scribe.debug(s"Monitoring $monitored")
   }
 
   private class FileResource(file: File, val path: Path) extends Resource {
@@ -45,18 +45,34 @@ class FileSystemResourceLocator(root: File, engine: ApricotEngine[? <: AbstractT
       if file.isDirectory then Resource.Type.Directory
       else Resource.Type.fromFileExtension(file.extension)
 
-    protected def loadAndMonitor(): Unit = {
-      if file.isRegularFile then watch(this)
-      val data = singleContent(file.byteArray)
+    def loadContent() = {
+      val data =
+        if !file.isDirectory then
+          scribe.debug(s"Loading file ${file}'s content")
+          singleContent(file.byteArray)
+        else
+          scribe.debug(s"Loading directory ${file}'s content")
+          file.list
+            .map(f =>
+              scribe.debug(s"  part $f")
+              Resource.ResourcePart(s"$path/${f.name}", f.byteArray.asInstanceOf[IArray[Byte]])
+            )
+            .toArray
+            .asInstanceOf[IArray[Resource.ResourcePart]]
+
       signalLoaded(data)
     }
 
+    protected def loadAndMonitor(): Unit = {
+      watch(this)
+      loadContent()
+    }
+
     def reload(): Unit = {
-      try signalUnloaded() catch case NonFatal(e) => new Exception(s"Error unloading $this", e).printStackTrace()
-      try {
-        val data = singleContent(file.byteArray)
-        signalLoaded(data)
-      } catch case NonFatal(e) => new Exception(s"Error loading $this", e).printStackTrace()
+      try signalUnloaded()
+      catch case NonFatal(e) => new Exception(s"Error unloading $this", e).printStackTrace()
+      try loadContent()
+      catch case NonFatal(e) => new Exception(s"Error loading $this", e).printStackTrace()
     }
 
     override def toString() = s"FileResource(/$path)"
@@ -72,23 +88,29 @@ class FileSystemResourceLocator(root: File, engine: ApricotEngine[? <: AbstractT
 
     def poll(): Unit = {
       var key: WatchKey | Null = null
-      while {key = watcher.poll(); key != null} do
+      while { key = watcher.poll(); key != null } do
         key.pollEvents.unn.forEach { evt =>
           scribe.trace(s"${key.unn.watchable}/${evt.unn.context} - ${evt.unn.kind} - count ${evt.unn.count}")
           evt match
-          case evt: WatchEvent[JPath @unchecked] if evt.kind == StandardWatchEventKinds.ENTRY_MODIFY || evt.kind == StandardWatchEventKinds.ENTRY_CREATE =>
-            val fullPath = File(key.unn.watchable.asInstanceOf[JPath]) / evt.context.unn.getFileName().toString
-            scribe.debug(s"maybe notify $fullPath")
-            maybeNotify(fullPath)
-          case _ => 
+            case evt: WatchEvent[JPath @unchecked]
+                if evt.kind == StandardWatchEventKinds.ENTRY_MODIFY || evt.kind == StandardWatchEventKinds.ENTRY_CREATE =>
+              val keyPath = File(key.unn.watchable.asInstanceOf[JPath])
+              scribe.debug(s"maybe notify $keyPath")
+              maybeNotify(keyPath)
+              val fullPath = keyPath / evt.context.unn.getFileName().toString
+              scribe.debug(s"maybe notify $fullPath")
+              maybeNotify(fullPath)
+            case _ =>
         }
         key.reset()
     }
 
-    private def maybeNotify(f: File): Unit = trackedFiles.get(f).foreach(r =>
-      scribe.debug(s"reloading $r")
-      r.reload()
-    )
+    private def maybeNotify(f: File): Unit = trackedFiles
+      .get(f)
+      .foreach(r =>
+        scribe.debug(s"reloading $r")
+        r.reload()
+      )
   }
 }
 
