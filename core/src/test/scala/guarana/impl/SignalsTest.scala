@@ -2,11 +2,14 @@ package guarana
 package impl
 
 import language.implicitConversions
+import org.agrona.collections.LongHashSet
 import org.scalatest.funsuite.AnyFunSuite
 import scala.util.chaining._
 
 class SignalsTest extends AnyFunSuite {
-  trait Signal[+T] {}
+  trait Signal[+T] extends util.Unique {
+    def keyed: Keyed[this.type] = Keyed(this, this)
+  }
   implicit def keyedSignal(s: Signal[_]): Keyed[s.type] = Keyed(s, s)
 
   def signal[T](initValue: T)(implicit sb: SignalSwitchboard[Signal], inferredName: guarana.util.DeclaringVal) = {
@@ -23,13 +26,13 @@ class SignalsTest extends AnyFunSuite {
       s: Keyed[Signal[T]],
       oldValue: Option[T],
       newValue: T,
-      dependencies: collection.Set[Keyed[Signal[_]]],
-      dependents: collection.Set[Keyed[Signal[_]]]
+      dependencies: LongHashSet,
+      dependents: LongHashSet
     ): Unit = ()
   }
   val signalDescriptor = new SignalSwitchboard.SignalDescriptor[Signal] {
-    def isExternal[T](s: Signal[T]) = false
-    def getExternal[T](s: Signal[T], instance: Any) = ???
+    def isExternal[T](s: Keyed[Signal[T]]) = false
+    def getExternal[T](s: Keyed[Signal[T]]) = ???
   }
 
   test("simple signal propagation") {
@@ -39,7 +42,7 @@ class SignalsTest extends AnyFunSuite {
     sb.bind(text)(ctx => s"current count = ${ctx(count)}")
 
     assert(sb(text) == "current count = 0")
-    assert(sb.relationships(text).exists(_.dependencies(count))) //relationships get computed lazily with the value
+    assert(sb.relationships(text).exists(_.dependencies.contains(count.keyed.id))) //relationships get computed lazily with the value
     sb(count) = 1
     assert(sb(text) == "current count = 1")
   }
@@ -52,7 +55,7 @@ class SignalsTest extends AnyFunSuite {
     sb.bind(text)(ctx => s"${ctx(count)} for ${ctx(name)}")
 
     assert(sb(text) == "0 for Unk")
-    assert(sb.relationships(text).exists(r => r.dependencies(count) && r.dependencies(name)))
+    assert(sb.relationships(text).exists(r => r.dependencies.contains(count.keyed.id) && r.dependencies.contains(name.keyed.id)))
     sb(count) = 1
     assert(sb(text) == "1 for Unk")
     sb(name) = "P1"
@@ -66,7 +69,7 @@ class SignalsTest extends AnyFunSuite {
     sb.bind(text)(ctx => s"current count = ${ctx(count)}")
 
     assert(sb(text) == "current count = 0")
-    assert(sb.relationships(text).exists(_.dependencies(count)))
+    assert(sb.relationships(text).exists(_.dependencies.contains(count.keyed.id)))
     sb(count) = 1
     assert(sb(text) == "current count = 1")
     sb(text) = "new value"

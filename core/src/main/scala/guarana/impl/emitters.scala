@@ -2,12 +2,15 @@ package guarana
 package impl
 
 import language.implicitConversions
+import org.agrona.collections.Long2ObjectHashMap
+import java.util.function.LongFunction
 
 trait EmitterStation {
   
   def hasEmitter[A](emitter: Emitter[A])(using ValueOf[emitter.ForInstance]): Boolean
   def emit[A](emitter: Emitter[A], evt: A)(using ValueOf[emitter.ForInstance], VarContext & Emitter.Context): Unit
   def listen[A](emitter: Emitter[A])(f: EventIterator[A])(using ValueOf[emitter.ForInstance]): Unit
+  def remove[A](emitter: Keyed[Emitter[A]]): Unit
 
   def snapshot: EmitterStation
 }
@@ -16,23 +19,26 @@ object EmitterStation {
 }
 private[impl] class EmitterStationImpl extends EmitterStation {
   import EmitterStationImpl.*
-  private val emittersData = KeyedWeakHashMap[Emitter[_], EmitterData[_]]
+  private val emittersData = new Long2ObjectHashMap[EmitterData[_]](32, 0.8)
 
-  def hasEmitter[A](emitter: Emitter[A])(using ValueOf[emitter.ForInstance]): Boolean = emittersData.contains(emitter)
-  def emit[A](emitter: Emitter[A], evt: A)(using ValueOf[emitter.ForInstance], VarContext & Emitter.Context): Unit = {
-    emittersData.get(emitter) match {
-      case Some(prevData) => emittersData(emitter) = prevData.asInstanceOf[EmitterData[A]].emit(evt)
-      case _ => //do nothing
+  def hasEmitter[A](emitter: Emitter[A])(using v: ValueOf[emitter.ForInstance]): Boolean = emittersData.containsKey(Keyed(emitter, v.value).id)
+  def emit[A](emitter: Emitter[A], evt: A)(using v: ValueOf[emitter.ForInstance], ctx: VarContext & Emitter.Context): Unit = {
+    val key = Keyed(emitter, v.value).id
+    emittersData.get(key) match {
+      case null => //do nothing
+      case prevData => emittersData.put(key, prevData.asInstanceOf[EmitterData[A]].emit(evt))
     }
   }
   def listen[A](emitter: Emitter[A])(f: EventIterator[A])(using instance: ValueOf[emitter.ForInstance]): Unit = {
-    val data = emittersData.getOrElseUpdate(emitter, EmitterData()).asInstanceOf[EmitterData[A]]
-    emittersData(emitter) = data.addListener(f)
+    val key = Keyed(emitter, instance.value).id
+    val data = emittersData.computeIfAbsent(key, (_ => EmitterData()): LongFunction[EmitterData[A]]).asInstanceOf[EmitterData[A]]
+    emittersData.put(key, data.addListener(f))
   }
+  def remove[A](emitter: Keyed[Emitter[A]]): Unit = emittersData.remove(emitter.id)
 
   def snapshot: EmitterStation = {
     val res = EmitterStationImpl()
-    res.emittersData ++= this.emittersData
+    res.emittersData putAll this.emittersData
     res
   }
 }
@@ -63,6 +69,9 @@ class CopyOnWriteEmitterStation(val copy: EmitterStation) extends EmitterStation
   }
   def listen[A](emitter: Emitter[A])(f: EventIterator[A])(using ValueOf[emitter.ForInstance]): Unit =
     theInstance.listen(emitter)(f)
+
+  def remove[A](emitter: Keyed[Emitter[A]]): Unit = theInstance.remove(emitter)
+
 
   def snapshot: EmitterStation = CopyOnWriteEmitterStation(theInstance)
 }

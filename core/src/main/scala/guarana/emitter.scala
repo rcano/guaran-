@@ -2,7 +2,7 @@ package guarana
 
 import language.implicitConversions
 
-sealed trait Emitter[A] {
+sealed trait Emitter[A] extends util.Unique {
   type ForInstance <: Singleton
 
   final def forInstance[S <: Singleton](s: S): Emitter.Aux[A, S] = this.asInstanceOf[Emitter.Aux[A, S]]
@@ -27,7 +27,7 @@ object Emitter {
     def emit[A](emitter: Emitter[A], evt: A)(implicit instance: ValueOf[emitter.ForInstance]): Unit
   }
 
-  implicit def emitter2Keyed[T](e: Emitter[T])(using instance: ValueOf[e.ForInstance]): Keyed[e.type] = Keyed(e, instance.value)
+  implicit def emitter2Keyed[T](e: Emitter[T])(using instance: ValueOf[e.ForInstance]): Keyed[e.type] = impl.Keyed(e, instance.value)
 }
 
 sealed trait EventIterator[-T] {

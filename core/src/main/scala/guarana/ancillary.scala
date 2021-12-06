@@ -18,13 +18,13 @@ object Insets {
 /** Emitter for updates to var for this object.
   * The extension method is only available if a Emitter.Context is present, because it is otherwise useless to use it
   */
-extension (a: Any) def varUpdates(using Emitter.Context) = ObsVal.VarUpdates.forInstance(a)
+extension (a: Singleton) def varUpdates(using Emitter.Context) = ObsVal.VarUpdates.forInstance(a)
 
 /** Support async Futures as vars */
-extension [T](f: scala.concurrent.Future[T]) def asObsVal(using sc: AbstractToolkit, ec: scala.concurrent.ExecutionContext): ExternalObsVal[Option[Try[T]]] { type ForInstance = scala.concurrent.Future.type } = 
+extension [T](f: scala.concurrent.Future[T]) def asObsVal(using sc: AbstractToolkit, ec: scala.concurrent.ExecutionContext): ExternalObsVal[Option[Try[T]]] { type ForInstance = impl.AsyncToVarHolder.type } = 
   new ExternalVar[Option[Try[T]]] {
     lazy val name = f.toString
-    type ForInstance = scala.concurrent.Future.type
+    type ForInstance = impl.AsyncToVarHolder.type
     def get(n: ForInstance) = f.value
     private[guarana] def set(n: ForInstance, v: Option[Try[T]]): Unit = ()
     def eagerEvaluation = false
@@ -32,10 +32,10 @@ extension [T](f: scala.concurrent.Future[T]) def asObsVal(using sc: AbstractTool
     f.onComplete(res => sc.update(summon[VarContext].externalPropertyUpdated(this, Some(None))))(ec)
   }
 
-extension [T](f: java.util.concurrent.CompletableFuture[T]) def asObsVal(using sc: AbstractToolkit): ExternalObsVal[Option[Try[T]]] { type ForInstance = scala.concurrent.Future.type } =
+extension [T](f: java.util.concurrent.CompletableFuture[T]) def asObsVal(using sc: AbstractToolkit): ExternalObsVal[Option[Try[T]]] { type ForInstance = impl.AsyncToVarHolder.type } =
   new ExternalVar[Option[Try[T]]] {
     lazy val name = f.toString
-    type ForInstance = scala.concurrent.Future.type
+    type ForInstance = impl.AsyncToVarHolder.type
     def get(n: ForInstance) = if f.isDone then Some(Try(f.get().asInstanceOf[T])) else None
     private[guarana] def set(n: ForInstance, v: Option[Try[T]]): Unit = ()
     def eagerEvaluation = false

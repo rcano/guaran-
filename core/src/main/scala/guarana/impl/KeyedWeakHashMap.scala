@@ -9,7 +9,7 @@ class KeyedWeakHashMap[K, V] extends collection.mutable.Map[Keyed[K], V] {
   private val underlying = new java.util.HashMap[KeyDef[K], V](256, 0.65)
   private val refQueue = ReferenceQueue[Any]()
   
-  extension (k: Keyed[K]) def toWeak: WeakKeyed[K] = WeakKeyed(k.keyed, k.instance, refQueue)
+  extension (k: Keyed[K]) def toWeak: WeakKeyed[K] = ???//WeakKeyed(k.keyed, k.instance, refQueue)
 
   def addOne(elem: (Keyed[K], V)) = {
     expungeStaleEntries()
@@ -26,11 +26,11 @@ class KeyedWeakHashMap[K, V] extends collection.mutable.Map[Keyed[K], V] {
   def get(key: Keyed[K]) = {
     import scala.language.unsafeNulls
     expungeStaleEntries()
-    if (mutableKeyed == null) mutableKeyed = MutableWeakKeyed(key.keyed, key.instance)
-    else {
-      mutableKeyed.keyed = key.keyed
-      mutableKeyed.instance = key.instance
-    }
+    // if (mutableKeyed == null) mutableKeyed = MutableWeakKeyed(key.keyed, key.instance)
+    // else {
+    //   mutableKeyed.keyed = key.keyed
+    //   mutableKeyed.instance = key.instance
+    // }
     underlying.get(mutableKeyed).toOption
   }
   
@@ -57,7 +57,7 @@ object KeyedWeakHashMap {
 
   sealed trait KeyDef[K] {
     def keyed: K
-    def get(): Any
+    def get(): Singleton | Null
     override def equals(other: Any) = {
       // since we control all the instantiations and usages of KeyDef, we know we are never going to compare it against anything else, so save the instanceOf check
       val o = other.asInstanceOf[KeyDef[K]]
@@ -68,15 +68,15 @@ object KeyedWeakHashMap {
     override def hashCode = java.util.Objects.hash(keyed.asInstanceOf[AnyRef], get().asInstanceOf[AnyRef])
     override def toString = s"WeakKeyed($keyed, ${get()})"
 
-    def toKeyed = Keyed(keyed, get())
+    def toKeyed = Keyed(keyed, get().unn)
   }
 
-  private[KeyedWeakHashMap] final class WeakKeyed[K](val keyed: K, instance: Any, queue: ReferenceQueue[Any] | Null) extends WeakReference[Any](instance, queue) with KeyDef[K]
+  private[KeyedWeakHashMap] final class WeakKeyed[K](val keyed: K, instance: Singleton, queue: ReferenceQueue[Any] | Null) extends WeakReference[Singleton](instance, queue) with KeyDef[K]
 
   /** Special optimization for calling get. We don't want to create a new instance just to search */
   private[KeyedWeakHashMap] final class MutableWeakKeyed[K](
     var keyed: K,
-    var instance: Any,
+    var instance: Singleton,
   ) extends KeyDef[K] {
     def get() = instance
   }

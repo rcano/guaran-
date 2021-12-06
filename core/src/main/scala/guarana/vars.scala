@@ -4,7 +4,8 @@ import language.implicitConversions
 import scala.annotation.targetName
 import scala.annotation.compileTimeOnly
 
-case class Keyed[+T](keyed: T, instance: Any)
+type Keyed[+T] = impl.Keyed[T]
+// export impl.Keyed
 
 type VarContextAction[+T] = VarContext ?=> T
 
@@ -19,7 +20,7 @@ object VarContext {
   implicit def noContextAvailable: VarContext = ???
 }
 
-sealed trait ObsVal[+T] {
+sealed trait ObsVal[+T] extends util.Unique {
   def name: String
   type ForInstance <: Singleton
 
@@ -35,12 +36,12 @@ sealed trait ObsVal[+T] {
   override def toString = s"ObsVal($name)"
 
   def unapply(evt: VarValueChanged[ObsVal])(using instance: ValueOf[ForInstance]): Option[(Option[T], T)] = {
-    if (evt.key.instance == instance.value && evt.key.keyed == this) Some((evt.prev.asInstanceOf[Option[T]], evt.curr.asInstanceOf[T]))
+    if (evt.instance == instance.value && evt.signal == this) Some((evt.prev.asInstanceOf[Option[T]], evt.curr.asInstanceOf[T]))
     else None
   }
   object generic {
-    def unapply(evt: VarValueChanged[ObsVal]): Option[(evt.key.keyed.ForInstance, Option[T], T)] = {
-      if (evt.key.keyed == ObsVal.this) Some((evt.key.instance.asInstanceOf[evt.key.keyed.ForInstance], evt.prev.asInstanceOf[Option[T]], evt.curr.asInstanceOf[T]))
+    def unapply(evt: VarValueChanged[ObsVal]): Option[(evt.signal.ForInstance, Option[T], T)] = {
+      if (evt.signal == ObsVal.this) Some((evt.instance.asInstanceOf[evt.signal.ForInstance], evt.prev.asInstanceOf[Option[T]], evt.curr.asInstanceOf[T]))
       else None
     }
   }
@@ -49,7 +50,7 @@ object ObsVal {
   val VarUpdates = Emitter[VarValueChanged[ObsVal]]()
   type Aux[T, Instance <: Singleton] = ObsVal[T] { type ForInstance = Instance }
 
-  implicit def obs2Keyed[T](v: ObsVal[T])(implicit instance: ValueOf[v.ForInstance]): Keyed[v.type] = Keyed(v, instance.value)
+  implicit def obs2Keyed[T](v: ObsVal[T])(implicit instance: ValueOf[v.ForInstance]): Keyed[v.type] = impl.Keyed(v, instance.value)
 }
 
 sealed trait Var[T] extends ObsVal[T] {
