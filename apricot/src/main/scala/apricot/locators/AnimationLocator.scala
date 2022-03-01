@@ -18,23 +18,39 @@ class AnimationLocator(engine: ApricotEngine[? <: guarana.AbstractToolkit]) exte
         def tpe = Resource.Type.Animation
         def path = p
 
-        private var loadedFrames: Option[Resource.Content] = None
-        private var loadedScript: Option[Resource.Content] = None
+        def subscribe[T](resourceSubscriber: Resource.Subscriber[T]) = {
+          new Subscription[T] {
+            var loadedFrames: Option[Resource.Content] = None
+            var loadedScript: Option[Resource.Content] = None
 
-        def loadAndMonitor() = {
-          frames.addOnLoad(c =>
-            loadedFrames = Some(c)
-            notifyIfNeeded()
-          )
-          script.addOnLoad(c =>
-            loadedScript = Some(c)
-            notifyIfNeeded()
-          )
+            val framesSub = frames.subscribe({ c =>
+                loadedFrames = Some(c)
+                notifyIfNeeded()
+              },
+              _ => ()
+            )
+            val scriptSub =script.subscribe({ c =>
+                loadedScript = Some(c)
+                notifyIfNeeded()
+              },
+              _ => ()
+            )
+
+            var content = None
+            
+            def close() = {
+              framesSub.close()
+              scriptSub.close()
+            }
+
+            def notifyIfNeeded() = for {
+              frames <- loadedFrames
+              script <- loadedScript
+            } {
+              content = Some(resourceSubscriber.onLoad(frames ++ script.map(_.copy(name = "script"))))
+            }
+          }
         }
-        def notifyIfNeeded() = for {
-          frames <- loadedFrames
-          script <- loadedScript
-        } signalLoaded(frames ++ script.map(_.copy(name = "script")))
 
         override def toString = s"Animation($path)"
       }

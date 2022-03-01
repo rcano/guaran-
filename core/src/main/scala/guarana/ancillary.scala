@@ -7,6 +7,7 @@ import util.*
 /** Unsafe not null. Casts away nullity without a check */
 extension [T](e: T | Null) inline def unn: T = e.asInstanceOf[T]
 extension [T, U](e: T | Null) inline def ?(inline f: T => U): U | Null = if (e != null) f(e.asInstanceOf[T]) else null
+extension [T, U](e: T | Null) inline def nullFold(inline f: T => U, inline orElse: U): U = if (e != null) f(e.asInstanceOf[T]) else orElse
 extension [T](e: T | Null) inline def toOption: Option[T] = if (e != null) Some(e.asInstanceOf[T]) else None
 extension [F[_], T](e: F[T | Null] | Null) inline def nnn: F[T] = e.asInstanceOf[e.type & F[T]]
 

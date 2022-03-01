@@ -9,21 +9,25 @@ import guarana.animation.ScriptDsl.{given, *}
 import java.util.concurrent.Executors
 import java.nio.file.{Path => JPath, StandardWatchEventKinds, WatchEvent, WatchKey}
 import scala.annotation.experimental
-import scala.concurrent.ExecutionContext
+import scala.collection.mutable.{ArrayBuffer, HashMap}
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.chaining.*
 import scala.util.control.{NoStackTrace, NonFatal}
 import ResourceManager.*
 
 class FileSystemResourceLocator(root: File, engine: ApricotEngine[? <: AbstractToolkit]) extends ResourceLocator {
 
+  import engine.resourceManager.given
   def mountPoint: Path = Path(Nil)
   def locate(subpath: Path): Option[Resource] =
     val res = root./(subpath.segments.mkString("/"))
+    scribe.debug(s"locating path $res. Found? ${res.exists}")
     if res.exists then Some(FileResource(res, subpath))
     else None
   def list(path: Path) = root./(path.segments.mkString("/")).list.map(f => Path(path.segments :+ f.name)).toSeq
 
-  private val trackedFiles = collection.mutable.HashMap.empty[File, FileResource]
+  private val trackedFiles = HashMap.empty[File, FileResource]
+  private val subscribedFiles = HashMap.empty[File, ArrayBuffer[FileResource#FileSubscription[?]]]
 
   FileSystemWatcher // initialize early
   engine.scriptEngine run script {
@@ -33,16 +37,39 @@ class FileSystemResourceLocator(root: File, engine: ApricotEngine[? <: AbstractT
     }
   }
 
-  private def watch(r: FileResource) = {
-    val p = root./(r.path.segments.mkString("/"))
-    trackedFiles(p) = r
-    scribe.debug(s"tracking $p")
-  }
-
-  private class FileResource(file: File, val path: Path) extends Resource {
+  private class FileResource(val file: File, val path: Path) extends Resource {
     lazy val tpe =
       if file.isDirectory then Resource.Type.Directory
       else Resource.Type.fromFileExtension(file.extension)
+
+    def subscribe[T](resourceSubscriber: Resource.Subscriber[T]): Subscription[T] = {
+      val res = FileSubscription(resourceSubscriber)
+      trackedFiles(file) = this
+      subscribedFiles.getOrElseUpdate(file, ArrayBuffer.empty) += res
+      scribe.debug(s"tracking $file")
+      Future { loadContent() }
+      res
+    }
+
+    class FileSubscription[T](resourceSubscriber: Resource.Subscriber[T]) extends Subscription[T] {
+      var content: Option[T] = None
+      def close() = subscribedFiles.get(file) foreach (list =>
+        list -= this
+        content foreach resourceSubscriber.onUnload
+        if (list.isEmpty) {
+          subscribedFiles -= file
+          trackedFiles -= file
+          scribe.debug(s"stopped tracking $file")
+        }
+      )
+
+      def load(c: Resource.Content): Unit = engine.onNextFrame {
+        content = Some(resourceSubscriber.onLoad(c))
+      }
+      def unload(): Unit = engine.onNextFrame {
+        content foreach resourceSubscriber.onUnload
+      }
+    }
 
     def loadContent() = {
       val data =
@@ -58,21 +85,15 @@ class FileSystemResourceLocator(root: File, engine: ApricotEngine[? <: AbstractT
             .tap(files => scribe.debug(files.mkString("Parts: [\n", "\n", "\n]")))
             .asInstanceOf[IArray[Resource.ResourcePart]]
 
-      signalLoaded(data)
-    }
-
-    protected def loadAndMonitor(): Unit = {
-      watch(this)
-      loadContent()
+      subscribedFiles.get(file) foreach (_ foreach (_.load(data)))
     }
 
     def reload(): Unit = {
-      try signalUnloaded()
-      catch case NonFatal(e) => new Exception(s"Error unloading $this", e).printStackTrace()
+      try subscribedFiles.get(file) foreach (_ foreach (_.unload()))
+      catch case NonFatal(e) => scribe.error(s"Error unloading $this", e)
       try loadContent()
-      catch case NonFatal(e) => new Exception(s"Error loading $this", e).printStackTrace()
+      catch case NonFatal(e) => scribe.error(s"Error loading $this", e)
     }
-
     override def toString() = s"FileResource(/$path)"
   }
 
@@ -128,7 +149,7 @@ class FileSystemResourceLocator(root: File, engine: ApricotEngine[? <: AbstractT
         .get(f)
         .foreach(r =>
           scribe.debug(s"reloading $r")
-          r.reload()
+          Future { r.reload() }
         )
     }
   }

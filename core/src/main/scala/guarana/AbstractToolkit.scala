@@ -29,7 +29,7 @@ abstract class AbstractToolkit {
   private val instanceVars = new Int2ObjectHashMap[InstanceData]()
   private val externalVars = new IntHashSet(1024)
   private val seenVars = new Int2ObjectHashMap[Signal[?]]
-  private val cleaner = java.lang.ref.Cleaner.create().unn
+  private val cleaner = impl.RefCleaner()
 
   protected def isOnToolkitThread(): Boolean
   protected def runOnToolkitThread(r: () => Any): Unit

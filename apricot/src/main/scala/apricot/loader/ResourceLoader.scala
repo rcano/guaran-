@@ -1,6 +1,7 @@
 package apricot
 package loader
 
+import apricot.resource.*
 import io.github.humbleui.skija.Image
 import guarana.animation.ScriptEngine
 
@@ -30,6 +31,11 @@ object ResourceLoader {
     type Out = DynamicScript
     def load(r: Resource, content: Resource.Content) = loadInstance[DynamicScript](r, content(0).content.asInstanceOf[Array[Byte]])
     def unload(r: Resource, animation: DynamicScript) = unloadInstance(r, animation)
+
+  given (ResourceLoader[Resource.Type.Renderable] { type Out = DynamicRenderable }) = new ByteCodeLoader[Resource.Type.Renderable]:
+    type Out = DynamicRenderable
+    def load(r: Resource, content: Resource.Content) = loadInstance[DynamicRenderable](r, content(0).content.asInstanceOf[Array[Byte]])
+    def unload(r: Resource, animation: DynamicRenderable) = ()
 
   given (using ScriptEngine): ResourceLoader.Aux[Resource.Type.Animation, Animation] = AnimationLoader()
 }

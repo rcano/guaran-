@@ -2,18 +2,33 @@ package apricot
 
 import language.experimental.erasedDefinitions
 
+import guarana.unn
 import scala.annotation.experimental
 import scala.collection.immutable.SortedSet
+import scala.concurrent.ExecutionContext
 import scala.quoted.*
-
-import ResourceManager._
 import scala.ref.WeakReference
 import java.util.ServiceLoader
+import java.util.concurrent.Executors
+import ResourceManager._
 
 class ResourceManager {
   private val locators = collection.mutable.ArrayBuffer.empty[ResourceLocator]
   def register(locator: ResourceLocator): Unit = locators += locator
   def get(path: Path): Iterable[Resource] = locators.flatMap(_.locate(path))
+
+  /** Shared threadpool for asynchronously reading resources */
+  given ioExecutorService: ExecutionContext = ExecutionContext.fromExecutorService(
+    Executors
+      .newFixedThreadPool(
+        2,
+        r =>
+          val t = new Thread(r, "ResourceManager_EC")
+          t.setDaemon(true)
+          t
+      )
+      .unn
+  )
 }
 
 object ResourceManager {
@@ -27,6 +42,7 @@ object ResourceManager {
 
 case class Path(segments: List[String]):
   def /(segment: String): Path = Path(segments :+ segment)
+  def fileName: String = segments.last
   override def toString() = segments.mkString("/")
 object Path:
   def apply(segments: String*): Path = Path(segments.toList)
@@ -35,32 +51,40 @@ object Path:
 trait Resource {
   def path: Path
   def tpe: Resource.Type
-  private val loadListenersBuff = collection.mutable.ListBuffer.empty[WeakReference[(Resource.Content => Unit)]]
-  private val unloadListenersBuff = collection.mutable.ListBuffer.empty[WeakReference[() => Unit]]
-  def addOnLoad(l: (Resource.Content => Unit)): Unit = {
-    loadListenersBuff += WeakReference(l)
-    //on the first listener, load and start monitoring
-    if loadListenersBuff.nonEmpty then loadAndMonitor()
+
+  def subscribe[T](resourceSubscriber: Resource.Subscriber[T]): Subscription[T]
+  def subscribe[T](onLoadFunction: Resource.Content => T, onUnloadFunction: T => Unit): Subscription[T] = subscribe(
+    new Resource.Subscriber {
+      def onLoad(content: Resource.Content): T = onLoadFunction(content)
+      def onUnload(t: T): Unit = onUnloadFunction(t)
+    }
+  )
+
+  def subscribeAs[T <: Resource.Type](using l: loader.ResourceLoader[T])(
+      onLoad: l.Out => Unit = Resource.ignoreListener[l.Out],
+      onUnload: l.Out => Unit = Resource.ignoreListener[l.Out]
+  ): Subscription[l.Out] =
+    subscribe(
+      c =>
+        val res = l.load(this, c)
+        onLoad(res)
+        res,
+      c => l.unload(this, c)
+    )
+
+  trait Subscription[T] extends AutoCloseable {
+    def content: Option[T]
+    def resource: Resource = Resource.this
   }
-  def addOnUnload(l: () => Unit): Unit = unloadListenersBuff += WeakReference(l)
-  protected final def loadListeners: Iterable[(Resource.Content => Unit)] = expunge(loadListenersBuff).map(_())
-  protected final def unloadListeners: Iterable[() => Unit] = expunge(unloadListenersBuff).map(_())
 
-  /** Implementors must call [[signalLoaded]] and [[signalUnloaded]] appropriately */
-  protected def loadAndMonitor(): Unit
-
-  private def expunge[T <: AnyRef](buff: collection.mutable.ListBuffer[WeakReference[T]]): buff.type =
-    buff.filterInPlace(ref => ref.get.isDefined)
-
-  protected final def signalLoaded(content: Resource.Content): Unit = loadListeners.foreach(_(content))
-  protected final def signalUnloaded(): Unit = unloadListeners.foreach(_())
-
-  protected final def singleContent(bytes: IArray[Byte] | Array[Byte]): Resource.Content = IArray(Resource.ResourcePart(path.toString, bytes.asInstanceOf[IArray[Byte]]))
+  protected final def singleContent(bytes: IArray[Byte] | Array[Byte]): Resource.Content = IArray(
+    Resource.ResourcePart(path.toString, bytes.asInstanceOf[IArray[Byte]])
+  )
 }
 
 object Resource {
   enum Type:
-    case Animation, Image, Sound, DynamicScript, Scene, Text, Directory, Unk
+    case Animation, Image, Sound, DynamicScript, Scene, Text, Directory, Renderable, Unk
     case Ext(mime: String)
   object Type {
     type Animation = Animation.type
@@ -70,6 +94,7 @@ object Resource {
     type Scene = Scene.type
     type Text = Text.type
     type Directory = Directory.type
+    type Renderable = Renderable.type
     type Unk = Unk.type
 
     def fromFileExtension(extension: Option[String]): Type =
@@ -82,27 +107,10 @@ object Resource {
   type Content = IArray[ResourcePart]
   case class ResourcePart(name: String, content: IArray[Byte])
 
-  trait Holder {
-    private val listeners = collection.mutable.ListBuffer.empty[AnyRef]
-    private val trackedLoadedResources = collection.mutable.HashMap.empty[Resource, Any]
+  private[Resource] val ignoreListener = [C] => (c: C) => ()
 
-    given Holder = this
-
-    def onLoad(r: Resource)(f: Content => Unit): Unit =
-      listeners += f
-      r.addOnLoad(f)
-
-    def onUnload(r: Resource)(f: () => Unit): Unit =
-      listeners += f
-      r.addOnUnload(f)
-
-    extension (r: Resource)
-      def loadAs[T <: Type](using l: loader.ResourceLoader[T])(f: l.Out => Unit): Unit =
-        onLoad(r)(bytes =>
-          val loaded = l.load(r, bytes)
-          trackedLoadedResources(r) = loaded
-          f(loaded)
-        )
-        onUnload(r)(() => l.unload(r, trackedLoadedResources(r).asInstanceOf[l.Out]))
+  trait Subscriber[T] {
+    def onLoad(content: Content): T
+    def onUnload(t: T): Unit
   }
 }

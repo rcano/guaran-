@@ -38,11 +38,15 @@ trait WorkersSupport { self: ApricotEngine[? <: AbstractToolkit] =>
     VarHandle.acquireFence()
     needsStarted.clear()
     cfor(0, _ < workersTasks.length) { i =>
-      val worker = workerThreadsPq.dequeue().unn
-      worker.pendingWork.getAcquire().unn += workersTasks(i)
-      worker.pendingWorkGauge.inc()
-      needsStarted += worker
-      workerThreadsPq.enqueue(worker)
+      val task = workersTasks(i)
+      if (!task.running) {
+        task.running = true
+        val worker = workerThreadsPq.dequeue().unn
+        worker.pendingWork.getAcquire().unn += task
+        worker.pendingWorkGauge.inc()
+        needsStarted += worker
+        workerThreadsPq.enqueue(worker)
+      }
       i + 1
     }
     needsStarted.foreach(LockSupport.unpark(_))
@@ -50,7 +54,7 @@ trait WorkersSupport { self: ApricotEngine[? <: AbstractToolkit] =>
     distributeWorkTimer.update(System.nanoTime() - t0, NANOSECONDS)
   }
 
-  /** This threads carry parallel computations per frame in a coordinated way with the main thread.
+  /** This threads carries out parallel computations per frame in a coordinated way with the main thread.
     * At the beginnign of the frame, all job scheduled for workers is divvied up and executed amongst
     * workers. Workers run in alignment with the main loop, starting when it starts, and completing their
     * work during the same frame.

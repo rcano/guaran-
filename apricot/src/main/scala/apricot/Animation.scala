@@ -1,9 +1,9 @@
 package apricot
 
-import apricot.DynamicScript
 import guarana.*
 import guarana.animation.{Script, ScriptEngine}
 import io.github.humbleui.skija.Image
+import resource.DynamicScript
 
 trait Animated {
   private var _currentAnimation: Animation | Null = null

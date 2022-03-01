@@ -73,31 +73,31 @@ private[impl] class SignalSwitchboardImpl[Signal[+T] <: util.Unique](
    * Stores signals that should be updated when the key signal changes
    */
   // private val signalDeps = KeyedWeakHashMap[Signal[Any], Set[Keyed[Signal[Any]]]].withDefaultValue(Set.empty)
-  private val signalDeps = Long2ObjectHashMap[LongHashSet]
+  private val signalDeps = new Long2ObjectHashMap[LongHashSet]()
 
   /**
    * Stores signals whose current binding is dependent on the binding of the key Signal.
    */
   // private val signalRels = KeyedWeakHashMap[Signal[Any], Relationships[Signal]]
-  private val signalRels = Long2ObjectHashMap[Relationships[Signal]]
+  private val signalRels = new Long2ObjectHashMap[Relationships[Signal]]()
   
   // private val signalEvaluator = KeyedWeakHashMap[Signal[Any], Compute[Signal]]
-  private val signalEvaluator = Long2ObjectHashMap[Compute[Signal]]
+  private val signalEvaluator = new Long2ObjectHashMap[Compute[Signal]]()
 
   def get[T](s: Keyed[Signal[T]]): Entry[T] = {
-    (signalStates.get(s): @unchecked) match {
+    (signalStates.get(s.id): @unchecked) match {
       case null => NotFound
       case Value(null) => null.asInstanceOf[T]
       case Value(value: T @unchecked) => value
       case Recompute(oldv) =>
-        signalRels.get(s).?(_.dependents fastForeach (e => remove(Keyed(e)))) //when recomputing the value, we gotta undo all the dependents
+        signalRels.get(s.id).?(_.dependents fastForeach (e => remove(Keyed(e)))) //when recomputing the value, we gotta undo all the dependents
 
         val tracker = new TrackingContext(s)
         if (oldv != null)//before computing the value, we set the signalState to the oldValue in case the compute lambda has a self reference
           signalStates.put(s.id, Value(oldv))
         else
-          signalStates.remove(s)
-        val result = signalEvaluator.get(s).asInstanceOf[Compute[Signal]].f(tracker)
+          signalStates.remove(s.id)
+        val result = signalEvaluator.get(s.id).asInstanceOf[Compute[Signal]].f(tracker)
         signalStates.put(s.id, Value(result))
 
         val computedRels = Relationships[Signal](tracker.dependencies, tracker.dependents)
@@ -127,7 +127,7 @@ private[impl] class SignalSwitchboardImpl[Signal[+T] <: util.Unique](
   }
     
   def update[T](s: Keyed[Signal[T]], value: T): Unit = {
-    val oldv = signalStates.get(s).toOption
+    val oldv = signalStates.get(s.id).toOption
     if (!oldv.exists {
       case Value(`value`) => true
       case External => signalDescriptor.getExternal(s) == value
@@ -171,7 +171,7 @@ private[impl] class SignalSwitchboardImpl[Signal[+T] <: util.Unique](
     reporter.signalInvalidated(this, s)
   }
 
-  def relationships(s: Keyed[Signal[Any]]) = signalRels.get(s).toOption
+  def relationships(s: Keyed[Signal[Any]]) = signalRels.get(s.id).toOption
 
   private def unbindPrev(s: Keyed[Signal[Any]]): Unit = {
     signalEvaluator.remove(s.id) match {

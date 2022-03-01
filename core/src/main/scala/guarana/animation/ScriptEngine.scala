@@ -44,9 +44,11 @@ class ScriptEngine(toolkit: AbstractToolkit, initialBufferSize: Int = 100) {
         val currentStepTime = (nanoTime - script.at) / 1000000 // to millis
   
         script.step.nextStep(using this)(currentStepTime) match
-          case StepEvalResult.Done => // do nothing
+          case StepEvalResult.Done => script.dispose()
           case StepEvalResult.Cont => nextRunScripts.put(script)
-          case StepEvalResult.NextStep(ns) => scripts.put(ScheduledStep(ns, nanoTime)) //execute in this step
+          case StepEvalResult.NextStep(ns) => scripts.put(newScheduledStep(ns, nanoTime)) //execute in this step
+      } else {
+        script.dispose()
       }
     }
     //swap scripts with nextRunScripts
@@ -64,5 +66,17 @@ class ScriptEngine(toolkit: AbstractToolkit, initialBufferSize: Int = 100) {
 
   def remove(s: Script): Unit = mustRemove += s
 
-  private class ScheduledStep(val step: Script, var at: Long = -1)
+  private val stepsPool = new collection.mutable.Queue[ScheduledStep]()
+  private def newScheduledStep(s: Script, at: Long = -1): ScheduledStep = {
+    if stepsPool.isEmpty then
+      // populate the pool a bit
+      for _ <- 0 until 10 do stepsPool += ScheduledStep(EndOfScript, -1)
+    val res = stepsPool.dequeue()
+    res.step = s
+    res.at = at
+    res
+  }
+  private class ScheduledStep(var step: Script, var at: Long = -1) {
+    def dispose(): Unit = stepsPool += this
+  }
 }

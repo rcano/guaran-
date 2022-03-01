@@ -1,78 +1,92 @@
 name := "guarana"
-organization := "guarana"
-version := "0.0.1"
 
-inThisBuild(Seq(
-  scalaVersion := "3.1.0",
-  fork := true,
-
-  libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.9" % "test",
-
-  Compile / packageDoc / publishArtifact := false,
-
-  ThisBuild / scalacOptions ++= Seq(
-    "-Yexplicit-nulls",
-    "-deprecation", "-unchecked",
-    "-language:implicitConversions"
-  ),
-))
-
-lazy val guaraná = Project(id = "guarana", base = file(".")).aggregate(core)
-
-lazy val core = Project(id ="guarana-core", base = file("core")).settings(
-  libraryDependencies ++= Seq(
-    "com.github.rssh" %% "dotty-cps-async" % "0.9.5",
-    "org.agrona" % "agrona" % "1.12.0"
+inThisBuild(
+  Seq(
+    organization := "guarana",
+    version := "0.0.1-SNAPSHOT",
+    scalaVersion := "3.1.1",
+    fork := true,
+    libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.9" % "test",
+    Compile / packageDoc / publishArtifact := false,
+    ThisBuild / scalacOptions ++= Seq(
+      "-Yexplicit-nulls",
+      "-deprecation",
+      "-unchecked",
+      "-language:implicitConversions"
+    ),
   )
 )
 
-lazy val qt = Project(id = "guarana-qt", base = file("qt")).settings(
-  // qt/envVars += ("QT_DEBUG_PLUGINS" -> "1"),
-  libraryDependencies ++= Seq(
-    ("com.github.pathikrit" %% "better-files" % "3.9.1").cross(CrossVersion.for3Use2_13),
-  ),
-  libraryDependencies += "org.bytedeco" % "javacpp" % "1.5.5",
-  libraryDependencies += "org.bytedeco" % "javacpp" % "1.5.5" classifier("linux-x86_64"),
-  libraryDependencies += "org.bytedeco" % "qt" % "5.15.2-1.5.5",
-  libraryDependencies += "org.bytedeco" % "qt" % "5.15.2-1.5.5" classifier("linux-x86_64"),
-  javaOptions ++= Seq("-Djava.library.path=/usr/java/packages/lib:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib:lib/qtjambi-5.15-binaries-linux64-gcc/lib")
-  // javaOptions ++= Seq("-Djava.library.path=lib/binaries:/usr/java/packages/lib:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib")
-).dependsOn(core)
+lazy val guaraná = Project(id = "guarana", base = file(".")).aggregate(coreJvm)
 
+lazy val core = // select supported platforms
+  crossProject(JVMPlatform, NativePlatform)
+    .crossType(CrossType.Pure)
+    .withoutSuffixFor(JVMPlatform)
+    .settings(
+      libraryDependencies ++= Seq(
+        "com.github.rssh" %% "dotty-cps-async" % "0.9.5",
+      )
+    )
+    // configure JVM settings
+    .jvmSettings( /* ... */ )
+    // configure Scala-Native settings
+    .nativeSettings( /* ... */ ) // defined in sbt-scala-native
+
+lazy val coreJvm = core.jvm
+lazy val coreNative = core.native
+
+lazy val qt = Project(id = "guarana-qt", base = file("qt"))
+  .settings(
+    // qt/envVars += ("QT_DEBUG_PLUGINS" -> "1"),
+    libraryDependencies ++= Seq(
+      ("com.github.pathikrit" %% "better-files" % "3.9.1").cross(CrossVersion.for3Use2_13),
+    ),
+    libraryDependencies += "org.bytedeco" % "javacpp" % "1.5.5",
+    libraryDependencies += "org.bytedeco" % "javacpp" % "1.5.5" classifier "linux-x86_64",
+    libraryDependencies += "org.bytedeco" % "qt" % "5.15.2-1.5.5",
+    libraryDependencies += "org.bytedeco" % "qt" % "5.15.2-1.5.5" classifier "linux-x86_64",
+    javaOptions ++= Seq(
+      "-Djava.library.path=/usr/java/packages/lib:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib:lib/qtjambi-5.15-binaries-linux64-gcc/lib"
+    )
+    // javaOptions ++= Seq("-Djava.library.path=lib/binaries:/usr/java/packages/lib:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib")
+  )
+  .dependsOn(coreJvm)
 
 lazy val lwjglVersion = "3.3.0"
 lazy val lwjglClassifier = "natives-linux"
 
 lazy val scribeVersion = "3.6.3"
 
-lazy val apricot = Project(id = "apricot", base = file("apricot")).settings(
-  libraryDependencies ++= Seq(
-    "io.github.humbleui.skija" % "skija-linux" % "0.96.0",
-    "org.jetbrains" % "annotations" % "23.0.0",
-
-    "org.lwjgl" % "lwjgl" % lwjglVersion classifier lwjglClassifier,
-    "org.lwjgl" % "lwjgl-glfw" % lwjglVersion,
-    "org.lwjgl" % "lwjgl-glfw" % lwjglVersion classifier lwjglClassifier,
-    "org.lwjgl" % "lwjgl-opengl" % lwjglVersion,
-    "org.lwjgl" % "lwjgl-opengl" % lwjglVersion classifier lwjglClassifier,
-
-    "io.dropwizard.metrics" % "metrics-core" % "4.2.4",
-    
-    "com.outr" %% "scribe" % scribeVersion,
-    "com.outr" %% "scribe-file" % scribeVersion,
-
-    "org.scala-lang" %% "scala3-tasty-inspector" % scalaVersion.value % "provided,runtime"
-  ),
-  javaOptions ++= Seq("-Djava.library.path=/home/randa/Development/guarana/qt/lib/qtjambi-5.15-binaries-linux64-gcc/lib:/usr/java/packages/lib:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib")
-  // javaOptions ++= Seq("-Djava.library.path=/usr/java/packages/lib:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib:/home/randa/Development/guarana/qt/lib/qtjambi-5.15-binaries-linux64-gcc/lib")
-).dependsOn(core, qt)
+lazy val apricot = Project(id = "apricot", base = file("apricot"))
+  .settings(
+    libraryDependencies ++= Seq(
+      "io.github.humbleui.skija" % "skija-linux" % "0.96.0",
+      "org.jetbrains" % "annotations" % "23.0.0",
+      "org.lwjgl" % "lwjgl" % lwjglVersion classifier lwjglClassifier,
+      "org.lwjgl" % "lwjgl-glfw" % lwjglVersion,
+      "org.lwjgl" % "lwjgl-glfw" % lwjglVersion classifier lwjglClassifier,
+      "org.lwjgl" % "lwjgl-opengl" % lwjglVersion,
+      "org.lwjgl" % "lwjgl-opengl" % lwjglVersion classifier lwjglClassifier,
+      "io.dropwizard.metrics" % "metrics-core" % "4.2.4",
+      "com.outr" %% "scribe" % scribeVersion,
+      "com.outr" %% "scribe-file" % scribeVersion,
+      "org.scala-lang" %% "scala3-tasty-inspector" % scalaVersion.value % "provided,runtime"
+    ),
+    javaOptions ++= Seq(
+      "-Djava.library.path=/home/randa/Development/guarana/qt/lib/qtjambi-5.15-binaries-linux64-gcc/lib:/usr/java/packages/lib:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib"
+    )
+    // javaOptions ++= Seq("-Djava.library.path=/usr/java/packages/lib:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib:/home/randa/Development/guarana/qt/lib/qtjambi-5.15-binaries-linux64-gcc/lib")
+  )
+  .dependsOn(coreJvm, qt)
 
 lazy val jmh = Project("jmh", base = file("jmh"))
-  .dependsOn(core)
+  .dependsOn(coreJvm)
   .enablePlugins(JmhPlugin)
   .settings(
     libraryDependencies ++= Seq(
-      "PolyrhythmMania" % "core" % "1.1.0" excludeAll(ExclusionRule("space.earlygrey", "shapedrawer"), ExclusionRule("com.github.JnCrMx", "discord-game-sdk4j"))
+      "com.github.chrislo27" % "paintbox" % "0.1.1"
     ),
+    resolvers += "jitpack.io" at "https://jitpack.io",
     resolvers += Resolver.mavenLocal
   )

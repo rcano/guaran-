@@ -886,19 +886,7 @@ trait ColorDefs {
     */
   val YellowGreen = ColorLike(0.6039216f, 0.8039216f, 0.19607843f)
 
-  def interpolateColors(c1: Int, c2: Int, interp: Double): Int =
-    val a1 = (c1 >> 24) & 0xFF
-    val a2 = (c2 >> 24) & 0xFF
-    val r1 = (c1 >> 16) & 0xFF
-    val r2 = (c2 >> 16) & 0xFF
-    val g1 = (c1 >> 8) & 0xFF
-    val g2 = (c2 >> 8) & 0xFF
-    val b1 = (c1 >> 0) & 0xFF
-    val b2 = (c2 >> 0) & 0xFF
-    ((a2 - a1) * interp + a1).toInt << 24 |
-    ((r2 - r1) * interp + r1).toInt << 16 |
-    ((g2 - g1) * interp + g1).toInt << 8 |
-    ((b2 - b1) * interp + b1).toInt
+  inline def interpolateColors(inline c1: Int, inline c2: Int, inline interp: Double): Int = ColorDefs.interpolateColors(c1, c2, interp)
 
 
   extension (c: Color) 
@@ -919,6 +907,22 @@ trait ColorDefs {
       ColorLike.hsb(hsb(0), hsb(1), hsb(2)).withOpacity(clamp(alpha * c.alpha))
 
     def interp(b: Color, at: Double): Color = ColorLike.argb(interpolateColors(c.rgba, b.rgba, at))
+}
+
+object ColorDefs {
+  def interpolateColors(c1: Int, c2: Int, interp: Double): Int =
+    val a1 = (c1 >> 24) & 0xFF
+    val a2 = (c2 >> 24) & 0xFF
+    val r1 = (c1 >> 16) & 0xFF
+    val r2 = (c2 >> 16) & 0xFF
+    val g1 = (c1 >> 8) & 0xFF
+    val g2 = (c2 >> 8) & 0xFF
+    val b1 = (c1 >> 0) & 0xFF
+    val b2 = (c2 >> 0) & 0xFF
+    ((a2 - a1) * interp + a1).toInt << 24 |
+    ((r2 - r1) * interp + r1).toInt << 16 |
+    ((g2 - g1) * interp + g1).toInt << 8 |
+    ((b2 - b1) * interp + b1).toInt
 }
 
 
