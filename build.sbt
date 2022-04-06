@@ -25,7 +25,7 @@ lazy val core = // select supported platforms
     .withoutSuffixFor(JVMPlatform)
     .settings(
       libraryDependencies ++= Seq(
-        "com.github.rssh" %% "dotty-cps-async" % "0.9.5",
+        "com.github.rssh" %% "dotty-cps-async" % "0.9.8",
       )
     )
     // configure JVM settings

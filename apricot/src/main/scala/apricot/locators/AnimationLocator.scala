@@ -14,7 +14,7 @@ class AnimationLocator(engine: ApricotEngine[? <: guarana.AbstractToolkit]) exte
       script <- manager.get(Path("assets" :: "scripts" :: path.segments.tail ::: "AnimationScript.class" :: Nil)).headOption  
     } yield {
       val p = path
-      new Resource {
+      new Resource { self =>
         def tpe = Resource.Type.Animation
         def path = p
 
@@ -47,7 +47,7 @@ class AnimationLocator(engine: ApricotEngine[? <: guarana.AbstractToolkit]) exte
               frames <- loadedFrames
               script <- loadedScript
             } {
-              content = Some(resourceSubscriber.onLoad(frames ++ script.map(_.copy(name = "script"))))
+              content = Some(resourceSubscriber.onLoad(self, frames ++ script.map(_.copy(name = "script"))))
             }
           }
         }

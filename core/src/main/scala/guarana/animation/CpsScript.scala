@@ -28,6 +28,9 @@ class Script(val nextStep: ScriptEngine ?=> ToolkitAction[Long => StepEvalResult
     }
   }
 }
+object Script {
+  given [T]: Conversion[Script, ScriptDsl.ScriptMonad[T]] = _.asInstanceOf[ScriptDsl.ScriptMonad[T]]
+}
 val EndOfScript = Script(_ => StepEvalResult.Done)
 
 /** The Scripting DSL provides the basic combinators for writing arbitrary logic in CPS style
@@ -46,10 +49,9 @@ object ScriptDsl {
   object opaques:
     opaque type ScriptMonad[T] = Script
   type ScriptMonad[T] = opaques.ScriptMonad[T]
-  given [T]: Conversion[Script, ScriptMonad[T]] = _.asInstanceOf[ScriptMonad[T]]
-  given [T]: Conversion[ScriptMonad[T], Script] = _.asInstanceOf[Script]
+  private given [T]: Conversion[ScriptMonad[T], Script] = _.asInstanceOf[Script]
   
-  given scriptCpsMonad: cps.CpsMonad[ScriptMonad] with {
+  given scriptCpsMonad: cps.CpsMonad[ScriptMonad] with cps.CpsMonadInstanceContext[ScriptMonad] with {
     def pure[T](t: T) = EndOfScript
     def map[A, B](s: ScriptMonad[A])(f: A => B): ScriptMonad[B] = Script { l => 
       s.nextStep(l) match {
@@ -68,6 +70,7 @@ object ScriptDsl {
       }
     }
   }
+  given scriptCpsMonadContext: cps.CpsMonadInstanceContextBody[ScriptMonad] = cps.CpsMonadInstanceContextBody(scriptCpsMonad)
   
   inline def script(inline script: ScriptEngine ?=> ToolkitAction[Any]): Script = 
     Script(_ => NextStep(cps.async(using scriptCpsMonad)(script)))
@@ -86,18 +89,18 @@ object ScriptDsl {
     doUntil(_ => cond)
 
   inline def doUntil(inline cond: ScriptEngine ?=> ToolkitAction[Long => Boolean]): Unit =
-    cps.await[ScriptMonad, Unit](doUntilStep(cond))
+    cps.await[ScriptMonad, Unit, ScriptMonad](doUntilStep(cond))
   def doUntilStep(cond: ScriptEngine ?=> ToolkitAction[Long => Boolean]): Script =
     Script { l => if cond(l) then Done else Cont }
   
   inline def parallel(inline t: NonEmptyTuple)(using inline u: Tuple.Union[t.type] =:= Script): Unit = {
-    cps.await[ScriptMonad, Unit](t.toArray.reduce(_.asInstanceOf[Script] & _.asInstanceOf[Script]).asInstanceOf[Script])
+    cps.await[ScriptMonad, Unit, ScriptMonad](t.toArray.reduce(_.asInstanceOf[Script] & _.asInstanceOf[Script]).asInstanceOf[Script])
   }
 
-  inline def `yield`: Unit = cps.await[ScriptMonad, Unit](yieldStep)
+  inline def `yield`: Unit = cps.await[ScriptMonad, Unit, ScriptMonad](yieldStep)
   val yieldStep: Script = doUntilStep { _ != 0 } // the first time it is executed by the engine, it always starts at 0
 
-  inline def endScript: Unit = cps.await[ScriptMonad, Unit](EndOfScript)
+  inline def endScript: Unit = cps.await[ScriptMonad, Unit, ScriptMonad](EndOfScript)
 
   def currentTimeNanos(using se: ScriptEngine): Long = se.currentTime
   def currentTimeMillis(using se: ScriptEngine): Long = se.currentTime / 1000000

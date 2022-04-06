@@ -55,9 +55,9 @@ class ApricotEngine[Tk <: AbstractToolkit](
 
   val updateables = new collection.mutable.ArrayBuffer[Updateable](128)
   object layers extends collection.mutable.LinkedHashMap[String, Layer] {
-    def +=(layer: Layer): this.type = 
+    def +=(layer: Layer): layer.type = 
       update(layer.name, layer)
-      this
+      layer
   }
   // private val layerSurfaces = new collection.mutable.ArrayBuffer[surfaceFactory.Handle](8)
 

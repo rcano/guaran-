@@ -58,17 +58,18 @@ object ProductLenses {
   }
 }
 
-case class DeclaringVal(name: String)
-object DeclaringVal {
-  inline given declaringVal: DeclaringVal = ${declaringValMacro}
+case class DeclaringOwner(name: String, line: Int)
+object DeclaringOwner {
+  inline given declaringVal: DeclaringOwner = ${declaringValMacro}
   import scala.quoted.*
-  def declaringValMacro(using ctx: Quotes): Expr[DeclaringVal] = {
+  def declaringValMacro(using ctx: Quotes): Expr[DeclaringOwner] = {
     import ctx.reflect.*
     def isSynthetic(name: String) = name == "<init>" || (name.startsWith("<local ") && name.endsWith(">"))
     val owner = Iterator.unfold(Symbol.spliceOwner)(o => if (o == Symbol.noSymbol) None else Some(o, o.maybeOwner))
       .drop(1)
       .dropWhile(o => o.name.trim.nn.pipe(n => isSynthetic(n) || n == "ev") || o.isLocalDummy)
-      .nextOption.getOrElse(throw new AssertionError("failed to detect declaring val")).name
-    '{DeclaringVal(${Expr(owner)})}
+      .nextOption.getOrElse(throw new AssertionError("failed to detect declaring val"))
+
+    '{DeclaringOwner(${Expr(owner.name)}, ${Expr(owner.pos.get.endLine)})}
   }
 }

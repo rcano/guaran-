@@ -12,7 +12,7 @@ class SignalsTest extends AnyFunSuite {
   }
   implicit def keyedSignal(s: Signal[_]): Keyed[s.type] = Keyed(s, s)
 
-  def signal[T](initValue: T)(implicit sb: SignalSwitchboard[Signal], inferredName: guarana.util.DeclaringVal) = {
+  def signal[T](initValue: T)(implicit sb: SignalSwitchboard[Signal], inferredName: guarana.util.DeclaringOwner) = {
     new Signal[T] {
       override def toString = inferredName.name
     }.tap(sb(_) = initValue)

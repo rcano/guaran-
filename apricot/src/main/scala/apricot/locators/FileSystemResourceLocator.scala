@@ -27,7 +27,7 @@ class FileSystemResourceLocator(root: File, engine: ApricotEngine[? <: AbstractT
   def list(path: Path) = root./(path.segments.mkString("/")).list.map(f => Path(path.segments :+ f.name)).toSeq
 
   private val trackedFiles = HashMap.empty[File, FileResource]
-  private val subscribedFiles = HashMap.empty[File, ArrayBuffer[FileResource#FileSubscription[?]]]
+  private val subscribedFiles = HashMap.empty[File, ArrayBuffer[FileResource#SubscriptionImpl[?]]]
 
   FileSystemWatcher // initialize early
   engine.scriptEngine run script {
@@ -43,7 +43,7 @@ class FileSystemResourceLocator(root: File, engine: ApricotEngine[? <: AbstractT
       else Resource.Type.fromFileExtension(file.extension)
 
     def subscribe[T](resourceSubscriber: Resource.Subscriber[T]): Subscription[T] = {
-      val res = FileSubscription(resourceSubscriber)
+      val res = SubscriptionImpl(resourceSubscriber)
       trackedFiles(file) = this
       subscribedFiles.getOrElseUpdate(file, ArrayBuffer.empty) += res
       scribe.debug(s"tracking $file")
@@ -51,11 +51,11 @@ class FileSystemResourceLocator(root: File, engine: ApricotEngine[? <: AbstractT
       res
     }
 
-    class FileSubscription[T](resourceSubscriber: Resource.Subscriber[T]) extends Subscription[T] {
+    class SubscriptionImpl[T](resourceSubscriber: Resource.Subscriber[T]) extends Subscription[T] {
       var content: Option[T] = None
       def close() = subscribedFiles.get(file) foreach (list =>
         list -= this
-        content foreach resourceSubscriber.onUnload
+        content foreach (t => resourceSubscriber.onUnload(FileResource.this, t))
         if (list.isEmpty) {
           subscribedFiles -= file
           trackedFiles -= file
@@ -64,10 +64,10 @@ class FileSystemResourceLocator(root: File, engine: ApricotEngine[? <: AbstractT
       )
 
       def load(c: Resource.Content): Unit = engine.onNextFrame {
-        content = Some(resourceSubscriber.onLoad(c))
+        content = Some(resourceSubscriber.onLoad(FileResource.this, c))
       }
       def unload(): Unit = engine.onNextFrame {
-        content foreach resourceSubscriber.onUnload
+        content foreach (t => resourceSubscriber.onUnload(FileResource.this, t))
       }
     }
 

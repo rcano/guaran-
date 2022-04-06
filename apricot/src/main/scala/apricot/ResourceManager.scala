@@ -55,8 +55,8 @@ trait Resource {
   def subscribe[T](resourceSubscriber: Resource.Subscriber[T]): Subscription[T]
   def subscribe[T](onLoadFunction: Resource.Content => T, onUnloadFunction: T => Unit): Subscription[T] = subscribe(
     new Resource.Subscriber {
-      def onLoad(content: Resource.Content): T = onLoadFunction(content)
-      def onUnload(t: T): Unit = onUnloadFunction(t)
+      def onLoad(resource: Resource, content: Resource.Content): T = onLoadFunction(content)
+      def onUnload(resource: Resource, t: T): Unit = onUnloadFunction(t)
     }
   )
 
@@ -75,6 +75,14 @@ trait Resource {
   trait Subscription[T] extends AutoCloseable {
     def content: Option[T]
     def resource: Resource = Resource.this
+
+    def map[U](f: T => U): Subscription[U] = 
+      val outer = this
+      new Subscription[U] {
+        lazy val content = outer.content map f
+        override def resource = outer.resource
+        def close() = outer.close()
+      }
   }
 
   protected final def singleContent(bytes: IArray[Byte] | Array[Byte]): Resource.Content = IArray(
@@ -110,7 +118,7 @@ object Resource {
   private[Resource] val ignoreListener = [C] => (c: C) => ()
 
   trait Subscriber[T] {
-    def onLoad(content: Content): T
-    def onUnload(t: T): Unit
+    def onLoad(resource: Resource, content: Content): T
+    def onUnload(resource: Resource, t: T): Unit
   }
 }

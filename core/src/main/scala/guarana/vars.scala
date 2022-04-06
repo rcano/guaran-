@@ -76,7 +76,7 @@ object Var extends VarExtensions {
       type ForInstance = this.type
     }
   }
-  inline def autoName[T](initValue: => T, eagerEvaluation: Boolean = false)(using inline inferredName: guarana.util.DeclaringVal) = {
+  inline def autoName[T](initValue: => T, eagerEvaluation: Boolean = false)(using inline inferredName: guarana.util.DeclaringOwner) = {
     apply(inferredName.name, initValue, eagerEvaluation)
   }
 }

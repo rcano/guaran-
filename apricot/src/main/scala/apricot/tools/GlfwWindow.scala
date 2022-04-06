@@ -106,6 +106,8 @@ class GlfwWindow(engine: ApricotEngine[? <: AbstractToolkit])(using tk: Abstract
 
   private def setVisible(v: Boolean): Unit = if (v) glfwShowWindow(windowHandle) else glfwHideWindow(windowHandle)
 
+  def isKeyDown(key: GlfwInput.Keyboard.Key): Boolean = glfwGetKey(windowHandle, key) == GLFW_PRESS
+
   private def updateSurface(width: Int, height: Int): Unit = {
     scribe.debug(s"Resizing skia surface to $width x $height")
     // Create render target, surface and retrieve canvas from it

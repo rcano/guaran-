@@ -28,10 +28,10 @@ class ClassLoaderLocator(engine: ApricotEngine[? <: AbstractToolkit]) extends Re
       def close() = {}
 
       def load(c: Resource.Content): Unit = engine.onNextFrame {
-        content = Some(resourceSubscriber.onLoad(c))
+        content = Some(resourceSubscriber.onLoad(ClasspathResource.this, c))
       }
       def unload(): Unit = engine.onNextFrame {
-        content foreach resourceSubscriber.onUnload
+        content foreach (t => resourceSubscriber.onUnload(ClasspathResource.this, t))
       }
     }
   }
