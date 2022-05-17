@@ -1,7 +1,10 @@
 package guarana
+
+import guarana.animation.Interpolator
 trait ColorDefs {
   type Color
   given ColorLike: ColorLike[Color]
+  given Interpolator[Color] = (min, max, by) => interp(min)(max, by)
 
   /**
     * A fully transparent color with an ARGB value of #00000000.

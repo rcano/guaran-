@@ -35,7 +35,7 @@ object ResourceLoader {
   given (ResourceLoader[Resource.Type.Renderable] { type Out = DynamicRenderable }) = new ByteCodeLoader[Resource.Type.Renderable]:
     type Out = DynamicRenderable
     def load(r: Resource, content: Resource.Content) = loadInstance[DynamicRenderable](r, content(0).content.asInstanceOf[Array[Byte]])
-    def unload(r: Resource, animation: DynamicRenderable) = ()
+    def unload(r: Resource, renderable: DynamicRenderable) = unloadInstance(r, renderable)
 
   given (using ScriptEngine): ResourceLoader.Aux[Resource.Type.Animation, Animation] = AnimationLoader()
 }

@@ -76,7 +76,7 @@ class GlfwWindow(engine: ApricotEngine[? <: AbstractToolkit])(using tk: Abstract
   private val windowScrollListener: GLFWScrollCallbackI = (_, xoffset, yoffset) =>
     tk.update(summon[Emitter.Context].emit(mouseEvents, MouseEvent.Scrolled(xoffset, yoffset)))
   private val windowFocusListener: GLFWWindowFocusCallbackI = (_, focused) => tk.update(this.focused := focused)
-  private val windowCloseListener: GLFWWindowCloseCallbackI = _ => ()
+  private val windowCloseListener: GLFWWindowCloseCallbackI = _ => tk.update(this.closeAction()())
   private val windowDropListener: GLFWDropCallbackI = (_, count, filePathes) => ()
   // private val windowFramebufferSizeListener: GLFWFramebufferSizeCallbackI = (_, w, h) => ???
   glfwSetWindowSizeCallback(windowHandle, windowSizeListener)
@@ -99,6 +99,7 @@ class GlfwWindow(engine: ApricotEngine[? <: AbstractToolkit])(using tk: Abstract
   def visible = Visible.forInstance(this)
   def focused = Focused.forInstance(this)
   def mousePosition = MousePosition.forInstance(this)
+  def closeAction = CloseAction.forInstance(this)
   def iconified = Iconified.forInstance(this)
   def keyEvents = KeyEvents.forInstance(this)
   def charInputEvents = CharInputEvents.forInstance(this)
@@ -142,6 +143,7 @@ object GlfwWindow {
   val Iconified = ExternalVar[GlfwWindow, Boolean]("iconified", isWindowIconified, setWindowIconified)
   val Focused = Var[Boolean]("focused", true)
   val MousePosition = Var("mousePosition", (0.0, 0.0))
+  val CloseAction = Var[() => Unit]("closeAction", () => ())
   val KeyEvents = Emitter[KeyEvent]()
   val CharInputEvents = Emitter[Char]()
   val MouseEvents = Emitter[MouseEvent]()

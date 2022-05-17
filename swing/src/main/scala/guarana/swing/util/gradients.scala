@@ -1,11 +1,12 @@
-package guarana.swing
+package guarana
+package swing
 package util
 
+import guarana.util.cfor
 import java.awt.{AlphaComposite, BasicStroke, RenderingHints, PaintContext, Transparency}
 import java.awt.geom.*
 import java.awt.image.{BufferedImage, ColorModel, DataBufferInt, Raster, WritableRaster}
 import scala.util.chaining.*
-import System.out.println
 
 trait AbstractGradientPaint(fractions: Array[Float], colors: Array[Color], colorGranularity: Int) extends Paint {
 
@@ -22,7 +23,7 @@ trait AbstractGradientPaint(fractions: Array[Float], colors: Array[Color], color
     val color1 = colors(idx1).getRGB
     val color2 = colors(idx2).getRGB
 
-    util.cfor(tableIdx1, _ < tableIdx2) { idx =>
+    cfor(tableIdx1, _ < tableIdx2) { idx =>
       val interp = (idx - tableIdx1) / (tableIdx2 - tableIdx1).toDouble
       colorLookupTable(idx) = interpolateColors(color1, color2, interp)
       idx + 1
@@ -37,19 +38,19 @@ trait AbstractGradientPaint(fractions: Array[Float], colors: Array[Color], color
         requestedColorModel
       else
         java.awt.GraphicsEnvironment
-          .getLocalGraphicsEnvironment()
-          .getDefaultScreenDevice()
-          .getDefaultConfiguration()
-          .getColorModel(Transparency.TRANSLUCENT)
+          .getLocalGraphicsEnvironment().unn
+          .getDefaultScreenDevice().unn
+          .getDefaultConfiguration().unn
+          .getColorModel(Transparency.TRANSLUCENT).unn
     
     def getRaster(tileWidth: Int, tileHeight: Int): WritableRaster = {
       val res = AbstractGradientPaint.cachedRaster.get match
         case Some(w) =>
           if w.getWidth < tileWidth || w.getHeight < tileHeight || !getColorModel.isCompatibleRaster(w) then
-            getColorModel.createCompatibleWritableRaster(w.getWidth max tileWidth, w.getHeight max tileHeight)
+            getColorModel.createCompatibleWritableRaster(w.getWidth max tileWidth, w.getHeight max tileHeight).unn
           else w
 
-        case None => getColorModel.createCompatibleWritableRaster(tileWidth, tileHeight)
+        case None => getColorModel.createCompatibleWritableRaster(tileWidth, tileHeight).unn
       AbstractGradientPaint.cachedRaster = ref.WeakReference(res)
       res
     }
@@ -57,7 +58,7 @@ trait AbstractGradientPaint(fractions: Array[Float], colors: Array[Color], color
 }
 object AbstractGradientPaint {
   private[AbstractGradientPaint] var cachedRaster: ref.WeakReference[WritableRaster] = 
-    ref.WeakReference(null)
+    ref.WeakReference(null.asInstanceOf[WritableRaster])
 }
 
 class ConicalGradientPaint private(
@@ -74,7 +75,7 @@ class ConicalGradientPaint private(
     xform: AffineTransform,
     hints: RenderingHints
   ): PaintContext = 
-    val transformedCenter = xform.transform(center, null)
+    val transformedCenter = xform.transform(center, null).unn
     new GradientPixelContext(cm) {
       def dispose(): Unit = {}
       def getRaster(deviceSpaceX: Int, deviceSpaceY: Int, tileWidth: Int, tileHeight: Int): Raster =
@@ -82,7 +83,7 @@ class ConicalGradientPaint private(
         val rotationCenterY = transformedCenter.getY - deviceSpaceY
 
         val res = getRaster(tileWidth, tileHeight)
-        val data = res.getDataBuffer.asInstanceOf[DataBufferInt].getData(0)
+        val data = res.getDataBuffer.asInstanceOf[DataBufferInt].getData(0).unn
         cfor(0, _ < tileHeight) { y =>
           cfor(0, _ < tileWidth) { x =>
             //calculate angle as a number between 0 and 1
@@ -137,26 +138,26 @@ class RoundRectangleGradientPaint private(
     xform: AffineTransform,
     hints: RenderingHints
   ): PaintContext = new PaintContext {
-    val xformedUserBounds = xform.createTransformedShape(userBounds).getBounds2D
+    val xformedUserBounds = xform.createTransformedShape(userBounds).unn.getBounds2D.unn
     var image = {
       if inheritedColorModel.getTransparency == Transparency.TRANSLUCENT then
         val raster = inheritedColorModel.createCompatibleWritableRaster(
           deviceBounds.getWidth.ceil.toInt,
           deviceBounds.getHeight.ceil.toInt
         )
-        BufferedImage(inheritedColorModel, raster, true, null)  
+        BufferedImage(inheritedColorModel, raster, true, null)
       else
         java.awt.GraphicsEnvironment
-          .getLocalGraphicsEnvironment()
-          .getDefaultScreenDevice()
-          .getDefaultConfiguration()
+          .getLocalGraphicsEnvironment().unn
+          .getDefaultScreenDevice().unn
+          .getDefaultConfiguration().unn
           .createCompatibleImage(
             deviceBounds.getWidth.ceil.toInt,
             deviceBounds.getHeight.ceil.toInt,
             Transparency.TRANSLUCENT
           )
     }
-    var compatibleRaster =  image.getRaster
+    var compatibleRaster =  image.unn.getRaster
     var emptyTile = getColorModel.createCompatibleWritableRaster(128, 128)
     
     // println(s"""inherited color model $inheritedColorModel - transparency: ${inheritedColorModel.getTransparency} - components#: ${inheritedColorModel.getNumComponents}
@@ -168,23 +169,23 @@ class RoundRectangleGradientPaint private(
     //            |--------------------------------------""".stripMargin)
 
     locally {
-      val im = BufferedImage(getColorModel, emptyTile, true, null).createGraphics()
+      val im = BufferedImage(getColorModel, emptyTile, true, null).createGraphics().unn
       val g2 = im
       g2.setPaint(colors.last)
-      g2.fillRect(0, 0, compatibleRaster.getWidth, compatibleRaster.getHeight)
+      g2.fillRect(0, 0, compatibleRaster.unn.getWidth, compatibleRaster.unn.getHeight)
       g2.dispose()
       im.dispose()
     }
 
     locally {
-      val g2 = image.createGraphics()
+      val g2 = image.unn.createGraphics().unn
       g2.setRenderingHints(hints)
       g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
       g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_NORMALIZE)
       g2.setComposite(AlphaComposite.Src)
 
       g2.setPaint(colors.last)
-      g2.fillRect(0, 0, compatibleRaster.getWidth, compatibleRaster.getHeight)
+      g2.fillRect(0, 0, compatibleRaster.unn.getWidth, compatibleRaster.unn.getHeight)
 
       g2.setTransform(
         AffineTransform()
@@ -232,24 +233,24 @@ class RoundRectangleGradientPaint private(
       compatibleRaster = null
       image = null
 
-    override def getColorModel = image.getColorModel
+    override def getColorModel = image.unn.getColorModel.unn
 
     def getRaster(deviceSpaceX: Int, deviceSpaceY: Int, tileWidth: Int, tileHeight: Int): Raster =
       val x = (deviceSpaceX - deviceBounds.getX).ceil.toInt
       val y = (deviceSpaceY - deviceBounds.getY).ceil.toInt
-      val isEmptyTile = x < 0 || x >= compatibleRaster.getWidth || y < 0 || y >= compatibleRaster.getHeight
+      val isEmptyTile = x < 0 || x >= compatibleRaster.unn.getWidth || y < 0 || y >= compatibleRaster.unn.getHeight
       if isEmptyTile then
-        emptyTile
+        emptyTile.unn
       else 
-        compatibleRaster.createChild(
+        compatibleRaster.unn.createChild(
           x,
           y,
-          tileWidth min (compatibleRaster.getWidth - x),
-          tileHeight min (compatibleRaster.getHeight - y),
+          tileWidth min (compatibleRaster.unn.getWidth - x),
+          tileHeight min (compatibleRaster.unn.getHeight - y),
           0,
           0,
           null
-        )
+        ).unn
   }
 
 }

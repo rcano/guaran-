@@ -15,7 +15,7 @@ class CssDefaultListRenderer(scenegraph:  Scenegraph) extends JLabel, ListCellRe
   }
   def getListCellRendererComponent(
     list: JList[? <: Object],
-    value: Object,
+    value: Object | Null,
     index: Int,
     isSelected: Boolean,
     cellHasFocus: Boolean

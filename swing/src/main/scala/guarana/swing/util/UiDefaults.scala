@@ -7,7 +7,7 @@ import javax.swing.{JPanel, UIManager}
 private[swing] def getSystemFontSize() = {
   var systemLaf = UIManager.getSystemLookAndFeelClassName.nn
   if (systemLaf == UIManager.getCrossPlatformLookAndFeelClassName) //kde case, specify gtk
-    systemLaf = UIManager.getInstalledLookAndFeels.nn.collectFirst { case f: UIManager.LookAndFeelInfo if f.getName.contains("GTK") => f.getClassName.nn }.get
+    systemLaf = UIManager.getInstalledLookAndFeels.nn.collectFirst { case f: UIManager.LookAndFeelInfo if f.nn.getName.nn.contains("GTK") => f.getClassName.nn }.get
 
   val current = UIManager.getLookAndFeel
   UIManager.setLookAndFeel(systemLaf)

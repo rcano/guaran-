@@ -1,5 +1,6 @@
 package guarana.swing
 
+import guarana.{*, given}
 import language.implicitConversions
 import scala.concurrent.{impl => _, _}, ExecutionContext.Implicits.given
 import scala.util.Try

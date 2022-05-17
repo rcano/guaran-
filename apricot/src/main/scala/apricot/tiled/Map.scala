@@ -216,11 +216,14 @@ class Map(val mapPath: Path, engine: ApricotEngine[? <: guarana.AbstractToolkit]
         try flattenedTiles.get
         catch case NotAllTileSetsLoaded => return ()
 
-      val maxYTiles = (surface.getHeight / map.tileHeight + 2).toInt
-      val maxXTiles = (surface.getWidth / map.tileWidth + 2).toInt
+      val maxYTiles = (surface.getHeight / map.tileHeight + map.tileHeight).toInt
+      val maxXTiles = (surface.getWidth / map.tileWidth + map.tileWidth).toInt
 
-      cfor((offsetY / map.tileHeight).toInt, _ < maxYTiles) { yTile =>
-        cfor((offsetX / map.tileWidth).toInt, _ < maxXTiles) { xTile =>
+      cfor(0, _ < maxYTiles) { yOrd =>
+        cfor(0, _ < maxXTiles) { xOrd =>
+          val yTile = (offsetY / map.tileHeight - 2).max(0).toInt + yOrd
+          val xTile = (offsetX / map.tileWidth - 2).max(0).toInt + xOrd
+
           val tileRef = tileLayer(xTile, yTile)
           if (!tileRef.isNullTile) {
             val y = yTile * map.tileHeight
@@ -246,9 +249,9 @@ class Map(val mapPath: Path, engine: ApricotEngine[? <: guarana.AbstractToolkit]
             if (flipped) canvas.restore()
           }
 
-          xTile + 1
+          xOrd + 1
         }
-        yTile + 1
+        yOrd + 1
       }
     }
   }

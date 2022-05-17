@@ -1,8 +1,10 @@
-package guarana.swing
+package guarana
+package swing
 package codegen
 
+import scala.language.implicitConversions
+
 import better.files.*
-import language.implicitConversions
 
 /** Since there's no way in scala to abstract over method parameters, and the builders guaraná provides
   * are based on factory methods, we need a way to generate the node mappings trying to avoid manual coding
@@ -97,7 +99,7 @@ case object Node extends NodeDescr(
     |def requestFocusInWindow() = v.requestFocusInWindow()
     |def size(x: Int, y: Int) = v.setSize(x, y)
     |def showing = v.isShowing
-    """.stripMargin.trim.split("\n").asInstanceOf[Array[String]].toIndexedSeq,
+    """.stripMargin.trim.unn.split("\n").nnn.toIndexedSeq,
   emitters = Seq(
     EmitterDescr("focusEvents", "(FocusEvent, Boolean)", Nil),
     EmitterDescr("mouseEvents", "guarana.swing.MouseEvent", Nil),
@@ -125,7 +127,7 @@ case object Node extends NodeDescr(
   |  override def componentMoved(e: ComponentEvent): Unit = updateBounds()
   |  override def componentResized(e: ComponentEvent): Unit = updateBounds()
   |  def updateBounds(): Unit = sc.update {
-  |    summon[VarContext].externalPropertyUpdated(ops.bounds(v), v.getBounds.nn)
+  |    summon[VarContext].externalPropertyUpdated(ops.bounds(v), Some(v.getBounds.nn))
   |  }
 
 
@@ -133,7 +135,7 @@ case object Node extends NodeDescr(
   |  v.addMouseListener(sc.awtInputListener)
   |  v.addMouseMotionListener(sc.awtInputListener)
   |}
-  """.stripMargin.trim.split("\n").asInstanceOf[Array[String]].toIndexedSeq,
+  """.stripMargin.trim.unn.split("\n").nnn.toIndexedSeq,
   companionObjectExtras = Seq(
     "val MouseLocation: ObsVal[(Int, Int)] = MouseLocationMut",
     "val MouseDrag: ObsVal[Option[MouseDrag]] = MouseDragMut"
@@ -317,13 +319,13 @@ case object PopupMenu extends NodeDescr(
   opsExtra = Seq(
     "def component: java.awt.Component | Null = v.getComponent",
     "def margin: java.awt.Insets | Null = v.getMargin",
-    "def menuKeyListeners: Array[javax.swing.event.MenuKeyListener | Null] = v.getMenuKeyListeners",
+    "def menuKeyListeners: Array[javax.swing.event.MenuKeyListener | Null] = v.getMenuKeyListeners.nn",
     "def pack(): Unit = v.pack()",
-    "def popupMenuListeners: Array[javax.swing.event.PopupMenuListener | Null] = v.getPopupMenuListeners",
+    "def popupMenuListeners: Array[javax.swing.event.PopupMenuListener | Null] = v.getPopupMenuListeners.nn",
     "def popupSize(x: Int, y: Int): Unit = v.setPopupSize(x, y)",
     "def select(n: Node): Unit = v.setSelected(n.unwrap)",
     "def show(invoker: Node, x: Int, y: Int): Unit = v.show(invoker.unwrap, x, y)",
-    "def subElements: Array[javax.swing.MenuElement | Null] = v.getSubElements",
+    "def subElements: Array[javax.swing.MenuElement | Null] = v.getSubElements.nn",
   ),
   uninitExtraParams = Seq(
     Parameter("title", "String | Null = null", "title")
@@ -401,7 +403,7 @@ case object CanvasPane extends NodeDescr(
     |      v.repaint()
     |    case _ =>
     |  }
-    |}""".stripMargin.trim.split("\n").toIndexedSeq,
+    |}""".stripMargin.trim.unn.split("\n").nnn.toIndexedSeq,
   customCreator = """
     |new javax.swing.JPanel() {
     |  override def paintComponent(g: Graphics) = {
@@ -409,7 +411,7 @@ case object CanvasPane extends NodeDescr(
     |    val paintFunction = sc.stateReader(PaintFunction.forInstance(this))(using ValueOf(this))
     |    paintFunction(g.asInstanceOf[Graphics2D])
     |  }
-    |}.asInstanceOf[CanvasPane]""".stripMargin.trim.split("\n").toIndexedSeq,
+    |}.asInstanceOf[CanvasPane]""".stripMargin.trim.unn.split("\n").nnn.toIndexedSeq,
   uninitExtra = Seq(),
   companionObjectExtras = Seq("private val NoOpPaintFunction: Graphics2D => Unit = _ => ()")
 )
@@ -466,7 +468,7 @@ case object GridPane extends NodeDescr(
       |layout.setHorizontalGroup(hgroup)
       |layout.setVerticalGroup(vgroup)
       |})
-  """.stripMargin.trim.split("\n").asInstanceOf[Array[String]].toIndexedSeq
+  """.stripMargin.trim.unn.split("\n").nnn.toIndexedSeq
 )
 
 case object Hbox extends NodeDescr(
@@ -533,13 +535,13 @@ case object TextComponent extends NodeDescr(
   ),
   isAbstract = true,
   initExtra = """
-   |v.getDocument.addDocumentListener(new DocumentListener {
+   |v.getDocument.nn.addDocumentListener(new DocumentListener {
    |  def changedUpdate(evt: DocumentEvent | Null) = notifyChange()
    |  def insertUpdate(evt: DocumentEvent | Null) = notifyChange()
    |  def removeUpdate(evt: DocumentEvent | Null) = notifyChange()
    |  def notifyChange() = summon[Scenegraph].update(TextComponent.CurrentText.forInstance(v) := v.text)
    |})
-  """.stripMargin.trim.split("\n").asInstanceOf[Array[String]].toIndexedSeq
+  """.stripMargin.trim.unn.split("\n").nnn.toIndexedSeq
 )
 case object TextArea extends NodeDescr(
   "TextArea",
@@ -668,23 +670,23 @@ case object ButtonBase extends NodeDescr(
     |  val ctx = summon[VarContext]
     |  val m = v.getModel.nn
     |  if (m.isArmed != wasArmed)
-    |    ctx.externalPropertyUpdated(ops.armed(v), m.isArmed)
+    |    ctx.externalPropertyUpdated(ops.armed(v), Some(m.isArmed))
     |  wasArmed = m.isArmed
     |  if (m.isEnabled != wasEnabled)
-    |    ctx.externalPropertyUpdated(ops.enabled(v), m.isEnabled)
+    |    ctx.externalPropertyUpdated(ops.enabled(v), Some(m.isEnabled))
     |  wasEnabled = m.isEnabled
     |  if (m.isPressed != wasPressed)
-    |    ctx.externalPropertyUpdated(ops.pressed(v), m.isPressed)
+    |    ctx.externalPropertyUpdated(ops.pressed(v), Some(m.isPressed))
     |  wasPressed = m.isPressed
     |  if (m.isRollover != wasRollover)
-    |    ctx.externalPropertyUpdated(ops.rollover(v), m.isRollover)
+    |    ctx.externalPropertyUpdated(ops.rollover(v), Some(m.isRollover))
     |  wasRollover = m.isRollover
     |  if (v.isSelected != wasSelected)
-    |    ctx.externalPropertyUpdated(ops.selected(v), v.isSelected)
+    |    ctx.externalPropertyUpdated(ops.selected(v), Some(v.isSelected))
     |  wasSelected = v.isSelected
     |}
     |v.addChangeListener(cl)
-    """.stripMargin.trim.split("\n").asInstanceOf[Array[String]].toIndexedSeq,
+    """.stripMargin.trim.unn.split("\n").nnn.toIndexedSeq,
   opsExtra = Seq(
     "def actionListeners = v.getActionListeners",
     "def changeListeners = v.getChangeListeners",
@@ -863,7 +865,7 @@ case object Slider extends NodeDescr(
     "def changeListeners = v.getChangeListeners",
   ),
   initExtra = 
-    "val l: ChangeListener = (e: ChangeEvent) => summon[Scenegraph].update(summon[VarContext].externalPropertyUpdated(ops.value(v), v.getValue))" ::
+    "val l: ChangeListener = (e: ChangeEvent | Null) => summon[Scenegraph].update(summon[VarContext].externalPropertyUpdated(ops.value(v), Some(v.getValue)))" ::
     "v.addChangeListener(l)" ::
     Nil
 )
@@ -893,7 +895,7 @@ case object ProgressBar extends NodeDescr(
     "def percentComplete = v.getPercentComplete"
   ),
   initExtra = 
-    "val l: ChangeListener = (e: ChangeEvent) => summon[Scenegraph].update(summon[VarContext].externalPropertyUpdated(ops.value(v), v.getValue))" ::
+    "val l: ChangeListener = (e: ChangeEvent | Null) => summon[Scenegraph].update(summon[VarContext].externalPropertyUpdated(ops.value(v), Some(v.getValue)))" ::
     "v.addChangeListener(l)" ::
     Nil
 )
@@ -947,9 +949,9 @@ case object ListView extends NodeDescr(
   initExtra = """
     |val lsl: ListSelectionListener = (evt) => sc.update{
     |  val vc = summon[VarContext]
-    |  vc.externalPropertyUpdated(ops.selectedIndex(v), v.getSelectedIndex)
-    |  vc.externalPropertyUpdated(ops.selectedIndices(v), v.getSelectedIndices.nn)
-    |  vc.externalPropertyUpdated(ops.selectedIndices(v), v.getSelectedIndices.nn)
+    |  vc.externalPropertyUpdated(ops.selectedIndex(v), Some(v.getSelectedIndex))
+    |  vc.externalPropertyUpdated(ops.selectedIndices(v), Some(v.getSelectedIndices.nn))
+    |  vc.externalPropertyUpdated(ops.selectedIndices(v), Some(v.getSelectedIndices.nn))
     |}
     |v.addListSelectionListener(lsl)
     """.stripMargin.split("\n").asInstanceOf[Array[String]].toIndexedSeq,
@@ -1021,9 +1023,9 @@ case object TableView extends NodeDescr(
     "def selectedRows = TableView.SelectedRowsMut.asObsValIn(v)"
   ),
   initExtra = """
-    |v.getSelectionModel.addListSelectionListener(selectionEvt => 
-    |  sc.update(SelectedRowsMut.forInstance(v) := v.getSelectedRows))
-    """.stripMargin.trim.split("\n").asInstanceOf[Array[String]].toIndexedSeq,
+    |v.getSelectionModel.nn.addListSelectionListener(selectionEvt => 
+    |  sc.update(SelectedRowsMut.forInstance(v) := v.getSelectedRows.nn))
+    """.stripMargin.trim.unn.split("\n").nnn.toIndexedSeq,
 )
 
 ////////////////////////////////////////////////////////////////////////////
@@ -1176,7 +1178,7 @@ case object TabbedPane extends NodeDescr(
     |  case ObsBuffer.Event.Inserted(elems, at) => elems.zipWithIndex foreach ((e, i) => insertTab(e, at + i))
     |  case ObsBuffer.Event.Removed(elems, at) => elems foreach (_ => removeTab(at))
     |  case ObsBuffer.Event.Replaced(oldElem, newElem, at) => replaceTab(oldElem, newElem)
-    |  case ObsBuffer.Event.Cleared => v.removeAll()
+    |  case ObsBuffer.Event.Cleared(_) => v.removeAll()
     |}
 
 
@@ -1195,7 +1197,7 @@ case object TabbedPane extends NodeDescr(
     |  val cl: ChangeListener = evt => sc.update{
     |    val vc = summon[VarContext]
     |    vc.externalPropertyUpdated(v.selectedComponent, v.getSelectedComponent.toOption.asInstanceOf)
-    |    vc.externalPropertyUpdated(v.selectedIndex, v.getSelectedIndex)
+    |    vc.externalPropertyUpdated(v.selectedIndex, Some(v.getSelectedIndex))
     |  }
     |  v.addChangeListener(cl)
     |}
@@ -1227,7 +1229,7 @@ case object Combobox extends NodeDescr(
     SwingProp("selectedIndex", "Int"),
     SwingProp("selectedItem", "Option[E]", "{c => val v = c.getSelectedItem; if (v != null) Some(v) else None}", "_.setSelectedItem(_)", overrideTpeInStaticPos = Some("Option[?]")),
     SwingProp("items", "Seq[E]", "{c => val m = c.getModel.nn; (0 until m.getSize).map(m.getElementAt(_).asInstanceOf)}",
-      "(c, i) => c.setModel(DefaultComboBoxModel(i.toArray.asInstanceOf[Array[AnyRef]]).asInstanceOf)", overrideTpeInStaticPos = Some("Seq[Any]")),
+      "(c, i) => c.setModel(DefaultComboBoxModel(i.toArray.asInstanceOf[Array[Object | Null]]).asInstanceOf)", overrideTpeInStaticPos = Some("Seq[Any]")),
   ),
   opsExtra = Seq(
     "def actionListeners: Array[java.awt.event.ActionListener] = v.getActionListeners.asInstanceOf",
@@ -1239,7 +1241,7 @@ case object Combobox extends NodeDescr(
   initExtra = """
     |val il: ItemListener = evt => sc.update {
     |  val vc = summon[VarContext]
-    |  vc.externalPropertyUpdated(ops.selectedIndex(v), v.getSelectedIndex)
+    |  vc.externalPropertyUpdated(ops.selectedIndex(v), Some(v.getSelectedIndex))
     |  val si = v.getSelectedItem.asInstanceOf[E | Null]
     |  vc.externalPropertyUpdated(ops.selectedItem(v), if (si == null) None else Some(si))
     |}
@@ -1331,17 +1333,17 @@ case object TreeView extends NodeDescr(
     "def scrollableTracksViewportWidth: Boolean = v.getScrollableTracksViewportWidth",
     "def selectionCount: Int = v.getSelectionCount",
     "def selectionEmpty: Boolean = v.isSelectionEmpty",
-    "def treeExpansionListeners: Array[javax.swing.event.TreeExpansionListener] = v.getTreeExpansionListeners",
-    "def treeSelectionListeners: Array[javax.swing.event.TreeSelectionListener] = v.getTreeSelectionListeners",
-    "def treeWillExpandListeners: Array[javax.swing.event.TreeWillExpandListener] = v.getTreeWillExpandListeners"
+    "def treeExpansionListeners: Array[javax.swing.event.TreeExpansionListener] = v.getTreeExpansionListeners.nnn",
+    "def treeSelectionListeners: Array[javax.swing.event.TreeSelectionListener] = v.getTreeSelectionListeners.nnn",
+    "def treeWillExpandListeners: Array[javax.swing.event.TreeWillExpandListener] = v.getTreeWillExpandListeners.nnn"
   ),
   initExtra = """
     |val tsl: TreeSelectionListener = evt => sc.update {
     |  val vc = summon[VarContext]
-    |  vc.externalPropertyUpdated(ops.leadSelectionPath(v), v.getLeadSelectionPath)
-    |  vc.externalPropertyUpdated(ops.selectionPath(v), v.getSelectionPath)
-    |  vc.externalPropertyUpdated(ops.selectionPaths(v), v.getSelectionPaths)
-    |  vc.externalPropertyUpdated(ops.selectionRows(v), v.getSelectionRows)
+    |  vc.externalPropertyUpdated(ops.leadSelectionPath(v), v.getLeadSelectionPath.toOption)
+    |  vc.externalPropertyUpdated(ops.selectionPath(v), v.getSelectionPath.toOption)
+    |  vc.externalPropertyUpdated(ops.selectionPaths(v), v.getSelectionPaths.toOption)
+    |  vc.externalPropertyUpdated(ops.selectionRows(v), v.getSelectionRows.toOption)
     |}
     |v.addTreeSelectionListener(tsl)
     """.trim.nn.stripMargin.split("\n").asInstanceOf[Array[String]].toIndexedSeq
@@ -1395,7 +1397,7 @@ def genCode(n: NodeDescr): String = {
          |  res
          |}
          |
-      """.stripMargin.trim.split("\n").asInstanceOf[Array[String]].toSeq
+      """.stripMargin.trim.unn.split("\n").nnn.toSeq
     } else Seq.empty 
 
   val sortedProps = n.props.sortBy(_.name)
@@ -1433,8 +1435,8 @@ def genCode(n: NodeDescr): String = {
      |  ${initializers.mkString("\n  ")}
      |  ${n.companionObjectExtras.mkString("\n  ")}
      |}
-  """.stripMargin.trim.nn
-    .replace(" | UncheckedNull", "")
+  """.stripMargin.trim.unn
+    .replace(" | UncheckedNull", "").unn
 }
 
 @main def run(): Unit = {
@@ -1442,13 +1444,15 @@ def genCode(n: NodeDescr): String = {
   val preamble = """
     //AUTOGENERATED FILE, DO NOT MODIFY
 
-    |package guarana.swing
+    |package guarana
+    |package swing
 
     |import language.implicitConversions
     |import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, PopupMenu => _, *}
     |import java.awt.event.*
     |import javax.swing.{Action => _, *}
     |import javax.swing.event.*
+    |import guarana.util.*
     |import guarana.swing.util.*
     |import scala.jdk.CollectionConverters.*
     |import scala.util.chaining.*

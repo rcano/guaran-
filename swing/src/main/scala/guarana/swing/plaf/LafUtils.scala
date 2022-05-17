@@ -1,4 +1,5 @@
-package guarana.swing
+package guarana
+package swing
 package plaf
 
 import java.awt.image.BufferedImage
@@ -17,13 +18,13 @@ object LafUtils {
     val opacity = scenegraph.stateReader(style.CssProperties.Opacity.forInstance[c.type])
     val prevComposite = g2.getComposite()
     if opacity != 1 then
-      g2.setComposite(java.awt.AlphaComposite.SrcOver.derive(opacity.toFloat))
+      g2.setComposite(java.awt.AlphaComposite.SrcOver.unn.derive(opacity.toFloat))
 
     scenegraph.stateReader(style.CssProperties.Effect.forInstance[c.type]) match {
       case null => paintFunction(g, c)
       // case _ if c.getRootPane == null => paintFunction(g, c)
       case eff =>
-        val xform = g2.getTransform
+        val xform = g2.getTransform.unn
         
         val raster = {
           val rootPane = c.getRootPane
@@ -32,18 +33,18 @@ object LafUtils {
               rootPane.getBounds()
             else
               //since we don't know *where* we are drawing, we are going to be pessimistic and find the largest Frame instantiated and use that
-              val frames = java.awt.Frame.getFrames
+              val frames = java.awt.Frame.getFrames.nnn
               Bounds(width = frames.map(_.getWidth).max, height = frames.map(_.getHeight).max)
-          val finalBounds = xform.createTransformedShape(rootBounds).getBounds()
+          val finalBounds = xform.createTransformedShape(rootBounds).unn.getBounds().unn
           cachedRaster(finalBounds.width, finalBounds.height)
         }
-        val rasterGraphics = raster.createGraphics()
+        val rasterGraphics = raster.createGraphics().unn
         rasterGraphics.setRenderingHints(g2.getRenderingHints)
         rasterGraphics.setFont(g2.getFont)
         rasterGraphics.setTransform(xform)
         
         val expandedClip = {
-          val c = g2.getClipBounds()
+          val c = g2.getClipBounds().unn
           c.x -= c.width
           c.y -= c.height
           c.width *= 3
@@ -62,7 +63,7 @@ object LafUtils {
         
         paintFunction(rasterGraphics, c)
 
-        val xformedBounds = xform.createTransformedShape(expandedClip).getBounds
+        val xformedBounds = xform.createTransformedShape(expandedClip).unn.getBounds.unn
         if xformedBounds.x < 0 then 
           xformedBounds.width += xformedBounds.x
           xformedBounds.x = 0
@@ -86,16 +87,16 @@ object LafUtils {
     g2.setComposite(prevComposite)
   }
 
-  private var _cachedRaster: BufferedImage = null
+  private var _cachedRaster: BufferedImage | Null = null
   private def cachedRaster(width: Int, height: Int) : BufferedImage =
-    val res = 
+    val res = // TODO: use foldNull here
       if _cachedRaster == null then
-        java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment.getDefaultScreenDevice.getDefaultConfiguration
-          .createCompatibleImage(width, height, java.awt.Transparency.TRANSLUCENT)
-      else if _cachedRaster.getWidth < width || _cachedRaster.getHeight < height then
-        java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment.getDefaultScreenDevice.getDefaultConfiguration
-          .createCompatibleImage(width max _cachedRaster.getWidth, height max _cachedRaster.getHeight, java.awt.Transparency.TRANSLUCENT)
-      else _cachedRaster
+        java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment.unn.getDefaultScreenDevice.unn.getDefaultConfiguration.unn
+          .createCompatibleImage(width, height, java.awt.Transparency.TRANSLUCENT).unn
+      else if _cachedRaster.unn.getWidth < width || _cachedRaster.unn.getHeight < height then
+        java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment.unn.getDefaultScreenDevice.unn.getDefaultConfiguration.unn
+          .createCompatibleImage(width max _cachedRaster.unn.getWidth, height max _cachedRaster.unn.getHeight, java.awt.Transparency.TRANSLUCENT).unn
+      else _cachedRaster.unn
     _cachedRaster = res
     res
 }

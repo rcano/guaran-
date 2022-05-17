@@ -1,8 +1,9 @@
-package guarana.swing
+package guarana
+package swing
 package plaf
 
 import language.implicitConversions
-import java.awt.{Dimension, Rectangle}
+import java.awt.{Dimension, Rectangle, Shape}
 import javax.swing.{AbstractButton, JComponent, JButton, UIManager}
 import javax.swing.plaf.metal.MetalSliderUI
 import scala.annotation.static
@@ -24,25 +25,25 @@ class CssSliderUi extends MetalSliderUI, CssSwingControlUi {
     style.CssProperties.SliderThumbShape.forInstance(s).pipe(scenegraph.stateReader(_))
   }
 
-  override def getPreferredHorizontalSize = scale(super.getPreferredHorizontalSize)
-  override def getPreferredVerticalSize = scale(super.getPreferredVerticalSize)
-  override def getMinimumHorizontalSize = scale(super.getMinimumHorizontalSize)
-  override def getMinimumVerticalSize = scale(super.getMinimumVerticalSize)
+  override def getPreferredHorizontalSize = scale(super.getPreferredHorizontalSize.unn)
+  override def getPreferredVerticalSize = scale(super.getPreferredVerticalSize.unn)
+  override def getMinimumHorizontalSize = scale(super.getMinimumHorizontalSize.unn)
+  override def getMinimumVerticalSize = scale(super.getMinimumVerticalSize.unn)
   override def getTickLength = scale(super.getTickLength)
   override def getThumbSize = getShape() match
-    case null => scale(super.getThumbSize)
-    case shape => 
+    case null => scale(super.getThumbSize.unn)
+    case shape: Shape => 
       val ti = getThumbInsets()
-      Dimension(shape.getBounds.width + (ti.left + ti.right).round.toInt, shape.getBounds.height + (ti.top + ti.bot).round.toInt)
+      Dimension(shape.getBounds.unn.width + (ti.left + ti.right).round.toInt, shape.getBounds.unn.height + (ti.top + ti.bot).round.toInt)
 
   private def getThumbInsets(): Insets = 
     val s = slider
-    val border = Option(style.CssProperties.SliderThumbBorder.forInstance(s).pipe(scenegraph.stateReader(_)))
+    val border = style.CssProperties.SliderThumbBorder.forInstance(s).pipe(scenegraph.stateReader(_)).toOption
     border.map(CssBorder.getBorderInsets).getOrElse(Insets(0, 0, 0, 0))
 
   override def paintThumb(g: Graphics) = getShape() match {
     case null => metalPaintThumb(g)
-    case shape =>
+    case shape: Shape =>
       val g2 = g.upgrade.withAliasing
       val s = slider
       val thumbBorder = style.CssProperties.SliderThumbBorder.forInstance(s).pipe(scenegraph.stateReader(_))
@@ -51,39 +52,42 @@ class CssSliderUi extends MetalSliderUI, CssSwingControlUi {
 
       val thumbInsets = getThumbInsets()
 
-      val b2d = shape.getBounds2D
+      val b2d = shape.getBounds2D.unn
+      val nnThumbRect = thumbRect.unn
       val transformedShape = java.awt.geom.AffineTransform
-        .getTranslateInstance(thumbRect.x - b2d.getMinX, thumbRect.y - b2d.getMinY)
-        .tap(_.scale(thumbRect.width / b2d.getWidth, thumbRect.height / b2d.getHeight))
+        .getTranslateInstance(nnThumbRect.x - b2d.getMinX, nnThumbRect.y - b2d.getMinY).unn
+        .tap(_.scale(nnThumbRect.width / b2d.getWidth, nnThumbRect.height / b2d.getHeight))
         .createTransformedShape(shape)
 
       if thumbBackground != null then
         RegionPainter.paintRegion(thumbBackground, g2,
-          thumbRect.x + thumbInsets.left, thumbRect.y + thumbInsets.top,
-          thumbRect.width - thumbInsets.right - thumbInsets.left,
-          thumbRect.height - thumbInsets.top - thumbInsets.bot, transformedShape)
+          nnThumbRect.x + thumbInsets.left, nnThumbRect.y + thumbInsets.top,
+          nnThumbRect.width - thumbInsets.right - thumbInsets.left,
+          nnThumbRect.height - thumbInsets.top - thumbInsets.bot, transformedShape)
 
       if thumbBorder != null then
-        CssBorder.paintBorder(thumbBorder, thumbInsets, g2, thumbRect.x, thumbRect.y, thumbRect.width, thumbRect.height, transformedShape)
+        CssBorder.paintBorder(thumbBorder, thumbInsets, g2, nnThumbRect.x, nnThumbRect.y, nnThumbRect.width, nnThumbRect.height, transformedShape)
 
   }
 
   // copied over from MetalSliderUI to adjust for scaling
   private def metalPaintThumb(g: Graphics) = {
-    val knobBounds = thumbRect
+    val knobBounds = thumbRect.unn
     val g2 = g.create().upgrade
     g2.translate(knobBounds.x, knobBounds.y)
     g2.scale(scale(1.0), scale(1.0))
-    if (slider.getOrientation() == javax.swing.SwingConstants.HORIZONTAL)
-      MetalSliderUI.horizThumbIcon.paintIcon(slider, g2, 0, 0)
+    if (slider.unn.getOrientation() == javax.swing.SwingConstants.HORIZONTAL)
+      MetalSliderUI.horizThumbIcon.unn.paintIcon(slider, g2, 0, 0)
     else
-      MetalSliderUI.vertThumbIcon.paintIcon(slider, g2, 0, 0)
+      MetalSliderUI.vertThumbIcon.unn.paintIcon(slider, g2, 0, 0)
     g2.dispose()
   }
 
   override def paintTrack(g: Graphics) = {
     val g2 = g.create().upgrade.withAliasing
+    val slider = this.slider.unn
     val s = slider
+    val trackRect = this.trackRect.unn
 
     {
       val trackBackground = style.CssProperties.SliderTrackBackground.forInstance(s).pipe(scenegraph.stateReader(_))
@@ -113,7 +117,7 @@ class CssSliderUi extends MetalSliderUI, CssSwingControlUi {
       val ratio = (slider.getValue - slider.getMinimum) / (slider.getMaximum - slider.getMinimum).toDouble
 
       if (slider.getOrientation == javax.swing.SwingConstants.HORIZONTAL) {
-        if (slider.getComponentOrientation().isLeftToRight()) regionW = regionW * ratio
+        if (slider.getComponentOrientation().unn.isLeftToRight()) regionW = regionW * ratio
         else {
           val d = regionW - (regionW * ratio)
           regionX += d

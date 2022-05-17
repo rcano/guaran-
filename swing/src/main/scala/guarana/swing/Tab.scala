@@ -1,7 +1,8 @@
-package guarana.swing
+package guarana
+package swing
 
 import javax.swing.Icon
-import util.*
+import guarana.util.*
 
 class Tab {
   def title = Tab.Title.forInstance(this)

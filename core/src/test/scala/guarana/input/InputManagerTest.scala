@@ -21,7 +21,7 @@ class InputManagerTest extends AnyFunSuite {
     def sequenceDefaultPatience = 1.second
 
     var debugTransitions = false
-    override protected def onEventTransition(combination: Input, event: (Int, Boolean), previousState: Any, newState: Any): Unit =
+    override protected def onEventTransition(combination: InputMatcher[?], event: (Int, Boolean), previousState: Any, newState: Any): Unit =
       //format: off
       if (debugTransitions) println(s"${AnsiColor.MAGENTA}[$combination]${AnsiColor.BLUE} ($previousState)${AnsiColor.RED} x ${AnsiColor.BLUE}$event${AnsiColor.RED} ==> ${AnsiColor.YELLOW}$newState${AnsiColor.RESET}")
       //format: on
@@ -29,15 +29,13 @@ class InputManagerTest extends AnyFunSuite {
 
   class TestFixture {
     val im = TestInputManager()
-    export im.syntax.{given, *}
 
     var triggered = false
-    def addTestCombination(input: im.Input): Unit = im.recordCombination(input)(() => triggered = true)
+    def addTestCombination[T <: Tuple](input: im.InputMatcher[T]): Unit = im.recordCombination(input)(_ => triggered = true)
   }
 
-  // test numeration is done so that they are run in order since they are tested in alphabetical order, as returned by reflection
-
   test("Simple input")(new TestFixture {
+    import im.syntax.{given, *}
     addTestCombination(0)
     // other inputs don't trigger it
     im.dispatch((1, true))
@@ -51,6 +49,7 @@ class InputManagerTest extends AnyFunSuite {
   })
 
   test("Pressed input")(new TestFixture {
+    import im.syntax.{given, *}
     addTestCombination(0.↓)
     // ignores not down
     im.dispatch((0, false))
@@ -61,6 +60,7 @@ class InputManagerTest extends AnyFunSuite {
   })
 
   test("Released input")(new TestFixture {
+    import im.syntax.{given, *}
     addTestCombination(0.↑)
     // ignores down
     im.dispatch((0, true))
@@ -70,7 +70,21 @@ class InputManagerTest extends AnyFunSuite {
     assert(triggered)
   })
 
+  test("Alternatives")(new TestFixture {
+    import im.syntax.{given, *}
+    addTestCombination(0.↑ || 0.↓)
+    im.dispatch((0, false))
+    assert(triggered)
+    triggered = false
+    im.dispatch((0, true))
+    assert(triggered)
+    triggered = false
+    im.dispatch((1, true)) //other things don't work
+    assert(!triggered)
+  })
+
   test("Combined input, any order")(new TestFixture {
+    import im.syntax.{given, *}
     addTestCombination(0 ~ 1)
 
     im.dispatch((0, true))
@@ -87,6 +101,7 @@ class InputManagerTest extends AnyFunSuite {
   })
 
   test("Combined input, time in between within tolerance")(new TestFixture {
+    import im.syntax.{given, *}
     addTestCombination(0 ~ 1)
 
     im.dispatch((0, true))
@@ -96,6 +111,7 @@ class InputManagerTest extends AnyFunSuite {
   })
 
   test("Combined input, rejects when tolerance is exceeded")(new TestFixture {
+    import im.syntax.{given, *}
     addTestCombination(0 ~ 1)
 
     im.dispatch((0, true))
@@ -105,6 +121,7 @@ class InputManagerTest extends AnyFunSuite {
   })
 
   test("Combined input, 3 simultaneous (any order)")(new TestFixture {
+    import im.syntax.{given, *}
     addTestCombination(0 ~ 1 ~ 2)
 
     im.dispatch((0, true))
@@ -120,12 +137,14 @@ class InputManagerTest extends AnyFunSuite {
     im.dispatch((2, true))
     im.clock.currentTime += 50
     im.dispatch((0, true))
-    im.clock.currentTime += 50
+    im.clock.currentTime += 29
     im.dispatch((1, true))
     assert(triggered)
   })
 
   test("Sequence, basic inputs")(new TestFixture {
+    import im.syntax.{given, *}
+    
     addTestCombination(InputSequence(0, 1, 2))
 
     im.dispatch((0, true))
@@ -137,7 +156,8 @@ class InputManagerTest extends AnyFunSuite {
   })
 
   test("Sequence, accept intruders")(new TestFixture {
-    addTestCombination(InputSequence(0, 1, 2).copy(allowOtherKeys = true))
+    import im.syntax.{given, *}
+    addTestCombination(InputSequence(0, 1, 2).ignoreIntruderKeys)
 
     im.dispatch((0, true))
     im.clock.currentTime += 50
@@ -149,8 +169,9 @@ class InputManagerTest extends AnyFunSuite {
     assert(triggered)
   })
 
-  test("Sequence, ignoring releases by default")(new TestFixture {
-    addTestCombination(InputSequence(0.↓, 1.↓, 2.↓))
+  test("Sequence, ignoring releases")(new TestFixture {
+    import im.syntax.{given, *}
+    addTestCombination(InputSequence(0.↓, 1.↓, 2.↓).ignoringReleases)
 
     im.dispatch((0, true))
     im.clock.currentTime += 50
@@ -166,7 +187,8 @@ class InputManagerTest extends AnyFunSuite {
   })
 
   test("Sequence, not ignoring releases")(new TestFixture {
-    addTestCombination(InputSequence(0.↓, 1.↓, 2.↓).copy(ignoreReleases = false))
+    import im.syntax.{given, *}
+    addTestCombination(InputSequence(0.↓, 1.↓, 2.↓))
 
     im.dispatch((0, true))
     im.clock.currentTime += 50
@@ -182,7 +204,8 @@ class InputManagerTest extends AnyFunSuite {
   })
 
   test("WaitFor, no intruders")(new TestFixture {
-    addTestCombination(InputSequence(0.↓, waitFor(1.↓, 500.millis, false, false)))
+    import im.syntax.{given, *}
+    addTestCombination(0.↓.andThen(1.↓, 500.millis))
 
     im.dispatch((0, true))
     im.clock.currentTime += 499
@@ -198,7 +221,8 @@ class InputManagerTest extends AnyFunSuite {
   })
 
   test("WaitFor, with intruders")(new TestFixture {
-    addTestCombination(InputSequence(0.↓, waitFor(1.↓, 500.millis, false, false)))
+    import im.syntax.{given, *}
+    addTestCombination(0.↓.andThen(1.↓, 500.millis))
     im.dispatch((0, true))
     im.clock.currentTime += 50
     im.dispatch((2, true)) //intruder here, and we asked to reject them
@@ -206,7 +230,7 @@ class InputManagerTest extends AnyFunSuite {
     im.dispatch((1, true))
     assert(!triggered)
 
-    addTestCombination(InputSequence(2.↓, waitFor(3.↓, 500.millis, true, false)))
+    addTestCombination(2.↓.andThen(3.↓, 500.millis).ignoreIntruderKeys)
     im.dispatch((2, true))
     im.clock.currentTime += 50
     im.dispatch((0, true)) // intruder here, allowed
@@ -216,7 +240,9 @@ class InputManagerTest extends AnyFunSuite {
   })
 
   test("delay support")(new TestFixture {
-    addTestCombination(InputSequence(0.↓, delay(500.millis), 0.↑).copy(ignoreReleases = false))
+    import im.syntax.{given, *}
+
+    addTestCombination(0.↓.andThenWithDelay(0.↑, 500.millis))
     im.dispatch((0, true))
     im.clock.currentTime += 50
     im.dispatch((0, false)) // released too early
@@ -229,7 +255,8 @@ class InputManagerTest extends AnyFunSuite {
   })
 
   test("Ignore support")(new TestFixture {
-    addTestCombination(InputSequence(0.↓, 0.↑).ignoring(10))
+    import im.syntax.{given, *}
+    addTestCombination(InputSequence(0.↓, 0.↑).ignoringFailuresFor(10))
     im.dispatch((0, true))
     im.clock.currentTime += 50
     im.dispatch((11, true)) // not ignored, so must fail
@@ -241,5 +268,26 @@ class InputManagerTest extends AnyFunSuite {
     im.clock.currentTime += 50
     im.dispatch((0, false)) // ignored
     assert(triggered)
+  })
+
+  test("Detecing hold down time")(new TestFixture {
+    import im.syntax.{given, *}
+    
+    val input = for {
+      (t1, Tuple1((code, _))) <- im.InputMatcher.any.↓.timestamped
+      (t2, _) <- code.↑.timestamped
+    } yield (code, t2.toEpochMilli - t1.toEpochMilli)
+
+    var recordedInput = -1
+    var recordedDuration = 0l
+    im.recordCombination(input)((input, duration) => 
+      recordedInput = input
+      recordedDuration = duration
+    )
+    im.dispatch((50, true))
+    im.clock.currentTime += 350
+    im.dispatch((50, false))
+    assert(recordedInput == 50)
+    assert(recordedDuration == 350l)
   })
 }

@@ -1,4 +1,5 @@
-package guarana.swing
+package guarana
+package swing
 package plaf
 
 import better.files.*
@@ -27,14 +28,14 @@ object LinuxFontPolicy {
 
     //Gnome font scale
 		// see class com.sun.java.swing.plaf.gtk.PangoFonts background information
-    val scaling = Toolkit.getDefaultToolkit().getDesktopProperty( "gnome.Xft/DPI" ).toOption match {
+    val scaling = Toolkit.getDefaultToolkit().unn.getDesktopProperty( "gnome.Xft/DPI" ).toOption match {
       case Some(dpi: Int) =>
         (if (dpi == -1) 96
         else if (dpi < 50) 50
         else dpi) / 72.0
       case _ => 
-        GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
-          .getDefaultConfiguration().getNormalizingTransform().getScaleY()
+        GraphicsEnvironment.getLocalGraphicsEnvironment().unn.getDefaultScreenDevice().unn
+          .getDefaultConfiguration().unn.getNormalizingTransform().unn.getScaleY()
     }
     val derivedSize = (size * scaling + 0.5)
     size = (size + 0.5).toInt
@@ -47,7 +48,7 @@ object LinuxFontPolicy {
       case _ => 
     }
 
-    StyleContext().getFont(family, style, size).deriveFont(derivedSize.toFloat).nn
+    StyleContext().getFont(family, style, size).unn.deriveFont(derivedSize.toFloat).unn
   }
 
   def getKdeFont(): Font = {
@@ -56,7 +57,7 @@ object LinuxFontPolicy {
       ".kde4/share/config", //KDE 4
       ".kde/share/config" //KDE 3
     ).map(File.home / _).filter(_.exists).nextOption() match {
-      case None => StyleContext().getFont("sansserif", Font.PLAIN, 10).nn
+      case None => StyleContext().getFont("sansserif", Font.PLAIN, 10).unn
       case Some(configDir) =>
         val kdeGlobals = readConfFile(configDir / "kdeglobals")
         val kcmfonts = readConfFile(configDir / "kcmfonts")
@@ -74,7 +75,7 @@ object LinuxFontPolicy {
             if ("1" == parts(5)) style |= Font.ITALIC
           } catch {
             case NonFatal(e) =>
-              val logger = System.getLogger("guarana").nn
+              val logger = System.getLogger("guarana").unn
               logger.log(System.Logger.Level.ERROR, s"failed to parse KDE font $font", e)
           }
         }
@@ -93,7 +94,7 @@ object LinuxFontPolicy {
         size = (size + 0.5).toInt
         if (size < 1) size = 1
 
-        StyleContext().getFont(family, style, size).deriveFont(derivedSize.toFloat).nn
+        StyleContext().getFont(family, style, size).unn.deriveFont(derivedSize.toFloat).unn
     }
   }
 

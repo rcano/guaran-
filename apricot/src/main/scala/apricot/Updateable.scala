@@ -16,6 +16,7 @@ trait Updateable {
       running = false
     }
 
+  /** called on every updated with the current time (in nanos) and the elapsed time since last call (in nanos as well) */
   protected def updateImpl(currentTimeNanos: Long, elapsed: Long): Unit
 
   def isParallelizable: Boolean = isParallel

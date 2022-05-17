@@ -1,6 +1,7 @@
 package guarana.swing
 package util
 
+import guarana.util.*
 import java.awt.BorderLayout
 import javax.swing.{JPanel, Scrollable, SwingConstants}
 

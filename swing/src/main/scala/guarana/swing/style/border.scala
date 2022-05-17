@@ -1,4 +1,5 @@
-package guarana.swing
+package guarana
+package swing
 package style
 
 import java.awt.{BasicStroke, Image, Paint}

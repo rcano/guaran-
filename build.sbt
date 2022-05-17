@@ -4,7 +4,7 @@ inThisBuild(
   Seq(
     organization := "guarana",
     version := "0.0.1-SNAPSHOT",
-    scalaVersion := "3.1.1",
+    scalaVersion := "3.1.2",
     fork := true,
     libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.9" % "test",
     Compile / packageDoc / publishArtifact := false,
@@ -53,6 +53,43 @@ lazy val qt = Project(id = "guarana-qt", base = file("qt"))
   )
   .dependsOn(coreJvm)
 
+lazy val moduleJars = taskKey[Seq[(Attributed[File], java.lang.module.ModuleDescriptor)]]("moduleJars")
+lazy val swing = Project(id = "guarana-swing", base = file("swing"))
+  .settings(
+    libraryDependencies ++= Seq(
+      ("com.github.pathikrit" %% "better-files" % "3.9.1").cross(CrossVersion.for3Use2_13),
+      "org.codehaus.griffon.plugins" % "griffon-lookandfeel-napkin" % "2.0.0",
+      "com.formdev" % "flatlaf" % "1.0",
+      "com.jhlabs" % "filters" % "2.0.235-1",
+      "io.dropwizard.metrics" % "metrics-core" % "4.1.18" % "test",
+      "org.scalatest" %% "scalatest-funsuite" % "3.2.12" % "test",
+      "com.typesafe.play" %% "play-json" % "2.10.0-RC5" % "test",
+    ),
+    ThisBuild / moduleJars := {
+      val attributedJars = (Compile / dependencyClasspathAsJars).value.filterNot(_.metadata(moduleID.key).organization == "org.scala-lang")
+      val modules = attributedJars.flatMap { aj =>
+        try {
+          val module = java.lang.module.ModuleFinder.of(aj.data.toPath).findAll().iterator.next.descriptor
+          Some(aj -> module)
+        } catch { case _: java.lang.module.FindException => None }
+      }
+      modules
+    },
+    ThisBuild / javaOptions ++= {
+      val modules = moduleJars.value
+      if (modules.isEmpty) Seq()
+      else
+        Seq(
+          "--add-modules=" + modules.map(_._2.name).mkString(","),
+          "--module-path=" + modules.map(_._1.data.getAbsolutePath).mkString(java.io.File.pathSeparator)
+        )
+    },
+    ThisBuild / javaOptions += "-Xmx100m",
+    ThisBuild / javaOptions ++= Seq("-Dsun.java2d.uiScale.enabled=true", "-Dsun.java2d.uiScale=2"),
+    ThisBuild / outputStrategy := Some(StdoutOutput)
+  )
+  .dependsOn(coreJvm)
+
 lazy val lwjglVersion = "3.3.0"
 lazy val lwjglClassifier = "natives-linux"
 
@@ -71,6 +108,7 @@ lazy val apricot = Project(id = "apricot", base = file("apricot"))
       "io.dropwizard.metrics" % "metrics-core" % "4.2.4",
       "com.outr" %% "scribe" % scribeVersion,
       "com.outr" %% "scribe-file" % scribeVersion,
+      "com.github.blemale" %% "scaffeine" % "5.1.2",
       "org.scala-lang" %% "scala3-tasty-inspector" % scalaVersion.value % "provided,runtime"
     ),
     javaOptions ++= Seq(

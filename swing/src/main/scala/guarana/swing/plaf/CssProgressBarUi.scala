@@ -1,4 +1,5 @@
-package guarana.swing
+package guarana
+package swing
 package plaf
 
 import language.implicitConversions
@@ -15,7 +16,7 @@ class CssProgressBarUi extends MetalProgressBarUI, CssSwingControlUi {
 
     val targetAmount = getAmountFull(null, w, h)
     var barWidth, barHeight = 0
-    if (progressBar.getOrientation() == SwingConstants.HORIZONTAL) {
+    if (progressBar.unn.getOrientation() == SwingConstants.HORIZONTAL) {
       barWidth = targetAmount
       barHeight = h
     } else {

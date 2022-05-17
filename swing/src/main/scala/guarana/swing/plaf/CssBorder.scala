@@ -1,4 +1,5 @@
-package guarana.swing
+package guarana
+package swing
 package plaf
 
 import language.implicitConversions
@@ -33,7 +34,7 @@ object CssBorder {
     Insets(top, right, bottom, left)
   }
 
-  def paintBorder(borderSpec: style.Border, insets: Insets, g: Graphics, x: Double, y: Double, width: Double, height: Double, regionShape: Shape = null, debug: Boolean = false): Unit = {
+  def paintBorder(borderSpec: style.Border, insets: Insets, g: Graphics, x: Double, y: Double, width: Double, height: Double, regionShape: Shape | Null = null, debug: Boolean = false): Unit = {
     val g2 = g.create().upgrade.withAliasing
 
     /** helper function to relocate x, y, width and height accordingly to its insets */

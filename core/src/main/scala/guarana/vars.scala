@@ -4,7 +4,7 @@ import language.implicitConversions
 import scala.annotation.targetName
 import scala.annotation.compileTimeOnly
 
-type Keyed[+T] = impl.Keyed[T]
+// type Keyed[+T] = impl.Keyed[T]
 // export impl.Keyed
 
 type VarContextAction[+T] = VarContext ?=> T
@@ -50,7 +50,7 @@ object ObsVal {
   val VarUpdates = Emitter[VarValueChanged[ObsVal]]()
   type Aux[T, Instance <: Singleton] = ObsVal[T] { type ForInstance = Instance }
 
-  implicit def obs2Keyed[T](v: ObsVal[T])(implicit instance: ValueOf[v.ForInstance]): Keyed[v.type] = impl.Keyed(v, instance.value)
+  implicit def obs2Keyed[T](v: ObsVal[T])(implicit instance: ValueOf[v.ForInstance]): Keyed[v.type] = Keyed(v, instance.value)
 }
 
 sealed trait Var[T] extends ObsVal[T] {

@@ -1,8 +1,9 @@
-package guarana.swing
+package guarana
+package swing
 
 import language.implicitConversions
-import scala.util.{Try}
-import util.*
+import guarana.*
+import guarana.util.*
 
 extension (d: Double | Float | Int) {
   inline def em(using sc: Scenegraph, vc: VarContext) = 
@@ -22,19 +23,15 @@ trait VarsMap {
     .map(_.invoke(this).asInstanceOf[SwingVar[_]])
     .map(v => v.name.toLowerCase.nn -> v).toMap
   protected inline def varsPropertyListener(instance: Any, debug: Boolean = false)(using sg: Scenegraph): java.beans.PropertyChangeListener = { evt =>
-    val property = evt.getPropertyName.toLowerCase.nn
+    val property = evt.unn.getPropertyName.unn.toLowerCase.unn
     if (debug) println(s"Trying to update $property")
     VarsMap.get(property) foreach {
       case sv: SwingVar[t] =>
         if (debug) println("  found swing var")
-        sg.update(summon[VarContext].externalPropertyUpdated(sv, evt.getNewValue.asInstanceOf[t])(using ValueOf(instance.asInstanceOf[sv.ForInstance])))
+        sg.update(summon[VarContext].externalPropertyUpdated(sv, Some(evt.unn.getNewValue.asInstanceOf[t]))(using ValueOf(instance.asInstanceOf[sv.ForInstance])))
     }
   }: java.beans.PropertyChangeListener
 }
-
-extension [T, U](e: T | Null) inline def ? (inline f: T => U): U | Null = if (e != null) f(e.asInstanceOf[T]) else null
-extension [T](e: T | Null) inline def toOption: Option[T] = if (e != null) Some(e.asInstanceOf[T]) else None
-extension [F[_], T](e: F[T | Null] | Null) inline def nnn: F[T] = e.asInstanceOf[F[T]]
 
 extension (d: javax.swing.text.Document) {
   def defaultRootElement = d.getDefaultRootElement
@@ -99,42 +96,13 @@ type Bounds = java.awt.Rectangle
 def Bounds(x: Double = 0, y: Double = 0, width: Double = 0, height: Double = 0) =
   java.awt.Rectangle(x.toInt, y.toInt, width.toInt, height.toInt)
 
-case class Insets(top: Double = 0, right: Double = 0, bot: Double = 0, left: Double = 0) {
-  def toAwt = java.awt.Insets(top.round.toInt, left.round.toInt, bot.round.toInt, right.round.toInt)
+extension (i: Insets) {
+  def toAwt = java.awt.Insets(i.top.round.toInt, i.left.round.toInt, i.bot.round.toInt, i.right.round.toInt)  
 }
-object Insets {
-  def all(topRightBottomLeft: Double): Insets = Insets(topRightBottomLeft, topRightBottomLeft, topRightBottomLeft, topRightBottomLeft)
+
+extension (obj: Insets.type) {
   def fromAwt(i: java.awt.Insets): Insets = Insets(i.top, i.right, i.bottom, i.left)
 }
-
-  /** Emitter for updates to var for this object.
-    * The extension method is only available if a Emitter.Context is present, because it is otherwise useless to use it
-    */
-extension (a: Any) def varUpdates(using Emitter.Context) = ObsVal.VarUpdates.forInstance(a)
-
-/** Support async Futures as vars */
-extension [T](f: scala.concurrent.Future[T]) def asObsVal(using sc: Scenegraph): ExternalObsVal[Option[Try[T]]] { type ForInstance = scala.concurrent.Future.type } = 
-  new ExternalVar[Option[Try[T]]] {
-    lazy val name = f.toString
-    type ForInstance = scala.concurrent.Future.type
-    def get(n: ForInstance) = f.value
-    private[swing] def set(n: ForInstance, v: Option[Try[T]]): Unit = ()
-    def eagerEvaluation = false
-
-    f.onComplete(res => sc.update(summon[VarContext].externalPropertyUpdated(this, Some(res))))
-      (SwingExecutionContext) //we're going to do scenegrph.update, so it makes sense to already be in the right thread
-  }
-
-extension [T](f: java.util.concurrent.CompletableFuture[T]) def asObsVal(using sc: Scenegraph): ExternalObsVal[Option[Try[T]]] { type ForInstance = scala.concurrent.Future.type } =
-  new ExternalVar[Option[Try[T]]] {
-    lazy val name = f.toString
-    type ForInstance = scala.concurrent.Future.type
-    def get(n: ForInstance) = if f.isDone then Some(Try(f.get())) else None
-    private[swing] def set(n: ForInstance, v: Option[Try[T]]): Unit = ()
-    def eagerEvaluation = false
-
-    f.handle((_, _) => sc.update(summon[VarContext].externalPropertyUpdated(this, get(scala.concurrent.Future))))
-  }
 
 object SwingExecutionContext extends scala.concurrent.ExecutionContext {
   def execute(runnable: Runnable): Unit = javax.swing.SwingUtilities.invokeLater(runnable)

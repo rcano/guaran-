@@ -30,9 +30,12 @@ abstract class AbstractToolkit {
   private val externalVars = new IntHashSet(1024)
   private val seenVars = new Int2ObjectHashMap[Signal[?]]
   private val cleaner = impl.RefCleaner()
+  var stylist: Stylist = Stylist.NoOp
 
   protected def isOnToolkitThread(): Boolean
   protected def runOnToolkitThread(r: () => Any): Unit
+  /** Reads the Metrics for the system */
+  def getMetrics(): Stylist.Metrics
 
   private val threadLocalContext = new ThreadLocal[ContextImpl] {
     override def initialValue = null
@@ -137,7 +140,7 @@ abstract class AbstractToolkit {
       seenVars: Int2ObjectHashMap[Signal[?]],
   ) extends VarContext {
     def recordInstance(instance: Any): InstanceData = {
-      val instanceId = impl.Keyed.getId(instance)
+      val instanceId = Keyed.getId(instance)
       instanceVars.get(instanceId) match
         case null =>
           val vars = new IntHashSet(8)
@@ -147,8 +150,8 @@ abstract class AbstractToolkit {
           cleaner.register(
             instance,
             () => instanceVars.remove(instanceId).?(data =>
-              data.vars.fastForeach(v => switchboard.remove(impl.Keyed.raw(v, instanceId)))
-              data.emitters.fastForeach(v => emitterStation.remove(impl.Keyed.raw(v, instanceId)))
+              data.vars.fastForeach(v => switchboard.remove(Keyed.raw(v, instanceId)))
+              data.emitters.fastForeach(v => emitterStation.remove(Keyed.raw(v, instanceId)))
             )
           )
           data
@@ -163,7 +166,7 @@ abstract class AbstractToolkit {
 
     def apply[T](v: ObsVal[T])(using instance: ValueOf[v.ForInstance]): T = {
       recordVarUsage(v)
-      switchboard.get(v) getOrElse v.initialValue(instance.value)
+      switchboard.get(v).getOrElse(stylist(getMetrics(), v, instance.value)(using AbstractToolkit.this) getOrElse v.initialValue(instance.value))
     }
     def update[T](v: Var[T], binding: Binding[T])(using instance: ValueOf[v.ForInstance]): Unit = {
       recordVarUsage(v)
@@ -209,13 +212,19 @@ abstract class AbstractToolkit {
     /** Read the current value of ObsVal as it is read by doing `prop()` within a VarContext */
     def apply[T](v: ObsVal[T])(using instance: ValueOf[v.ForInstance]): T = {
       val keyed: Keyed[ObsVal[T]] = v
-      switchboard.get(keyed) getOrElse v.initialValue(instance.value)
+      switchboard.get(keyed) getOrElse (stylist(getMetrics(), v, instance.value)(using AbstractToolkit.this) getOrElse v.initialValue(instance.value))
     }
 
     /** Reads the stored value of the property, if any. */
     def get[T](property: ObsVal[T])(using instance: ValueOf[property.ForInstance]): Option[T] = switchboard.get(property) match
       case impl.SignalSwitchboard.NotFound => None
       case t: T => Some(t)
+
+    /** Reads the stored value of the property or its default (it doesn't asks the stylist) */
+    def getOrDefault[T](property: ObsVal[T])(using instance: ValueOf[property.ForInstance]): T =
+      switchboard.get(property).getOrElse(property.initialValue(instance.value))
+
+    def hasEmitter[A](emitter: Emitter[A])(using v: ValueOf[emitter.ForInstance]): Boolean = emitterStation.hasEmitter(emitter)
   }
 
 }

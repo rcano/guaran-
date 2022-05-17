@@ -1,4 +1,5 @@
-package guarana.swing
+package guarana
+package swing
 package plaf
 
 import language.implicitConversions
@@ -18,7 +19,7 @@ class CssTextAreaUi extends BasicTextAreaUI, CssTextComponentCommons {
     scenegraph.stylist.uninstallDefaults(getComponent)
 
   override protected def paintBackground(g: Graphics): Unit = {
-    val textFieldNode = TextComponent.wrap(getComponent)
+    val textFieldNode = TextComponent.wrap(getComponent.unn)
     if textFieldNode.unwrap.isOpaque then
       val bckgr = style.CssProperties.Background.forInstance(textFieldNode) pipe scenegraph.stateReader.apply
       if bckgr == style.CssProperties.EmptyBackground then super.paintBackground(g)

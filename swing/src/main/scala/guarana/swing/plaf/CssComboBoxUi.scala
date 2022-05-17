@@ -1,4 +1,5 @@
-package guarana.swing
+package guarana
+package swing
 package plaf
 
 import javax.swing.{JButton, JComponent, JLabel, JList, JPopupMenu, ListCellRenderer, UIManager}
@@ -19,7 +20,7 @@ class CssComboBoxUi extends BasicComboBoxUI, CssSwingControlUi, CssBackgroundSup
       cb.varUpdates := EventIterator.takeWhile(_ => !uninstalled).foreach {
         case paddingProp(_, newPadding) => 
           padding = newPadding.toAwt
-          comboBox.revalidate()
+          comboBox.unn.revalidate()
         case _ =>
       }
     }
@@ -51,12 +52,12 @@ class CssComboBoxUi extends BasicComboBoxUI, CssSwingControlUi, CssBackgroundSup
   }
 
   override protected def getInsets() = {
-    val res = super.getInsets()
-    val cb = comboBox
+    val res = super.getInsets().unn
+    val cb = comboBox.unn
     val valueBorder = style.CssProperties.ComboBoxValueBorder.forInstance(cb).pipe(scenegraph.stateReader(_))
     if valueBorder != style.CssProperties.EmptyBorder then
       val insets = CssBorder.getBorderInsets(valueBorder)
-      if cb.getComponentOrientation.isLeftToRight then res.left += insets.left.toInt
+      if cb.getComponentOrientation.unn.isLeftToRight then res.left += insets.left.toInt
       else res.right += insets.right.toInt
       res.top += insets.top.toInt
       res.bottom += insets.bot.toInt
@@ -71,9 +72,9 @@ class CssComboBoxUi extends BasicComboBoxUI, CssSwingControlUi, CssBackgroundSup
     // switching the LaF and a new combo popup is created, the component
     // orientation is not applied.
     locally {
-      val o = comboBox.getComponentOrientation()
-      list.setComponentOrientation(o)
-      scroller.setComponentOrientation(o)
+      val o = comboBox.unn.getComponentOrientation().unn
+      list.unn.setComponentOrientation(o)
+      scroller.unn.setComponentOrientation(o)
       setComponentOrientation(o)
     }
 

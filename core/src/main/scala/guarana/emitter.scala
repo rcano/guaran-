@@ -27,7 +27,7 @@ object Emitter {
     def emit[A](emitter: Emitter[A], evt: A)(implicit instance: ValueOf[emitter.ForInstance]): Unit
   }
 
-  implicit def emitter2Keyed[T](e: Emitter[T])(using instance: ValueOf[e.ForInstance]): Keyed[e.type] = impl.Keyed(e, instance.value)
+  implicit def emitter2Keyed[T](e: Emitter[T])(using instance: ValueOf[e.ForInstance]): Keyed[e.type] = Keyed(e, instance.value)
 }
 
 sealed trait EventIterator[-T] {

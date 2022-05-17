@@ -1,4 +1,5 @@
-package guarana.swing
+package guarana
+package swing
 package plaf
 
 import language.implicitConversions
@@ -11,11 +12,11 @@ class CssTextFieldUi extends BasicTextFieldUI, CssTextComponentCommons {
 
   private var uninstalled = false
   override protected def installListeners(): Unit =
-    val textFieldNode = Node.wrap(getComponent)
+    val textFieldNode = Node.wrap(getComponent.unn)
     scenegraph.update {
       val placeholderVar = style.CssProperties.PlaceholderText.forInstance(textFieldNode)
       textFieldNode.varUpdates := EventIterator.takeWhile(_ => !uninstalled).foreach {
-        case placeholderVar(_, _) | textFieldNode.hovered(_, _) => getComponent.repaint()
+        case placeholderVar(_, _) | textFieldNode.hovered(_, _) => getComponent.unn.repaint()
         case _ =>
       }
     }
@@ -29,7 +30,7 @@ class CssTextFieldUi extends BasicTextFieldUI, CssTextComponentCommons {
   }
 
   override protected def paintBackground(g: Graphics): Unit = {
-    val textFieldNode = TextComponent.wrap(getComponent)
+    val textFieldNode = TextComponent.wrap(getComponent.unn)
     if textFieldNode.unwrap.isOpaque then
       val bckgr = style.CssProperties.Background.forInstance(textFieldNode) pipe scenegraph.stateReader.apply
       if bckgr == style.CssProperties.EmptyBackground then super.paintBackground(g)
@@ -38,11 +39,11 @@ class CssTextFieldUi extends BasicTextFieldUI, CssTextComponentCommons {
 
   // logic copied from FlatLaf
   private def paintPlaceholder(g: Graphics): Unit = {
-    val textFieldNode = TextComponent.wrap(getComponent)
+    val textFieldNode = TextComponent.wrap(getComponent.unn)
     
-    val placeholderProvider = Node.wrap(getComponent.getParent match
+    val placeholderProvider = Node.wrap(getComponent.unn.getParent match
       case c: javax.swing.JComboBox[?] => c
-      case _ => getComponent
+      case _ => getComponent.unn
     )
 
     val placeholderText = style.CssProperties.PlaceholderText.forInstance(placeholderProvider).pipe(scenegraph.stateReader(_))
@@ -53,7 +54,7 @@ class CssTextFieldUi extends BasicTextFieldUI, CssTextComponentCommons {
     g2.setPaint(placeholderPaint)
 
     withinRegion(textFieldNode.unwrap) { (x, y, w, h) => 
-      val fm = textFieldNode.unwrap.getFontMetrics(textFieldNode.unwrap.getFont)
+      val fm = textFieldNode.unwrap.getFontMetrics(textFieldNode.unwrap.getFont).unn
       val ty = fm.getAscent + (h - fm.getHeight()) / 2f
       javax.swing.plaf.basic.BasicGraphicsUtils
         .drawStringUnderlineCharAt(textFieldNode.unwrap, g2, placeholderText, -1, x.toFloat, ty)

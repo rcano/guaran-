@@ -35,6 +35,10 @@ class ApricotEngine[Tk <: AbstractToolkit](
   def onNextFrame(task: => Unit): Unit = pendingTasks += (() => task)
 
   var targetFps = 60d // default to 60, but should probably query the screen where the window is going to show up
+  /** If set to true, will clear the window at the start of the frame */
+  var autoClearWindow = true
+  var autoClearColor: Int = 0xFFFFFFFF
+
   val fpsTimer = metrics.timer("fps").unn
   val updateTimer = metrics.timer("updateTimer").unn
   val renderTimer = metrics.timer("renderTimer").unn
@@ -50,8 +54,10 @@ class ApricotEngine[Tk <: AbstractToolkit](
   val updateTimeGauge =
     metrics.gauge[Gauge[Long]]("updateTime", (() => () => lastUpdateTime): MetricRegistry.MetricSupplier[Gauge[Long]]).unn
 
-  private var surface: Surface = Surface.makeNull(1, 1)
-  private var canvas: Canvas = surface.getCanvas
+  private var _surface: Surface = Surface.makeNull(1, 1)
+  /** Currently active surface, if any. Depends on window visibility. */
+  def surface: Option[Surface] = _surface.toOption
+  private var canvas: Canvas = _surface.getCanvas
 
   val updateables = new collection.mutable.ArrayBuffer[Updateable](128)
   object layers extends collection.mutable.LinkedHashMap[String, Layer] {
@@ -64,7 +70,7 @@ class ApricotEngine[Tk <: AbstractToolkit](
   /** Engine requires a surface for rendering. Call this method after setting up an opengl surface for rendering.
     */
   def setRenderingSurface(surface: Surface, canvas: Canvas): Unit = {
-    this.surface = surface
+    this._surface = surface
     this.canvas = canvas
     // scribe.debug("clearing old surfaces")
     // layerSurfaces.foreach(surfaceFactory.destroy)
@@ -86,18 +92,18 @@ class ApricotEngine[Tk <: AbstractToolkit](
     //   l.draw(handle.surface, canvas)
     //   handle.surface.flush()
     // )
-    canvas.clear(0xffffffff)
+    if autoClearWindow then canvas.clear(autoClearColor)
     // cfor(0, _ < layers.length) { i =>
     //   layerSurfaces(i).surface.draw(canvas, 0, 0, null)
     //   i + 1
     // }
-    for ((_, layer) <- layers) layer.draw(surface.unn, canvas)
+    for ((_, layer) <- layers) layer.draw(_surface.unn, canvas)
     // cfor(0, _ < layers.length) { i =>
     //   layers(i).draw(surface.unn, canvas)
     //   i + 1
     // }
     val t0 = engineTime()
-    surface.flush()
+    _surface.flush()
     gpuFlushTime = engineTime() - t0
     gpuFlushTimer.update(gpuFlushTime, NANOSECONDS)
   }

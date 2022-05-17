@@ -1,4 +1,5 @@
-package guarana.swing
+package guarana
+package swing
 package plaf
 
 import javax.swing.plaf.{ColorUIResource, UIResource}
@@ -8,10 +9,10 @@ trait CssTextComponentCommons extends BasicTextUI, CssSwingControlUi {
   
   override def installDefaults() =
     super.installDefaults()
-    val textComponent = TextComponent.wrap(getComponent)
-    scenegraph.stylist(textComponent.selectionColor)
-      .foreach(c => getComponent.setSelectionColor(ColorUIResource(c)))
-    scenegraph.stylist(textComponent.selectedTextColor)
-      .foreach(c => getComponent.setSelectedTextColor(ColorUIResource(c)))
+    val textComponent = TextComponent.wrap(getComponent.unn)
+    scenegraph.stylist(scenegraph.getMetrics(), textComponent.selectionColor, textComponent)
+      .foreach(c => getComponent.unn.setSelectionColor(ColorUIResource(c)))
+    scenegraph.stylist(scenegraph.getMetrics(), textComponent.selectedTextColor, textComponent)
+      .foreach(c => getComponent.unn.setSelectedTextColor(ColorUIResource(c)))
 
 }

@@ -1,5 +1,5 @@
 package guarana
-package impl
+// package impl
 
 import scala.annotation.compileTimeOnly
 

@@ -1,4 +1,5 @@
-package guarana.swing
+package guarana
+package swing
 package table
 
 import language.implicitConversions
@@ -6,7 +7,7 @@ import language.implicitConversions
 import javax.swing.table.{AbstractTableModel, DefaultTableColumnModel, TableColumn}
 import scala.util.chaining.*
 
-abstract class TableData[T <: Product](val prodFields: util.ProductFields[T]) extends collection.IndexedSeq[T] {
+abstract class TableData[T <: Product](val prodFields: guarana.util.ProductFields[T]) extends collection.IndexedSeq[T] {
 
   class TableModel extends AbstractTableModel {
     override def getColumnName(col: Int) = prodFields.fields(col)._1
@@ -48,7 +49,7 @@ object TableData {
 }
 
 package immutable {
-  class TableData[T <: Product](val elements: IndexedSeq[T])(using productFields: util.ProductFields[T])
+  class TableData[T <: Product](val elements: IndexedSeq[T])(using productFields: guarana.util.ProductFields[T])
       extends guarana.swing.table.TableData[T](productFields) {
     def apply(i: Int) = elements(i)
     def length = elements.length
@@ -56,7 +57,7 @@ package immutable {
 }
 
 package mutable {
-  class TableData[T <: Product](val elements: ObsBuffer[T])(using productFields: util.ProductFields[T])
+  class TableData[T <: Product](val elements: ObsBuffer[T])(using productFields: guarana.util.ProductFields[T])
   extends guarana.swing.table.TableData[T](productFields) {
     def apply(i: Int) = elements(i)
     def length = elements.length

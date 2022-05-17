@@ -1,4 +1,5 @@
-package guarana.swing
+package guarana
+package swing
 package list
 
 import javax.swing.AbstractListModel

@@ -1,4 +1,5 @@
-package guarana.swing
+package guarana
+package swing
 
 import language.implicitConversions
 import java.io.IOException
@@ -11,19 +12,19 @@ import scala.util.control.NonFatal
 import scala.util.chaining.*
 import scala.util.matching.Regex
 import scala.reflect.Selectable.reflectiveSelectable
-import System.out.println
 
 /**
  * Main application used during developement for hot reloading of the application using classloaders magic.
  * Note that this class is meant for a sbt like setup, since it the file monitoring will be done over the directories `target/scala-2.12/classes` and `target/scala-2.12/test-classes`
  */
 object DevAppReloader {
+  val out = System.out.unn
 
   // val classesDirectories = Array(Paths.get("target/scala-0.26/classes").nn, Paths.get("target/scala-0.26/test-classes").nn).filter(Files.exists(_)).map(_.toAbsolutePath.nn)
 
   def launch(classesDirectories: Array[Path], reloadableClassPattern: Regex, mainClass: String, args: Array[String]) = {
     //install a monitor on the classes to detect a change
-    val fileWatcher = classesDirectories.head.getFileSystem.newWatchService.nn
+    val fileWatcher = classesDirectories.head.getFileSystem.unn.newWatchService.unn
     classesDirectories foreach { classesDir =>
       Files.walkFileTree(classesDir, new FileVisitor[Path] {
           override def preVisitDirectory(dir: Path, attrs: BasicFileAttributes) = {
@@ -45,7 +46,7 @@ object DevAppReloader {
 
     new Thread("ClassesChangesWatcher") {
       override def run(): Unit = {
-        println("watching")
+        out.println("watching")
         var updateFound = false
         var lastUpdate = System.currentTimeMillis
 
@@ -56,7 +57,7 @@ object DevAppReloader {
             wk.pollEvents.nn.asScala foreach {
               case watchEvent: WatchEvent[Path @unchecked] =>
                 val context = wk.watchable.asInstanceOf[Path].resolve(watchEvent.context).nn
-                println(s"detected change $context")
+                out.println(s"detected change $context")
 
                 if (watchEvent.kind == StandardWatchEventKinds.ENTRY_CREATE && Files.isDirectory(context)) {
                   context.register(fileWatcher, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY)
@@ -71,7 +72,7 @@ object DevAppReloader {
             reloadApp(classesDirectories, reloadableClassPattern, mainClass, args)
           }
         }
-        println("watcher dying")
+        out.println("watcher dying")
       }
     }.tap(_.setDaemon(true)).start()
 
@@ -80,16 +81,16 @@ object DevAppReloader {
   }
 
   var reloadCounter = 0
-  var lastApplication: Class[?] = _
+  var lastApplication: Class[?] | Null = _
   @volatile var recompiling = false
   def reloadApp(classesDirectories: Array[Path], reloadableClassPattern: Regex, mainApp: String, otherArgs: Array[String]): Unit = {
     if (!recompiling) { // if I'm already recompiling, ignore the request. This might happen if the watcher thread detects many file changing in quick not not so quick intervals
       reloadCounter += 1
-      println(Console.CYAN + s"RELOADING #${reloadCounter} - ${java.time.Instant.now()}" + Console.RESET)
+      out.println(Console.CYAN + s"RELOADING #${reloadCounter} - ${java.time.Instant.now()}" + Console.RESET)
       recompiling = true
 
       val classLoadingMxBean = java.lang.management.ManagementFactory.getClassLoadingMXBean().nn
-      println("currently loaded classes " + classLoadingMxBean.getLoadedClassCount)
+      out.println("currently loaded classes " + classLoadingMxBean.getLoadedClassCount)
       SwingUtilities invokeLater new Runnable {
         def run: Unit = {
           var framePosition: Option[java.awt.Rectangle] = None
@@ -97,10 +98,10 @@ object DevAppReloader {
           //is there was an application, we need to dispose of it first
           if (lastApplication != null) {
             val loadedClassesBefore = classLoadingMxBean.getLoadedClassCount
-            try lastApplication.getDeclaredMethod("close").nn.invoke(null)
+            try lastApplication.unn.getDeclaredMethod("close").nn.invoke(null)
             catch {
               case _: NoSuchMethodException => //expected
-              case NonFatal(e) => println("stopping application failed"); e.printStackTrace()
+              case NonFatal(e) => out.println("stopping application failed"); e.printStackTrace()
             }
             // framePosition = java.awt.Frame.getFrames.asInstanceOf[Array[java.awt.Frame]]
             //   .collect { case f: javax.swing.JFrame => f }
@@ -112,19 +113,19 @@ object DevAppReloader {
             //     pos
             //   }.headOption
             
-            val cl = lastApplication.getClassLoader.asInstanceOf[URLClassLoader]
+            val cl = lastApplication.unn.getClassLoader.asInstanceOf[URLClassLoader]
             System.gc()
             cl.close()
             val classesDifference = classLoadingMxBean.getLoadedClassCount - loadedClassesBefore
-            if (classesDifference > 0) println(Console.YELLOW + s"WARNING: classes failed to be unloaded, leaked: $classesDifference" + Console.RESET)
-            else println("unloaded classes " + classLoadingMxBean.getUnloadedClassCount)
+            if (classesDifference > 0) out.println(Console.YELLOW + s"WARNING: classes failed to be unloaded, leaked: $classesDifference" + Console.RESET)
+            else out.println("unloaded classes " + classLoadingMxBean.getUnloadedClassCount)
           }
 
-          println(classesDirectories.mkString("Root urls:[\n", "\n", "\n]"))
-          val loader = new URLClassLoader(classesDirectories.map(_.toAbsolutePath.toUri.toURL).toArray) {
+          out.println(classesDirectories.mkString("Root urls:[\n", "\n", "\n]"))
+          val loader = new URLClassLoader(classesDirectories.map(_.toAbsolutePath.unn.toUri.unn.toURL.unn).toArray) {
             //override default class loader behaviour to prioritize classes in this classloader
             override def loadClass(name: String, resolve: Boolean): Class[_] = {
-              var res: Class[_] = findLoadedClass(name)
+              var res: Class[_] | Null = findLoadedClass(name)
               val startTime = System.currentTimeMillis
 
 
@@ -146,12 +147,12 @@ object DevAppReloader {
               // }
               if (res == null) throw new ClassNotFoundException(name)
               if (resolve) resolveClass(res)
-              res
+              res.unn
             }
           }
 
           lastApplication = loader.loadClass(mainApp)
-          lastApplication.getDeclaredMethod("main", classOf[Array[String]]).nn.invoke(null, otherArgs)
+          lastApplication.unn.getDeclaredMethod("main", classOf[Array[String]]).unn.invoke(null, otherArgs)
 
           // framePosition foreach { pos =>
           //   java.awt.Frame.getFrames.asInstanceOf[Array[java.awt.Frame]]

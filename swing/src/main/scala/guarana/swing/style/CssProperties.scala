@@ -1,4 +1,5 @@
-package guarana.swing
+package guarana
+package swing
 package style
 
 import java.awt.{BasicStroke, Shape}
@@ -45,9 +46,9 @@ object CssProperties {
   val TabBackground = Var[TabInfo => style.Background]("css-tab-background", _ => EmptyBackground)
 
   // Slider specific
-  val SliderThumbShape = Var[Shape]("css-slider-thumb-shape", null)
-  val SliderThumbBackground = Var[Background]("css-slider-thumb-background", null)
-  val SliderThumbBorder = Var[Border]("css-slider-thumb-border", null)
+  val SliderThumbShape = Var[Shape | Null]("css-slider-thumb-shape", null)
+  val SliderThumbBackground = Var[Background | Null]("css-slider-thumb-background", null)
+  val SliderThumbBorder = Var[Border | Null]("css-slider-thumb-border", null)
   val SliderTrackBackground = Var[Background]("css-slider-track-background", EmptyBackground)
   val SliderTrackBorder = Var[Border]("css-slider-track-border", EmptyBorder)
   val SliderTrackFillBackground = Var[Background]("css-slider-track-fill-background", EmptyBackground)

@@ -1,4 +1,5 @@
-package guarana.swing
+package guarana
+package swing
 package plaf
 
 import language.implicitConversions
@@ -49,8 +50,8 @@ object CssButtonUi extends CssButtonUi {
   /** Copied over from MetalButtonUI, just so that we can use styled property for foreground */
   def paintButtonText(g: Graphics, c: JComponent, textRect: Bounds, text: String): Unit = {
     val b = c.asInstanceOf[javax.swing.AbstractButton]
-    val model = b.getModel()
-    val fm = c.getFontMetrics(g.getFont())
+    val model = b.getModel().unn
+    val fm = c.getFontMetrics(g.getFont()).unn
     val mnemIndex = b.getDisplayedMnemonicIndex()
 
     /* Draw the Text */

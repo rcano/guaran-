@@ -64,14 +64,16 @@ object SkiaTest {
     val scriptEngine = animation.ScriptEngine(tk, 10)
 
     scriptEngine run script {
-      while true do
-        interp(2.seconds)(pct => textPosition := pct * wWidth)
-        interp(2.seconds)(pct => textPosition := (1 - pct) * wWidth)
+      // FIXME: sigh, bugged again...
+      // while true do
+      //   interp(2.seconds)(pct => textPosition := pct * wWidth)
+      //   interp(2.seconds)(pct => textPosition := (1 - pct) * wWidth)
     }
     scriptEngine run script {
-      while true do
-        interp(0.5.seconds)(pct => circleRadius := pct * 120 + 50)
-        interp(0.5.seconds)(pct => circleRadius := (1 - pct) * 120 + 50)
+      // FIXME: sigh, bugged again...
+    //   while true do
+    //     interp(0.5.seconds)(pct => circleRadius := pct * 120 + 50)
+    //     interp(0.5.seconds)(pct => circleRadius := (1 - pct) * 120 + 50)
     }
 
     val face = FontMgr.getDefault().nn.matchFamilyStyle("Menlo", FontStyle.NORMAL)

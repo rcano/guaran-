@@ -1,4 +1,5 @@
-package guarana.swing
+package guarana
+package swing
 package plaf
 
 import language.implicitConversions
@@ -73,7 +74,7 @@ class CssLaf(val scenegraph: Scenegraph) extends MetalLookAndFeel {
     defaults.put("CheckBoxUI", classOf[CssCheckboxUi].getCanonicalName)
     defaults.put("ScrollBarUI", classOf[CssScrollBarUi].getCanonicalName)
     defaults.put("ProgressBarUI", classOf[CssProgressBarUi].getCanonicalName)
-    defaults.put("TabbedPaneUI", classOf[CssTabbedPaneUi].getCanonicalName)
+    // defaults.put("TabbedPaneUI", classOf[CssTabbedPaneUi].getCanonicalName)
     defaults.put("SliderUI", classOf[CssSliderUi].getCanonicalName)
     defaults.put("TextFieldUI", classOf[CssTextFieldUi].getCanonicalName)
     defaults.put("TextAreaUI", classOf[CssTextAreaUi].getCanonicalName)
@@ -97,7 +98,7 @@ object CssLaf {
   }
 
   def associateScenegraph(sc: Scenegraph): Unit =
-    UIManager.getDefaults.put(UiDefaultsScenegraphKey, sc)
+    UIManager.getDefaults.unn.put(UiDefaultsScenegraphKey, sc)
 
 
   private enum DesktopEnvironment {
@@ -121,7 +122,7 @@ object CssLaf {
 
 trait CssUi {
   @uncheckedStable
-  def scenegraph = UIManager.getDefaults.get(CssLaf.UiDefaultsScenegraphKey).toOption.fold(
+  implicit def scenegraph: Scenegraph = UIManager.getDefaults.unn.get(CssLaf.UiDefaultsScenegraphKey).toOption.fold(
     throw new IllegalStateException(s"Running CssUi without a Scenegraph?")
   )(_.asInstanceOf[Scenegraph])
 
@@ -136,6 +137,6 @@ trait CssUi {
 
   inline protected def getUiProperty[T, C <: JComponent](property: Var[T], instance: C, inline getter: C => T): T =
     getter(instance) match
-      case res: UIResource => scenegraph.stylist(property.forInstance(instance)).getOrElse(res)
+      case res: UIResource => scenegraph.stylist(scenegraph.getMetrics(), property, instance).getOrElse(res)
       case other => other
 }
