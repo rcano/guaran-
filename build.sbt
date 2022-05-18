@@ -14,7 +14,7 @@ inThisBuild(
       "-unchecked",
       "-language:implicitConversions"
     ),
-  )
+  ) ++ addCommandAlias("enableDebug", """set javaOptions += "-agentlib:jdwp=transport=dt_socket,server=y,address=5555,suspend=y"""")
 )
 
 lazy val guaraná = Project(id = "guarana", base = file(".")).aggregate(coreJvm)
@@ -56,6 +56,7 @@ lazy val qt = Project(id = "guarana-qt", base = file("qt"))
 lazy val moduleJars = taskKey[Seq[(Attributed[File], java.lang.module.ModuleDescriptor)]]("moduleJars")
 lazy val swing = Project(id = "guarana-swing", base = file("swing"))
   .settings(
+    scalacOptions -= "-Yexplicit-nulls",
     libraryDependencies ++= Seq(
       ("com.github.pathikrit" %% "better-files" % "3.9.1").cross(CrossVersion.for3Use2_13),
       "org.codehaus.griffon.plugins" % "griffon-lookandfeel-napkin" % "2.0.0",
@@ -89,6 +90,9 @@ lazy val swing = Project(id = "guarana-swing", base = file("swing"))
     ThisBuild / outputStrategy := Some(StdoutOutput)
   )
   .dependsOn(coreJvm)
+
+lazy val guaranaTheme = Project(id = "theme", base = file("swing/theme"))
+  .dependsOn(swing)
 
 lazy val lwjglVersion = "3.3.0"
 lazy val lwjglClassifier = "natives-linux"

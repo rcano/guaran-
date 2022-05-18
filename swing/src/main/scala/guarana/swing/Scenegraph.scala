@@ -26,9 +26,10 @@ class Scenegraph extends AbstractToolkit {
 
   private val sysMetrics = Var[Stylist.Metrics]("metrics", Stylist.Metrics.NoOp)
   private val fontMetrics = new Stylist.FontMetrics {
-    def ascent(font: Any): Double = java.awt.Toolkit.getDefaultToolkit.unn.getFontMetrics(font.asInstanceOf).getAscent
-    def descent(font: Any): Double = java.awt.Toolkit.getDefaultToolkit.unn.getFontMetrics(font.asInstanceOf).getDescent
-    def stringWidth(font: Any, s: String): Double = java.awt.Toolkit.getDefaultToolkit.unn.getFontMetrics(font.asInstanceOf).unn.charsWidth(s.toCharArray, 0, s.length)
+    val peer = new javax.swing.JPanel()
+    def ascent(font: Any): Double = peer.getFontMetrics(font.asInstanceOf).unn.getAscent
+    def descent(font: Any): Double = peer.getFontMetrics(font.asInstanceOf).unn.getDescent
+    def stringWidth(font: Any, s: String): Double = peer.getFontMetrics(font.asInstanceOf).unn.charsWidth(s.toCharArray, 0, s.length)
   }
   update {
     sysMetrics := Binding.dyn {
@@ -36,7 +37,7 @@ class Scenegraph extends AbstractToolkit {
       Stylist.Metrics(currSize, -1, -1, fontMetrics)
     }
   }
-  def getMetrics(): Stylist.Metrics = stateReader(sysMetrics)
+  def getMetrics(): Stylist.Metrics = stateReader.getOrDefault(sysMetrics)
 
   object awtInputListener extends javax.swing.event.MouseInputListener, java.awt.event.KeyListener {
     // Members declared in java.awt.event.KeyListener

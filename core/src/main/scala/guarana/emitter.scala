@@ -18,8 +18,9 @@ sealed trait Emitter[A] extends util.Unique {
 object Emitter {
   type Aux[A, Instance <: Singleton] = Emitter[A] { type ForInstance = Instance }
 
-  def apply[T]() = new Emitter[T] {
+  def apply[T]()(using inferredName: guarana.util.DeclaringOwner) = new Emitter[T] {
     type ForInstance = this.type
+    override def toString = inferredName.toString
   }
 
   trait Context {

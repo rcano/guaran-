@@ -140,7 +140,6 @@ trait ExternalVar[T] extends Var[T] with ExternalObsVal[T] {
           set(instance.value, t)
           t
         }
-        if (eagerEvaluation) ctx(this) //assume external properties are not reactive, we need to compute this as eagerly as possible
     }
     this
   }

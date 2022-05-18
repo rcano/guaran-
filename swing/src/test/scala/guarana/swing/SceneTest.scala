@@ -33,16 +33,19 @@ import util.UnsetParam
       label,
       Button(text = "Press me!", bounds = Bounds(10, 10, 100, 50)).tap(
         _.actionEvents := EventIterator.foreach { e =>
+          println("pressed")
           presses := presses() + 1
         }
       )
     )
 
     Frame(
-      bounds = Bounds(1300, 300, 300, 300),
+      bounds = Bounds(0, 0, 300, 300),
+      locationByPlatform = true,
       root = root,
       title = "Guarná test",
       visible = true,
+      defaultCloseOperation = 3,
     )
   }
 }

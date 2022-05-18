@@ -1,4 +1,5 @@
-package guarana.swing
+package guarana
+package swing
 package theme
 
 import com.jhlabs.image.*
@@ -7,7 +8,7 @@ import javax.swing._
 import scala.concurrent.duration.DurationInt
 import style.*
 
-class AquaStyle()(using scenegraph: Scenegraph) extends Stylist {
+class AquaStyle() extends Stylist {
   val NoStroke = BasicStroke(0f)
   val NoCorners = CornerRadii.all(0)
   val NoInsets = Insets.all(0)
@@ -43,7 +44,7 @@ class AquaStyle()(using scenegraph: Scenegraph) extends Stylist {
   val cellBackgroundOdd = Background(fills = IArray(BackgroundFill(baseBackgroundColorLowlight, NoCorners, NoInsets)))
   val cellBackgroundOddSelected = Background(fills = IArray(BackgroundFill(baseBackgroundColorLowlight.interp(Color.LightBlue, 0.2), NoCorners, NoInsets)))
 
-  var emDependentSettings: Settings = null
+  var emDependentSettings: Settings | Null = null
 
   /** emSize dependent settings, these are recomputed when the emSize changes */
   class Settings(val emSize: Double) {
@@ -64,44 +65,44 @@ class AquaStyle()(using scenegraph: Scenegraph) extends Stylist {
     val textAreaEmptyBorder = Border(IArray(BorderStroke.simple(baseBackgroundColorHighlight, BasicStroke(emSize.toFloat / 2), NoCorners, Insets.all(emSize/2))))
   }
 
-  def apply[T](prop: Keyed[ObsVal[T]]): Option[T] = {
-    val emSize = scenegraph.stateReader.emSize
-    val info = scenegraph.stateReader
-    if emDependentSettings == null || emDependentSettings.emSize != emSize then emDependentSettings = Settings(emSize)
-    val settings = emDependentSettings
+  def apply[T](metrics: Stylist.Metrics, property: ObsVal[T], instance: Any): AbstractToolkit ?=> Option[T] = {
+    val emSize = metrics.emSize
+    val info = toolkit.stateReader
+    if emDependentSettings.nullFold(_.emSize != emSize, true) then emDependentSettings = Settings(emSize)
+    val settings = emDependentSettings.unn
     import settings._
 
-    val res: Option[?] = prop match
-      case Keyed(CssProperties.Background, _: JRootPane) => Some(rootBackground)
+    val res: Option[?] = (property, instance) match
+      case (CssProperties.Background, _: JRootPane) => Some(rootBackground)
       
-      case Keyed(prop, jb: JButton) =>
+      case (prop, jb: JButton) =>
         jb.getParent match 
           case _: JComboBox[?] =>
             None
           case _ => prop match
-            case CssProperties.Background => Some(if jb.getModel.isPressed then buttonBackgroundArmed else buttonBackground)
+            case CssProperties.Background => Some(if jb.getModel.unn.isPressed then buttonBackgroundArmed else buttonBackground)
             case Node.Foreground => Some(darkBackgroundTextColor)
             case CssProperties.Padding => Some(Insets(left = emSize))
             case CssProperties.Effect => Some(shadowEffect)
             case _ => None
 
-      case Keyed(CssProperties.Background, sb: JScrollBar) => Some(scrollBarBackground)
-      case Keyed(CssProperties.ScrollbarThumbBackground, jb: JScrollBar) => 
-        val prefSize = jb.getPreferredSize
+      case (CssProperties.Background, sb: JScrollBar) => Some(scrollBarBackground)
+      case (CssProperties.ScrollbarThumbBackground, jb: JScrollBar) => 
+        val prefSize = jb.getPreferredSize.unn
         Some(
           Background(fills = IArray(BackgroundFill(baseBackgroundColorShadow, CornerRadii.simple(prefSize.width / 2, prefSize.width / 2, prefSize.width / 2,  prefSize.width / 2), NoInsets)))
         )
 
-      case Keyed(CssProperties.Background, sb: JTextArea) => Some(textAreaBackground)
-      case Keyed(CssProperties.Border, tf: JTextArea) => Some(textAreaEmptyBorder)
-      case Keyed(TextComponent.SelectionColor, _: text.JTextComponent) => Some(baseBackgroundColorShadow)
+      case (CssProperties.Background, sb: JTextArea) => Some(textAreaBackground)
+      case (CssProperties.Border, tf: JTextArea) => Some(textAreaEmptyBorder)
+      case (TextComponent.SelectionColor, _: text.JTextComponent) => Some(baseBackgroundColorShadow)
 
-      case Keyed(CssProperties.Padding, cb: JComboBox[?]) => Some(Insets(0, 0, 0, emSize * 1.15))
+      case (CssProperties.Padding, cb: JComboBox[?]) => Some(Insets(0, 0, 0, emSize * 1.15))
       // case Keyed(CssProperties.Border, cb: JComboBox[?]) => Some(thinBorder)
-      case Keyed(CssProperties.Background, cb: JComboBox[?]) => Some(comboBoxBackground)
+      case (CssProperties.Background, cb: JComboBox[?]) => Some(comboBoxBackground)
 
       //list cell renderer
-      case Keyed(CssProperties.Background, l: JLabel) if info.getOrDefault(CssProperties.Classes.forInstance[l.type])
+      case (CssProperties.Background, l: JLabel) if info.getOrDefault(CssProperties.Classes.forInstance[l.type])
           .contains(guarana.swing.plaf.CssDefaultListRenderer.Class) =>
         val (item, index, selected, focused) = (
           info.getOrDefault(CssProperties.ListCellRendererItem.forInstance[l.type]),
@@ -123,7 +124,7 @@ class AquaStyle()(using scenegraph: Scenegraph) extends Stylist {
 
   def invalidateCache(node: Any) = ()
 
-  def installDefaults(node: Any): Unit = {
+  def installDefaults(node: Any) = {
     // remove opacity for some components
     node match 
       case c: (JButton | JScrollBar) => LookAndFeel.installProperty(c, "opaque", false)
@@ -131,23 +132,23 @@ class AquaStyle()(using scenegraph: Scenegraph) extends Stylist {
 
     node match
       case jsb: JScrollBar =>
-        val s = (scenegraph.stateReader.emSize / 2).toInt
+        val s = (toolkit.getMetrics().emSize / 2).toInt
         if jsb.getOrientation == java.awt.Adjustable.VERTICAL then jsb.setPreferredSize(Dimension(s, Int.MaxValue))
         else jsb.setPreferredSize(Dimension(Int.MaxValue, s))
 
         //set up a hover listener, to do so we need to ensure the scroll bar is initialized
         //in order to use the hovered var
         val c = Component.wrap(jsb)
-        if !Component.isInitialized(c) then Component.init(c)
-        var focusTimer: Timer = null
+        if !Component.isInitialized(c) then Component.init(c)(using toolkit.asInstanceOf[Scenegraph])
+        var focusTimer: Timer | Null = null
         import animation.Timeline, Timeline.*
-        scenegraph.update {
+        toolkit.update {
           val opacity = CssProperties.Opacity.forInstance(c)
           val minOpacity = 0.25
           opacity := minOpacity
           c.varUpdates := EventIterator.foreach {
             case c.hovered(_, hovered) =>
-              if focusTimer != null then focusTimer.stop()
+              focusTimer.?(_.stop())
               if hovered then
                 focusTimer = Timeline(
                   IArray(KeyFrame(250.millis, opacity, minOpacity, 1, EaseBothCurve)),
@@ -160,7 +161,7 @@ class AquaStyle()(using scenegraph: Scenegraph) extends Stylist {
                   2,
                   ups = 30
                 )
-              focusTimer.start()
+              focusTimer.unn.start()
             case opacity(_, op) => jsb.repaint()
             case _ =>
           }
@@ -168,5 +169,5 @@ class AquaStyle()(using scenegraph: Scenegraph) extends Stylist {
       case _ =>
   }
   
-  def uninstallDefaults(node: Any): Unit = ()
+  def uninstallDefaults(node: Any) = ()
 }

@@ -1228,7 +1228,7 @@ case object Combobox extends NodeDescr(
     SwingProp("renderer", "javax.swing.ListCellRenderer[_ >: E]", "_.getRenderer.nn", "(c, r) => c.setRenderer(r.asInstanceOf)", overrideTpeInStaticPos = Some("javax.swing.ListCellRenderer[?]")),
     SwingProp("selectedIndex", "Int"),
     SwingProp("selectedItem", "Option[E]", "{c => val v = c.getSelectedItem; if (v != null) Some(v) else None}", "_.setSelectedItem(_)", overrideTpeInStaticPos = Some("Option[?]")),
-    SwingProp("items", "Seq[E]", "{c => val m = c.getModel.nn; (0 until m.getSize).map(m.getElementAt(_).asInstanceOf)}",
+    SwingProp("items", "Seq[E]", "{c => val m = c.getModel.nn; (0 until m.getSize).map(m.getElementAt(_).asInstanceOf[Object])}",
       "(c, i) => c.setModel(DefaultComboBoxModel(i.toArray.asInstanceOf[Array[Object | Null]]).asInstanceOf)", overrideTpeInStaticPos = Some("Seq[Any]")),
   ),
   opsExtra = Seq(
@@ -1279,7 +1279,7 @@ case object Spinner extends NodeDescr(
     SwingProp("value", "E", "_.getValue", "_.setValue(_)", overrideTpeInStaticPos = Some("Any")),
   ),
   initExtra = """
-    |val cl: ChangeListener = evt => sc.update(summon[VarContext].externalPropertyUpdated(ops.value(v), v.getValue.asInstanceOf))
+    |val cl: ChangeListener = evt => sc.update(summon[VarContext].externalPropertyUpdated(ops.value(v), Some(v.getValue.asInstanceOf[E])))
     |v.addChangeListener(cl)
     """.trim.nn.stripMargin.split("\n").asInstanceOf[Array[String]].toIndexedSeq
 )

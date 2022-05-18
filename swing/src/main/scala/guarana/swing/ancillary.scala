@@ -28,7 +28,7 @@ trait VarsMap {
     VarsMap.get(property) foreach {
       case sv: SwingVar[t] =>
         if (debug) println("  found swing var")
-        sg.update(summon[VarContext].externalPropertyUpdated(sv, Some(evt.unn.getNewValue.asInstanceOf[t]))(using ValueOf(instance.asInstanceOf[sv.ForInstance])))
+        sg.update(summon[VarContext].externalPropertyUpdated(sv, Some(evt.unn.getOldValue.asInstanceOf[t]))(using ValueOf(instance.asInstanceOf[sv.ForInstance])))
     }
   }: java.beans.PropertyChangeListener
 }

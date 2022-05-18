@@ -42,7 +42,7 @@ object Spinner extends VarsMap {
   def init[E](v: Spinner[E]): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
     Component.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
-    val cl: ChangeListener = evt => sc.update(summon[VarContext].externalPropertyUpdated(ops.value(v), v.getValue.asInstanceOf))
+    val cl: ChangeListener = evt => sc.update(summon[VarContext].externalPropertyUpdated(ops.value(v), Some(v.getValue.asInstanceOf[E])))
     v.addChangeListener(cl)
     
   }

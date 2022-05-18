@@ -14,16 +14,25 @@ type ToolkitAction[+R] = VarContext & Emitter.Context ?=> R
 abstract class AbstractToolkit {
 
   type Signal[+T] = ObsVal[T]
-  private val switchboard = SignalSwitchboard[Signal](
-    reporter,
-    new SignalSwitchboard.SignalDescriptor[Signal] {
-      def isExternal[T](s: Keyed[ObsVal[T]]): Boolean = externalVars.contains(s.keyId)
-      def getExternal[T](s: Keyed[ObsVal[T]]): T =
-        val data = instanceVars.get(s.instanceId).unn
-        val instance = data.instance
-        seenVars.get(s.keyId).asInstanceOf[ExternalObsVal[T] { type ForInstance = instance.type }].get(instance)
+
+  private val signalDescriptor = new SignalSwitchboard.SignalDescriptor[Signal] {
+    def isExternal[T](s: Keyed[ObsVal[T]]): Boolean = externalVars.contains(s.keyId)
+    def getExternal[T](s: Keyed[ObsVal[T]]): T =
+      val data = instanceVars.get(s.instanceId).unn
+      val instance = data.instance
+      seenVars.get(s.keyId).asInstanceOf[ExternalObsVal[T] { type ForInstance = instance.type }].get(instance)
+
+    def describe[T](s: Keyed[ObsVal[T]]): String = {
+      val data = instanceVars.get(s.instanceId).unn
+      val theVar = seenVars.get(s.keyId)
+      val instanceDescr = data.instance.toString match {
+        case s if s.length < 30 => s
+        case s => s.take(27) + "..."
+      }
+      s"$instanceDescr: $theVar"
     }
-  )
+  }
+  private val switchboard = SignalSwitchboard[Signal](reporter, signalDescriptor)
   private val emitterStation = EmitterStation()
   case class InstanceData(instance: Any, vars: IntHashSet, emitters: IntHashSet)
   private val instanceVars = new Int2ObjectHashMap[InstanceData]()
@@ -34,6 +43,7 @@ abstract class AbstractToolkit {
 
   protected def isOnToolkitThread(): Boolean
   protected def runOnToolkitThread(r: () => Any): Unit
+
   /** Reads the Metrics for the system */
   def getMetrics(): Stylist.Metrics
 
@@ -102,7 +112,7 @@ abstract class AbstractToolkit {
       seenVars.get(s.keyId) match {
         case v: Var[_] if v.eagerEvaluation =>
           withContext { ctx =>
-            reactingToVar(s) { ctx.switchboard(s) }
+            reactingToVar(s) { ctx.switchboard.get(s) }
           }
         case _ =>
       }
@@ -126,7 +136,8 @@ abstract class AbstractToolkit {
         given Emitter.Context = ctx
         // FIXME: broken api
         val data = instanceVars.get(s.instanceId).unn
-        if emitterStation.hasEmitter(data.instance.varUpdates) then
+        val instance = data.instance
+        if emitterStation.hasListeners(instance.varUpdates) then
           seenVars.get(s.keyId).?(v => ctx.emit(data.instance.varUpdates, VarValueChanged(v, data.instance, oldValue, newValue)))
       // instanceVars.get(s.keyId).?((instance, _) => ctx.emit(instance.varUpdates, VarValueChanged(s, oldValue, newValue)))
       }
@@ -147,6 +158,7 @@ abstract class AbstractToolkit {
           val emitters = new IntHashSet(4)
           val data = InstanceData(instance, vars, emitters)
           instanceVars.put(instanceId, data)
+          // format: off
           cleaner.register(
             instance,
             () => instanceVars.remove(instanceId).?(data =>
@@ -154,6 +166,7 @@ abstract class AbstractToolkit {
               data.emitters.fastForeach(v => emitterStation.remove(Keyed.raw(v, instanceId)))
             )
           )
+          // format: on
           data
 
         case data: InstanceData => data
@@ -166,7 +179,9 @@ abstract class AbstractToolkit {
 
     def apply[T](v: ObsVal[T])(using instance: ValueOf[v.ForInstance]): T = {
       recordVarUsage(v)
-      switchboard.get(v).getOrElse(stylist(getMetrics(), v, instance.value)(using AbstractToolkit.this) getOrElse v.initialValue(instance.value))
+      switchboard
+        .get(v)
+        .getOrElse(stylist(getMetrics(), v, instance.value)(using AbstractToolkit.this) getOrElse v.initialValue(instance.value))
     }
     def update[T](v: Var[T], binding: Binding[T])(using instance: ValueOf[v.ForInstance]): Unit = {
       recordVarUsage(v)
@@ -177,7 +192,7 @@ abstract class AbstractToolkit {
     }
     def externalPropertyUpdated[T](v: ObsVal[T], oldValue: Option[T])(using instance: ValueOf[v.ForInstance]): Unit = {
       recordVarUsage(v)
-      if (!reactingExtVars.contains(v)) {
+      if (!reactingExtVars.contains(ObsVal.obs2Keyed(v).id)) {
         switchboard.externalPropertyChanged(v, oldValue)
       }
     }
@@ -212,7 +227,9 @@ abstract class AbstractToolkit {
     /** Read the current value of ObsVal as it is read by doing `prop()` within a VarContext */
     def apply[T](v: ObsVal[T])(using instance: ValueOf[v.ForInstance]): T = {
       val keyed: Keyed[ObsVal[T]] = v
-      switchboard.get(keyed) getOrElse (stylist(getMetrics(), v, instance.value)(using AbstractToolkit.this) getOrElse v.initialValue(instance.value))
+      switchboard.get(keyed) getOrElse (stylist(getMetrics(), v, instance.value)(using AbstractToolkit.this) getOrElse v.initialValue(
+        instance.value
+      ))
     }
 
     /** Reads the stored value of the property, if any. */
@@ -225,6 +242,7 @@ abstract class AbstractToolkit {
       switchboard.get(property).getOrElse(property.initialValue(instance.value))
 
     def hasEmitter[A](emitter: Emitter[A])(using v: ValueOf[emitter.ForInstance]): Boolean = emitterStation.hasEmitter(emitter)
+    def hasListeners[A](emitter: Emitter[A])(using v: ValueOf[emitter.ForInstance]): Boolean = emitterStation.hasListeners(emitter)
   }
 
 }

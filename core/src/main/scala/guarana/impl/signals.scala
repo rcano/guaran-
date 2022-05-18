@@ -93,10 +93,9 @@ private[impl] class SignalSwitchboardImpl[Signal[+T] <: util.Unique](
         signalRels.get(s.id).?(_.dependents fastForeach (e => remove(Keyed(e)))) //when recomputing the value, we gotta undo all the dependents
 
         val tracker = new TrackingContext(s)
-        if (oldv != null)//before computing the value, we set the signalState to the oldValue in case the compute lambda has a self reference
-          signalStates.put(s.id, Value(oldv))
-        else
-          signalStates.remove(s.id)
+        // before computing the value, we set the signalState to the oldValue in case the compute lambda has a self reference
+        if (oldv != null) signalStates.put(s.id, Value(oldv))
+        else signalStates.remove(s.id)
         val result = signalEvaluator.get(s.id).asInstanceOf[Compute[Signal]].f(tracker)
         signalStates.put(s.id, Value(result))
 
@@ -110,7 +109,6 @@ private[impl] class SignalSwitchboardImpl[Signal[+T] <: util.Unique](
             signalDeps.put(dep, deps)
           deps add s.id
         )
-        // for (dep <- tracker.dependencies) signalDeps(dep) = signalDeps(dep) + s
 
         if (result != oldv)
           reporter.signalUpdated(this, s, Option(oldv), result, computedRels.dependencies, computedRels.dependents)
@@ -141,8 +139,10 @@ private[impl] class SignalSwitchboardImpl[Signal[+T] <: util.Unique](
   }
 
   def externalPropertyChanged[T](s: Keyed[Signal[T]], oldValue: Option[T]): Unit =
-    unbindPrev(s)
-    signalStates.put(s.id, External)
+    // an external change doesn't mean a voluntary (by the user) change on the behavior of the signal (whether compute or set)
+    // so we don't unbind its current state and instead just propagate the signal invalidation, unless there is no current state, in
+    // which case it means the external signal was never observed, and we need to setup an initial state so signal propagation works
+    if !signalStates.containsKey(s.id) then signalStates.put(s.id, External)
     propagateSignal(None)(s)
     reporter.signalUpdated(this, s, oldValue, signalDescriptor.getExternal(s), EmptyUnmodifiableLongHashSet, EmptyUnmodifiableLongHashSet)
   
@@ -154,7 +154,7 @@ private[impl] class SignalSwitchboardImpl[Signal[+T] <: util.Unique](
   }
 
   private def propagateSignal(parent: Option[Keyed[Signal[Any]]])(s: Keyed[Signal[Any]]): Unit = {
-    //due to how propagating signal works, where the set of dependencies is iterated, it is entirely possible to find during
+    // due to how propagating signal works, where the set of dependencies is iterated, it is entirely possible to find during
     // the iteration a signal that was removed, hence why we check here if that's the case by checking the state
     if !signalStates.containsKey(s.id) then return
 
@@ -168,6 +168,7 @@ private[impl] class SignalSwitchboardImpl[Signal[+T] <: util.Unique](
     }
     signalDeps.get(s.id).?(_.fastForeach(l => propagateSignal(Some(s))(Keyed(l))))
 
+    // report at the end of the process, so that all of `s` dependencies get reported and invalidated first
     reporter.signalInvalidated(this, s)
   }
 
@@ -183,7 +184,6 @@ private[impl] class SignalSwitchboardImpl[Signal[+T] <: util.Unique](
             deps fastForeach (dep =>
               signalDeps.get(dep).?(_.remove(s.id))
             )
-            // for (dep <- deps) signalDeps(dep) = signalDeps(dep) - s
         }
       case _ => 
     }
@@ -257,6 +257,7 @@ object SignalSwitchboard {
   trait SignalDescriptor[Signal[+T] <: util.Unique] {
     def isExternal[T](s: Keyed[Signal[T]]): Boolean
     def getExternal[T](s: Keyed[Signal[T]]): T
+    def describe[T](s: Keyed[Signal[T]]): String
   }
 
   def apply[Signal[+T] <: util.Unique](reporter: Reporter[Signal], signalDescriptor: SignalDescriptor[Signal]): SignalSwitchboard[Signal] =
