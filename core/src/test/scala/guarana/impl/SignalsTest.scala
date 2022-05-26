@@ -33,6 +33,8 @@ class SignalsTest extends AnyFunSuite {
   val signalDescriptor = new SignalSwitchboard.SignalDescriptor[Signal] {
     def isExternal[T](s: Keyed[Signal[T]]) = false
     def getExternal[T](s: Keyed[Signal[T]]) = ???
+    def describe[T](s: Keyed[Signal[T]]): String = s.id.toHexString
+
   }
 
   test("simple signal propagation") {
