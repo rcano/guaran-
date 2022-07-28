@@ -18,9 +18,9 @@ trait Effect:
 object EffectCompiler {
 
   def compile(particle: ParticleDescr): ParticleLike = {
-    makeParticleLike(particle, Scaffeine().build())
+    makeParticleLike(particle, collection.mutable.Map.empty)
   }
-  private def makeParticleLike(particle: ParticleDescr, cache: Cache[ParticleCacheKey, skija.Image]): ParticleLike = {
+  private def makeParticleLike(particle: ParticleDescr, cache: collection.mutable.Map[ParticleCacheKey, skija.Image]): ParticleLike = {
     val instance = ParticleInstance(
       particle.image,
       particle.duration().toMillis,
@@ -101,9 +101,7 @@ object EffectCompiler {
   ) extends Updateable,
         Renderable {
 
-    private val particlesCache: Cache[ParticleCacheKey, skija.Image] = Scaffeine()
-      .expireAfterAccess(30.seconds)
-      .build()
+    private val particlesCache = collection.mutable.HashMap.empty[ParticleCacheKey, skija.Image]
     private val particleSpawners = emitterDescr.particles.map(Spawner(_))
     private val liveParticles = new collection.mutable.HashSet[ParticleHandler]()
 
@@ -303,7 +301,7 @@ object EffectCompiler {
       val underlying: ParticleInstance,
       val snapshots: Int,
       val insets: Insets,
-      val particlesCache: Cache[ParticleCacheKey, skija.Image]
+      val particlesCache: collection.mutable.Map[ParticleCacheKey, skija.Image]
   ) extends Updateable,
         Renderable,
         ParticleLike {
@@ -337,9 +335,9 @@ object EffectCompiler {
       val at = (totalElapsedNanos.toDouble / durationInNanos).min(1.0)
       val ord = (totalElapsedNanos.toDouble / snapshotTimeNanos).toInt.min(1)
 
-      val image = particlesCache.get(
+      val image = particlesCache.getOrElseUpdate(
         (underlying.particle, underlying.colorFilter, underlying.imageFilter, underlying.shaders, underlying.blur, underlying.alpha, ord),
-        _ => takeSnapshot(ord)
+        takeSnapshot(ord)
       )
 
       canvas.save()

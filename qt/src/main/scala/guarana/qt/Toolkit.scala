@@ -18,7 +18,7 @@ object Toolkit extends AbstractToolkit {
     qtAppInstance
     r()
 
-  def getMetrics(): guarana.Stylist.Metrics = ???
+  def getMetrics(): guarana.Stylist.Metrics = guarana.Stylist.Metrics.NoOp
 
   type VarToSignalType[T] = T match {
     case Int => java.lang.Integer

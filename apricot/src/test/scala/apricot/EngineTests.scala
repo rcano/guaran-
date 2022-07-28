@@ -1,7 +1,7 @@
 package apricot
 
 import com.codahale.metrics.ConsoleReporter
-import guarana.{unn, AbstractToolkit}
+import guarana.{unn, AbstractToolkit, Stylist}
 import guarana.animation.ScriptDsl.{given, *}
 import io.github.humbleui.skija.Surface
 import scala.concurrent.duration.*
@@ -19,6 +19,8 @@ val NullOffscreenSurfaceFactory = new ApricotEngine.OffscreenSurfaceFactory {
 val HeadlessToolkit = new AbstractToolkit {
   protected def isOnToolkitThread() = true
   protected def runOnToolkitThread(r: () => Any): Unit = r()
+  
+  def getMetrics(): Stylist.Metrics = Stylist.Metrics.NoOp
 }
 
 @main def WorkersTest: Unit = {

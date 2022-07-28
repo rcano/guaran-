@@ -4,7 +4,7 @@ inThisBuild(
   Seq(
     organization := "guarana",
     version := "0.0.1-SNAPSHOT",
-    scalaVersion := "3.1.2",
+    scalaVersion := "3.2.0-RC1",
     fork := true,
     libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.9" % "test",
     Compile / packageDoc / publishArtifact := false,

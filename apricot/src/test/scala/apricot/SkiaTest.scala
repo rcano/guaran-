@@ -21,6 +21,8 @@ object SkiaTest {
   val tk = new AbstractToolkit {
     def isOnToolkitThread() = true
     def runOnToolkitThread(f: () => Any): Unit = f()
+    def getMetrics(): Stylist.Metrics = Stylist.Metrics.NoOp
+
   }
   val textPosition = Var.autoName[Double](0)
   val circleCentre = Var.autoName[(Double, Double)]((0, 0))

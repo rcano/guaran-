@@ -20,6 +20,8 @@ import apricot.tools.GlfwWindow
 
     protected def isOnToolkitThread(): Boolean = Thread.currentThread == mainThread
     protected def runOnToolkitThread(r: () => Any): Unit = engine.onNextFrame(r())
+    def getMetrics(): Stylist.Metrics = Stylist.Metrics.NoOp
+
   })
 
   val window = engine.tk.update {
