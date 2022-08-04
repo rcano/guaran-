@@ -1,6 +1,8 @@
 package apricot
+package skia
 package effects
 
+import apricot.graphics.GraphicsStack
 import com.github.blemale.scaffeine.{Cache, Scaffeine}
 import guarana.*
 import guarana.util.Anchor
@@ -65,11 +67,11 @@ object EffectCompiler {
     object effectUpdateable extends Updateable, Renderable {
 
       def updateImpl(currentTimeNanos: Long, elapsed: Long): Unit = effect.? { effect => effect.update(currentTimeNanos) }
-      def render(surface: skija.Surface, canvas: skija.Canvas): Unit = effect.? { effect =>
-        canvas.save()
-        canvas.translate(location._1.toFloat, location._2.toFloat)
-        effect.render(surface, canvas)
-        canvas.restore()
+      def render(graphicsStack: GraphicsStack, gContext: graphicsStack.GraphicsContext): Unit = effect.? { effect =>
+        // canvas.save()
+        // canvas.translate(location._1.toFloat, location._2.toFloat)
+        // effect.render(surface, canvas)
+        // canvas.restore()
       }
     }
   }
@@ -109,8 +111,8 @@ object EffectCompiler {
       liveParticles foreach (_.updateElapsed(elapsed))
       particleSpawners foreach (_.update(currentTimeNanos))
     }
-    def render(surface: skija.Surface, canvas: skija.Canvas): Unit = {
-      liveParticles foreach (_.render(surface, canvas))
+    def render(graphicsStack: GraphicsStack, gContext: graphicsStack.GraphicsContext): Unit = {
+      liveParticles foreach (_.render(graphicsStack, gContext))
     }
 
     private class ParticleHandler(val particleInstance: ParticleLike, onDead: (ParticleHandler) => Unit) {
@@ -128,11 +130,11 @@ object EffectCompiler {
         if (isDead) onDead(this)
       }
       def isDead: Boolean = particleInstance.durationInNanos < totalElapsedNanos
-      def render(surface: skija.Surface, canvas: skija.Canvas): Unit = {
+      def render(graphicsStack: GraphicsStack, gContext: graphicsStack.GraphicsContext): Unit = {
         particleInstance.setTimeAt(totalElapsedNanos)
         particleInstance.startX = startX
         particleInstance.startY = startY
-        particleInstance.render(surface, canvas)
+        particleInstance.render(graphicsStack, gContext)
       }
       override val toString = s"Particle@${Integer.toHexString(hashCode)}[$particleInstance]"
     }
@@ -234,7 +236,7 @@ object EffectCompiler {
         Renderable,
         ParticleLike {
     val paint = new skija.Paint()
-    def render(surface: skija.Surface, canvas: skija.Canvas): Unit = {
+    def render(graphicsStack: GraphicsStack, gContext: graphicsStack.GraphicsContext): Unit = {
       val at = (totalElapsedNanos.toDouble / durationInNanos).min(1.0) // can't go beyond 1.0
       paint.reset()
       blendMode.?(c => paint.setBlendMode(c(at)))
@@ -244,24 +246,24 @@ object EffectCompiler {
       alpha.?(c => paint.setAlphaf(c(at).toFloat))
 
       //positioning must happen _before_ transformation is applied, otherwise it will be wonky
-      canvas.save()
-      val (x, y) = positionCurve.nullFold(_(at), (0.0, 0.0))
-      canvas.translate(startX.toFloat + x.toFloat, startY.toFloat + y.toFloat)
+      // canvas.save()
+      // val (x, y) = positionCurve.nullFold(_(at), (0.0, 0.0))
+      // canvas.translate(startX.toFloat + x.toFloat, startY.toFloat + y.toFloat)
 
-      transformation.?(c =>
-        val tr = skija.Matrix33
-          .makeTranslate(particle.getWidth / 2.0f, particle.getHeight / 2.0f)
-          .makeConcat(c(at))
-          .makeConcat(skija.Matrix33.makeTranslate(-particle.getWidth / 2.0f, -particle.getHeight / 2.0f))
-        canvas.concat(tr)
-      )
-      blur.?(c =>
-        val blurStrenght = c(at)
-        val maskFilter = skija.MaskFilter.makeBlur(skija.FilterBlurMode.NORMAL, blurStrenght.toFloat)
-        paint.setMaskFilter(maskFilter)
-      )
-      canvas.drawImage(particle, 0, 0, paint)
-      canvas.restore()
+      // transformation.?(c =>
+      //   val tr = skija.Matrix33
+      //     .makeTranslate(particle.getWidth / 2.0f, particle.getHeight / 2.0f)
+      //     .makeConcat(c(at))
+      //     .makeConcat(skija.Matrix33.makeTranslate(-particle.getWidth / 2.0f, -particle.getHeight / 2.0f))
+      //   canvas.concat(tr)
+      // )
+      // blur.?(c =>
+      //   val blurStrenght = c(at)
+      //   val maskFilter = skija.MaskFilter.makeBlur(skija.FilterBlurMode.NORMAL, blurStrenght.toFloat)
+      //   paint.setMaskFilter(maskFilter)
+      // )
+      // canvas.drawImage(particle, 0, 0, paint)
+      // canvas.restore()
     }
 
     private[EffectCompiler] def resetTo(
@@ -326,12 +328,12 @@ object EffectCompiler {
     def takeSnapshot(ord: Int): skija.Image = {
       canvas.clear(0x00000000)
       underlying.setTimeAt(snapshotTimeNanos * ord)
-      underlying.render(offscreenCanvas, canvas)
+      // underlying.render(offscreenCanvas, canvas)
       offscreenCanvas.makeImageSnapshot().nn
     }
 
     val paint = skija.Paint()
-    def render(surface: skija.Surface, canvas: skija.Canvas): Unit = {
+    def render(graphicsStack: GraphicsStack, gContext: graphicsStack.GraphicsContext): Unit = {
       val at = (totalElapsedNanos.toDouble / durationInNanos).min(1.0)
       val ord = (totalElapsedNanos.toDouble / snapshotTimeNanos).toInt.min(1)
 

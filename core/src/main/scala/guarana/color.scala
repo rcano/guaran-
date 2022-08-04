@@ -933,7 +933,35 @@ trait ColorLike[C] {
   def apply(r: Float, g: Float, b: Float, a: Float = 1f): C
   def rgba(r: Int, g: Int, b: Int, a: Int = 255): C
   def argb(argb: Int): C
-  def hsb(hue: Double, saturation: Double, brightness: Double): C
+
+  /** Sets the RGB Color components using the specified Hue-Saturation-Brightness/Value. Note that HSB components are voluntary not clamped
+	  * to preserve high range color and can range beyond typical values.
+	  * @param h The Hue in degree from 0 to 360
+	  * @param s The Saturation from 0 to 1
+	  * @param v The Value (brightness) from 0 to 1
+	  * @return The color.
+    */
+  def hsb(hue: Double, saturation: Double, brightness: Double): C = {
+    // code taken from libgdx's Color class
+    val x = ((hue / 60f + 6) % 6)
+    val i = x.toInt
+    val f = x - i
+    inline def clamp(v: Float): Float = if v < 0 then 0 else if v > 1 then 1 else v
+    val p = clamp((brightness * (1 - saturation)).toFloat)
+    val q = clamp((brightness * (1 - saturation * f)).toFloat)
+    val t = clamp((brightness * (1 - saturation * (1 - f))).toFloat)
+    val v = clamp(brightness.toFloat)
+    i match {
+      case 0 => apply(v, t, p)
+      case 1 => apply(q, v, p)
+      case 2 => apply(p, v, t)
+      case 3 => apply(p, q, v)
+      case 4 => apply(t, p, v)
+      case _ => apply(v, q, p)
+    }
+  }
+
+  inline def hsv(hue: Double, saturation: Double, value: Double): C = hsb(hue, saturation, value)
   def web(code: String): C = 
     if (code.startsWith("#")) argb(0xFF << 24 | java.lang.Integer.parseInt(code.substring(1), 16)) 
     else throw new IllegalArgumentException("Invalid web code, it should start with #")

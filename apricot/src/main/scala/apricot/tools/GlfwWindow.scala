@@ -2,42 +2,24 @@ package apricot
 package tools
 
 import guarana.*
-import io.github.humbleui.skija.{
-  BackendRenderTarget,
-  Canvas,
-  ColorSpace,
-  DirectContext,
-  FramebufferFormat,
-  Surface,
-  SurfaceColorFormat,
-  SurfaceOrigin
-}
-import org.lwjgl.glfw.*, GLFW.*
+import org.lwjgl.glfw.*
 import org.lwjgl.opengl.*
 import org.lwjgl.system.MemoryUtil.*
 import scala.compiletime.uninitialized
 
-class GlfwWindow(engine: ApricotEngine[? <: AbstractToolkit])(using tk: AbstractToolkit) {
+import GLFW.*
+
+class GlfwWindow(val engine: ApricotEngine[? <: AbstractToolkit], windowHints: Map[Int, Int] = Map.empty)(using val tk: AbstractToolkit) {
   import GlfwWindow.*
 
   val windowHandle = {
     GlfwWindow // init statics
     glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE)
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE)
+    windowHints.foreach(glfwWindowHint(_, _))
     glfwCreateWindow(100, 100, "", NULL, NULL)
   }
   require(windowHandle != NULL, "window creation failed")
-
-  val glCapabilities = {
-    glfwMakeContextCurrent(windowHandle)
-    GL.createCapabilities()
-  }
-
-  // Create Skia OpenGL context
-  // Do once per app launch
-  val skiaContext = DirectContext.makeGL()
-  private var surface: Surface | Null = null
-  private var canvas: Canvas = uninitialized
 
   private inline given ValueOf[this.type] = ValueOf(this)
 
@@ -52,7 +34,6 @@ class GlfwWindow(engine: ApricotEngine[? <: AbstractToolkit])(using tk: Abstract
 
   private val windowPosListener: GLFWWindowPosCallbackI = (_, x, y) => tk.update(summon[VarContext].externalPropertyUpdated(position, None))
   private val windowSizeListener: GLFWWindowSizeCallbackI = (_, w, h) => {
-    updateSurface(w, h)
     tk.update(summon[VarContext].externalPropertyUpdated(size, None))
   }
   private val windowIconifiedListener: GLFWWindowIconifyCallbackI = (_, b) =>
@@ -72,7 +53,9 @@ class GlfwWindow(engine: ApricotEngine[? <: AbstractToolkit])(using tk: Abstract
       summon[Emitter.Context].emit(mouseEvents, MouseEvent.Moved(x, y))
     }
   private val windowMouseButtonListener: GLFWMouseButtonCallbackI = (_, btn, action, mods) =>
-    tk.update(summon[Emitter.Context].emit(mouseEvents, MouseEvent.Button(btn.asInstanceOf, InputAction.of(action).asInstanceOf, mods.asInstanceOf)))
+    tk.update(
+      summon[Emitter.Context].emit(mouseEvents, MouseEvent.Button(btn.asInstanceOf, InputAction.of(action).asInstanceOf, mods.asInstanceOf))
+    )
   private val windowScrollListener: GLFWScrollCallbackI = (_, xoffset, yoffset) =>
     tk.update(summon[Emitter.Context].emit(mouseEvents, MouseEvent.Scrolled(xoffset, yoffset)))
   private val windowFocusListener: GLFWWindowFocusCallbackI = (_, focused) => tk.update(this.focused := focused)
@@ -109,25 +92,7 @@ class GlfwWindow(engine: ApricotEngine[? <: AbstractToolkit])(using tk: Abstract
 
   def isKeyDown(key: GlfwInput.Keyboard.Key): Boolean = glfwGetKey(windowHandle, key) == GLFW_PRESS
 
-  private def updateSurface(width: Int, height: Int): Unit = {
-    scribe.debug(s"Resizing skia surface to $width x $height")
-    // Create render target, surface and retrieve canvas from it
-    val fbId = GL11.glGetInteger(GL30.GL_FRAMEBUFFER_BINDING)
-
-    val renderTarget = BackendRenderTarget.makeGL(width, height, /*samples*/ 0, /*stencil*/ 8, fbId, FramebufferFormat.GR_GL_RGBA8)
-
-    surface.?(_.close())
-
-    surface = Surface.makeFromBackendRenderTarget(
-      skiaContext,
-      renderTarget,
-      SurfaceOrigin.BOTTOM_LEFT,
-      SurfaceColorFormat.RGBA_8888,
-      ColorSpace.getSRGB()
-    )
-    canvas = surface.unn.getCanvas()
-    engine.setRenderingSurface(surface.unn, canvas)
-  }
+  override def toString = s"GlfwWindow(handle=${windowHandle.toHexString}, title=${tk.stateReader(title)})"
 }
 
 object GlfwWindow {
@@ -166,53 +131,4 @@ object GlfwWindow {
   private def setWindowIconified(w: GlfwWindow, iconified: Boolean): Unit =
     if (iconified) glfwIconifyWindow(w.windowHandle)
     else glfwRestoreWindow(w.windowHandle)
-  object GlfwOffscreenOglContextFactory extends ApricotEngine.OffscreenSurfaceFactory {
-    class GlfwHandle(
-        val surface: Surface,
-        private[GlfwOffscreenOglContextFactory] val window: Long,
-        private[GlfwOffscreenOglContextFactory] val context: DirectContext,
-    ) extends HandleLike {
-      def makeCurrent() = glfwMakeContextCurrent(window)
-    }
-    type Handle = GlfwHandle
-
-    def create(width: Int, height: Int): Handle = {
-      val currentFbo = GL11.glGetInteger(GL30.GL_FRAMEBUFFER_BINDING)
-      scribe.debug(s"main window fbid = ${currentFbo}")
-
-      glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE)
-      glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE)
-      glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE)
-      glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_FALSE)
-      val windowHandle = glfwCreateWindow(width, height, "offscreen", NULL, NULL)
-
-      glfwMakeContextCurrent(windowHandle)
-      val capabilities = GL.createCapabilities()
-      glfwSwapInterval(0)
-
-      val skiaContext = DirectContext.makeGL()
-      val fbId = GL11.glGetInteger(GL30.GL_FRAMEBUFFER_BINDING)
-
-      scribe.debug(s"new fbid = ${fbId}")
-
-      val renderTarget = BackendRenderTarget.makeGL(width, height, /*samples*/ 0, /*stencil*/ 8, fbId, FramebufferFormat.GR_GL_RGBA8)
-
-      val surface = Surface.makeFromBackendRenderTarget(
-        skiaContext,
-        renderTarget,
-        SurfaceOrigin.BOTTOM_LEFT,
-        SurfaceColorFormat.RGBA_8888,
-        ColorSpace.getSRGB()
-      )
-
-      // GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, currentFbo)
-
-      GlfwHandle(surface, windowHandle, skiaContext)
-    }
-    def destroy(handle: Handle): Unit =
-      handle.makeCurrent()
-      handle.surface.close()
-      handle.context.close()
-      glfwDestroyWindow(handle.window)
-  }
 }

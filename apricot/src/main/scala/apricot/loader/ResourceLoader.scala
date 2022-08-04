@@ -1,9 +1,9 @@
 package apricot
 package loader
 
-import apricot.resource.*
-import io.github.humbleui.skija.Image
 import guarana.animation.ScriptEngine
+import apricot.graphics.GraphicsStack
+import apricot.resource.*
 
 trait ResourceLoader[Type <: Resource.Type]:
   type Out
@@ -21,12 +21,6 @@ object ResourceLoader {
     def unload(r: Resource, s: String) = ()
 
 
-  given ResourceLoader[Resource.Type.Image] with
-    type Out = IArray[Image]
-    def load(r: Resource, content: Resource.Content) = 
-      content.map(part => Image.makeFromEncoded(part.content.asInstanceOf[Array[Byte]]))
-    def unload(r: Resource, i: Out) = i.foreach(_.close())
-
   given (ResourceLoader[Resource.Type.DynamicScript] { type Out = DynamicScript }) = new ByteCodeLoader[Resource.Type.DynamicScript]:
     type Out = DynamicScript
     def load(r: Resource, content: Resource.Content) = loadInstance[DynamicScript](r, content(0).content.asInstanceOf[Array[Byte]])
@@ -37,5 +31,9 @@ object ResourceLoader {
     def load(r: Resource, content: Resource.Content) = loadInstance[DynamicRenderable](r, content(0).content.asInstanceOf[Array[Byte]])
     def unload(r: Resource, renderable: DynamicRenderable) = unloadInstance(r, renderable)
 
-  given (using ScriptEngine): ResourceLoader.Aux[Resource.Type.Animation, Animation] = AnimationLoader()
+  given (using
+      se: ScriptEngine,
+      gs: GraphicsStack,
+      il: ResourceLoader[Resource.Type.Image] { type Out = IArray[gs.Image] }
+  ): ResourceLoader.Aux[Resource.Type.Animation, Animation] = AnimationLoader()
 }

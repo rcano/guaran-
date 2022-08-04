@@ -1,19 +1,18 @@
 package apricot
 
 import guarana.util.cfor
-import io.github.humbleui.skija.*
+import apricot.graphics.GraphicsStack
 import scala.collection.mutable.ArrayBuffer
 
-class Layer(val name: String) {
+/** Base definition of a Layer. Can be extended to overwrite draw and apply pre and post effects.
+  */
+open class Layer(val name: String) {
   val renderables = new ArrayBuffer[Renderable](128)
-  var blendMode: Paint | Null = null
 
-  def draw(surface: Surface, canvas: Canvas): Unit = {
-    if blendMode != null then canvas.saveLayer(0, 0, 0, 0, blendMode)
+  def draw(graphicsStack: GraphicsStack, gContext: graphicsStack.GraphicsContext): Unit = {
     cfor(0, _ < renderables.length) { i =>
-      renderables(i).render(surface, canvas)
+      renderables(i).render(graphicsStack, gContext)
       i + 1
     }
-    if blendMode != null then canvas.restore()
   }
 }

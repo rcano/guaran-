@@ -4,30 +4,42 @@ import com.codahale.metrics.{Gauge, MetricRegistry}
 import guarana.*
 import guarana.animation.ScriptEngine
 import guarana.util.cfor
-import io.github.humbleui.skija.{Canvas, Drawable, Surface}
 import java.util.concurrent.locks.LockSupport
 import java.util.ServiceLoader
 import scala.annotation.threadUnsafe
+import scala.annotation.unchecked.uncheckedStable
 import scala.concurrent.duration._
 import scala.util.chaining.*
+import apricot.graphics.GraphicsStack
+import apricot.tools.GlfwWindow
 
 class ApricotEngine[Tk <: AbstractToolkit](
     val devMode: Boolean,
     val tk: Tk,
-    // val surfaceFactory: ApricotEngine.OffscreenSurfaceFactory
 ) extends internal.WorkersSupport {
   protected var engineStartTime: Long = -1
   val resourceManager = ResourceManager()
   val scriptEngine = ScriptEngine(tk)
+  private var _graphicsStack: GraphicsStack = GraphicsStack.NoOp
   @threadUnsafe lazy val metrics = MetricRegistry()
+
+  @uncheckedStable
+  def graphicsStack: GraphicsStack = _graphicsStack
+  def switchToGraphicsStack(graphicsStack: GraphicsStack): Unit = {
+    for (_, ctx) <- windows._windows do ctx.gContext.close()
+    _graphicsStack.shutdown()
+    _graphicsStack = graphicsStack
+    for (win, ctx) <- windows._windows do ctx.gContext = _graphicsStack.setup(win)
+  }
 
   given ApricotEngine[Tk] = this
   given ScriptEngine = scriptEngine
   given ResourceManager = resourceManager
+  given GraphicsStack = graphicsStack
 
   if devMode then
-    resourceManager.register(new locators.FileSystemResourceLocator(better.files.File("./target/scala-3.1.1/classes/"), this))
-    val testClasses = better.files.File("./target/scala-3.1.1/test-classes/")
+    resourceManager.register(new locators.FileSystemResourceLocator(better.files.File("./target/scala-3.2.0-RC2/classes/"), this))
+    val testClasses = better.files.File("./target/scala-3.2.0-RC2/test-classes/")
     if testClasses.exists then resourceManager.register(new locators.FileSystemResourceLocator(testClasses, this))
   else resourceManager.register(new locators.ClassLoaderLocator(this))
 
@@ -37,7 +49,7 @@ class ApricotEngine[Tk <: AbstractToolkit](
   var targetFps = 60d // default to 60, but should probably query the screen where the window is going to show up
   /** If set to true, will clear the window at the start of the frame */
   var autoClearWindow = true
-  var autoClearColor: Int = 0xFFFFFFFF
+  var autoClearColor: Int = 0xffffffff
 
   val fpsTimer = metrics.timer("fps").unn
   val updateTimer = metrics.timer("updateTimer").unn
@@ -54,58 +66,52 @@ class ApricotEngine[Tk <: AbstractToolkit](
   val updateTimeGauge =
     metrics.gauge[Gauge[Long]]("updateTime", (() => () => lastUpdateTime): MetricRegistry.MetricSupplier[Gauge[Long]]).unn
 
-  private var _surface: Surface = Surface.makeNull(1, 1)
-  /** Currently active surface, if any. Depends on window visibility. */
-  def surface: Option[Surface] = _surface.toOption
-  private var canvas: Canvas = _surface.getCanvas
-
   val updateables = new collection.mutable.ArrayBuffer[Updateable](128)
-  object layers extends collection.mutable.LinkedHashMap[String, Layer] {
-    def +=(layer: Layer): layer.type = 
+  object windows {
+    private val windowCounter = java.util.concurrent.atomic.AtomicInteger(0)
+    class WindowContext private[windows](val layers: Layers, var gContext: GraphicsStack#GraphicsContext) {
+      private[ApricotEngine] val windowIdx = windowCounter.incrementAndGet()
+      private[ApricotEngine] val gpuFlushTimer = metrics.timer(s"gpuFlushTimer-$windowIdx").unn
+      private[ApricotEngine] var lastRenderTime: Long = -1
+      val renderTimeGauge =
+        metrics.gauge[Gauge[Long]](s"renderTime-$windowIdx", (() => () => lastRenderTime): MetricRegistry.MetricSupplier[Gauge[Long]]).unn
+      private[ApricotEngine] var gpuFlushTime: Long = -1
+      val gpuFlushGauge =
+        metrics.gauge[Gauge[Long]](s"gpuFlushTime-$windowIdx", (() => () => gpuFlushTime): MetricRegistry.MetricSupplier[Gauge[Long]]).unn
+
+    }
+    private[ApricotEngine] val _windows = collection.mutable.LinkedHashMap.empty[GlfwWindow, WindowContext]
+    def +=(window: GlfwWindow): window.type = {
+      this -= window
+      _windows(window) = WindowContext(Layers(), graphicsStack.setup(window))
+      window
+    }
+    def -=(window: GlfwWindow): window.type = {
+      _windows.get(window).foreach(_.gContext.close())
+      window
+    }
+
+    def list: Iterable[GlfwWindow] = _windows.keys
+
+    def apply(window: GlfwWindow): WindowContext =
+      _windows.getOrElse(window, throw new IllegalStateException("window has not been registered with this engine"))
+  }
+  class Layers extends collection.mutable.LinkedHashMap[String, Layer] {
+    def +=(layer: Layer): layer.type =
       update(layer.name, layer)
       layer
-  }
-  // private val layerSurfaces = new collection.mutable.ArrayBuffer[surfaceFactory.Handle](8)
-
-  /** Engine requires a surface for rendering. Call this method after setting up an opengl surface for rendering.
-    */
-  def setRenderingSurface(surface: Surface, canvas: Canvas): Unit = {
-    this._surface = surface
-    this.canvas = canvas
-    // scribe.debug("clearing old surfaces")
-    // layerSurfaces.foreach(surfaceFactory.destroy)
-    // layerSurfaces.clear()
-    // scribe.debug(s"creating ${layers.length} secondary surfaces")
-    // layers.foreach(_ => layerSurfaces += surfaceFactory.create(surface.getWidth, surface.getHeight))
   }
 
   /** This method operates on the canvas performing all the draws of the frame. Should be called from the main loop. If you override this
     * method, you should call into super.renderFrame()
     */
   protected def renderFrame(): Unit = {
-    // import scala.collection.parallel.CollectionConverters.*
-    // layers.view.zipWithIndex.foreach((l, idx) =>
-    //   val handle = layerSurfaces(idx)
-    //   handle.makeCurrent()
-    //   val canvas = handle.surface.getCanvas
-    //   canvas.clear(0xffffffff)
-    //   l.draw(handle.surface, canvas)
-    //   handle.surface.flush()
-    // )
-    if autoClearWindow then canvas.clear(autoClearColor)
-    // cfor(0, _ < layers.length) { i =>
-    //   layerSurfaces(i).surface.draw(canvas, 0, 0, null)
-    //   i + 1
-    // }
-    for ((_, layer) <- layers) layer.draw(_surface.unn, canvas)
-    // cfor(0, _ < layers.length) { i =>
-    //   layers(i).draw(surface.unn, canvas)
-    //   i + 1
-    // }
-    val t0 = engineTime()
-    _surface.flush()
-    gpuFlushTime = engineTime() - t0
-    gpuFlushTimer.update(gpuFlushTime, NANOSECONDS)
+    for (window, ctx) <- windows._windows do {
+      val t0 = engineTime()
+      ctx.gContext.renderLayers(ctx.layers.values, autoClearWindow, autoClearColor)
+      ctx.gpuFlushTime = engineTime() - t0
+      ctx.gpuFlushTimer.update(gpuFlushTime, NANOSECONDS)
+    }
   }
 
   /** Run an engine loop on the caller's thread. Returns the total time that the step took to compute in nanos. */
@@ -128,7 +134,7 @@ class ApricotEngine[Tk <: AbstractToolkit](
       renderFrame()
       lastRenderTime = engineTime() - (lastUpdateTime + t0) //use lastUpdate time to get the timestamp at the end up update
       renderTimer.update(lastRenderTime, NANOSECONDS)
-      
+
       distributeWork()
     }
 
@@ -168,20 +174,5 @@ class ApricotEngine[Tk <: AbstractToolkit](
     import scala.jdk.CollectionConverters.*
     scribe.info(s"Found locators = ${loader.iterator.unn.asScala.mkString("[", "\n", "]")}")
     loader.forEach(l => resourceManager.register(l.unn.create(this)))
-  }
-}
-
-object ApricotEngine {
-  trait OffscreenSurfaceFactory {
-
-    trait HandleLike {
-      def surface: Surface
-      def makeCurrent(): Unit
-    }
-    type Handle <: HandleLike
-
-    /** create a framebuffer with the specified dimensions and return its id */
-    def create(width: Int, height: Int): Handle
-    def destroy(handle: Handle): Unit
   }
 }

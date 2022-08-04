@@ -3,18 +3,8 @@ package apricot
 import com.codahale.metrics.ConsoleReporter
 import guarana.{unn, AbstractToolkit, Stylist}
 import guarana.animation.ScriptDsl.{given, *}
-import io.github.humbleui.skija.Surface
 import scala.concurrent.duration.*
 import scala.util.chaining.*
-
-val NullOffscreenSurfaceFactory = new ApricotEngine.OffscreenSurfaceFactory {
-  class NullHandle(val surface: Surface) extends HandleLike {
-    def makeCurrent(): Unit = ()
-  }
-  type Handle = NullHandle
-  def create(width: Int, height: Int) = NullHandle(Surface.makeNull(width, height))
-  def destroy(handle: Handle): Unit = handle.surface.close()
-}
 
 val HeadlessToolkit = new AbstractToolkit {
   protected def isOnToolkitThread() = true

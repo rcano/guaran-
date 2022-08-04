@@ -1,5 +1,5 @@
 package apricot
-package tools
+package extra
 
 import guarana.unn
 import guarana.qt.Toolkit
@@ -55,7 +55,7 @@ class QtSkiaWindow(engine: ApricotEngine[Toolkit]) extends QOpenGLWindow {
     )
 
     canvas = skiaSurface.getCanvas()
-    engine.setRenderingSurface(skiaSurface, canvas)
+    // engine.setRenderingSurface(skiaSurface, canvas)
   }
   override def paintGL(): Unit = {
     new Exception().printStackTrace()

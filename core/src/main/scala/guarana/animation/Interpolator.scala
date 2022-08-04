@@ -5,6 +5,10 @@ trait Interpolator[A]:
   def interpolate(min: A, max: A, by: Double): A
   inline def bimap[B](inline contra: B => A, inline map: A => B): Interpolator[B] = 
     (min, max, by) => map(interpolate(contra(min), contra(max), by))
+  /** Transform this interpolator by using the custom curve.
+    *  A curve is a function from [0,1) => [0,1)
+    */
+  inline def withCurve(curve: Double => Double): Interpolator[A] = (min, max, by) => interpolate(min, max, curve(by))
 
 object Interpolator:
   given Interpolator[Byte] = (min, max, by) => (((max - min) * by) + min).toByte

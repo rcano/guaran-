@@ -1,4 +1,4 @@
-package apricot.effects
+package apricot.skia.effects
 
 import guarana.animation.Interpolator
 import guarana.util.cfor

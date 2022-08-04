@@ -4,7 +4,7 @@ inThisBuild(
   Seq(
     organization := "guarana",
     version := "0.0.1-SNAPSHOT",
-    scalaVersion := "3.2.0-RC1",
+    scalaVersion := "3.2.0-RC2",
     fork := true,
     libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.9" % "test",
     Compile / packageDoc / publishArtifact := false,
@@ -39,9 +39,7 @@ lazy val coreNative = core.native
 lazy val qt = Project(id = "guarana-qt", base = file("qt"))
   .settings(
     // qt/envVars += ("QT_DEBUG_PLUGINS" -> "1"),
-    libraryDependencies ++= Seq(
-      ("com.github.pathikrit" %% "better-files" % "3.9.1").cross(CrossVersion.for3Use2_13),
-    ),
+    libraryDependencies += ("com.github.pathikrit" %% "better-files" % "3.9.1").cross(CrossVersion.for3Use2_13),
     libraryDependencies += "org.bytedeco" % "javacpp" % "1.5.5",
     libraryDependencies += "org.bytedeco" % "javacpp" % "1.5.5" classifier "linux-x86_64",
     libraryDependencies += "org.bytedeco" % "qt" % "5.15.2-1.5.5",
@@ -94,15 +92,15 @@ lazy val swing = Project(id = "guarana-swing", base = file("swing"))
 lazy val guaranaTheme = Project(id = "theme", base = file("swing/theme"))
   .dependsOn(swing)
 
-lazy val lwjglVersion = "3.3.0"
+lazy val lwjglVersion = "3.3.1"
 lazy val lwjglClassifier = "natives-linux"
 
-lazy val scribeVersion = "3.6.3"
+lazy val scribeVersion = "3.10.1"
 
 lazy val apricot = Project(id = "apricot", base = file("apricot"))
   .settings(
     libraryDependencies ++= Seq(
-      "io.github.humbleui.skija" % "skija-linux" % "0.96.0",
+      ("com.github.pathikrit" %% "better-files" % "3.9.1").cross(CrossVersion.for3Use2_13),
       "org.jetbrains" % "annotations" % "23.0.0",
       "org.lwjgl" % "lwjgl" % lwjglVersion classifier lwjglClassifier,
       "org.lwjgl" % "lwjgl-glfw" % lwjglVersion,
@@ -112,7 +110,6 @@ lazy val apricot = Project(id = "apricot", base = file("apricot"))
       "io.dropwizard.metrics" % "metrics-core" % "4.2.4",
       "com.outr" %% "scribe" % scribeVersion,
       "com.outr" %% "scribe-file" % scribeVersion,
-      "com.github.blemale" %% "scaffeine" % "5.1.2",
       "org.scala-lang" %% "scala3-tasty-inspector" % scalaVersion.value % "provided,runtime"
     ),
     javaOptions ++= Seq(
@@ -120,7 +117,56 @@ lazy val apricot = Project(id = "apricot", base = file("apricot"))
     )
     // javaOptions ++= Seq("-Djava.library.path=/usr/java/packages/lib:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib:/home/randa/Development/guarana/qt/lib/qtjambi-5.15-binaries-linux64-gcc/lib")
   )
-  .dependsOn(coreJvm, qt)
+  .dependsOn(coreJvm)
+
+lazy val apricotSkia = Project(id = "apricotSkia", base = file("apricotSkia"))
+  .settings(
+    libraryDependencies ++= Seq(
+      "io.github.humbleui.skija" % "skija-linux" % "0.96.0",
+      "com.github.blemale" %% "scaffeine" % "5.1.2",
+    )
+  )
+  .dependsOn(apricot, qt)
+
+import scala.sys.process._
+import java.nio.file.{ Files, Path }
+import sbt.nio.Keys._
+
+val shaderObjects = taskKey[Seq[Path]]("Compiles .frag and .vert files into spir-v files")
+lazy val apricotVk = Project(id = "apricotVk", base = file("apricotVk"))
+  .settings(
+    scalacOptions -= "-Yexplicit-nulls",
+    libraryDependencies ++= Seq(
+      "org.lwjgl" % "lwjgl-vulkan" % lwjglVersion,
+    ),
+    shaderObjects / fileInputs ++= Seq(
+      baseDirectory.value.toGlob / "src" / "main" / "resources" / "shader" / RecursiveGlob / "*.vert",
+      baseDirectory.value.toGlob / "src" / "main" / "resources" / "shader" / RecursiveGlob /"*.frag",
+    ),
+    shaderObjects := {
+      val logger = streams.value.log
+      val baseDir = baseDirectory.value / "src" / "main" / "resources" / "shader"
+      val destDir = (Compile/classDirectory).value / "shader"
+      val fileMapper = sbt.io.Path.rebase(baseDir, destDir)
+      def outputPath(p: Path) = (fileMapper(p.toFile).get.getParentFile / (p.getFileName.toString + ".spv")).toPath
+      val changes = shaderObjects.inputFileChanges
+      changes.deleted.foreach { p => 
+        logger.info(s"deleting $p")
+        Files.deleteIfExists(outputPath(p))
+      }
+      (changes.created ++ changes.modified).toSet foreach { (p: Path) =>
+        logger.info(s"compiling shader $p")
+        val dest: java.nio.file.Path = outputPath(p)
+        Files.createDirectories(dest.getParent)
+        Process(Seq("/home/randa/Programs/vulkan-sdk-1.2.154.0/x86_64/bin/glslangValidator", "-H", "-o", dest.toString, p.toString)) ! logger
+      }
+      shaderObjects.inputFiles.map(f => outputPath(f))
+    },
+    Compile / compile / compileInputs := (Compile / compile / compileInputs)
+      .dependsOn(shaderObjects)
+      .value
+  )
+  .dependsOn(apricot)
 
 lazy val jmh = Project("jmh", base = file("jmh"))
   .dependsOn(coreJvm)

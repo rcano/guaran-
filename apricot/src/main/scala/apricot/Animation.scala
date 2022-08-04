@@ -1,8 +1,8 @@
 package apricot
 
+import apricot.graphics.GraphicsStack
 import guarana.*
 import guarana.animation.{Script, ScriptEngine}
-import io.github.humbleui.skija.Image
 import resource.DynamicScript
 
 trait Animated {
@@ -15,7 +15,7 @@ trait Animated {
   }
 }
 
-class Animation(val frames: IArray[Image], val dynScript: DynamicScript) {
+class Animation(val graphicsStack: GraphicsStack, val frames: IArray[graphicsStack.Image], val dynScript: DynamicScript) {
   var currentFrame: Int = 0
   val script = dynScript.bind(Map("animation" -> this))
 }

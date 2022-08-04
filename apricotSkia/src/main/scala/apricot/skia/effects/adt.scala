@@ -1,4 +1,4 @@
-package apricot.effects
+package apricot.skia.effects
 
 import guarana.{Insets, ?}
 import guarana.animation.Interpolator

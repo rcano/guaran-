@@ -1,6 +1,9 @@
 package apricot
+package skia
 package tiled
 
+import apricot.tools.GlfwWindow
+import apricot.tiled.*
 import guarana.AbstractToolkit
 import guarana.animation.*, ScriptDsl.{given, *}
 import guarana.{?, nnn}
@@ -9,13 +12,14 @@ import java.io.ByteArrayInputStream
 import io.github.humbleui.skija.{Canvas, Image, Matrix33, Paint, Rect as SkRect, Surface}
 import scala.collection.immutable.TreeMap
 import scala.concurrent.duration.*
+import apricot.graphics.GraphicsStack
 
 /** A Tiled Map implementation.
   *
   * The given `mapPath` will be used to parse map information, the referenced tilesets will also be loaded. Finally, the the described
   * layers will be configured in the engine, note that if the layer already exists, then it adds to it instead of recreating.
   */
-class Map(val mapPath: Path, engine: ApricotEngine[? <: guarana.AbstractToolkit]) extends Scrollable {
+class Map(val mapPath: Path, engine: ApricotEngine[? <: guarana.AbstractToolkit], window: GlfwWindow) extends Scrollable {
   var pauseTileAnimations = false
   private var loadedTilesets = Predef.Map.empty[Path, Resource#Subscription[LoadedTileSet]]
 
@@ -69,8 +73,9 @@ class Map(val mapPath: Path, engine: ApricotEngine[? <: guarana.AbstractToolkit]
         )
       )
       val tileLayers = map.layers.collect { case tl: TilesLayer => tl }
+      val windowCtx = engine.windows(window)
       for (tileLayer <- tileLayers) {
-        val renderingLayer = engine.layers(tileLayer.name)
+        val renderingLayer = windowCtx.layers(tileLayer.name)
         val renderable = TileLayerRenderable(map, tileAtlas, tileLayer)
         renderingLayer.renderables += renderable
         loadedRenderablesPerLayer.getOrElseUpdate(renderingLayer, collection.mutable.Buffer.empty) += renderable
@@ -210,7 +215,9 @@ class Map(val mapPath: Path, engine: ApricotEngine[? <: guarana.AbstractToolkit]
       flattenedTiles: util.CachedValue[TileAtlas],
       tileLayer: TilesLayer,
   ) extends Renderable {
-    def render(surface: Surface, canvas: Canvas): Unit = {
+    def render(graphicsStack: GraphicsStack, gContext: graphicsStack.GraphicsContext): Unit = {
+      val skiaCtx = gContext.asInstanceOf[SkiaGraphicsStack#SkiaGraphicsContext]
+      import skiaCtx.*
       //make sure we loaded all the tiles, if not, bail out early
       val tiles =
         try flattenedTiles.get
