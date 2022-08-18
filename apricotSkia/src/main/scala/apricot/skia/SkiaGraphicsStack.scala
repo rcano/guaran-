@@ -25,14 +25,15 @@ class SkiaGraphicsStack extends GraphicsStack {
   override protected val colorLike: ColorLike[Int] = new ColorLike[Int] {
     def apply(r: Float, g: Float, b: Float, a: Float = 1f) = rgba((r * 255).toInt, (g * 255).toInt, (b * 255).toInt, (a * 255).toInt)
     def rgba(r: Int, g: Int, b: Int, a: Int = 255) = skija.Color.makeARGB(a, r, g, b)
-    def argb(argb: Int) = argb
+    def argb(argb: Int): Int = argb
 
     extension (c: Color) {
       def red: Int = skija.Color.getR(c)
       def green: Int = skija.Color.getG(c)
       def blue: Int = skija.Color.getB(c)
       def alpha: Int = skija.Color.getA(c)
-      def rgba: Int = c
+      def asRgba: Int = c
+      def asArgb: Int = c
     }
   }
 

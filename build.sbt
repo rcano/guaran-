@@ -113,7 +113,8 @@ lazy val apricot = Project(id = "apricot", base = file("apricot"))
       "org.scala-lang" %% "scala3-tasty-inspector" % scalaVersion.value % "provided,runtime"
     ),
     javaOptions ++= Seq(
-      "-Djava.library.path=/home/randa/Development/guarana/qt/lib/qtjambi-5.15-binaries-linux64-gcc/lib:/usr/java/packages/lib:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib"
+      "-Djava.library.path=/home/randa/Development/guarana/qt/lib/qtjambi-5.15-binaries-linux64-gcc/lib:/usr/java/packages/lib:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib",
+      "--add-modules", "jdk.incubator.foreign"
     )
     // javaOptions ++= Seq("-Djava.library.path=/usr/java/packages/lib:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib:/home/randa/Development/guarana/qt/lib/qtjambi-5.15-binaries-linux64-gcc/lib")
   )
@@ -164,7 +165,11 @@ lazy val apricotVk = Project(id = "apricotVk", base = file("apricotVk"))
     },
     Compile / compile / compileInputs := (Compile / compile / compileInputs)
       .dependsOn(shaderObjects)
-      .value
+      .value,
+    javaOptions ++= Seq(
+      "--add-modules", "jdk.incubator.foreign",
+      "--enable-native-access=ALL-UNNAMED",
+    )
   )
   .dependsOn(apricot)
 

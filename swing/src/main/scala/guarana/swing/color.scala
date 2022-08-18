@@ -16,14 +16,15 @@ object Color extends ColorDefs {
     def apply(r: Float, g: Float, b: Float, a: Float = 1f) = java.awt.Color(r, g, b, a)
     def rgba(r: Int, g: Int, b: Int, a: Int = 255): Color = java.awt.Color(r, g, b, a)
     def argb(argb: Int): Color = java.awt.Color(argb, true)
-    def hsb(hue: Double, saturation: Double, brightness: Double): Color = java.awt.Color.getHSBColor(hue.toFloat, saturation.toFloat, brightness.toFloat).nn
+    override def hsb(hue: Double, saturation: Double, brightness: Double): Color = java.awt.Color.getHSBColor(hue.toFloat, saturation.toFloat, brightness.toFloat).nn
 
     extension (c: Color) {
       def red: Int = c.getRed
       def green: Int = c.getGreen
       def blue: Int = c.getBlue
       def alpha: Int = c.getAlpha
-      def rgba: Int = c.getRGB
+      def asRgba: Int = (c.getRGB & 0x00FFFFFF) << 24 + c.getAlpha()
+      def asArgb: Int = c.getRGB
     }
   }
 }

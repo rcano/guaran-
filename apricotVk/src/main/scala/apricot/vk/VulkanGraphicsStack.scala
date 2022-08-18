@@ -17,6 +17,8 @@ import org.lwjgl.vulkan.{
 }
 
 import allocators.given
+import guarana.impl.RingBuffer
+import scala.collection.mutable.ArrayDeque
 
 class VulkanGraphicsStack(
     val physicalDevice: VkPhysicalDevice
@@ -46,8 +48,9 @@ class VulkanGraphicsStack(
       def red: Int = c >> 16 & 0xff
       def green: Int = c >> 8 & 0xff
       def blue: Int = c & 0xff
-      def alpha: Int = c >> 24 & 0xff
-      def rgba: Int = c
+      def alpha: Int = c >>> 24 & 0xff
+      def asRgba: Int = (c & 0x00ffffff) << 24 + ((c >>> 24) & 0xff)
+      def asArgb: Int = c
     }
   }
 
@@ -68,10 +71,28 @@ class VulkanGraphicsStack(
   }
   scribe.debug(s"Vulkan ogical device initialized: $logicalDevice")
 
-  val graphicsCommandPool = withStack { logicalDevice.createCommandPool(graphicsQueueFamilyIndex) }
+  val graphicsCommandPool = withStack {
+    logicalDevice.createCommandPool(
+      graphicsQueueFamilyIndex,
+      VK10.VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT | VK10.VK_COMMAND_POOL_CREATE_TRANSIENT_BIT
+    )
+  }
   scribe.debug(s"Vulkan graphics command pool created: ${graphicsCommandPool.unwrap.toHexString}")
 
+  /** Represents a command buffer and associated sempahores and fences. */
+  class CommandBatch(val commandBuffer: VkCommandBuffer) {
+
+    /** Fence signaled once this command batch has been presented */
+    val imagePresentedFence: NativeHandle = withStack { logicalDevice.createFence(0) }
+
+    /** Semaphore used for image acquiring */
+    val acquireImageSemaphore: NativeHandle = withStack { logicalDevice.createSemaphore() }
+    val imagePresentedSempahore: NativeHandle = withStack { logicalDevice.createSemaphore() }
+  }
+
   class VkGraphicsContext private[VulkanGraphicsStack] (window: GlfwWindow) extends GraphicsStack.GraphicsContext {
+    private var closed: Boolean = false
+
     scribe.debug(s"initializing Vulkan on window $window...")
 
     val surfaceHandle: NativeHandle = (GLFWVulkan
@@ -80,12 +101,7 @@ class VulkanGraphicsStack(
       .get(0)
     scribe.debug(s" - vulkan suface created: ${surfaceHandle.toHexString}")
 
-
     val presenter = VkPresenter(physicalDevice, logicalDevice, surfaceHandle)
-
-    private var _graphicsCommandBuffers: IArray[VkCommandBuffer] = IArray.empty
-    def graphicsCommandBuffers: IArray[VkCommandBuffer] = _graphicsCommandBuffers
-
 
     /** Graphics queue for the device (the 0 index one). This queue is by default presented on each frame, if you use more queues, you'll
       * have to call into the presenter to present them
@@ -95,9 +111,9 @@ class VulkanGraphicsStack(
     /** Optional default render pass.
       *
       * It renders directly to the swapchain using its format, 1 sample, load operation is clear, no stencils, and the final layout is
-      * directly the one in the presentation window
+      * directly the one in the presentation window.
       */
-    lazy val defaultRenderPass = withStack {
+    def createDefaultRenderPass(): VkRenderPass[logicalDevice.type] = withStack {
       logicalDevice.createRenderPass(
         attachments = allocBuffer[VkAttachmentDescription](1, stackCalloc)
           .format(presenter.firstColorFormat) //use the format of the swapchain, because we are rendering directly to it
@@ -133,48 +149,69 @@ class VulkanGraphicsStack(
       )
     }
 
-    /** Semaphore used for image acquiring */
-    var acquireImageSemaphore: NativeHandle = withStack { logicalDevice.createSemaphore() }
+    private val commandBuffers = withStack { graphicsCommandPool.createCommandBuffer(3) }.asInstanceOf[IArray[VkCommandBuffer]]
 
-    /** Semaphore used for image acquiring. */
-    var renderingCompleteSemaphore: NativeHandle = withStack { logicalDevice.createSemaphore() }
-
-    scribe.debug(s"semaphores created ${acquireImageSemaphore.toHexString}, ${renderingCompleteSemaphore.toHexString}")
-
-    /** Memory fence used for image acquiring. NULL by default */
-    var acquireImageFence: NativeHandle = VK10.VK_NULL_HANDLE
-
-    presenter.createSwapchain(() =>
-      if (_graphicsCommandBuffers.length == 0)
-        _graphicsCommandBuffers = withStack { graphicsCommandPool.createCommandBuffer(presenter.images.length) }.asInstanceOf
-      scribe.debug(" - swapchain initialized\nWindow ready.") 
+    private val availableBatches = ArrayDeque[CommandBatch](
+      CommandBatch(commandBuffers(0)),
+      CommandBatch(commandBuffers(1)),
+      CommandBatch(commandBuffers(2)),
     )
+    private val recordedBatches = new ArrayDeque[CommandBatch](3)
+    private val submittedBatches = new ArrayDeque[CommandBatch](3)
+
+    def recordBatch(f: CommandBatch => Unit): Unit = {
+      val b = availableBatches.removeHead()
+      f(b)
+      recordedBatches += b
+    }
+
+    presenter.createSwapchain(() => scribe.debug(" - swapchain initialized\nWindow ready."))
 
     override def renderLayers(layers: Iterable[Layer], clearFirst: Boolean, color: Int): Unit = withStack { stack ?=>
-      val img = presenter.acquireNextImage(1_000_000, acquireImageSemaphore, acquireImageFence)
+      if closed then throw new IllegalStateException("already closed context")
+      submittedBatches
+        .removeHeadWhile(batch => logicalDevice.isFenceSignaled(batch.imagePresentedFence))
+        .foreach(batch =>
+          availableBatches += batch
+          logicalDevice.resetFence(batch.imagePresentedFence)
+        )
+
+      if (availableBatches.isEmpty) return // skip this tick, there's no available buffer to use
       layers.foreach(_.draw(VulkanGraphicsStack.this, this))
+      if (recordedBatches.isEmpty) return // no layer recorded anything
+
+      val toPresent = recordedBatches.removeHead()
+      val img = presenter.acquireNextImage(1_000_000, toPresent.acquireImageSemaphore, VK10.VK_NULL_HANDLE)
       VkUtil.expectResult(
         VK10.vkQueueSubmit(
           graphicsQueue,
           VkFactory.queueSubmit(
             waitSemaphoreCount = 1,
-            waitSemaphores = if acquireImageSemaphore != VK10.VK_NULL_HANDLE then stack.longs(acquireImageSemaphore) else null,
+            waitSemaphores = stack.longs(toPresent.acquireImageSemaphore),
             waitDstStageMask = stack.ints(VK10.VK_PIPELINE_STAGE_TRANSFER_BIT),
-            commandBuffers = stack.pointers(graphicsCommandBuffers(img)),
-            signalSemaphores = if renderingCompleteSemaphore != VK10.VK_NULL_HANDLE then stack.longs(renderingCompleteSemaphore) else null
+            commandBuffers = stack.pointers(toPresent.commandBuffer),
+            signalSemaphores = stack.longs(toPresent.imagePresentedSempahore)
           ),
-          VK10.VK_NULL_HANDLE
+          toPresent.imagePresentedFence
         ),
         VK10.VK_SUCCESS
       )
       presenter.present(
         graphicsQueue,
         Array(img),
-        if renderingCompleteSemaphore != VK10.VK_NULL_HANDLE then Array(renderingCompleteSemaphore) else null
+        Array(toPresent.imagePresentedSempahore)
       )
+      submittedBatches += toPresent
     }
 
     override def close(): Unit = {
+      closed = true
+      logicalDevice.waitIdle() //wait for the graphics device to be done with all our resources in order to dispose
+      (availableBatches ++ recordedBatches ++ submittedBatches).foreach { batch =>
+        logicalDevice.destroyFence(batch.imagePresentedFence)
+        logicalDevice.destroySemaphore(batch.acquireImageSemaphore)
+        logicalDevice.destroySemaphore(batch.imagePresentedSempahore)
+      }
       graphicsCommandPool.destroy()
       KHRSurface.vkDestroySurfaceKHR(physicalDevice.vulkanInstance.unwrap, surfaceHandle, null)
       logicalDevice.destroy()

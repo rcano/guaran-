@@ -1,6 +1,7 @@
 package guarana
 
 import guarana.animation.Interpolator
+import scala.annotation.targetName
 trait ColorDefs {
   type Color
   given ColorLike: ColorLike[Color]
@@ -909,7 +910,7 @@ trait ColorDefs {
       hsb(2) = clamp(hsb(2) * b)
       ColorLike.hsb(hsb(0), hsb(1), hsb(2)).withOpacity(clamp(alpha * c.alpha))
 
-    def interp(b: Color, at: Double): Color = ColorLike.argb(interpolateColors(c.rgba, b.rgba, at))
+    def interp(b: Color, at: Double): Color = ColorLike.argb(interpolateColors(c.asArgb, b.asArgb, at))
 }
 
 object ColorDefs {
@@ -971,6 +972,7 @@ trait ColorLike[C] {
     def green: Int
     def blue: Int
     def alpha: Int
-    def rgba: Int
+    def asRgba: Int
+    def asArgb: Int
   }
 }

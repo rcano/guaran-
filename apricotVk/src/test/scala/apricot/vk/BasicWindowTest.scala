@@ -53,7 +53,7 @@ object BasicWindowTest {
     }.getOrElse(throw new IllegalStateException("No GPU provided vulkan implementation"))
 
     val graphicsStack = VulkanGraphicsStack(physicalDevice)
-    import graphicsStack.Color
+    import graphicsStack.Color, graphicsStack.Color.ColorLike
     engine.switchToGraphicsStack(graphicsStack)
 
     val window1 = engine.tk.update {
@@ -64,7 +64,7 @@ object BasicWindowTest {
       window.visible := true
 
       engine.windows += window
-      engine.windows(window).layers += SimpleTriangleLayer(graphicsStack, Color.AntiqueWhite, Color.BlueViolet)
+      engine.windows(window).layers += SimpleTriangleLayer(Color.AntiqueWhite.asArgb, Color.BlueViolet.asArgb)
       window
     }
 
@@ -76,7 +76,7 @@ object BasicWindowTest {
       window.visible := true
 
       engine.windows += window
-      engine.windows(window).layers += SimpleTriangleLayer(graphicsStack, Color.BlueViolet, Color.Yellow)
+      engine.windows(window).layers += VertexAttributesTest()
       window
     }
 
