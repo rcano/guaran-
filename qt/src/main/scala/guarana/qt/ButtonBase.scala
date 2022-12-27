@@ -44,7 +44,6 @@ object ButtonBase {
       def setHidden(arg0: Boolean) = v.setHidden(arg0)
       def grab(arg0: io.qt.core.QRect | Null) = v.grab(arg0)
       def setIconSize(arg0: io.qt.core.QSize | Null) = v.setIconSize(arg0)
-      def animateClick(arg0: Int) = v.animateClick(arg0)
       def animateClick() = v.animateClick()
       def click() = v.click()
       def toggle() = v.toggle()

@@ -5,17 +5,17 @@ import guarana.*
 import guarana.animation.{Script, ScriptEngine}
 import resource.DynamicScript
 
-trait Animated {
-  private var _currentAnimation: Animation | Null = null
-  def currentAnimation: Animation | Null = _currentAnimation
-  def currentAnimation_=(a: Animation | Null)(using se: ScriptEngine): Unit = {
+trait Animated[Image] {
+  private var _currentAnimation: Animation[Image] | Null = null
+  def currentAnimation: Animation[Image] | Null = _currentAnimation
+  def currentAnimation_=(a: Animation[Image] | Null)(using se: ScriptEngine): Unit = {
     _currentAnimation.?(a => se.remove(a.script))
     _currentAnimation = a
     _currentAnimation.?(a => se.run(a.script))
   }
 }
 
-class Animation(val graphicsStack: GraphicsStack, val frames: IArray[graphicsStack.Image], val dynScript: DynamicScript) {
+class Animation[Image](val frames: IArray[Image], val dynScript: DynamicScript) {
   var currentFrame: Int = 0
   val script = dynScript.bind(Map("animation" -> this))
 }

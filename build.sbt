@@ -4,9 +4,9 @@ inThisBuild(
   Seq(
     organization := "guarana",
     version := "0.0.1-SNAPSHOT",
-    scalaVersion := "3.2.0-RC2",
+    scalaVersion := "3.2.1",
     fork := true,
-    libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.9" % "test",
+    libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.14" % "test",
     Compile / packageDoc / publishArtifact := false,
     ThisBuild / scalacOptions ++= Seq(
       "-Yexplicit-nulls",
@@ -25,7 +25,7 @@ lazy val core = // select supported platforms
     .withoutSuffixFor(JVMPlatform)
     .settings(
       libraryDependencies ++= Seq(
-        "com.github.rssh" %% "dotty-cps-async" % "0.9.8",
+        "com.github.rssh" %% "dotty-cps-async" % "0.9.13",
       )
     )
     // configure JVM settings
@@ -40,13 +40,24 @@ lazy val qt = Project(id = "guarana-qt", base = file("qt"))
   .settings(
     // qt/envVars += ("QT_DEBUG_PLUGINS" -> "1"),
     libraryDependencies += ("com.github.pathikrit" %% "better-files" % "3.9.1").cross(CrossVersion.for3Use2_13),
-    libraryDependencies += "org.bytedeco" % "javacpp" % "1.5.5",
-    libraryDependencies += "org.bytedeco" % "javacpp" % "1.5.5" classifier "linux-x86_64",
-    libraryDependencies += "org.bytedeco" % "qt" % "5.15.2-1.5.5",
-    libraryDependencies += "org.bytedeco" % "qt" % "5.15.2-1.5.5" classifier "linux-x86_64",
-    javaOptions ++= Seq(
-      "-Djava.library.path=/usr/java/packages/lib:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib:lib/qtjambi-5.15-binaries-linux64-gcc/lib"
-    )
+    // libraryDependencies += "org.bytedeco" % "javacpp" % "1.5.5",
+    // libraryDependencies += "org.bytedeco" % "javacpp" % "1.5.5" classifier "linux-x86_64",
+    // libraryDependencies += "org.bytedeco" % "qt" % "5.15.2-1.5.5",
+    // libraryDependencies += "org.bytedeco" % "qt" % "5.15.2-1.5.5" classifier "linux-x86_64",
+    libraryDependencies ++= {
+      val qtJambiVersion = "6.4.1"
+      Seq(
+        "io.qtjambi" % "qtjambi" % qtJambiVersion,
+        "io.qtjambi" % "qtjambi-native-linux-x64" % qtJambiVersion,
+        "io.qtjambi" % "qtjambi-svg" % qtJambiVersion,
+        "io.qtjambi" % "qtjambi-svgwidgets" % qtJambiVersion,
+        "io.qtjambi" % "qtjambi-svg-native-linux-x64" % qtJambiVersion,
+      )
+    }
+
+    // javaOptions ++= Seq(
+    //   "-Djava.library.path=/usr/java/packages/lib:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib:lib/qtjambi-5.15-binaries-linux64-gcc/lib"
+    // )
     // javaOptions ++= Seq("-Djava.library.path=lib/binaries:/usr/java/packages/lib:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib")
   )
   .dependsOn(coreJvm)

@@ -12,6 +12,7 @@ import org.lwjgl.vulkan.{
   VK10,
   VkAttachmentDescription,
   VkAttachmentReference,
+  VkClearValue,
   VkMappedMemoryRange,
   VkPipelineColorBlendAttachmentState,
   VkSubpassDependency,
@@ -44,10 +45,89 @@ class VertexAttributesTest extends Layer("vertex4") {
     var renderPass: VkRenderPass[vkStack.logicalDevice.type] = VkRenderPass.NoInstance
     var pipeline: NativeHandle = VK10.VK_NULL_HANDLE
     val VertexDataSize = 32 // float x, y, z, w + float r, g, b, a
+    var vertexBuffer: VkBuffer[vkStack.logicalDevice.type] = VkBuffer.Null
 
-    def draw(vkGc: vkStack.VkGraphicsContext): Unit = if (vkGc.presenter.swapChain != lastSwapChainId) {
-      if vkGc.presenter.swapChain != VK10.VK_NULL_HANDLE then dispose()
-      setup(vkGc)
+    def draw(gc: vkStack.VkGraphicsContext): Unit = {
+      if (gc.presenter.swapChain != lastSwapChainId) {
+        if gc.presenter.swapChain != VK10.VK_NULL_HANDLE then dispose()
+        setup(gc)
+      }
+
+      withStack {
+        gc.recordBatch { batch =>
+
+          val imageHandle = gc.presenter.images(gc.presenter.currentImage)
+
+          batch.commandBuffer.beginCommandBuffer(VK10.VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT) // since we are rerecording every frame
+
+          // here our presentation queue and our drawing queue are the same, but we put this for completion sake
+          val presentQueue = vkStack.graphicsQueueFamilyIndex
+          if (vkStack.graphicsQueueFamilyIndex != presentQueue) {
+            //barrier from present to draw
+            batch.commandBuffer
+              .pipelineBarrier(
+                srcStageMask = VK10.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                dstStageMask = VK10.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                dependencyFlags = 0,
+                memoryBarriers = null,
+                bufferMemoryBarriers = null,
+                imageMemoryBarriers = VkFactory
+                  .imageMemoryBarriers(1)
+                  .srcAccessMask(VK10.VK_ACCESS_MEMORY_READ_BIT)
+                  .dstAccessMask(VK10.VK_ACCESS_MEMORY_READ_BIT)
+                  .oldLayout(KHRSwapchain.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR) //no need to change layouts, renderpass does this automatically
+                  .newLayout(KHRSwapchain.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
+                  .srcQueueFamilyIndex(presentQueue)
+                  .dstQueueFamilyIndex(vkStack.graphicsQueueFamilyIndex)
+                  .image(imageHandle)
+                  .subresourceRange(VkFactory.imageSubresourceRange(VK10.VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1))
+              )
+          }
+
+          val clearColor = VkFactory.clearColor(0, 0, 0, 0)
+          val renderArea = VkFactory.rect2d(gc.presenter.swapchainSize._1, gc.presenter.swapchainSize._2)
+          batch.commandBuffer
+            .beginRenderPass(
+              renderPass = renderPass,
+              frameBuffer = frameBuffers(gc.presenter.currentImage),
+              renderArea = renderArea,
+              clearValues = allocBuffer[VkClearValue](1, stackMalloc).color(clearColor),
+              contents = VK10.VK_SUBPASS_CONTENTS_INLINE
+            )
+
+          batch.commandBuffer.bindPipeline(pipeline, VK10.VK_PIPELINE_BIND_POINT_GRAPHICS)
+          batch.commandBuffer.setViewport(gc.presenter.swapchainSize._1.toFloat, gc.presenter.swapchainSize._2.toFloat)
+          batch.commandBuffer.setScissors(renderArea.buffered(stackMalloc))
+
+          batch.commandBuffer.bindVertexBuffer(vertexBuffer)
+          batch.commandBuffer.draw(vertexCount = 4, instanceCount = 1, firstVertex = 0, firstInstance = 0)
+          batch.commandBuffer.endRenderPass()
+
+          if (vkStack.graphicsQueueFamilyIndex != presentQueue) {
+            //barrier from draw to present
+            batch.commandBuffer
+              .pipelineBarrier(
+                srcStageMask = VK10.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                dstStageMask = VK10.VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                dependencyFlags = 0,
+                memoryBarriers = null,
+                bufferMemoryBarriers = null,
+                imageMemoryBarriers = VkFactory
+                  .imageMemoryBarriers(1)
+                  .srcAccessMask(VK10.VK_ACCESS_MEMORY_READ_BIT)
+                  .dstAccessMask(VK10.VK_ACCESS_MEMORY_READ_BIT)
+                  .oldLayout(KHRSwapchain.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR) //no need to change layouts, renderpass does this automatically
+                  .newLayout(KHRSwapchain.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
+                  .srcQueueFamilyIndex(vkStack.graphicsQueueFamilyIndex)
+                  .dstQueueFamilyIndex(presentQueue)
+                  .image(imageHandle)
+                  .subresourceRange(VkFactory.imageSubresourceRange(VK10.VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1))
+              )
+          }
+
+          batch.commandBuffer.endCommandBuffer()
+        }
+      }
     }
 
     type VertexData = Struct {
@@ -63,31 +143,39 @@ class VertexAttributesTest extends Layer("vertex4") {
     }
     given Sized[VertexData] = Struct.derivedSized[VertexData]
     object VertexData {
-      def apply(x: Float, y: Float, z: Float, w: Float)(r: Float, g: Float, b: Float, a: Float)(using
-          ctx: AllocContext
-      ): Pointer[VertexData, ctx.type] = {
+      def apply(x: Float, y: Float, z: Float, w: Float)(color: vkStack.Color)(using ctx: AllocContext): Pointer[VertexData, ctx.type] = {
         val res = ctx.allocStruct[VertexData]
         res.x = x
         res.y = y
         res.z = z
         res.w = w
-        res.r = r
-        res.g = g
-        res.b = b
-        res.a = a
+        res.r = color.red / 255f
+        res.g = color.green / 255f
+        res.b = color.blue / 255f
+        res.a = color.alpha / 255f
         res
       }
     }
 
     private def setup(gc: vkStack.VkGraphicsContext): Unit = withStack { stack ?=>
       renderPass = disposer.track(gc.createDefaultRenderPass())
+
+      frameBuffers = withStack { stack ?=>
+        val size = gc.presenter.swapchainSize
+        for img <- gc.presenter.imageViews
+        yield disposer.track(vkStack.logicalDevice.createFrameBuffer(renderPass, stack.longs(img), size._1, size._2, 1))(
+          vkStack.logicalDevice.destroyFrameBuffer
+        )
+      }.asInstanceOf[IArray[NativeHandle]]
+
       pipeline = createPipeline(gc)
 
       val vertexDataSize = Sized.of[VertexData].size * 4
 
       // describes the vertex buffer that we'll create
-      val vertexBuffer =
+      vertexBuffer = disposer.track(
         vkStack.logicalDevice.createBuffer(vertexDataSize, VK10.VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK10.VK_SHARING_MODE_EXCLUSIVE)
+      )
 
       // allocate actual device memory for the buffer, to do that we need to find the device heap that is suitable
       val bufferReqs = vertexBuffer.getMemoryRequirements(stackCalloc)
@@ -106,10 +194,10 @@ class VertexAttributesTest extends Layer("vertex4") {
       using(new BasicSegmentAllocator {
         val memorySegment = MemoryAddress.ofLong(mappedMemoryHandle).asSegment(vertexDataSize, ResourceScope.globalScope())
       }) {
-        VertexData(-0.7f, -0.7f, 0.0f, 1.0f)(1.0f, 0.0f, 0.0f, 0.0f)
-        VertexData(-0.7f, 0.7f, 0.0f, 1.0f)(0.0f, 1.0f, 0.0f, 0.0f)
-        VertexData(0.7f, -0.7f, 0.0f, 1.0f)(0.0f, 0.0f, 1.0f, 0.0f)
-        VertexData(0.7f, 0.7f, 0.0f, 1.0f)(0.3f, 0.3f, 0.3f, 0.0f)
+        VertexData(-0.7f, -0.7f, 0.0f, 1.0f)(Color.Beige)
+        VertexData(-0.7f, 0.7f, 0.0f, 1.0f)(Color.CornflowerBlue)
+        VertexData(0.7f, -0.7f, 0.0f, 1.0f)(Color.Crimson)
+        VertexData(0.7f, 0.7f, 0.0f, 1.0f)(Color.GreenYellow)
       }
 
       vkStack.logicalDevice.flushMemoryRanges(

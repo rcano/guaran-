@@ -12,6 +12,9 @@ object VkBuffer:
 
   def apply(vkInstance: VkLogicalDevice.Any, addr: Long): VkBuffer[vkInstance.type] = addr.asInstanceOf[VkBuffer[vkInstance.type]]
 
+  type Any = VkBuffer[VkLogicalDevice.Any & Singleton]
+  inline def Null[vkDevice <: VkLogicalDevice.Any & Singleton]: VkBuffer[vkDevice] = VK10.VK_NULL_HANDLE.asInstanceOf[VkBuffer[vkDevice]]
+
   given [vkDevice <: VkLogicalDevice.Any & Singleton]: Managed[VkBuffer[vkDevice]] with
     inline def close(p: VkBuffer[vkDevice]): Unit = scala.compiletime.summonFrom {
       case v: ValueOf[`vkDevice`] => p.destroy()(using v)

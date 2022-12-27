@@ -47,7 +47,7 @@ object Toolkit extends AbstractToolkit {
 
 
   lazy val qtAppInstance = 
-    println(s"initializing with ${initializationArgs.mkString(" ")}")
+    println(s"initializing with ${initializationArgs.mkString("'", "' '", "'")}")
     val qtAppInstance = QApplication.initialize(initializationArgs.asInstanceOf).nn
     connectVar(applicationState, qtAppInstance.applicationStateChanged.nn)
     qtAppInstance

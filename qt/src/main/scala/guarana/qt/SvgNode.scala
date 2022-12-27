@@ -6,7 +6,7 @@ import io.qt.gui.*
 import io.qt.widgets.*
 import util.*
 
-opaque type SvgNode <: Widget  = io.qt.svg.QSvgWidget & Widget
+opaque type SvgNode <: Widget  = io.qt.widgets.svg.QSvgWidget & Widget
 object SvgNode {
   private val SvgNodeInitialized: Var[Boolean] = Var[Boolean]("SvgNodeInitialized", false, false)
 
@@ -24,11 +24,11 @@ object SvgNode {
       def grab(arg0: io.qt.core.QRect | Null) = v.grab(arg0)
       def load(arg0: java.lang.String | Null) = v.load(arg0)
       def load(arg0: io.qt.core.QByteArray | Null) = v.load(arg0)
-      def unwrap: io.qt.svg.QSvgWidget = v
+      def unwrap: io.qt.widgets.svg.QSvgWidget = v
     }
   }
 
-  def wrap(v: io.qt.svg.QSvgWidget): SvgNode = 
+  def wrap(v: io.qt.widgets.svg.QSvgWidget): SvgNode = 
     val res = v.asInstanceOf[SvgNode]
     if !Toolkit.stateReader(SvgNodeInitialized.forInstance[v.type]) then init(res)
     res
@@ -39,7 +39,7 @@ object SvgNode {
     
   }
   def uninitialized(): SvgNode = {
-    val res = new io.qt.svg.QSvgWidget()
+    val res = new io.qt.widgets.svg.QSvgWidget()
     
     res.asInstanceOf[SvgNode]
   }

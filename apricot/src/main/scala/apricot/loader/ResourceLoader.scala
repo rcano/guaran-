@@ -35,5 +35,5 @@ object ResourceLoader {
       se: ScriptEngine,
       gs: GraphicsStack,
       il: ResourceLoader[Resource.Type.Image] { type Out = IArray[gs.Image] }
-  ): ResourceLoader.Aux[Resource.Type.Animation, Animation] = AnimationLoader()
+  ): ResourceLoader.Aux[Resource.Type.Animation, Animation[gs.Image]] = AnimationLoader()
 }
