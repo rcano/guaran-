@@ -10,7 +10,7 @@ import scala.jdk.CollectionConverters.*
 import scala.util.Try
 import scala.util.chaining._
 
-object run extends Panels {
+object run extends Panels, ItemViews {
 
   lazy val window = genNodeDescsrFromMetaObject(QWindow.staticMetaObject.unn, "Window", None)
     .editProperty("contentOrientation") { case ep: ExternalProp => ep.copy(visibility = Some("private")) }
@@ -86,12 +86,22 @@ object run extends Panels {
     .copy(upperBounds = Seq(widgetNode))
     .addProperty(ExternalProp("viewport", "Widget", "c => c.viewport().unn", "(c, v) => c.setViewport(v.unwrap)"))
 
-  lazy val scrollAreaNode = genNodeDescsrFromMetaObject(QScrollArea.staticMetaObject.unn, "ScrollArea", Some(widgetNode))
+  lazy val scrollAreaNode = genNodeDescsrFromMetaObject(QScrollArea.staticMetaObject.unn, "ScrollArea", Some(scrollAreaBaseNode))
     .copy(upperBounds = Seq(scrollAreaBaseNode))
     .addProperty(ExternalProp("content", "Widget | Null", "_.widget()", "(c, v) => c.setWidget(v.?(_.unwrap))"))
 
   lazy val svgNode = genNodeDescsrFromMetaObject(io.qt.widgets.svg.QSvgWidget.staticMetaObject.unn, "SvgNode", Some(widgetNode))
     .copy(upperBounds = Seq(widgetNode))
+
+  lazy val spinBoxBaseNode = genNodeDescsrFromMetaObject(QAbstractSpinBox.staticMetaObject.unn, "SpinBoxBase", Some(widgetNode))
+  lazy val spinBoxNode = genNodeDescsrFromMetaObject(QSpinBox.staticMetaObject.unn, "SpinBox", Some(spinBoxBaseNode))
+  lazy val doubleSpinBoxNode = genNodeDescsrFromMetaObject(QDoubleSpinBox.staticMetaObject.unn, "DoubleSpinBox", Some(spinBoxBaseNode))
+  lazy val dateTimeSpinBoxNode = genNodeDescsrFromMetaObject(QDateTimeEdit.staticMetaObject.unn, "DateTimeSpinBox", Some(spinBoxBaseNode))
+
+  lazy val sliderBaseNode = genNodeDescsrFromMetaObject(QAbstractSlider.staticMetaObject.unn, "SliderBase", Some(widgetNode))
+  lazy val sliderNode = genNodeDescsrFromMetaObject(QSlider.staticMetaObject.unn, "Slider", Some(sliderBaseNode))
+  lazy val dialNode = genNodeDescsrFromMetaObject(QDial.staticMetaObject.unn, "Dial", Some(sliderBaseNode))
+  
 
   def main(args: Array[String]): Unit = {
 
@@ -108,6 +118,19 @@ object run extends Panels {
                 textFieldNode,
                 scrollAreaBaseNode,
                 scrollAreaNode,
+                abstractItemViewNode,
+                tableViewNode,
+                listViewNode,
+                treeViewNode,
+                headerViewNode,
+                columnViewNode,
+                spinBoxBaseNode,
+                spinBoxNode,
+                doubleSpinBoxNode,
+                dateTimeSpinBoxNode,
+                sliderBaseNode,
+                sliderNode,
+                dialNode,
                 svgNode,
               ) ++ panels
     do
@@ -138,6 +161,7 @@ object run extends Panels {
     def addEmitter(emitter: EmitterDescr): NodeDescr = nd.copy(emitters = nd.emitters :+ emitter)
     def addOps(ops: Seq[String]): NodeDescr = nd.copy(opsExtra = nd.opsExtra ++ ops)
     def addUninitExtra(ops: Seq[String]): NodeDescr = nd.copy(uninitExtra = nd.uninitExtra ++ ops)
+    def addUninitParam(params: Seq[Parameter]): NodeDescr = nd.copy(uninitExtraParams = nd.uninitExtraParams ++ params)
     def addInitExtra(ops: Seq[String]): NodeDescr = nd.copy(initExtra = nd.initExtra ++ ops)
     def addCompanionObjectExtras(extras: Seq[String]): NodeDescr = nd.copy(companionObjectExtras = nd.companionObjectExtras ++ extras)
   }
@@ -191,16 +215,19 @@ object run extends Panels {
       .filter(_.isReadable)
       .map(prop =>
         val name = prop.name.unn
-        prop -> (
-          if prop.`type` == classOf[Boolean] || prop.`type` == classOf[java.lang.Boolean] then
-            getterMethods.getOrElse(s"is${name.capitalize}", getterMethods.getOrElse(s"has${name.capitalize}", s"$name"))
-          else getterMethods.getOrElse(s"get${name.capitalize}", s"$name")
+        (prop.name.unn, prop.metaType().unn) -> (
+          GetterNameOverrides.getOrElse(
+            mo.`type`().unn -> prop.name.unn, {
+              if prop.metaType().unn.javaType() == classOf[Boolean] || prop.metaType().unn.javaType() == classOf[java.lang.Boolean] then
+                getterMethods.getOrElse(s"is${name.capitalize}", getterMethods.getOrElse(s"has${name.capitalize}", s"$name"))
+              else getterMethods.getOrElse(s"get${name.capitalize}", s"$name")
+            }
+          )
         )
       )
       .toMap
     val signals: Seq[java.lang.reflect.Field] = actualClass.getFields.nnn.toIndexedSeq
       .filter(f => java.lang.reflect.Modifier.isPublic(f.getModifiers) && classOf[QObject#Signal1[?]].isAssignableFrom(f.getType))
-
   }
 
   def typeName(tpe: java.lang.reflect.Type): String = tpe match {
@@ -222,13 +249,13 @@ object run extends Panels {
 
   def typeName(tpe: io.qt.core.QMetaType): String = io.qt.core.QMetaType.Type.resolve(tpe.id()) match {
     case io.qt.core.QMetaType.Type.Void => "Unit"
-    case io.qt.core.QMetaType.Type.VoidStar => "Any => ()"
+    case io.qt.core.QMetaType.Type.VoidStar => classOf[io.qt.QNativePointer].getName().unn
     case io.qt.core.QMetaType.Type.Bool => "Boolean"
     case io.qt.core.QMetaType.Type.Char => "Byte"
     case io.qt.core.QMetaType.Type.Short | io.qt.core.QMetaType.Type.UChar => "Short"
     case io.qt.core.QMetaType.Type.Int | io.qt.core.QMetaType.Type.UShort => "Int"
-    case io.qt.core.QMetaType.Type.UInt | io.qt.core.QMetaType.Type.Char32 | io.qt.core.QMetaType.Type.Long | io.qt.core.QMetaType.Type.LongLong |
-        io.qt.core.QMetaType.Type.ULong | io.qt.core.QMetaType.Type.ULongLong =>
+    case io.qt.core.QMetaType.Type.UInt | io.qt.core.QMetaType.Type.Char32 | io.qt.core.QMetaType.Type.Long |
+        io.qt.core.QMetaType.Type.LongLong | io.qt.core.QMetaType.Type.ULong | io.qt.core.QMetaType.Type.ULongLong =>
       "Long"
     case io.qt.core.QMetaType.Type.Float => "Float"
     case io.qt.core.QMetaType.Type.Double => "Double"
@@ -294,13 +321,25 @@ object run extends Panels {
     analysis.localPropertiesForVars
       .map(prop =>
         val name = prop.name.unn
-        val getterMethodName = analysis.localPropertyGetters(prop)
-        var getter = GetterNameOverrides.getOrElse((actualClass, name), s"_.$getterMethodName()")
+        val getterMethodName = analysis.localPropertyGetters(prop.name.unn -> prop.metaType().unn)
+        var getter = GetterFunctionOverrides.getOrElse((actualClass, name), s"_.$getterMethodName()")
         val setter =
-          if prop.isWritable then SetterNameOverrides.getOrElse((actualClass, name), s"_.set${name.capitalize}(_)")
+          if prop.isWritable then SetterFunctionOverrides.getOrElse((actualClass, name), s"_.set${name.capitalize}(_)")
           else ""
-        val propTpe = actualClass.getMethods.nnn.find(_.getName == getterMethodName).get.getReturnType.unn
+        val propTpe = actualClass.getMethods.nnn
+          .find(_.getName == getterMethodName)
+          .getOrElse(
+            throw new IllegalStateException(s"Cound't find getter $getterMethodName for property $prop in class $actualClass")
+          )
+          .getReturnType
+          .unn
         val tpeName = typeName(propTpe)
+        // println(s"""|Property $name ~ $prop
+        //             |getter = $getterMethodName ~ $getter
+        //             |setter = $setter
+        //             |propTpe = $propTpe
+        //             |tpeName = $tpeName
+        //             |=====================""".stripMargin)
         if !tpeName.endsWith("| Null") && !propTpe.isPrimitive then getter += ".unn"
         ExternalProp(name, tpeName, getter, setter, readOnly = !prop.isWritable)
       )
@@ -313,15 +352,22 @@ object run extends Panels {
       .filter(m => m.methodType.unn == QMetaMethod.MethodType.Method || m.methodType.unn == QMetaMethod.MethodType.Slot)
       .flatMap(qmethod =>
         Try {
-          val paramsTypes = qmethod.parameterTypes.unn.asScala.toArray.map(_.toString).map(Class.forName(_).unn)
-          val method = actualClass.getMethod(qmethod.name.unn.toString(), paramsTypes: _*).unn
+          val paramsTypes = qmethod.parameterClassTypes().unn.asScala.toIndexedSeq
+          val method = actualClass.getMethod(qmethod.name.unn.toString(), paramsTypes*).unn
           val params = method.getParameters.nnn.map(p =>
             ParamNameOverride(actualClass, method.getName().unn, paramsTypes.length)(p.getName.unn) -> p.getParameterizedType.unn
           )
           val paramDecls = params.map(p => s"${p._1}: ${typeName(p._2)}")
           val paramNames = params.map(_._1)
           s"def ${qmethod.name}(${paramDecls.mkString(", ")}) = v.${qmethod.name}(${paramNames.mkString(", ")})"
-        }.toOption
+        }.toEither match {
+          case Left(_: NoSuchMethodException) => None
+          case Left(ex) =>
+            println("  err")
+            ex.printStackTrace()
+            None
+          case Right(v) => Some(v)
+        }
       )
       .filterNot(parentOps)
 
@@ -329,7 +375,7 @@ object run extends Panels {
       .filter(p => !p.isReadable)
       .map(prop =>
         if prop.isReadable then
-          val getter = analysis.localPropertyGetters(prop)
+          val getter = analysis.localPropertyGetters(prop.name.unn -> prop.metaType().unn)
           s"def $getter: ${typeName(prop.metaType().unn)} = v.$getter()"
         else s"def set${prop.name.unn.capitalize}(p; ${typeName(prop.metaType().unn)}): Unit = v.set${prop.name.unn.capitalize}(p)"
       )
@@ -350,11 +396,20 @@ object run extends Panels {
   ).withDefaultValue(Map.empty.withDefault(identity))
 
   lazy val GetterNameOverrides: Map[(Class[?], String), String] = Map(
+    (classOf[QHeaderView], "showSortIndicator") -> "isSortIndicatorShown",
+    (classOf[QAbstractSpinBox], "showGroupSeparator") -> "isGroupSeparatorShown",
+  )
+
+  lazy val GetterFunctionOverrides: Map[(Class[?], String), String] = Map(
     // (classOf[QWidget], "windowModified") -> "(_: QWidget).windowModified()",
   )
-  lazy val SetterNameOverrides: Map[(Class[?], String), String] = Map(
+  lazy val SetterFunctionOverrides: Map[(Class[?], String), String] = Map(
     (classOf[QWidget], "pos") -> "_.move(_)",
     (classOf[QWidget], "size") -> "_.resize(_)",
     (classOf[QWindow], "contentOrientation") -> "(_, _) => ()",
+    (classOf[QAbstractItemView], "showDropIndicator") -> "_.setDropIndicatorShown(_)",
+    (classOf[QListView], "isWrapping") -> "_.setWrapping(_)",
+    (classOf[QHeaderView], "showSortIndicator") -> "_.setSortIndicatorShown(_)",
+    (classOf[QAbstractSpinBox], "showGroupSeparator") -> "_.setGroupSeparatorShown(_)",
   )
 }

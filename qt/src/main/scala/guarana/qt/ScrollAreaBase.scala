@@ -10,15 +10,15 @@ opaque type ScrollAreaBase <: Widget  = io.qt.widgets.QAbstractScrollArea & Widg
 object ScrollAreaBase {
   private val ScrollAreaBaseInitialized: Var[Boolean] = Var[Boolean]("ScrollAreaBaseInitialized", false, false)
   val FrameRect: ExternalVar.Aux[ScrollAreaBase, io.qt.core.QRect | Null] = ExternalVar[ScrollAreaBase, io.qt.core.QRect | Null]("frameRect", _.frameRect(), _.setFrameRect(_), true)
-  val FrameShadow: ExternalVar.Aux[ScrollAreaBase, io.qt.widgets.QFrame.Shadow] = ExternalVar[ScrollAreaBase, io.qt.widgets.QFrame.Shadow]("frameShadow", _.frameShadow().nn, _.setFrameShadow(_), true)
-  val FrameShape: ExternalVar.Aux[ScrollAreaBase, io.qt.widgets.QFrame.Shape] = ExternalVar[ScrollAreaBase, io.qt.widgets.QFrame.Shape]("frameShape", _.frameShape().nn, _.setFrameShape(_), true)
+  val FrameShadow: ExternalVar.Aux[ScrollAreaBase, io.qt.widgets.QFrame.Shadow] = ExternalVar[ScrollAreaBase, io.qt.widgets.QFrame.Shadow]("frameShadow", _.frameShadow().unn, _.setFrameShadow(_), true)
+  val FrameShape: ExternalVar.Aux[ScrollAreaBase, io.qt.widgets.QFrame.Shape] = ExternalVar[ScrollAreaBase, io.qt.widgets.QFrame.Shape]("frameShape", _.frameShape().unn, _.setFrameShape(_), true)
   val FrameWidth: ExternalObsVal.Aux[ScrollAreaBase, Int] = ExternalObsVal[ScrollAreaBase, Int]("frameWidth", _.frameWidth())
-  val HorizontalScrollBarPolicy: ExternalVar.Aux[ScrollAreaBase, io.qt.core.Qt.ScrollBarPolicy] = ExternalVar[ScrollAreaBase, io.qt.core.Qt.ScrollBarPolicy]("horizontalScrollBarPolicy", _.horizontalScrollBarPolicy().nn, _.setHorizontalScrollBarPolicy(_), true)
+  val HorizontalScrollBarPolicy: ExternalVar.Aux[ScrollAreaBase, io.qt.core.Qt.ScrollBarPolicy] = ExternalVar[ScrollAreaBase, io.qt.core.Qt.ScrollBarPolicy]("horizontalScrollBarPolicy", _.horizontalScrollBarPolicy().unn, _.setHorizontalScrollBarPolicy(_), true)
   val LineWidth: ExternalVar.Aux[ScrollAreaBase, Int] = ExternalVar[ScrollAreaBase, Int]("lineWidth", _.lineWidth(), _.setLineWidth(_), true)
   val MidLineWidth: ExternalVar.Aux[ScrollAreaBase, Int] = ExternalVar[ScrollAreaBase, Int]("midLineWidth", _.midLineWidth(), _.setMidLineWidth(_), true)
-  val SizeAdjustPolicy: ExternalVar.Aux[ScrollAreaBase, io.qt.widgets.QAbstractScrollArea.SizeAdjustPolicy] = ExternalVar[ScrollAreaBase, io.qt.widgets.QAbstractScrollArea.SizeAdjustPolicy]("sizeAdjustPolicy", _.sizeAdjustPolicy().nn, _.setSizeAdjustPolicy(_), true)
-  val VerticalScrollBarPolicy: ExternalVar.Aux[ScrollAreaBase, io.qt.core.Qt.ScrollBarPolicy] = ExternalVar[ScrollAreaBase, io.qt.core.Qt.ScrollBarPolicy]("verticalScrollBarPolicy", _.verticalScrollBarPolicy().nn, _.setVerticalScrollBarPolicy(_), true)
-  val Viewport: ExternalVar.Aux[ScrollAreaBase, Widget] = ExternalVar[ScrollAreaBase, Widget]("viewport", c => c.viewport().nn, (c, v) => c.setViewport(v.unwrap), true)
+  val SizeAdjustPolicy: ExternalVar.Aux[ScrollAreaBase, io.qt.widgets.QAbstractScrollArea.SizeAdjustPolicy] = ExternalVar[ScrollAreaBase, io.qt.widgets.QAbstractScrollArea.SizeAdjustPolicy]("sizeAdjustPolicy", _.sizeAdjustPolicy().unn, _.setSizeAdjustPolicy(_), true)
+  val VerticalScrollBarPolicy: ExternalVar.Aux[ScrollAreaBase, io.qt.core.Qt.ScrollBarPolicy] = ExternalVar[ScrollAreaBase, io.qt.core.Qt.ScrollBarPolicy]("verticalScrollBarPolicy", _.verticalScrollBarPolicy().unn, _.setVerticalScrollBarPolicy(_), true)
+  val Viewport: ExternalVar.Aux[ScrollAreaBase, Widget] = ExternalVar[ScrollAreaBase, Widget]("viewport", c => c.viewport().unn, (c, v) => c.setViewport(v.unwrap), true)
 
   
 

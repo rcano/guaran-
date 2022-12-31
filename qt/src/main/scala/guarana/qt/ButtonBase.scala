@@ -60,10 +60,10 @@ object ButtonBase {
   def init(v: ButtonBase): Unit = {
     Widget.init(v)
     Toolkit.update(ButtonBaseInitialized.forInstance[v.type] := true)
-    v.pressed.nn.connect(slot(Toolkit.update(summon[VarContext].externalPropertyUpdated(Ops.down(v), Some(false)))))
-    v.released.nn.connect(slot(Toolkit.update(summon[VarContext].externalPropertyUpdated(Ops.down(v), Some(true)))))
-    v.toggled.nn.connect(slot((t: java.lang.Boolean) => Toolkit.update(summon[VarContext].externalPropertyUpdated(Ops.checked(v), Some(t)))))
-    v.clicked.nn.connect(slot(Toolkit.update(summon[Emitter.Context].emit(Ops.clicked(v), ()))))
+    v.pressed.unn.connect(slot(Toolkit.update(summon[VarContext].externalPropertyUpdated(Ops.down(v), Some(false)))))
+    v.released.unn.connect(slot(Toolkit.update(summon[VarContext].externalPropertyUpdated(Ops.down(v), Some(true)))))
+    v.toggled.unn.connect(slot((t: java.lang.Boolean) => Toolkit.update(summon[VarContext].externalPropertyUpdated(Ops.checked(v), Some(t)))))
+    v.clicked.unn.connect(slot(Toolkit.update(summon[Emitter.Context].emit(Ops.clicked(v), ()))))
   }
   
   

@@ -16,11 +16,11 @@ object Widget {
   val BaseSize: ExternalVar.Aux[Widget, io.qt.core.QSize | Null] = ExternalVar[Widget, io.qt.core.QSize | Null]("baseSize", _.baseSize(), _.setBaseSize(_), true)
   val ChildrenRect: ExternalObsVal.Aux[Widget, io.qt.core.QRect | Null] = ExternalObsVal[Widget, io.qt.core.QRect | Null]("childrenRect", _.childrenRect())
   val ChildrenRegion: ExternalObsVal.Aux[Widget, io.qt.gui.QRegion | Null] = ExternalObsVal[Widget, io.qt.gui.QRegion | Null]("childrenRegion", _.childrenRegion())
-  val ContextMenuPolicy: ExternalVar.Aux[Widget, io.qt.core.Qt.ContextMenuPolicy] = ExternalVar[Widget, io.qt.core.Qt.ContextMenuPolicy]("contextMenuPolicy", _.contextMenuPolicy().nn, _.setContextMenuPolicy(_), true)
+  val ContextMenuPolicy: ExternalVar.Aux[Widget, io.qt.core.Qt.ContextMenuPolicy] = ExternalVar[Widget, io.qt.core.Qt.ContextMenuPolicy]("contextMenuPolicy", _.contextMenuPolicy().unn, _.setContextMenuPolicy(_), true)
   val Cursor: ExternalVar.Aux[Widget, io.qt.gui.QCursor | Null] = ExternalVar[Widget, io.qt.gui.QCursor | Null]("cursor", _.cursor(), _.setCursor(_), true)
   val Enabled: ExternalVar.Aux[Widget, Boolean] = ExternalVar[Widget, Boolean]("enabled", _.isEnabled(), _.setEnabled(_), true)
   val Focus: ExternalObsVal.Aux[Widget, Boolean] = ExternalObsVal[Widget, Boolean]("focus", _.hasFocus())
-  val FocusPolicy: ExternalVar.Aux[Widget, io.qt.core.Qt.FocusPolicy] = ExternalVar[Widget, io.qt.core.Qt.FocusPolicy]("focusPolicy", _.focusPolicy().nn, _.setFocusPolicy(_), true)
+  val FocusPolicy: ExternalVar.Aux[Widget, io.qt.core.Qt.FocusPolicy] = ExternalVar[Widget, io.qt.core.Qt.FocusPolicy]("focusPolicy", _.focusPolicy().unn, _.setFocusPolicy(_), true)
   val Font: ExternalVar.Aux[Widget, io.qt.gui.QFont | Null] = ExternalVar[Widget, io.qt.gui.QFont | Null]("font", _.font(), _.setFont(_), true)
   val FrameGeometry: ExternalObsVal.Aux[Widget, io.qt.core.QRect | Null] = ExternalObsVal[Widget, io.qt.core.QRect | Null]("frameGeometry", _.frameGeometry())
   val FrameSize: ExternalObsVal.Aux[Widget, io.qt.core.QSize | Null] = ExternalObsVal[Widget, io.qt.core.QSize | Null]("frameSize", _.frameSize())
@@ -29,7 +29,7 @@ object Widget {
   val Height: ExternalObsVal.Aux[Widget, Int] = ExternalObsVal[Widget, Int]("height", _.height())
   val InputMethodHints: ExternalVar.Aux[Widget, io.qt.core.Qt.InputMethodHints | Null] = ExternalVar[Widget, io.qt.core.Qt.InputMethodHints | Null]("inputMethodHints", _.inputMethodHints(), _.setInputMethodHints(_), true)
   val IsActiveWindow: ExternalObsVal.Aux[Widget, Boolean] = ExternalObsVal[Widget, Boolean]("isActiveWindow", _.isActiveWindow())
-  val LayoutDirection: ExternalVar.Aux[Widget, io.qt.core.Qt.LayoutDirection] = ExternalVar[Widget, io.qt.core.Qt.LayoutDirection]("layoutDirection", _.layoutDirection().nn, _.setLayoutDirection(_), true)
+  val LayoutDirection: ExternalVar.Aux[Widget, io.qt.core.Qt.LayoutDirection] = ExternalVar[Widget, io.qt.core.Qt.LayoutDirection]("layoutDirection", _.layoutDirection().unn, _.setLayoutDirection(_), true)
   val Locale: ExternalVar.Aux[Widget, io.qt.core.QLocale | Null] = ExternalVar[Widget, io.qt.core.QLocale | Null]("locale", _.locale(), _.setLocale(_), true)
   val Maximized: ExternalObsVal.Aux[Widget, Boolean] = ExternalObsVal[Widget, Boolean]("maximized", _.isMaximized())
   val MaximumHeight: ExternalVar.Aux[Widget, Int] = ExternalVar[Widget, Int]("maximumHeight", _.maximumHeight(), _.setMaximumHeight(_), true)
@@ -63,7 +63,7 @@ object Widget {
   val WindowFilePath: ExternalVar.Aux[Widget, java.lang.String | Null] = ExternalVar[Widget, java.lang.String | Null]("windowFilePath", _.windowFilePath(), _.setWindowFilePath(_), true)
   val WindowIcon: ExternalVar.Aux[Widget, io.qt.gui.QIcon | Null] = ExternalVar[Widget, io.qt.gui.QIcon | Null]("windowIcon", _.windowIcon(), _.setWindowIcon(_), true)
   val WindowIconText: ExternalVar.Aux[Widget, java.lang.String | Null] = ExternalVar[Widget, java.lang.String | Null]("windowIconText", _.windowIconText(), _.setWindowIconText(_), true)
-  val WindowModality: ExternalVar.Aux[Widget, io.qt.core.Qt.WindowModality] = ExternalVar[Widget, io.qt.core.Qt.WindowModality]("windowModality", _.windowModality().nn, _.setWindowModality(_), true)
+  val WindowModality: ExternalVar.Aux[Widget, io.qt.core.Qt.WindowModality] = ExternalVar[Widget, io.qt.core.Qt.WindowModality]("windowModality", _.windowModality().unn, _.setWindowModality(_), true)
   val WindowModified: ExternalVar.Aux[Widget, Boolean] = ExternalVar[Widget, Boolean]("windowModified", _.isWindowModified(), _.setWindowModified(_), true)
   val WindowOpacity: ExternalVar.Aux[Widget, Double] = ExternalVar[Widget, Double]("windowOpacity", _.windowOpacity(), _.setWindowOpacity(_), true)
   val WindowTitle: ExternalVar.Aux[Widget, java.lang.String | Null] = ExternalVar[Widget, java.lang.String | Null]("windowTitle", _.windowTitle(), _.setWindowTitle(_), true)
@@ -172,9 +172,9 @@ object Widget {
 
   def init(v: Widget): Unit = {
     
-    Toolkit.connectVar(WindowIcon.forInstance[v.type], v.windowIconChanged.nn)
-    Toolkit.connectVar(WindowIconText.forInstance[v.type], v.windowIconTextChanged.nn)
-    Toolkit.connectVar(WindowTitle.forInstance[v.type], v.windowTitleChanged.nn)
+    Toolkit.connectVar(WindowIcon.forInstance[v.type], v.windowIconChanged.unn)
+    Toolkit.connectVar(WindowIconText.forInstance[v.type], v.windowIconTextChanged.unn)
+    Toolkit.connectVar(WindowTitle.forInstance[v.type], v.windowTitleChanged.unn)
     Toolkit.update(WidgetInitialized.forInstance[v.type] := true)
     
   }

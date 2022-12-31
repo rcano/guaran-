@@ -12,11 +12,11 @@ object TextField {
   val AcceptableInput: ExternalObsVal.Aux[TextField, Boolean] = ExternalObsVal[TextField, Boolean]("acceptableInput", _.hasAcceptableInput())
   val Alignment: ExternalVar.Aux[TextField, io.qt.core.Qt.Alignment | Null] = ExternalVar[TextField, io.qt.core.Qt.Alignment | Null]("alignment", _.alignment(), _.setAlignment(_), true)
   val ClearButtonEnabled: ExternalVar.Aux[TextField, Boolean] = ExternalVar[TextField, Boolean]("clearButtonEnabled", _.isClearButtonEnabled(), _.setClearButtonEnabled(_), true)
-  val CursorMoveStyle: ExternalVar.Aux[TextField, io.qt.core.Qt.CursorMoveStyle] = ExternalVar[TextField, io.qt.core.Qt.CursorMoveStyle]("cursorMoveStyle", _.cursorMoveStyle().nn, _.setCursorMoveStyle(_), true)
+  val CursorMoveStyle: ExternalVar.Aux[TextField, io.qt.core.Qt.CursorMoveStyle] = ExternalVar[TextField, io.qt.core.Qt.CursorMoveStyle]("cursorMoveStyle", _.cursorMoveStyle().unn, _.setCursorMoveStyle(_), true)
   val CursorPosition: ExternalVar.Aux[TextField, Int] = ExternalVar[TextField, Int]("cursorPosition", _.cursorPosition(), _.setCursorPosition(_), true)
   val DisplayText: ExternalObsVal.Aux[TextField, java.lang.String | Null] = ExternalObsVal[TextField, java.lang.String | Null]("displayText", _.displayText())
   val DragEnabled: ExternalVar.Aux[TextField, Boolean] = ExternalVar[TextField, Boolean]("dragEnabled", _.dragEnabled(), _.setDragEnabled(_), true)
-  val EchoMode: ExternalVar.Aux[TextField, io.qt.widgets.QLineEdit.EchoMode] = ExternalVar[TextField, io.qt.widgets.QLineEdit.EchoMode]("echoMode", _.echoMode().nn, _.setEchoMode(_), true)
+  val EchoMode: ExternalVar.Aux[TextField, io.qt.widgets.QLineEdit.EchoMode] = ExternalVar[TextField, io.qt.widgets.QLineEdit.EchoMode]("echoMode", _.echoMode().unn, _.setEchoMode(_), true)
   val Frame: ExternalVar.Aux[TextField, Boolean] = ExternalVar[TextField, Boolean]("frame", _.hasFrame(), _.setFrame(_), true)
   val HasSelectedText: ExternalObsVal.Aux[TextField, Boolean] = ExternalObsVal[TextField, Boolean]("hasSelectedText", _.hasSelectedText())
   val InputMask: ExternalVar.Aux[TextField, java.lang.String | Null] = ExternalVar[TextField, java.lang.String | Null]("inputMask", _.inputMask(), _.setInputMask(_), true)
@@ -81,19 +81,19 @@ object TextField {
 
   def init(v: TextField): Unit = {
     Widget.init(v)
-    Toolkit.connectVar(Text.forInstance[v.type], v.textChanged.nn)
+    Toolkit.connectVar(Text.forInstance[v.type], v.textChanged.unn)
     Toolkit.update(TextFieldInitialized.forInstance[v.type] := true)
-    v.textChanged.nn.connect(slot((newText: String) => Toolkit.update(summon[VarContext].externalPropertyUpdated(Ops.text(v), None))))
-    v.selectionChanged.nn.connect(slot(Toolkit.update {
+    v.textChanged.unn.connect(slot((newText: String) => Toolkit.update(summon[VarContext].externalPropertyUpdated(Ops.text(v), None))))
+    v.selectionChanged.unn.connect(slot(Toolkit.update {
       val vc = summon[VarContext]
       vc.externalPropertyUpdated(Ops.hasSelectedText(v), None)
       vc.externalPropertyUpdated(Ops.selectedText(v), None)
     }))
-    v.cursorPositionChanged.nn.connect(slot((oldp: java.lang.Integer, newp: java.lang.Integer) => Toolkit.update(summon[VarContext].externalPropertyUpdated(Ops.cursorPosition(v), Some(oldp)))))
-    v.editingFinished.nn.connect(slot(Toolkit.update(summon[Emitter.Context].emit(Ops.events(v), Event.EditFinished))))
-    v.inputRejected.nn.connect(slot(Toolkit.update(summon[Emitter.Context].emit(Ops.events(v), Event.InputRejected))))
-    v.returnPressed.nn.connect(slot(Toolkit.update(summon[Emitter.Context].emit(Ops.events(v), Event.ReturnPressed))))
-    v.textEdited.nn.connect(slot((newText: String) => Toolkit.update(summon[Emitter.Context].emit(Ops.textEdited(v), newText))))
+    v.cursorPositionChanged.unn.connect(slot((oldp: java.lang.Integer, newp: java.lang.Integer) => Toolkit.update(summon[VarContext].externalPropertyUpdated(Ops.cursorPosition(v), Some(oldp)))))
+    v.editingFinished.unn.connect(slot(Toolkit.update(summon[Emitter.Context].emit(Ops.events(v), Event.EditFinished))))
+    v.inputRejected.unn.connect(slot(Toolkit.update(summon[Emitter.Context].emit(Ops.events(v), Event.InputRejected))))
+    v.returnPressed.unn.connect(slot(Toolkit.update(summon[Emitter.Context].emit(Ops.events(v), Event.ReturnPressed))))
+    v.textEdited.unn.connect(slot((newText: String) => Toolkit.update(summon[Emitter.Context].emit(Ops.textEdited(v), newText))))
   }
   def uninitialized(): TextField = {
     val res = new io.qt.widgets.QLineEdit()

@@ -3,7 +3,7 @@ name := "guarana"
 inThisBuild(
   Seq(
     organization := "guarana",
-    version := "0.0.1-SNAPSHOT",
+    version := "0.0.2-SNAPSHOT",
     scalaVersion := "3.2.1",
     fork := true,
     libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.14" % "test",
@@ -52,6 +52,7 @@ lazy val qt = Project(id = "guarana-qt", base = file("qt"))
         "io.qtjambi" % "qtjambi-svg" % qtJambiVersion,
         "io.qtjambi" % "qtjambi-svgwidgets" % qtJambiVersion,
         "io.qtjambi" % "qtjambi-svg-native-linux-x64" % qtJambiVersion,
+        "io.qtjambi" % "qtjambi-svgwidgets-native-linux-x64" % qtJambiVersion,
       )
     }
 

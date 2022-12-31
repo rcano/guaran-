@@ -12,7 +12,7 @@ sealed trait Emitter[A] extends util.Unique {
   final def toVar(initialValue: A, listener: EventIterator[A])(implicit ctx: VarContext & Emitter.Context, instance: ValueOf[ForInstance]): ObsVal.Aux[A, ForInstance] =
     val res = Var[A]("emitter-var", initialValue).forInstance[ForInstance]
     val weakRef = java.lang.ref.WeakReference(res)
-    this := listener.takeWhile(_ => weakRef.refersTo(null)).foreach(e => res := e)
+    this := listener.takeWhile(_ => !weakRef.refersTo(null)).foreach(e => res := e)
     res
 }
 object Emitter {

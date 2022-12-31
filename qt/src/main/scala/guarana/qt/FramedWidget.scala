@@ -10,8 +10,8 @@ opaque type FramedWidget <: Widget  = io.qt.widgets.QFrame & Widget
 object FramedWidget {
   private val FramedWidgetInitialized: Var[Boolean] = Var[Boolean]("FramedWidgetInitialized", false, false)
   val FrameRect: ExternalVar.Aux[FramedWidget, io.qt.core.QRect | Null] = ExternalVar[FramedWidget, io.qt.core.QRect | Null]("frameRect", _.frameRect(), _.setFrameRect(_), true)
-  val FrameShadow: ExternalVar.Aux[FramedWidget, io.qt.widgets.QFrame.Shadow] = ExternalVar[FramedWidget, io.qt.widgets.QFrame.Shadow]("frameShadow", _.frameShadow().nn, _.setFrameShadow(_), true)
-  val FrameShape: ExternalVar.Aux[FramedWidget, io.qt.widgets.QFrame.Shape] = ExternalVar[FramedWidget, io.qt.widgets.QFrame.Shape]("frameShape", _.frameShape().nn, _.setFrameShape(_), true)
+  val FrameShadow: ExternalVar.Aux[FramedWidget, io.qt.widgets.QFrame.Shadow] = ExternalVar[FramedWidget, io.qt.widgets.QFrame.Shadow]("frameShadow", _.frameShadow().unn, _.setFrameShadow(_), true)
+  val FrameShape: ExternalVar.Aux[FramedWidget, io.qt.widgets.QFrame.Shape] = ExternalVar[FramedWidget, io.qt.widgets.QFrame.Shape]("frameShape", _.frameShape().unn, _.setFrameShape(_), true)
   val FrameWidth: ExternalObsVal.Aux[FramedWidget, Int] = ExternalObsVal[FramedWidget, Int]("frameWidth", _.frameWidth())
   val LineWidth: ExternalVar.Aux[FramedWidget, Int] = ExternalVar[FramedWidget, Int]("lineWidth", _.lineWidth(), _.setLineWidth(_), true)
   val MidLineWidth: ExternalVar.Aux[FramedWidget, Int] = ExternalVar[FramedWidget, Int]("midLineWidth", _.midLineWidth(), _.setMidLineWidth(_), true)
