@@ -118,12 +118,6 @@ object run extends Panels, ItemViews {
                 textFieldNode,
                 scrollAreaBaseNode,
                 scrollAreaNode,
-                abstractItemViewNode,
-                tableViewNode,
-                listViewNode,
-                treeViewNode,
-                headerViewNode,
-                columnViewNode,
                 spinBoxBaseNode,
                 spinBoxNode,
                 doubleSpinBoxNode,
@@ -132,7 +126,7 @@ object run extends Panels, ItemViews {
                 sliderNode,
                 dialNode,
                 svgNode,
-              ) ++ panels
+              ) ++ panels ++ itemViews
     do
       val f = File(s"src/main/scala/guarana/qt/${node.name}.scala")
       val src = genScalaSource(node)

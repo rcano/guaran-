@@ -83,4 +83,13 @@ trait ItemViews { self: run.type =>
     .copy(creator = Seq("new io.qt.widgets.QHeaderView(orientation, parent.?(_.unwrap))"))
 
   lazy val columnViewNode = genNodeDescsrFromMetaObject(QColumnView.staticMetaObject.unn, "ColumnView", Some(abstractItemViewNode))
+
+  val itemViews = Seq(
+    abstractItemViewNode,
+    tableViewNode,
+    listViewNode,
+    treeViewNode,
+    headerViewNode,
+    columnViewNode,
+  )
 }
