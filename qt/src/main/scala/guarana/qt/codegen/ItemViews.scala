@@ -6,8 +6,8 @@ import io.qt.gui.*
 import io.qt.widgets.*
 
 trait ItemViews { self: run.type =>
-  lazy val abstractItemViewNode =
-    genNodeDescsrFromMetaObject(QAbstractItemView.staticMetaObject.unn, "AbstractItemView", Some(scrollAreaBaseNode))
+  lazy val itemViewBaseNode =
+    genNodeDescsrFromMetaObject(QAbstractItemView.staticMetaObject.unn, "ItemViewBase", Some(scrollAreaBaseNode))
       .addEmitter(
         EmitterDescr(
           "activated",
@@ -70,22 +70,22 @@ trait ItemViews { self: run.type =>
         )
       )
 
-  lazy val tableViewNode = genNodeDescsrFromMetaObject(QTableView.staticMetaObject.unn, "TableView", Some(abstractItemViewNode))
+  lazy val tableViewNode = genNodeDescsrFromMetaObject(QTableView.staticMetaObject.unn, "TableView", Some(itemViewBaseNode))
 
-  lazy val listViewNode = genNodeDescsrFromMetaObject(QListView.staticMetaObject.unn, "ListView", Some(abstractItemViewNode))
+  lazy val listViewNode = genNodeDescsrFromMetaObject(QListView.staticMetaObject.unn, "ListView", Some(itemViewBaseNode))
 
-  lazy val treeViewNode = genNodeDescsrFromMetaObject(QTreeView.staticMetaObject.unn, "TreeView", Some(abstractItemViewNode))
+  lazy val treeViewNode = genNodeDescsrFromMetaObject(QTreeView.staticMetaObject.unn, "TreeView", Some(itemViewBaseNode))
 
-  lazy val headerViewNode = genNodeDescsrFromMetaObject(QHeaderView.staticMetaObject.unn, "HeaderView", Some(abstractItemViewNode))
+  lazy val headerViewNode = genNodeDescsrFromMetaObject(QHeaderView.staticMetaObject.unn, "HeaderView", Some(itemViewBaseNode))
     .addUninitParam(
       Seq(Parameter("orientation", "io.qt.core.Qt.Orientation", "---"), Parameter("parent", "Widget | Null = null", "---"))
     )
     .copy(creator = Seq("new io.qt.widgets.QHeaderView(orientation, parent.?(_.unwrap))"))
 
-  lazy val columnViewNode = genNodeDescsrFromMetaObject(QColumnView.staticMetaObject.unn, "ColumnView", Some(abstractItemViewNode))
+  lazy val columnViewNode = genNodeDescsrFromMetaObject(QColumnView.staticMetaObject.unn, "ColumnView", Some(itemViewBaseNode))
 
   val itemViews = Seq(
-    abstractItemViewNode,
+    itemViewBaseNode,
     tableViewNode,
     listViewNode,
     treeViewNode,

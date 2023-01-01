@@ -50,6 +50,7 @@ trait Panels { self: run.type =>
         "    case _ =>",
         "  }",
         "}",
+        "Toolkit.connectVar(CurrentIndex.forInstance(v), v.currentChanged.unn)"
       )
     )
 

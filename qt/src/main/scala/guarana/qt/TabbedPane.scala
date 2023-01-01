@@ -67,6 +67,7 @@ object TabbedPane {
         case _ =>
       }
     }
+    Toolkit.connectVar(CurrentIndex.forInstance(v), v.currentChanged.unn)
     
   }
   def uninitialized(): TabbedPane = {
