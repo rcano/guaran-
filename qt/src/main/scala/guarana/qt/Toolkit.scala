@@ -1,22 +1,21 @@
 package guarana
 package qt
 
+import io.qt.core.Qt.TimerType
 import io.qt.core.*
 import io.qt.widgets.QApplication
+import scala.concurrent.duration.FiniteDuration
+import scala.util.control.NonFatal
 
 type Toolkit = Toolkit.type
-object Toolkit extends AbstractToolkit {
+object Toolkit extends AbstractToolkit, animation.TimersDef {
   // private class qtApp extends QApplication(Array[String | Null]()) {
 
   // }
   /** Set the args for initializing QT, set this _before_ any call to the toolkit or it wont get picked up */
   var initializationArgs: IArray[String] = IArray()
-  protected def isOnToolkitThread(): Boolean = 
-    qtAppInstance
-    true
-  protected def runOnToolkitThread(r: () => Any): Unit = 
-    qtAppInstance
-    r()
+  protected def isOnToolkitThread(): Boolean = qtAppInstance.thread() == QThread.currentThread()
+  protected def runOnToolkitThread(r: () => Any): Unit = QCoreApplication.postEvent(qtAppInstance, RunThunk(r))
 
   def getMetrics(): guarana.Stylist.Metrics = guarana.Stylist.Metrics.NoOp
 
@@ -45,10 +44,47 @@ object Toolkit extends AbstractToolkit {
 
   val applicationState = Var.autoName[Qt.ApplicationState](Qt.ApplicationState.ApplicationInactive)
 
-
-  lazy val qtAppInstance = 
+  private case class RunThunk(f: () => Any) extends QEvent(QEvent.Type.User)
+  private class ToolkitApplication(args: Array[String | Null] | Null) extends QApplication(args) {
+    override def event(evt: QEvent | Null): Boolean = {
+      evt match {
+        case RunThunk(f) =>
+          try f()
+          catch case NonFatal(ex) => Thread.currentThread().unn.getUncaughtExceptionHandler().?(_.uncaughtException(Thread.currentThread(), ex))
+          true
+        case _ => super.event(evt)
+      }
+    }
+  }
+  lazy val qtAppInstance: QApplication = 
     println(s"initializing with ${initializationArgs.mkString("'", "' '", "'")}")
-    val qtAppInstance = QApplication.initialize(initializationArgs.asInstanceOf).nn
+    val qtAppInstance = QCoreApplication.initialize(null, initializationArgs.asInstanceOf, ToolkitApplication(_)).unn
     connectVar(applicationState, qtAppInstance.applicationStateChanged.nn)
     qtAppInstance
+
+  /////////////////////////////////
+  // Timers
+  /////////////////////////////////
+
+  type Timer = QTimer
+  given TimerLike: animation.TimerLike[Timer] with {
+
+    override def apply(delay: FiniteDuration, onUpdate: Timer => Unit, onRestart: Timer => Unit): Timer = {
+      val res = QTimer()
+      res.timeout.unn.connect(slot(onUpdate(res)))
+      res.setTimerType(TimerType.PreciseTimer)
+      res.setInterval(delay.toMillis.toInt)
+      res.setProperty("__guarana_qt.onRestart", onRestart)
+      res
+    }
+
+    extension (t: Timer) {
+      override def start(): Unit = {
+        t.property("__guarana_qt.onRestart").?(_.asInstanceOf[Timer => Unit].apply(t))
+        t.start()
+      }
+      override def stop(): Unit = t.stop()
+    }
+
+  }
 }

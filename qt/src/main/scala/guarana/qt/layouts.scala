@@ -47,7 +47,14 @@ object BoxLayout {
       v.varUpdates := EventIterator.foreach {
         case v.nodes(oldv, newv) =>
           var oldItem: QLayoutItem | Null = null
-          while { oldItem = v.takeAt(0); oldItem != null } do oldItem.dispose()
+          while { oldItem = v.takeAt(0); oldItem != null } do {
+            val w = oldItem.widget().unn
+            // there's no other way to make the widget go away from this control than to hide it and reparent it to null. This is a known "feature" of Qt
+            w.hide()
+            w.setParent(null)
+            oldItem.dispose()
+          }
+
           newv.foreach {
             case w: QWidget => v.addWidget(w)
             case LayoutItem.Space(s) => v.addSpacing(s().toInt)
@@ -61,6 +68,11 @@ object BoxLayout {
 
 opaque type HBoxLayout <: BoxLayout = QHBoxLayout
 object HBoxLayout {
+  given Ops: AnyRef with {
+    extension (l: HBoxLayout) {
+      def unwrap: QHBoxLayout = l
+    }
+  }
   def wrap(v: QHBoxLayout): HBoxLayout = v
   def apply(
       widget: Opt[Widget] = UnsetParam,
@@ -89,6 +101,11 @@ object HBoxLayout {
 }
 opaque type VBoxLayout <: BoxLayout = QVBoxLayout
 object VBoxLayout {
+  given Ops: AnyRef with {
+    extension (l: VBoxLayout) {
+      def unwrap: QVBoxLayout = l
+    }
+  }
   def wrap(v: QVBoxLayout): VBoxLayout = v
   def apply(
       widget: Opt[Widget] = UnsetParam,
@@ -124,6 +141,7 @@ object FormLayout {
   val Rows: Var[Seq[(Widget, Widget)]] = Var[Seq[(Widget, Widget)]]("rows", Seq.empty, true)
   given Ops: AnyRef with {
     extension (l: FormLayout) {
+      def unwrap: QFormLayout = l
       def spacing = Spacing.forInstance(l)
       def rows = Rows.forInstance(l)
     }
@@ -170,7 +188,7 @@ object FormLayout {
 }
 
 opaque type GridLayout <: Layout = QGridLayout
-case class GridCell(node: Widget, row: Int, col: Int, rowSpan: Int = 1, colSpan: Int = 1)
+case class GridCell(node: Widget, row: Int, col: Int, rowSpan: Int = 1, colSpan: Int = 1, alignment: Qt.Alignment = Qt.Alignment(0))
 object GridLayout {
   val HorizontalSpacing =
     ExternalVar[GridLayout, Double]("horizontalSpacing", _.horizontalSpacing(), (c, v) => c.setHorizontalSpacing(v.round.toInt), true)
@@ -180,6 +198,7 @@ object GridLayout {
 
   given Ops: AnyRef with {
     extension (l: GridLayout) {
+      def unwrap: QGridLayout = l
       def horizontalSpacing = HorizontalSpacing.forInstance(l)
       def verticalSpacing = VerticalSpacing.forInstance(l)
       def nodes = Nodes.forInstance(l)
@@ -203,11 +222,11 @@ object GridLayout {
     Toolkit.update {
       v.varUpdates := EventIterator.foreach {
         case v.nodes(oldv, newv) =>
-          oldv foreach (_ foreach (cell => 
-            val item = v.itemAtPosition(cell.row, cell.col)  
+          oldv foreach (_ foreach (cell =>
+            val item = v.itemAtPosition(cell.row, cell.col)
             item.?(_.dispose())
           ))
-          newv foreach (cell => v.addWidget(cell.node.unwrap, cell.row, cell.col, cell.rowSpan, cell.colSpan))
+          newv foreach (cell => v.addWidget(cell.node.unwrap, cell.row, cell.col, cell.rowSpan, cell.colSpan, cell.alignment))
         case _ =>
       }
     }

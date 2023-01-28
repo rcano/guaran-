@@ -8,17 +8,9 @@ trait Panels { self: run.type =>
 
   private lazy val replaceAllNodesInit = Seq(
     "Toolkit.update {",
-    "  v.varUpdates := EventIterator.foreach {",
-    "    case v.nodes(oldv, newv) =>",
-    "      var oldItem: QLayoutItem | Null = null",
-    "      while {oldItem = layout.takeAt(0); oldItem != null} do oldItem.dispose()",
-    "      newv.foreach {",
-    "        case w: QWidget => layout.addWidget(w)",
-    "        case LayoutItem.Space(s) => layout.addSpacing(s().toInt)",
-    "        case LayoutItem.Stretch(s) => layout.addStretch(s().toInt)",
-    "      }",
-    "    case _ =>",
-    "  }",
+    "  val l = BoxLayout.wrap(v.layout().asInstanceOf[QBoxLayout])",
+    "  BoxLayout.init(l)",
+    "  l.nodes := Binding.dyn { v.nodes() }",
     "}",
   )
   lazy val hboxNode = genNodeDescsrFromMetaObject(QWidget.staticMetaObject.nn, "HBox", Some(widgetNode))
