@@ -2,6 +2,7 @@
 package guarana
 package qt
         
+import io.qt.core.Qt
 import io.qt.gui.*
 import io.qt.widgets.*
 import util.*
@@ -178,14 +179,14 @@ object Widget {
     Toolkit.update(WidgetInitialized.forInstance[v.type] := true)
     
   }
-  def uninitialized(): Widget = {
-    val res = new io.qt.widgets.QWidget()
+  def uninitialized(parent: Widget | Null = null, windowFlags: Qt.WindowFlags | Null = null): Widget = {
+    val res = new io.qt.widgets.QWidget(parent.?(_.unwrap), windowFlags)
     
     res.asInstanceOf[Widget]
   }
   
   def apply(
-    
+    parent: Widget | Null = null, windowFlags: Qt.WindowFlags | Null = null,
     acceptDrops: Opt[Binding[Boolean]] = UnsetParam,
     accessibleDescription: Opt[Binding[java.lang.String | Null]] = UnsetParam,
     accessibleName: Opt[Binding[java.lang.String | Null]] = UnsetParam,
@@ -229,7 +230,7 @@ object Widget {
     windowOpacity: Opt[Binding[Double]] = UnsetParam,
     windowTitle: Opt[Binding[java.lang.String | Null]] = UnsetParam
   ): ToolkitAction[Widget] = {
-    val res = uninitialized()
+    val res = uninitialized(parent, windowFlags)
     Widget.init(res)
     ifSet(acceptDrops, Widget.ops.acceptDrops(res) := _)
     ifSet(accessibleDescription, Widget.ops.accessibleDescription(res) := _)

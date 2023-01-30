@@ -10,7 +10,7 @@ import scala.jdk.CollectionConverters.*
 import scala.util.Try
 import scala.util.chaining._
 
-object run extends Panels, ItemViews {
+object run extends Panels, ItemViews, Dialogs {
 
   lazy val window = genNodeDescsrFromMetaObject(QWindow.staticMetaObject.unn, "Window", None)
     .editProperty("contentOrientation") { case ep: ExternalProp => ep.copy(visibility = Some("private")) }
@@ -18,7 +18,8 @@ object run extends Panels, ItemViews {
     .addOps(Seq("def contentOrientation = ContentOrientation.asObsValIn(v)"))
 
   lazy val widgetNode = genNodeDescsrFromMetaObject(QWidget.staticMetaObject.unn, "Widget", None)
-    .copy(lowerBounds = Seq("io.qt.widgets.QWidget"))
+    .addUninitParam(Seq(Parameter("parent", "Widget | Null = null", "---"), Parameter("windowFlags", "Qt.WindowFlags | Null = null", "---")))
+    .copy(creator = Seq("new io.qt.widgets.QWidget(parent.?(_.unwrap), windowFlags)"), lowerBounds = Seq("io.qt.widgets.QWidget"))
     .addOps(Seq("def windowHandle: Option[Window] = v.windowHandle.?(Window.wrap(_)).toOption"))
 
   lazy val buttonBaseNode = genNodeDescsrFromMetaObject(QAbstractButton.staticMetaObject.unn, "ButtonBase", Some(widgetNode))
@@ -101,13 +102,12 @@ object run extends Panels, ItemViews {
   lazy val sliderBaseNode = genNodeDescsrFromMetaObject(QAbstractSlider.staticMetaObject.unn, "SliderBase", Some(widgetNode))
   lazy val sliderNode = genNodeDescsrFromMetaObject(QSlider.staticMetaObject.unn, "Slider", Some(sliderBaseNode))
   lazy val dialNode = genNodeDescsrFromMetaObject(QDial.staticMetaObject.unn, "Dial", Some(sliderBaseNode))
-  
 
   def main(args: Array[String]): Unit = {
 
     for
       node <- Seq[NodeDescr](
-                window,
+                // window,
                 widgetNode,
                 buttonBaseNode,
                 buttonNode,
@@ -126,7 +126,7 @@ object run extends Panels, ItemViews {
                 sliderNode,
                 dialNode,
                 svgNode,
-              ) ++ panels ++ itemViews
+              ) ++ panels ++ itemViews ++ dialogs
     do
       val f = File(s"src/main/scala/guarana/qt/${node.name}.scala")
       val src = genScalaSource(node)
@@ -135,6 +135,7 @@ object run extends Panels, ItemViews {
         |package guarana
         |package qt
         
+        |import io.qt.core.Qt
         |import io.qt.gui.*
         |import io.qt.widgets.*
         |import util.*

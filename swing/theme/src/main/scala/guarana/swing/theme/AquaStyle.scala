@@ -140,28 +140,28 @@ class AquaStyle() extends Stylist {
         //in order to use the hovered var
         val c = Component.wrap(jsb)
         if !Component.isInitialized(c) then Component.init(c)(using toolkit.asInstanceOf[Scenegraph])
-        var focusTimer: Timer | Null = null
         import animation.Timeline, Timeline.*
+        var focusAnimation: Timeline.Animation[Timer] | Null = null
         toolkit.update {
           val opacity = CssProperties.Opacity.forInstance(c)
           val minOpacity = 0.25
           opacity := minOpacity
           c.varUpdates := EventIterator.foreach {
             case c.hovered(_, hovered) =>
-              focusTimer.?(_.stop())
+              focusAnimation.?(_.timer.stop())
               if hovered then
-                focusTimer = Timeline(
+                focusAnimation = Timeline(
                   IArray(KeyFrame(250.millis, opacity, minOpacity, 1, EaseBothCurve)),
-                  2,
+                  Timeline.Cycles.Iterations(2),
                   ups = 30
-                )
+                )(Scenegraph)
               else
-                focusTimer = Timeline(
+                focusAnimation = Timeline(
                   IArray(KeyFrame(250.millis, opacity, 1, minOpacity, EaseBothCurve)),
-                  2,
+                  Timeline.Cycles.Iterations(2),
                   ups = 30
-                )
-              focusTimer.unn.start()
+                )(Scenegraph)
+              focusAnimation.unn.timer.start()
             case opacity(_, op) => jsb.repaint()
             case _ =>
           }

@@ -4,11 +4,35 @@ package swing
 import language.implicitConversions
 import javax.swing.SwingUtilities
 import scala.concurrent.{Await, Future, Promise}
-import scala.concurrent.duration.Duration
+import scala.concurrent.duration.{Duration, FiniteDuration}
 import scala.util.Try
 
-object Scenegraph {
+object Scenegraph extends animation.TimersDef {
   type ContextAction[+R] = VarContext & Emitter.Context ?=> R
+
+  /////////////////////////////////
+  // Timers
+  /////////////////////////////////
+
+  type Timer = javax.swing.Timer
+  given TimerLike: animation.TimerLike[Timer] with {
+
+    override def apply(delay: FiniteDuration, onUpdate: Timer => Unit, onRestart: Timer => Unit): Timer = {
+      val res = new javax.swing.Timer(delay.toMillis.toInt, null) {
+        override def start(): Unit = {
+          onRestart(this)
+          super.start()
+        }
+      }
+      val al: java.awt.event.ActionListener = _ => onUpdate(res)
+      res.addActionListener(al)
+      res
+    }
+    extension (t: Timer) {
+      override def start(): Unit = t.start()
+      override def stop(): Unit = t.stop()
+    }
+  }
 }
 class Scenegraph extends AbstractToolkit {
 
