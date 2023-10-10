@@ -37,7 +37,7 @@ object ProductLenses {
     case _: (t *: ts) => lense[P](compiletime.constValue[t]) :: lenseForLabels[ts, P]
   }
 
-  inline given productLenses[P <: Product](using inline mirror: deriving.Mirror.ProductOf[P]): ProductLenses[P] = {
+  inline given productLenses[P <: Product](using mirror: deriving.Mirror.ProductOf[P]): ProductLenses[P] = {
     val lenses = lenseForLabels[mirror.MirroredElemLabels, P]
     // val allLabels = ProductFields.summonAllValues[mirror.MirroredElemLabels].asInstanceOf[Seq[String]]
     // allLabels.map(l => lense[P](l))

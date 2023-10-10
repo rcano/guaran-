@@ -7,7 +7,7 @@ package guarana
  */
 trait Stylist {
 
-  transparent inline def toolkit(using inline t: AbstractToolkit): t.type = t
+  transparent inline def toolkit(using t: AbstractToolkit): t.type = t
   
   /**
    * Return the style defined value for a given property, if defined.

@@ -9,7 +9,7 @@ class KeyedWeakHashMap[K, V] extends collection.mutable.Map[Keyed[K], V] {
   private val underlying = new java.util.HashMap[KeyDef[K], V](256, 0.65)
   private val refQueue = ReferenceQueue[Any]()
   
-  extension (k: Keyed[K]) def toWeak: WeakKeyed[K] = ???//WeakKeyed(k.keyed, k.instance, refQueue)
+  extension (k: Keyed[K]) def toWeak: WeakKeyed[K] = throw UnsupportedOperationException("can't toWeak a Keyed anymore")//WeakKeyed(k.keyed, k.instance, refQueue)
 
   def addOne(elem: (Keyed[K], V)) = {
     expungeStaleEntries()

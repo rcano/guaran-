@@ -3,16 +3,12 @@ package vk
 
 import better.files.*
 import guarana.{AbstractToolkit, Stylist}
-import scala.annotation.threadUnsafe
-import org.lwjgl.glfw.GLFW
-import org.lwjgl.glfw.GLFWVulkan
-import org.lwjgl.vulkan.VK11
-import org.lwjgl.vulkan.EXTDebugReport
-import org.lwjgl.vulkan.VK10
-import java.util.concurrent.locks.LockSupport
-import org.lwjgl.vulkan.VkDebugReportCallbackEXT
-import org.lwjgl.vulkan.VkDebugReportCallbackCreateInfoEXT
 import java.nio.LongBuffer
+import java.util.concurrent.locks.LockSupport
+import org.lwjgl.glfw.{GLFW, GLFWVulkan}
+import org.lwjgl.system.MemoryStack
+import org.lwjgl.vulkan.{EXTDebugReport, VK10, VK11, VkDebugReportCallbackCreateInfoEXT, VkDebugReportCallbackEXT}
+import scala.annotation.threadUnsafe
 
 object BasicWindowTest {
   def main(args: Array[String]) = {
@@ -107,7 +103,7 @@ object BasicWindowTest {
         0
     }
     val callbackCreateInfo = VkDebugReportCallbackCreateInfoEXT
-      .calloc(summon)
+      .calloc(summon[MemoryStack])
       .sType(EXTDebugReport.VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT)
       .pfnCallback(debugCallback)
       .flags(EXTDebugReport.VK_DEBUG_REPORT_ERROR_BIT_EXT | EXTDebugReport.VK_DEBUG_REPORT_WARNING_BIT_EXT)

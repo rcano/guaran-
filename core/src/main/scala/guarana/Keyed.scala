@@ -13,21 +13,21 @@ object Keyed {
     case u: util.Unique => u.uniqueId
     case _ => inferId(a)
   }
-  def inferId(a: Any): Int = a match {
-    case i: Int => i
-    case u: util.Unique => u.uniqueId
-    case _ => System.identityHashCode(a)
-  }
+  var inferer: IdInferer = defaultInferer
+  def inferId(a: Any): Int = inferer.inferId(a)
   def apply[T](id: Long): Keyed[T] = id
 
   extension [T](k: Keyed[T]) {
     def keyId: Int = ((k >>> 32) & 0xFFFFFFFF).toInt
     def instanceId: Int = (k & 0xFFFFFFFF).toInt
     def id: Long = k
+  }
 
-    @compileTimeOnly("this are going to be deleted")
-    def keyed: T = ???
-    @compileTimeOnly("this are going to be deleted")
-    def instance: Singleton = ???
+  /** SAM Type for pluggable id infering (not using function due to monomorphization cost)*/
+  trait IdInferer {
+    def inferId(a: Any): Int
+  }
+  final lazy val defaultInferer: IdInferer = {
+    case other => System.identityHashCode(other)
   }
 }

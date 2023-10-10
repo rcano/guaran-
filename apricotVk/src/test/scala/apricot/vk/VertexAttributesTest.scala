@@ -4,8 +4,8 @@ package vk
 import apricot.graphics.GraphicsStack
 import apricot.util.directmem.{AllocContext, BasicSegmentAllocator, Pointer, Sized, Struct}
 import guarana.{?, using}
+import java.lang.foreign.MemorySegment
 import java.nio.ByteBuffer
-import jdk.incubator.foreign.{MemoryAddress, MemorySegment, ResourceScope}
 import org.lwjgl.system.MemoryUtil
 import org.lwjgl.vulkan.{
   KHRSwapchain,
@@ -192,7 +192,7 @@ class VertexAttributesTest extends Layer("vertex4") {
 
       // write directly to the mapped memory
       using(new BasicSegmentAllocator {
-        val memorySegment = MemoryAddress.ofLong(mappedMemoryHandle).asSegment(vertexDataSize, ResourceScope.globalScope())
+        val memorySegment = MemorySegment.ofAddress(mappedMemoryHandle)
       }) {
         VertexData(-0.7f, -0.7f, 0.0f, 1.0f)(Color.Beige)
         VertexData(-0.7f, 0.7f, 0.0f, 1.0f)(Color.CornflowerBlue)

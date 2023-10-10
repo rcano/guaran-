@@ -1,7 +1,7 @@
 package apricot.util.directmem
 
 import guarana.unn
-import jdk.incubator.foreign.{MemoryAccess, MemorySegment}
+import java.lang.foreign.MemorySegment
 
 object StackAlloc {
 

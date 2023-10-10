@@ -33,6 +33,7 @@ opaque type BoxLayout <: Layout = QBoxLayout
 object BoxLayout {
   val Spacing = ExternalVar[QBoxLayout, Double]("spacing", _.spacing, (c, v) => c.setSpacing(v.round.toInt), true)
   val Nodes: Var[Seq[Widget | LayoutItem]] = Var[Seq[Widget | LayoutItem]]("nodes", Seq.empty, true)
+  private val LayoutRemoved = Var.autoName(false, eagerEvaluation = true)
 
   given Ops: AnyRef with {
     extension (l: BoxLayout) {
@@ -52,11 +53,24 @@ object BoxLayout {
             // there's no other way to make the widget go away from this control than to hide it and reparent it to null. This is a known "feature" of Qt
             w.hide()
             w.setParent(null)
+            // flag that the visibility was changed due to layouting
+            LayoutRemoved.forInstance(w) := true
+            // if the visible property is manually touched, we remove our flag
+            w.varUpdates := EventIterator
+              .filter {
+                case Widget.Visible.generic(_, _, _) => true
+                case _ => false
+              }
+              .take(1)
+              .foreach(_ => LayoutRemoved.forInstance(w) := false)
+
             oldItem.dispose()
           }
 
           newv.foreach {
-            case w: QWidget => v.addWidget(w)
+            case w: QWidget => 
+              v.addWidget(w)
+              if (LayoutRemoved.forInstance(w)()) w.show()
             case LayoutItem.Space(s) => v.addSpacing(s().toInt)
             case LayoutItem.Stretch(s) => v.addStretch(s().toInt)
           }

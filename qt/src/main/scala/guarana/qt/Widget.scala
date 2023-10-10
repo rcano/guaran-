@@ -7,7 +7,7 @@ import io.qt.gui.*
 import io.qt.widgets.*
 import util.*
 
-opaque type Widget  >: io.qt.widgets.QWidget = io.qt.widgets.QWidget
+opaque type Widget  >: io.qt.widgets.QWidget <: AnyRef = io.qt.widgets.QWidget
 object Widget {
   private val WidgetInitialized: Var[Boolean] = Var[Boolean]("WidgetInitialized", false, false)
   val AcceptDrops: ExternalVar.Aux[Widget, Boolean] = ExternalVar[Widget, Boolean]("acceptDrops", _.acceptDrops(), _.setAcceptDrops(_), true)

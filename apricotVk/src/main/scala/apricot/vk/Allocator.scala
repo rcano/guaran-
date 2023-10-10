@@ -4,6 +4,7 @@ import better.files._
 import guarana.unn
 import java.nio.{IntBuffer, LongBuffer}
 import org.lwjgl.system.{CustomBuffer, MemoryStack, Struct}
+import scala.annotation.transparentTrait
 import scala.jdk.CollectionConverters._
 import scala.compiletime.{codeOf, error}
 import scala.util.Try
@@ -21,7 +22,7 @@ trait Allocator[S]:
   transparent inline def callocBuffer(capacity: Int): Buffer
   transparent inline def mallocBuffer(capacity: Int): Buffer
 
-object Allocator {
+object Allocator extends LowPrioGivens {
   given Allocator[org.lwjgl.PointerBuffer] with
     type Buffer = org.lwjgl.PointerBuffer
     inline def stackCalloc(stack: MemoryStack) = stack.callocPointer(1).unn
@@ -32,7 +33,10 @@ object Allocator {
     transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = stack.mallocPointer(capacity).unn
     transparent inline def callocBuffer(capacity: Int) = org.lwjgl.system.MemoryUtil.memCallocPointer(capacity).unn
     transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.system.MemoryUtil.memAllocPointer(capacity).unn
+}
 
+@transparentTrait
+private trait LowPrioGivens {
   given Allocator[LongBuffer] with
     type Buffer = Nothing
     inline def stackCalloc(stack: MemoryStack) = stack.callocLong(1).unn
@@ -56,8 +60,8 @@ object Allocator {
     transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = error("Can't create a buffer of IntBuffers")
     transparent inline def callocBuffer(capacity: Int) = error("Can't create a buffer of IntBuffers")
     transparent inline def mallocBuffer(capacity: Int) = error("Can't create a buffer of IntBuffers")
-
 }
+
 @main def genStructAllocators: Unit =
   import scala.language.unsafeNulls
   val structClass = classOf[org.lwjgl.system.Struct]

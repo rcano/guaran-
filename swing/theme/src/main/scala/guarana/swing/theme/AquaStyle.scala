@@ -4,7 +4,7 @@ package theme
 
 import com.jhlabs.image.*
 import java.awt.{BasicStroke, Dimension}
-import javax.swing._
+import javax.swing.*
 import scala.concurrent.duration.DurationInt
 import style.*
 

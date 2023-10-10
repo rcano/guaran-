@@ -93,7 +93,7 @@ object ScriptDsl {
   def doUntilStep(cond: ScriptEngine ?=> ToolkitAction[Long => Boolean]): Script =
     Script { l => if cond(l) then Done else Cont }
   
-  inline def parallel(inline t: NonEmptyTuple)(using inline u: Tuple.Union[t.type] =:= Script): Unit = {
+  inline def parallel(t: NonEmptyTuple)(using inline u: Tuple.Union[t.type] =:= Script): Unit = {
     cps.await[ScriptMonad, Unit, ScriptMonad](t.toArray.reduce(_.asInstanceOf[Script] & _.asInstanceOf[Script]).asInstanceOf[Script])
   }
 

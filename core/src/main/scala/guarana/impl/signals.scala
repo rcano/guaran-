@@ -100,6 +100,7 @@ private[impl] class SignalSwitchboardImpl[Signal[+T] <: util.Unique](
         signalStates.put(s.id, Value(result))
 
         val computedRels = Relationships[Signal](tracker.dependencies, tracker.dependents)
+        scribe.debug(s"recomputed signal $s to $result, new relationships: $computedRels")
         signalRels.put(s.id, computedRels)
 
         tracker.dependencies.fastForeach(dep =>
@@ -128,7 +129,13 @@ private[impl] class SignalSwitchboardImpl[Signal[+T] <: util.Unique](
     val oldv = signalStates.get(s.id).toOption
     if (!oldv.exists {
       case Value(`value`) => true
-      case External => signalDescriptor.getExternal(s) == value
+      case External => 
+        /* external properties must always fire, since we have to way of tracking for a value change because we get notified of update after the underlying
+           value was modified. There's no way of weaving this. In the future we might investigate how to do it, but we have to be mindful of allocations as well.
+           ExternalVar implementors are encouraged to make this check on their own before notifying the switchboard.
+        */
+        false 
+        // signalDescriptor.getExternal(s) == value
       case _ => false
     }) {
       unbindPrev(s)
@@ -158,6 +165,7 @@ private[impl] class SignalSwitchboardImpl[Signal[+T] <: util.Unique](
     // the iteration a signal that was removed, hence why we check here if that's the case by checking the state
     if !signalStates.containsKey(s.id) then return
 
+    scribe.debug(s"propagating invalidation for $s")
     signalEvaluator.get(s.id).? { compute =>
       signalStates.get(s.id) match {
         case null => signalStates.put(s.id, Recompute(null))

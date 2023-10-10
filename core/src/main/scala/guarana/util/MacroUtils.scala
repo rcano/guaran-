@@ -25,14 +25,18 @@ object MacroUtils {
   inline def showRaw(inline a: Any): Unit = ${showRawMacro('a)}
   def showRawMacro(a: Expr[Any])(using q: Quotes): Expr[Unit] = {
     import q.reflect.*
-    report.info(a.asTerm.show(using Printer.TreeAnsiCode))
+    val render = a.asTerm.show(using Printer.TreeAnsiCode)
+    println(render)
+    report.info(render)
     '{()}
   }
 
   inline def showTree(inline a: Any): Unit = ${showTreeMacro('a)}
   def showTreeMacro(a: Expr[Any])(using q: Quotes): Expr[Unit] = {
     import q.reflect.*
-    report.info(a.asTerm.show(using Printer.TreeStructure))
+    val render = a.asTerm.show(using Printer.TreeStructure)
+    println(render)
+    report.info(render)
     '{()}
   }
 

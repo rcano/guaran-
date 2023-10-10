@@ -1,6 +1,6 @@
 package guarana.swing
 
-import guarana.{*, given}
+import guarana.{given, *}
 import language.implicitConversions
 import scala.concurrent.{impl => _, _}, ExecutionContext.Implicits.given
 import scala.util.Try
@@ -8,45 +8,61 @@ import scala.util.chaining.*
 import Binding.dyn
 import util.UnsetParam
 
-@main def Test: Unit = {
-  val scenegraph = Scenegraph()
+object Test {
+  def main(args: Array[String]): Unit = {
+    val scenegraph = Scenegraph()
 
-  scenegraph.update {
-    val presses = Var[Int]("presses", 0)
+    scenegraph.update {
+      val presses = Var[Int]("presses", 0)
 
-    val root = AbsolutePositioningPane()
-    val label: Label = Label(
-      toolTipText = "Report the location of the mouse",
-      text = dyn {
-        val (x, y) = root.mouseLocation()
-        s"<html>Mouse location: <font color=green>$x, $y</font>\nPressed: ${presses()} times"
-      }
-    )
-
-    label.bounds := dyn {
-      val (x, y) = root.mouseLocation()
-      val dim = label.prefSize().nn
-      Bounds(x, y, dim._1, dim._2)
-    }
-      
-    root.nodes := Seq(
-      label,
-      Button(text = "Press me!", bounds = Bounds(10, 10, 100, 50)).tap(
-        _.actionEvents := EventIterator.foreach { e =>
-          println("pressed")
-          presses := presses() + 1
+      val root = AbsolutePositioningPane()
+      val label: Label = Label(
+        toolTipText = "Report the location of the mouse",
+        text = dyn {
+          val (x, y) = root.mouseLocation()
+          s"<html>Mouse location: <font color=green>$x, $y</font>\nPressed: ${presses()} times"
         }
       )
-    )
 
-    Frame(
-      bounds = Bounds(0, 0, 300, 300),
-      locationByPlatform = true,
-      root = root,
-      title = "Guarná test",
-      visible = true,
-      defaultCloseOperation = 3,
-    )
+      def newLabel() = scenegraph.update {
+        val res = Label()
+        res.text := guarana.impl.BindingMacro.dynDebug { s"Generated at ${java.time.Instant.now()}, dim: ${res.bounds()}" }
+        res.unwrap.putClientProperty("heavy array", new Array[Byte](50 * 1024 * 1024))
+        res
+      }
+
+      val theLabel = Var.autoName(newLabel())
+
+      label.bounds := dyn {
+        val (x, y) = root.mouseLocation()
+        val dim = label.prefSize().nn
+        Bounds(x, y, dim._1, dim._2)
+      }
+
+      root.nodes := Seq(
+        label,
+        Button(text = "Press me!", bounds = Bounds(10, 10, 100, 50)).tap(
+          _.actionEvents := EventIterator.foreach { e =>
+            println("pressed")
+            theLabel := newLabel()
+            presses := presses() + 1
+          }
+        ),
+        Vbox(
+          bounds = Bounds(10, 100, 400, 250),
+          nodes = dyn { Seq(theLabel()) }
+        )
+      )
+
+      Frame(
+        bounds = Bounds(0, 0, 300, 300),
+        locationByPlatform = true,
+        root = root,
+        title = "Guarná test",
+        visible = true,
+        defaultCloseOperation = 3,
+      )
+    }
   }
 }
 
@@ -54,19 +70,24 @@ import util.UnsetParam
   val out = new java.io.PrintStream("target/log.txt")
   System.setErr(out)
   System.setOut(out)
-  DevAppReloader.launch(Array(java.nio.file.Paths.get("target/scala-3.0.0-M3/classes").nn, java.nio.file.Paths.get("target/scala-3.0.0-M3/test-classes").nn), "guarana.swing.*".r, "guarana.swing.FormTest", Array())
+  DevAppReloader.launch(
+    Array(java.nio.file.Paths.get("target/scala-3.0.0-M3/classes").nn, java.nio.file.Paths.get("target/scala-3.0.0-M3/test-classes").nn),
+    "guarana.swing.*".r,
+    "guarana.swing.FormTest",
+    Array()
+  )
 }
 
 @main def FormTest: Unit = {
   // val orig = System.getProperties().nn
   // new java.util.Properties() {
-  //   override def getProperty(prop: String) = 
+  //   override def getProperty(prop: String) =
   //     println(s"Reading $prop")
   //     orig.getProperty(prop).tap(r => println(s"  = $r"))
-  //   override def getProperty(prop: String, default: String) = 
+  //   override def getProperty(prop: String, default: String) =
   //     println(s"Reading $prop def $default")
   //     orig.getProperty(prop, default).tap(r => println(s"  = $r"))
-  //   override def get(a: Any) = 
+  //   override def get(a: Any) =
   //     println(s"Reading $a")
   //     orig.get(a).tap(r => println(s"  = $r"))
   // } pipe System.setProperties
@@ -103,7 +124,7 @@ import util.UnsetParam
       // componentOrientation = java.awt.ComponentOrientation.RIGHT_TO_LEFT,
       opaque = true,
     )
-      
+
     scenegraph.emSize := dyn { emModifier.value() }
 
     val combobox = ComboBox[String](items = Seq("A", "B", "C"))
@@ -123,16 +144,18 @@ import util.UnsetParam
           border = javax.swing.BorderFactory.createTitledBorder("Center thing")
         ),
         right = Vbox(nodes = Seq(Label(text = "Em Size"), emModifier)),
-        left = Vbox(nodes = Seq(
-          ToggleButton(text = "toggle"),
-          CheckBox(text = "check"),
-          RadioButton(text = "radio"),
-          combobox,
-          Label(text = dyn { s"selected ${combobox.selectedItem()}" }),
-          Separator(),
-          spinner,
-          Label(text = dyn { s"selected ${spinner.value()}" })
-        )),
+        left = Vbox(nodes =
+          Seq(
+            ToggleButton(text = "toggle"),
+            CheckBox(text = "check"),
+            RadioButton(text = "radio"),
+            combobox,
+            Label(text = dyn { s"selected ${combobox.selectedItem()}" }),
+            Separator(),
+            spinner,
+            Label(text = dyn { s"selected ${spinner.value()}" })
+          )
+        ),
         bottom = Hbox(nodes = Seq(Box.horizontalGlue(), login)),
         border = dyn { javax.swing.BorderFactory.createEmptyBorder(1.em.toInt, 1.em.toInt, 1.em.toInt, 1.em.toInt) }
       ),
@@ -140,7 +163,6 @@ import util.UnsetParam
       horizontal = false,
       background = Color.WhiteSmoke
     )
-
 
     val tabs = ObsBuffer[Tab]()
     tabs += Tab(title = "demo1", content = tab1Content)
@@ -156,33 +178,43 @@ import util.UnsetParam
       }
     }
     case class Movie(title: String, year: String, rating: Int, watched: Boolean)
-    val td = table.immutable.TableData[Movie](IndexedSeq(
-      Movie("Castle in the Sky", "1986", 8, true),
-      Movie("Grave of the Fireflies", "1988", 10, true),
-      Movie("My Neighbor Totoro", "1988", 9, true),
-      Movie("Pom Poko", "1994", 6, false),
-    ))
-    tabs += Tab(title = "A table", content = ScrollPane(content = TableView(
-      model = td.defaultTableModel,
-      columnModel = td.columnModel
-    )))
+    val td = table.immutable.TableData[Movie](
+      IndexedSeq(
+        Movie("Castle in the Sky", "1986", 8, true),
+        Movie("Grave of the Fireflies", "1988", 10, true),
+        Movie("My Neighbor Totoro", "1988", 9, true),
+        Movie("Pom Poko", "1994", 6, false),
+      )
+    )
+    tabs += Tab(
+      title = "A table",
+      content = ScrollPane(content =
+        TableView(
+          model = td.defaultTableModel,
+          columnModel = td.columnModel
+        )
+      )
+    )
 
     val asyncTask = Var.autoName[Option[Try[Double]]](Some(Try(0.0)))
-    tabs += Tab(title = "Async test", content = Vbox(
-      nodes = Seq(
-        Button(Action(name = "Launch async task") { evt =>
-          val task = Future { Thread.sleep(2000); math.random() * 100 }.asObsVal
-          asyncTask := dyn { task() }
-        }),
-        ProgressBar(indeterminate = true, visible = dyn {asyncTask().isEmpty}),
-        Label(text = dyn {
-          asyncTask() match {
-            case None => "..."
-            case Some(v) => s"Your value is ${v.get}"
-          }
-        })
-      ),
-    ))
+    tabs += Tab(
+      title = "Async test",
+      content = Vbox(
+        nodes = Seq(
+          Button(Action(name = "Launch async task") { evt =>
+            val task = Future { Thread.sleep(2000); math.random() * 100 }.asObsVal
+            asyncTask := dyn { task() }
+          }),
+          ProgressBar(indeterminate = true, visible = dyn { asyncTask().isEmpty }),
+          Label(text = dyn {
+            asyncTask() match {
+              case None => "..."
+              case Some(v) => s"Your value is ${v.get}"
+            }
+          })
+        ),
+      )
+    )
 
     for (i <- 0 until 10) {
       tabs += Tab(title = s"$i", content = Pane())
@@ -209,7 +241,12 @@ import util.UnsetParam
   val out = new java.io.PrintStream("target/log.txt")
   System.setErr(out)
   System.setOut(out)
-  DevAppReloader.launch(Array(java.nio.file.Paths.get("target/scala-0.28/classes").nn, java.nio.file.Paths.get("target/scala-0.28/test-classes").nn), "guarana.swing.*".r, "guarana.swing.VirtualImageTest", Array())
+  DevAppReloader.launch(
+    Array(java.nio.file.Paths.get("target/scala-0.28/classes").nn, java.nio.file.Paths.get("target/scala-0.28/test-classes").nn),
+    "guarana.swing.*".r,
+    "guarana.swing.VirtualImageTest",
+    Array()
+  )
 }
 @main def VirtualImageTest(): Unit = {
   System.setProperty("sun.java2d.trace", "count")
@@ -225,14 +262,17 @@ import util.UnsetParam
   val metricsRegistry = MetricRegistry()
   val frameTimer = metricsRegistry.timer("frameTime").nn
   val flakesCounter = metricsRegistry.counter("flakes").nn
-  val consoleReporter = ConsoleReporter.forRegistry(metricsRegistry)
+  val consoleReporter = ConsoleReporter
+    .forRegistry(metricsRegistry)
     .convertRatesTo(SECONDS)
     .convertDurationsTo(MILLISECONDS)
-    .build().nn
-
+    .build()
+    .nn
 
   def VolatileImage(width: Int, height: Int, transparent: Boolean = true) =
-    defaultConfiguration.createCompatibleVolatileImage(width, height, if transparent then java.awt.Transparency.TRANSLUCENT else java.awt.Transparency.OPAQUE).nn
+    defaultConfiguration
+      .createCompatibleVolatileImage(width, height, if transparent then java.awt.Transparency.TRANSLUCENT else java.awt.Transparency.OPAQUE)
+      .nn
 
   var _backbuffer: java.awt.image.VolatileImage | Null = null
   def getBackbuffer() = {
@@ -279,15 +319,15 @@ import util.UnsetParam
     )
     var mousePressed: MouseEvent | Null = null
     contentPane.mouseEvents := EventIterator.foreach {
-      case e@MousePressed(_) => mousePressed = e
-      case e@MouseDragged(_) if mousePressed != null => mousePressed = e
-      case e@MouseReleased(_) => mousePressed = null
+      case e @ MousePressed(_) => mousePressed = e
+      case e @ MouseDragged(_) if mousePressed != null => mousePressed = e
+      case e @ MouseReleased(_) => mousePressed = null
       case _ =>
     }
     canvasNode.mouseEvents := EventIterator.foreach {
-      case e@MousePressed(_) => mousePressed = e
-      case e@MouseDragged(_) if mousePressed != null => mousePressed = e
-      case e@MouseReleased(_) => mousePressed = null
+      case e @ MousePressed(_) => mousePressed = e
+      case e @ MouseDragged(_) if mousePressed != null => mousePressed = e
+      case e @ MouseReleased(_) => mousePressed = null
       case _ =>
     }
 
@@ -321,7 +361,7 @@ import util.UnsetParam
             val bbg = bufferStrategy.getDrawGraphics().nn
             bbg.setColor(Color.Black)
             bbg.fillRect(0, 0, canvas.getWidth, canvas.getHeight)
-  
+
             mousePressed.? { mp =>
               for (_ <- 0 until 20) {
                 val p = Particles.Particle()
@@ -348,13 +388,13 @@ import util.UnsetParam
             while { i = (i + 1) % Particles.fireParticles.len; i != Particles.fireParticles.head } do {
               val p = Particles.Particle(i)
               p.framesAlive = (p.framesAlive + 1).toShort
-  
+
               if (p.framesAlive < 60) {
                 p.x = (p.x + scala.util.Random.between(-10, 10)).toShort
                 p.y = (p.y + scala.util.Random.between(-15, 0)).toShort
-  
+
                 // var vi = acceleratedFlakes(p.img) match {
-                //   case null => 
+                //   case null =>
                 //     val im = possibleFlakes(p.img)
                 //     val vi = VolatileImage(im.getWidth(null), im.getHeight(null))
                 //     val g2 = vi.createGraphics().nn
@@ -372,9 +412,10 @@ import util.UnsetParam
                 val vi = possibleFlakes(p.img)
 
                 try bbg.drawImage(vi, p.x, p.y, null)
-                catch case i: IndexOutOfBoundsException =>
-                  println(s"${p.x}, ${p.y}, ${p.img}, ${p.framesAlive}")
-                  throw i 
+                catch
+                  case i: IndexOutOfBoundsException =>
+                    println(s"${p.x}, ${p.y}, ${p.img}, ${p.framesAlive}")
+                    throw i
               } else {
                 p.dispose()
                 flakesCounter.dec()
@@ -382,8 +423,8 @@ import util.UnsetParam
             }
             bbg.dispose()
             bufferStrategy.show()
-            // contentPane.unwrap.getGraphics.? { g2 => 
-            //   g2.drawImage(backbuffer, 0, 0, null) 
+            // contentPane.unwrap.getGraphics.? { g2 =>
+            //   g2.drawImage(backbuffer, 0, 0, null)
             //   g2.dispose()
             //   // awtTk.sync()
             // }
@@ -413,16 +454,18 @@ object Particles {
     def apply(i: Int): Instance = i
 
     extension (p: Instance) {
-      def x = (fireParticles.ring(p) & 0xFFFF).toShort
-      def x_=(x: Short) = fireParticles.ring(p) = (fireParticles.ring(p) & 0xFFFFFFFFFFFF0000l) + x
-      def y = ((fireParticles.ring(p) >> 16) & 0xFFFF).toShort
-      def y_=(y: Short) = fireParticles.ring(p) = (fireParticles.ring(p) & 0xFFFFFFFF0000FFFFl) + (java.lang.Short.toUnsignedLong(y) << 16)
-      def img = ((fireParticles.ring(p) >> 32) & 0xFF).toShort
-      def img_=(i: Short) = fireParticles.ring(p) = (fireParticles.ring(p) & 0xFFFF0000FFFFFFFFl) + (java.lang.Short.toUnsignedLong(i) << 32)
-      def framesAlive = ((fireParticles.ring(p) >>> 48) & 0xFF).toShort
-      def framesAlive_=(f: Short) = fireParticles.ring(p) = (fireParticles.ring(p) & 0x0000FFFFFFFFFFFFl) + (java.lang.Short.toUnsignedLong(f) << 48)
+      def x = (fireParticles.ring(p) & 0xffff).toShort
+      def x_=(x: Short) = fireParticles.ring(p) = (fireParticles.ring(p) & 0xffffffffffff0000L) + x
+      def y = ((fireParticles.ring(p) >> 16) & 0xffff).toShort
+      def y_=(y: Short) = fireParticles.ring(p) = (fireParticles.ring(p) & 0xffffffff0000ffffL) + (java.lang.Short.toUnsignedLong(y) << 16)
+      def img = ((fireParticles.ring(p) >> 32) & 0xff).toShort
+      def img_=(i: Short) = fireParticles.ring(p) =
+        (fireParticles.ring(p) & 0xffff0000ffffffffL) + (java.lang.Short.toUnsignedLong(i) << 32)
+      def framesAlive = ((fireParticles.ring(p) >>> 48) & 0xff).toShort
+      def framesAlive_=(f: Short) = fireParticles.ring(p) =
+        (fireParticles.ring(p) & 0x0000ffffffffffffL) + (java.lang.Short.toUnsignedLong(f) << 48)
       def raw = fireParticles.ring(p)
-      def dispose(): Unit = fireParticles.take() 
+      def dispose(): Unit = fireParticles.take()
     }
   }
 }

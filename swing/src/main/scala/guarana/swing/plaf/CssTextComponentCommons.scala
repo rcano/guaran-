@@ -9,10 +9,10 @@ trait CssTextComponentCommons extends BasicTextUI, CssSwingControlUi {
   
   override def installDefaults() =
     super.installDefaults()
-    val textComponent = TextComponent.wrap(getComponent.unn)
+    val textComponent = TextComponent.wrap(super.getComponent.unn)
     scenegraph.stylist(scenegraph.getMetrics(), textComponent.selectionColor, textComponent)
-      .foreach(c => getComponent.unn.setSelectionColor(ColorUIResource(c)))
+      .foreach(c => super.getComponent.unn.setSelectionColor(ColorUIResource(c)))
     scenegraph.stylist(scenegraph.getMetrics(), textComponent.selectedTextColor, textComponent)
-      .foreach(c => getComponent.unn.setSelectedTextColor(ColorUIResource(c)))
+      .foreach(c => super.getComponent.unn.setSelectedTextColor(ColorUIResource(c)))
 
 }

@@ -18,14 +18,14 @@ abstract class AbstractToolkit {
   private val signalDescriptor = new SignalSwitchboard.SignalDescriptor[Signal] {
     def isExternal[T](s: Keyed[ObsVal[T]]): Boolean = externalVars.contains(s.keyId)
     def getExternal[T](s: Keyed[ObsVal[T]]): T =
-      val data = instanceVars.get(s.instanceId).unn
-      val instance = data.instance
+      val data = instancesData.get(s.instanceId).unn
+      val instance = data.instance.deref
       seenVars.get(s.keyId).asInstanceOf[ExternalObsVal[T] { type ForInstance = instance.type }].get(instance)
 
     def describe[T](s: Keyed[ObsVal[T]]): String = {
-      val data = instanceVars.get(s.instanceId).unn
+      val data = instancesData.get(s.instanceId).unn
       val theVar = seenVars.get(s.keyId)
-      val instanceDescr = data.instance.toString match {
+      val instanceDescr = data.instance.deref.toString match {
         case s if s.length < 30 => s
         case s => s.take(27) + "..."
       }
@@ -34,8 +34,8 @@ abstract class AbstractToolkit {
   }
   private val switchboard = SignalSwitchboard[Signal](reporter, signalDescriptor)
   private val emitterStation = EmitterStation()
-  case class InstanceData(instance: Any, vars: IntHashSet, emitters: IntHashSet)
-  private val instanceVars = new Int2ObjectHashMap[InstanceData]()
+  case class InstanceData(instance: util.WeakRef[AnyRef], vars: IntHashSet, emitters: IntHashSet)
+  private val instancesData = new Int2ObjectHashMap[InstanceData]()
   private val externalVars = new IntHashSet(1024)
   private val seenVars = new Int2ObjectHashMap[Signal[?]]
   private val cleaner = impl.RefCleaner()
@@ -65,7 +65,7 @@ abstract class AbstractToolkit {
         // it would not matter rolling back, and it doesn't  make sense to track all changes and try to undo them (even though possible)
         // beacuse it's already contrarian to how mutable toolkits works anyway. Given all of this, we'll prefer speed here and hence
         // directly mutate the toolkit state.
-        ctx = ContextImpl(switchboard, instanceVars, externalVars, seenVars, emitterStation)
+        ctx = ContextImpl(switchboard, instancesData, externalVars, seenVars, emitterStation)
         threadLocalContext.set(ctx)
         locallyCreatedContext = true
       }
@@ -109,8 +109,10 @@ abstract class AbstractToolkit {
 
     def signalRemoved(sb: SignalSwitchboard[Signal], s: Keyed[Signal[_]]): Unit = ()
     def signalInvalidated(sb: SignalSwitchboard[Signal], s: Keyed[Signal[_]]) = {
+      scribe.debug(s"Var(${instancesData.get(s.instanceId).?(_.instance.deref)}, ${seenVars.get(s.keyId)}) invalidated")
       seenVars.get(s.keyId) match {
         case v: Var[_] if v.eagerEvaluation =>
+          scribe.debug(s"Var(${instancesData.get(s.instanceId).?(_.instance.deref)}, ${seenVars.get(s.keyId)}) eagerly evaluating")
           withContext { ctx =>
             reactingToVar(s) { ctx.switchboard.get(s) }
           }
@@ -135,33 +137,38 @@ abstract class AbstractToolkit {
       withContext { ctx =>
         given Emitter.Context = ctx
         // FIXME: broken api
-        val data = instanceVars.get(s.instanceId).unn
-        val instance = data.instance
-        if emitterStation.hasListeners(instance.varUpdates) then
-          seenVars.get(s.keyId).?(v => ctx.emit(data.instance.varUpdates, VarValueChanged(v, data.instance, oldValue, newValue)))
-      // instanceVars.get(s.keyId).?((instance, _) => ctx.emit(instance.varUpdates, VarValueChanged(s, oldValue, newValue)))
+        val data = instancesData.get(s.instanceId).unn
+        val instanceOpt = data.instance
+        scribe.debug(s"Var(${instanceOpt.deref}, ${seenVars.get(s.keyId)}) updated")
+        instanceOpt.deref.toOption.foreach { instance =>
+          if (emitterStation.hasListeners(instance.varUpdates)) {
+            scribe.debug(s"Var($instance, ${seenVars.get(s.keyId)}) has listeners on its changes, emitting VarValueChanged")
+            seenVars.get(s.keyId).?(v => ctx.emit(instance.varUpdates, VarValueChanged(v, instance, oldValue, newValue)))
+          }
+        }
       }
     }
   }
 
   private class SwitchboardAsVarContext(
       switchboard: SignalSwitchboard[Signal],
-      instanceVars: Int2ObjectHashMap[InstanceData],
+      instancesData: Int2ObjectHashMap[InstanceData],
       externalVars: IntHashSet,
       seenVars: Int2ObjectHashMap[Signal[?]],
   ) extends VarContext {
     def recordInstance(instance: Any): InstanceData = {
       val instanceId = Keyed.getId(instance)
-      instanceVars.get(instanceId) match
+      instancesData.get(instanceId) match
         case null =>
           val vars = new IntHashSet(8)
           val emitters = new IntHashSet(4)
-          val data = InstanceData(instance, vars, emitters)
-          instanceVars.put(instanceId, data)
+          val data = InstanceData(util.WeakRef(instance.asInstanceOf[AnyRef]), vars, emitters)
+          instancesData.put(instanceId, data)
           // format: off
           cleaner.register(
             instance,
-            () => instanceVars.remove(instanceId).?(data =>
+            () => instancesData.remove(instanceId).?(data =>
+              println(f"instance data 0x$instanceId%H removed")
               data.vars.fastForeach(v => switchboard.remove(Keyed.raw(v, instanceId)))
               data.emitters.fastForeach(v => emitterStation.remove(Keyed.raw(v, instanceId)))
             )
@@ -172,9 +179,13 @@ abstract class AbstractToolkit {
         case data: InstanceData => data
     }
     def recordVarUsage[T](v: ObsVal[T])(using instance: ValueOf[v.ForInstance]): Unit = {
-      recordInstance(instance.value).vars.add(v.uniqueId)
+      val varForInstanceAdded = recordInstance(instance.value).vars.add(v.uniqueId)
       seenVars.put(v.uniqueId, v)
       if (v.isInstanceOf[ExternalObsVal[?]]) externalVars.add(v.uniqueId)
+      if (varForInstanceAdded) {
+        scribe.debug(s"Var(${instance.value}, $v) recorded. Key = ${ObsVal.obs2Keyed(v)}")
+        v.onFirstAssociation(instance.value)
+      }
     }
 
     def apply[T](v: ObsVal[T])(using instance: ValueOf[v.ForInstance]): T = {
@@ -187,7 +198,7 @@ abstract class AbstractToolkit {
       recordVarUsage(v)
       binding match {
         case Binding.Const(c) => switchboard(v) = c()
-        case Binding.Compute(c) => switchboard.bind(v)(sb => c(new SwitchboardAsVarContext(sb, instanceVars, externalVars, seenVars)))
+        case Binding.Compute(c) => switchboard.bind(v)(sb => c(new SwitchboardAsVarContext(sb, instancesData, externalVars, seenVars)))
       }
     }
     def externalPropertyUpdated[T](v: ObsVal[T], oldValue: Option[T])(using instance: ValueOf[v.ForInstance]): Unit = {
@@ -198,16 +209,17 @@ abstract class AbstractToolkit {
     }
   }
 
-  /** ContextImpl uses a snapshotted switchboard so the changes can be applied: they are seen (this is in order to properly implement
-    * sequence in code) After the lambda that uses this context is done, the updated switchboard replaces the old one, and we update our
-    * tracking.
+  /** ContextImpl can use a snapshotted switchboard so the changes can be applied: they are seen (this is in order to properly implement
+    * sequence in code) and after the lambda that uses this context is done, the updated switchboard replaces the old one, and we update our
+    * tracking. But due to guarana being mostly to build on top of existing frameworks which are mutable already, there's no much point in this,
+    * so we opt to mutate in place. Nevertheless the framework is built with that flexbility in mind.
     */
   private class ContextImpl(
       val switchboard: SignalSwitchboard[Signal],
       val instanceVars: Int2ObjectHashMap[InstanceData],
       val externalVars: IntHashSet,
       val seenVars: Int2ObjectHashMap[Signal[?]],
-      var emitterStation: EmitterStation,
+      val emitterStation: EmitterStation,
   ) extends SwitchboardAsVarContext(switchboard, instanceVars, externalVars, seenVars)
       with Emitter.Context {
 

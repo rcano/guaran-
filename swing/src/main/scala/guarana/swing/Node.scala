@@ -13,7 +13,7 @@ import guarana.swing.util.*
 import scala.jdk.CollectionConverters.*
 import scala.util.chaining.*
 
-opaque type Node  >: java.awt.Component = java.awt.Component
+opaque type Node  >: java.awt.Component <: AnyRef = java.awt.Component
 object Node extends VarsMap {
   val Background: SwingVar.Aux[Node, java.awt.Color | Null] = SwingVar[Node, java.awt.Color | Null]("background", _.getBackground, _.setBackground(_))
   val Bounds: SwingVar.Aux[Node, Bounds] = SwingVar[Node, Bounds]("bounds", _.getBounds.nn, _.setBounds(_))

@@ -51,11 +51,11 @@ object Pointer {
   implicit class PointerSelectable[S <: Struct, A <: AllocContext](private val s: Pointer[S, A]) extends AnyVal with Selectable {
     inline def selectDynamic(using m: Struct.StructOf[S], ctx: A)(using inline sized: Sized[S])(x: String & Singleton)(using
         inline offset: FieldOffset[x.type, S],
-        inline serde: Serde[FieldType[x.type, Tuple.Zip[m.MirroredElemLabels, m.MirroredElemTypes]]]
+        serde: Serde[FieldType[x.type, Tuple.Zip[m.MirroredElemLabels, m.MirroredElemTypes]]]
     ): serde.Out = serde.read(ctx)(s, offset)
 
     inline def applyDynamic[V](using ctx: A)(using inline sized: Sized[S])(x: String & Singleton)(using
-        inline getter: Getter[x.type],
+        getter: Getter[x.type],
         inline offset: FieldOffset[getter.Out, S]
     )(param: V)(using serde: Serde[V]): Unit = serde.write(ctx)(s, offset, param)
   }
@@ -97,12 +97,12 @@ object Pointer {
     case ? *: tail => FieldType[Name, tail]
   }
 
-  extension [S <: Struct, A <: AllocContext](s: Pointer[S, A])(using inline m: Struct.StructOf[S]) {
+  extension [S <: Struct, A <: AllocContext](s: Pointer[S, A])(using m: Struct.StructOf[S]) {
     inline def show: String = "[" + showFields[S, m.MirroredElemLabels, A](s) + "]"
   }
   private inline def showFields[S <: Struct, Names <: Tuple, A <: AllocContext](
       s: Pointer[S, A]
-  )(using inline m: Struct.StructOf[S]): String = {
+  )(using m: Struct.StructOf[S]): String = {
     inline erasedValue[Names] match {
       case _: (h *: other *: tail) =>
         inline constValue[h] match

@@ -124,7 +124,9 @@ given IntCountAndAllocValidator: CountAndAllocReturnValidator[Int] with {
 extension [S, Buff, R <: Int | Unit](inline f: (IntBuffer, Buff) => R)
   inline def countAndAlloc(
       inline allocMethod: AllocMethod
-  )(using a: Allocator[S] { type Buffer = Buff }, validator: CountAndAllocReturnValidator[R]): Buff =
+  )
+   (using a: Allocator[S] { type Buffer = Buff })
+   (using validator: CountAndAllocReturnValidator[R]): Buff =
     val countPtr = MemoryStack.stackMallocInt(1)
     validator.validateResult(f(countPtr, null.asInstanceOf[Buff]))(codeOf(f))
     val buff = allocBuffer[S](countPtr.get(0), allocMethod)
