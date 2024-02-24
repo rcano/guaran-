@@ -51,7 +51,7 @@ object ScriptDsl {
   type ScriptMonad[T] = opaques.ScriptMonad[T]
   private given [T]: Conversion[ScriptMonad[T], Script] = _.asInstanceOf[Script]
   
-  given scriptCpsMonad: cps.CpsMonad[ScriptMonad] with cps.CpsMonadInstanceContext[ScriptMonad] with {
+  given scriptCpsMonad: cps.CpsMonad[ScriptMonad] with cps.CpsPureMonadInstanceContext[ScriptMonad] with {
     def pure[T](t: T) = EndOfScript
     def map[A, B](s: ScriptMonad[A])(f: A => B): ScriptMonad[B] = Script { l => 
       s.nextStep(l) match {
@@ -70,7 +70,7 @@ object ScriptDsl {
       }
     }
   }
-  given scriptCpsMonadContext: cps.CpsMonadInstanceContextBody[ScriptMonad] = cps.CpsMonadInstanceContextBody(scriptCpsMonad)
+  given scriptCpsMonadContext: cps.CpsPureMonadInstanceContextBody[ScriptMonad] = cps.CpsPureMonadInstanceContextBody(scriptCpsMonad)
   
   inline def script(inline script: ScriptEngine ?=> ToolkitAction[Any]): Script = 
     Script(_ => NextStep(cps.async(using scriptCpsMonad)(script)))

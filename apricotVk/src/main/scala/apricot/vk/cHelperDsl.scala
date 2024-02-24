@@ -84,7 +84,7 @@ extension (i: Int) inline def hasFlags(f: Int) = (i & f) == f
 extension (i: Long) inline def hasFlags(f: Long) = (i & f) == f
 extension (i: Int) inline def isBitSet(bitNum: Int) = (i & (1 << bitNum)) != 0
 
-extension [S <: Struct](buff: StructBuffer[S, ?])
+extension [S <: Struct[S]](buff: StructBuffer[S, ?])
   def iterator: Iterator[S] = new Iterator[S] {
     var curr = 0
     def hasNext = curr < buff.capacity
@@ -94,7 +94,7 @@ extension [S <: Struct](buff: StructBuffer[S, ?])
       r
   }
 
-extension [S <: Struct](s: S)
+extension [S <: Struct[S]](s: S)
   inline def buffered(allocMethod: AllocMethod)(using a: Allocator[S] { type Buffer <: StructBuffer[S, ?] }): a.Buffer = {
     val res = allocBuffer[S](1, allocMethod)
     res.put(0, s)

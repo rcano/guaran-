@@ -3,10 +3,10 @@ name := "guarana"
 inThisBuild(
   Seq(
     organization := "guarana",
-    version := "0.0.5-SNAPSHOT",
-    scalaVersion := "3.3.1",
+    version := "0.0.6-SNAPSHOT",
+    scalaVersion := "3.3.2",
     fork := true,
-    libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.14" % "test",
+    libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.18" % "test",
     Compile / packageDoc / publishArtifact := false,
     ThisBuild / scalacOptions ++= Seq(
       "-Yexplicit-nulls",
@@ -25,8 +25,8 @@ lazy val core = // select supported platforms
     .withoutSuffixFor(JVMPlatform)
     .settings(
       libraryDependencies ++= Seq(
-        "com.github.rssh" %% "dotty-cps-async" % "0.9.13",
-        "com.outr" %%% "scribe" % "3.11.9",
+        "com.github.rssh" %% "dotty-cps-async" % "0.9.20",
+        "com.outr" %%% "scribe" % "3.13.0",
       )
     )
     // configure JVM settings
@@ -42,13 +42,13 @@ lazy val qt = Project(id = "guarana-qt", base = file("qt"))
   .dependsOn(coreJvm)
   .settings(
     // qt/envVars += ("QT_DEBUG_PLUGINS" -> "1"),
-    libraryDependencies += ("com.github.pathikrit" %% "better-files" % "3.9.1").cross(CrossVersion.for3Use2_13),
+    libraryDependencies += ("com.github.pathikrit" %% "better-files" % "3.9.2").cross(CrossVersion.for3Use2_13),
     // libraryDependencies += "org.bytedeco" % "javacpp" % "1.5.5",
     // libraryDependencies += "org.bytedeco" % "javacpp" % "1.5.5" classifier "linux-x86_64",
     // libraryDependencies += "org.bytedeco" % "qt" % "5.15.2-1.5.5",
     // libraryDependencies += "org.bytedeco" % "qt" % "5.15.2-1.5.5" classifier "linux-x86_64",
     libraryDependencies ++= {
-      val qtJambiVersion = "6.5.3"
+      val qtJambiVersion = "6.6.2"
       Seq(
         "io.qtjambi" % "qtjambi" % qtJambiVersion,
         "io.qtjambi" % "qtjambi-native-linux-x64" % qtJambiVersion,
@@ -72,12 +72,12 @@ lazy val swing = Project(id = "guarana-swing", base = file("swing"))
   .settings(
     scalacOptions -= "-Yexplicit-nulls",
     libraryDependencies ++= Seq(
-      ("com.github.pathikrit" %% "better-files" % "3.9.1").cross(CrossVersion.for3Use2_13),
-      "com.formdev" % "flatlaf" % "1.0" % "provided",
+      ("com.github.pathikrit" %% "better-files" % "3.9.2").cross(CrossVersion.for3Use2_13),
+      "com.formdev" % "flatlaf" % "3.4" % "provided",
       "com.jhlabs" % "filters" % "2.0.235-1" % "provided",
-      "io.dropwizard.metrics" % "metrics-core" % "4.1.18" % "test",
-      "org.scalatest" %% "scalatest-funsuite" % "3.2.12" % "test",
-      "com.typesafe.play" %% "play-json" % "2.10.0-RC5" % "test",
+      "io.dropwizard.metrics" % "metrics-core" % "4.2.25" % "test",
+      "org.scalatest" %% "scalatest-funsuite" % "3.2.18" % "test",
+      "com.typesafe.play" %% "play-json" % "2.10.4" % "test",
     ),
     ThisBuild / moduleJars := {
       val attributedJars = (Compile / dependencyClasspathAsJars).value.filterNot(_.metadata(moduleID.key).organization == "org.scala-lang")
@@ -133,30 +133,30 @@ lazy val web = Project(id = "guarana-web", base = file("web"))
     scalaJSUseMainModuleInitializer := true
   )
 
-lazy val lwjglVersion = "3.3.1"
+lazy val lwjglVersion = "3.3.3"
 lazy val lwjglClassifier = "natives-linux"
 
-lazy val scribeVersion = "3.10.1"
+lazy val scribeVersion = "3.13.0"
 
 lazy val apricot = Project(id = "apricot", base = file("apricot"))
   .settings(
     libraryDependencies ++= Seq(
-      ("com.github.pathikrit" %% "better-files" % "3.9.1").cross(CrossVersion.for3Use2_13),
-      "org.jetbrains" % "annotations" % "23.0.0",
+      ("com.github.pathikrit" %% "better-files" % "3.9.2").cross(CrossVersion.for3Use2_13),
+      "org.jetbrains" % "annotations" % "24.1.0",
       "org.lwjgl" % "lwjgl" % lwjglVersion classifier lwjglClassifier,
       "org.lwjgl" % "lwjgl-glfw" % lwjglVersion,
       "org.lwjgl" % "lwjgl-glfw" % lwjglVersion classifier lwjglClassifier,
       "org.lwjgl" % "lwjgl-opengl" % lwjglVersion,
       "org.lwjgl" % "lwjgl-opengl" % lwjglVersion classifier lwjglClassifier,
-      "io.dropwizard.metrics" % "metrics-core" % "4.2.4",
+      "io.dropwizard.metrics" % "metrics-core" % "4.2.25",
       "com.outr" %% "scribe" % scribeVersion,
       "com.outr" %% "scribe-file" % scribeVersion,
       "org.scala-lang" %% "scala3-tasty-inspector" % scalaVersion.value % "provided,runtime"
     ),
     javaOptions ++= Seq(
       "-Djava.library.path=/home/randa/Development/guarana/qt/lib/qtjambi-5.15-binaries-linux64-gcc/lib:/usr/java/packages/lib:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib",
-      "--add-modules",
-      "jdk.incubator.foreign"
+      // "--add-modules",
+      // "jdk.incubator.foreign"
     )
     // javaOptions ++= Seq("-Djava.library.path=/usr/java/packages/lib:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib:/home/randa/Development/guarana/qt/lib/qtjambi-5.15-binaries-linux64-gcc/lib")
   )
@@ -211,8 +211,8 @@ lazy val apricotVk = Project(id = "apricotVk", base = file("apricotVk"))
       .dependsOn(shaderObjects)
       .value,
     javaOptions ++= Seq(
-      "--add-modules",
-      "jdk.incubator.foreign",
+      // "--add-modules",
+      // "jdk.incubator.foreign",
       "--enable-native-access=ALL-UNNAMED",
     )
   )

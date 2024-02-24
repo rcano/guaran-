@@ -55,11 +55,11 @@ object VkUtil:
         f"Buff ${sc.getName} @ 0x${sb.address}%X p:${sb.position} l:${sb.limit} c:${sb.capacity} " + s"[\n$elems\n$indent]"
       case other =>
         val extraDescr = s match
-          case v: Struct => f" @ 0x${v.address}%X s:${v.sizeof} "
+          case v: Struct[?] => f" @ 0x${v.address}%X s:${v.sizeof} "
           case _ => ""
     
         def describeValue(v: Any): String = v match
-          case _: Struct | _: StructBuffer[_, _] => showFieldData(v, indentSize + 1)
+          case _: Struct[?] | _: StructBuffer[_, _] => showFieldData(v, indentSize + 1)
           case other => String.valueOf(other)
     
         val fieldContent = sc.getDeclaredFields.filterNot(_.getModifiers.hasFlags(java.lang.reflect.Modifier.STATIC))
@@ -74,7 +74,7 @@ object VkUtil:
     }
 
 
-  class BufferWrapper[T <: Struct](val structBuffer: StructBuffer[T, ?]) extends IndexedSeq[T], AutoCloseable:
+  class BufferWrapper[T <: Struct[T]](val structBuffer: StructBuffer[T, ?]) extends IndexedSeq[T], AutoCloseable:
     def apply(i: Int) = structBuffer.get(i)
     def length = structBuffer.capacity
     def close() = structBuffer.free()

@@ -3,7 +3,7 @@ package apricot.vk
 import better.files._
 import guarana.unn
 import java.nio.{IntBuffer, LongBuffer}
-import org.lwjgl.system.{CustomBuffer, MemoryStack, Struct}
+import org.lwjgl.system.{CustomBuffer, MemoryStack, Struct, StructBuffer}
 import scala.annotation.transparentTrait
 import scala.jdk.CollectionConverters._
 import scala.compiletime.{codeOf, error}
@@ -64,7 +64,8 @@ private trait LowPrioGivens {
 
 @main def genStructAllocators: Unit =
   import scala.language.unsafeNulls
-  val structClass = classOf[org.lwjgl.system.Struct]
+  val structClass = classOf[org.lwjgl.system.Struct[?]]
+  val structBufferClass = classOf[org.lwjgl.system.StructBuffer[?, ?]]
 
   val paths = Set(
     structClass.getProtectionDomain.getCodeSource.getLocation,
@@ -72,37 +73,46 @@ private trait LowPrioGivens {
     classOf[org.lwjgl.vulkan.VkApplicationInfo].getProtectionDomain.getCodeSource.getLocation,
   ).map(File(_).path)
 
-  val finder = java.lang.module.ModuleFinder.of(paths.toSeq:_*)
-  val genGivens = for className <- finder.findAll.asScala.toSeq.flatMap(_.open().list.iterator.asScala)
-      if className.endsWith(".class") 
+  val finder = java.lang.module.ModuleFinder.of(paths.toSeq: _*)
+  val genGivens = for
+    className <- finder.findAll.asScala.toSeq.flatMap(_.open().list.iterator.asScala)
+    if className.endsWith(".class")
 
-      genCode <- try
-          val loaded = Class.forName(className.replace('/', '.').stripSuffix(".class"))
-          if structClass.isAssignableFrom(loaded) then
-            val hasCalloc = Try(loaded.getMethod("calloc")).isSuccess
-            val hasMalloc = Try(loaded.getMethod("malloc")).isSuccess
-            val hasStackCalloc = Try(loaded.getMethod("calloc"), classOf[MemoryStack]).isSuccess
-            val hasStackMalloc = Try(loaded.getMethod("malloc"), classOf[MemoryStack]).isSuccess
-    
-            if (hasCalloc && hasMalloc && hasStackCalloc && hasStackMalloc)
-              val structName = loaded.getName
-              Some(s"""
+    genCode <-
+      try {
+        val loaded = Class.forName(className.replace('/', '.').stripSuffix(".class"))
+        if (structClass.isAssignableFrom(loaded)) {
+          val hasCalloc = Try(loaded.getMethod("calloc")).isSuccess
+          val hasMalloc = Try(loaded.getMethod("malloc")).isSuccess
+          val hasStackCalloc = Try(loaded.getMethod("calloc"), classOf[MemoryStack]).isSuccess
+          val hasStackMalloc = Try(loaded.getMethod("malloc"), classOf[MemoryStack]).isSuccess
+          val hasBuffer = Try(loaded.getDeclaredClasses().exists(c => structBufferClass.isAssignableFrom(c))).getOrElse(false)
+
+          if (hasCalloc && hasMalloc && hasStackCalloc && hasStackMalloc) {
+            val structName = loaded.getName
+            Some(s"""
                 |  given Allocator[$structName] with
-                |    type Buffer = $structName.Buffer
+                |    type Buffer = ${if (hasBuffer) s"$structName.Buffer" else "Nothing"}
                 |    inline def stackCalloc(stack: MemoryStack) = $structName.calloc(stack).unn
                 |    inline def stackMalloc(stack: MemoryStack) = $structName.malloc(stack).unn
                 |    inline def calloc() = $structName.calloc().unn
                 |    inline def malloc() = $structName.malloc().unn
-                |    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = $structName.calloc(capacity, stack).unn
-                |    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = $structName.malloc(capacity, stack).unn
-                |    transparent inline def callocBuffer(capacity: Int) = $structName.calloc(capacity).unn
-                |    transparent inline def mallocBuffer(capacity: Int) = $structName.malloc(capacity).unn
+                ${if (hasBuffer)
+              s"""|    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = $structName.calloc(capacity, stack).unn
+                  |    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = $structName.malloc(capacity, stack).unn
+                  |    transparent inline def callocBuffer(capacity: Int) = $structName.calloc(capacity).unn
+                  |    transparent inline def mallocBuffer(capacity: Int) = $structName.malloc(capacity).unn
+                  """
+            else
+              s"""|    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = error("Can't create a buffer of $structName")
+                  |    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = error("Can't create a buffer of $structName")
+                  |    transparent inline def callocBuffer(capacity: Int) = error("Can't create a buffer of $structName")
+                  |    transparent inline def mallocBuffer(capacity: Int) = error("Can't create a buffer of $structName")
+                  """}
               """.trim.stripMargin)
-            else None   
-          else None
-        catch case ex => None
+          } else None
+        } else None
+      } catch case ex => None
   yield genCode
 
   File("gen.txt").clear.appendText(genGivens.mkString("\n"))
-  
-
