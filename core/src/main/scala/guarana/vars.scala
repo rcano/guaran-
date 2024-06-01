@@ -70,6 +70,7 @@ object ObsVal {
 trait Var[T] extends ObsVal[T] {
   @targetName("assign")
   def :=(b: Binding[T])(using instance: ValueOf[ForInstance]): VarContextAction[this.type] = ctx ?=> { ctx(this) = b; this }
+  final def update(f: T => T)(using instance: ValueOf[ForInstance]): VarContextAction[this.type] = this := f(this())
   // final def :=(n: Null)(using instance: ValueOf[ForInstance], nullEv: Null <:< T): VarContextAction[this.type] = (using ctx) => { ctx(this) = Binding.Const(() => nullEv(null)); this }
   def eagerEvaluation: Boolean
 

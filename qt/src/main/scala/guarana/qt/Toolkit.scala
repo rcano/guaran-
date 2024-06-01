@@ -19,26 +19,30 @@ object Toolkit extends AbstractToolkit, animation.TimersDef {
 
   def getMetrics(): guarana.Stylist.Metrics = guarana.Stylist.Metrics.NoOp
 
-  type VarToSignalType[T] = T match {
-    case Int => java.lang.Integer
-    case Long => java.lang.Long
-    case Float => java.lang.Float
-    case Double => java.lang.Double
-    case Boolean => java.lang.Boolean
-    case a | Null => a
-    case _ => T
-  }
-  def connectVar[T](v: Var[T], signal: QObject#Signal1[VarToSignalType[T]])(using ValueOf[v.ForInstance]): Unit = {
-    val slot: QMetaObject.Slot1[VarToSignalType[T]] = v match {
+  // type VarToSignalType[T] = T match {
+  //   case Int => java.lang.Integer
+  //   case Long => java.lang.Long
+  //   case Float => java.lang.Float
+  //   case Double => java.lang.Double
+  //   case Boolean => java.lang.Boolean
+  //   case _ => T
+  // }
+  // type VarToSignalType2[T] = Null match {
+  //     case T => util.NotNull[T]
+  //     case _ => T
+  // }
+
+  def connectVar[T, U](v: Var[T], signal: QObject#Signal1[U])(using VarToSignalTypeAdapter[T, U], ValueOf[v.ForInstance]): Unit = {
+    val slot: QMetaObject.Slot1[U] = v match {
       case _: ExternalVar[T] => value => update(summon[VarContext].externalPropertyUpdated(v, None))
       case _ => value => update(v := value.asInstanceOf[T])
     }
     
-    signal.connect(slot, Qt.ConnectionType.DirectConnection)
+    signal.nn.connect(slot, Qt.ConnectionType.DirectConnection)
   }
   /** Connects a signal to an emitter */
-  def connectEmitter[T](emitter: Emitter[T], signal: QObject#Signal1[VarToSignalType[T]])(using ValueOf[emitter.ForInstance]): Unit = {
-    val slot: QMetaObject.Slot1[VarToSignalType[T]] = value => update(summon[Emitter.Context].emit(emitter, value.asInstanceOf[T]))
+  def connectEmitter[T, U](emitter: Emitter[T], signal: QObject#Signal1[U])(using VarToSignalTypeAdapter[T, U], ValueOf[emitter.ForInstance]): Unit = {
+    val slot: QMetaObject.Slot1[U] = value => update(summon[Emitter.Context].emit(emitter, value.asInstanceOf[T]))
     signal.connect(slot, Qt.ConnectionType.DirectConnection)
   }
 
@@ -86,5 +90,17 @@ object Toolkit extends AbstractToolkit, animation.TimersDef {
       override def stop(): Unit = t.stop()
     }
 
+  }
+
+  trait VarToSignalTypeAdapter[T, O]
+  object VarToSignalTypeAdapter {
+    private inline def nullInstance[T]: T = null.asInstanceOf[T]
+    inline implicit def int: VarToSignalTypeAdapter[Int, java.lang.Integer] = nullInstance
+    inline implicit def long: VarToSignalTypeAdapter[Long, java.lang.Long] = nullInstance
+    inline implicit def float: VarToSignalTypeAdapter[Float, java.lang.Float] = nullInstance
+    inline implicit def double: VarToSignalTypeAdapter[Double, java.lang.Double] = nullInstance
+    inline implicit def boolean: VarToSignalTypeAdapter[Boolean, java.lang.Boolean] = nullInstance
+    inline implicit def nullableAnyRef[T]: VarToSignalTypeAdapter[T | Null, T] = nullInstance
+    inline implicit def anyRef[T](using scala.util.NotGiven[Null <:< T]): VarToSignalTypeAdapter[T, T] = nullInstance
   }
 }

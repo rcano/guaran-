@@ -13,10 +13,10 @@ private[animation] inline def cfor[T](inline init: T)(inline cond: T => Boolean,
 
 class ScriptEngine(toolkit: AbstractToolkit, initialBufferSize: Int = 100) {
 
-  private[this] var scripts = impl.RingBuffer[ScheduledStep | Null](initialBufferSize, null)
-  private[this] var nextRunScripts = impl.RingBuffer[ScheduledStep | Null](initialBufferSize, null)
-  private[this] var lastUpdateTime = 0l
-  private[this] val mustRemove = collection.mutable.Set.empty[Script]
+  private var scripts = impl.RingBuffer[ScheduledStep | Null](initialBufferSize, null)
+  private var nextRunScripts = impl.RingBuffer[ScheduledStep | Null](initialBufferSize, null)
+  private var lastUpdateTime = 0l
+  private val mustRemove = collection.mutable.Set.empty[Script]
   
   /** schedules the given script for running in the current step */
   def run(s: Script): Unit = {

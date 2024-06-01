@@ -62,6 +62,9 @@ package mutable {
     def apply(i: Int) = elements(i)
     def length = elements.length
 
+    /** Install the elements observer into the target abstract model, which will be used for notifying the UI when the ObsBuffer changes.
+      * This method doesn't assume that you use the defaultTableModel and so you must manually call it.
+      */
     def installElementsObserver(tableModel: AbstractTableModel): Unit = {
       elements.observers += {
         case ObsBuffer.Event.Added(elems) => tableModel.fireTableRowsInserted(elements.length - elems.length, elems.length)

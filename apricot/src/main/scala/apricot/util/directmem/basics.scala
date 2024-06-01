@@ -61,12 +61,12 @@ object Pointer {
   }
   import scala.compiletime.*
 
-  opaque type FieldOffset[Name <: String, S <: Struct] = Int
+  opaque type FieldOffset[Name <: String & Singleton, S <: Struct] = Int
   object FieldOffset {
-    inline given [Name <: String, S <: Struct](using s: Struct.StructOf[S]): FieldOffset[Name, S] =
+    inline given [Name <: String & Singleton, S <: Struct](using s: Struct.StructOf[S]): FieldOffset[Name, S] =
       fieldOffset[Name, Tuple.Zip[s.MirroredElemLabels, s.MirroredElemTypes]](0)
 
-    inline def fieldOffset[Name <: String, Fields <: Tuple](offset: Int): Int = {
+    inline def fieldOffset[Name <: String & Singleton, Fields <: Tuple](offset: Int): Int = {
       inline erasedValue[Fields] match {
         case _: EmptyTuple => error("unreachable? this should be guaranteed by Selectable + StructOf")
         case _: ((nameTpe, sizedTpe) *: tail) =>
@@ -76,10 +76,10 @@ object Pointer {
       }
     }
 
-    extension [Name <: String, S <: Struct](fo: FieldOffset[Name, S]) def value: Int = fo
+    extension [Name <: String & Singleton, S <: Struct](fo: FieldOffset[Name, S]) def value: Int = fo
   }
 
-  trait Getter[Name <: String] { type Out <: String }
+  trait Getter[Name <: String] { type Out <: String & Singleton }
   object Getter {
     transparent inline given [N <: String]: Getter[N] = ${ getterMacro[N] }
 

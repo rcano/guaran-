@@ -40,7 +40,7 @@ private class StructMacros private[StructMacros] (using val quotes: Quotes) {
   def findRefinedType(t: TypeRepr, typeOwner: TypeRepr): Option[(TypeRepr, Refinement)] = t match {
     case r: Refinement => Some(typeOwner -> r)
     case tr: TypeRef => 
-      println(s"daliased ${tr.dealias}")
+      // println(s"daliased ${tr.dealias}")
       if tr.dealias != tr then findRefinedType(tr.dealias, tr) else None
     case AndType(a, b) => findRefinedType(a, typeOwner) orElse findRefinedType(b, typeOwner)
     case _ => None
@@ -53,7 +53,14 @@ private class StructMacros private[StructMacros] (using val quotes: Quotes) {
       case _ => Nil
 
     if (summon[TypeTest[TypeRepr, MethodType]].unapply(r.info).isDefined) parents
-    else (r.name -> r.info) :: parents
+    else {
+      val fieldTpe = r.info match {
+        case ByNameType(tpe) => tpe
+        case other => other
+      }
+      // println(s"Producing ${r.name}: ${fieldTpe.show}")
+      (r.name -> fieldTpe) :: parents
+    }
   }
 
   def buildTupleOfTypes(types: Seq[TypeRepr]): Type[? <: Tuple] = {

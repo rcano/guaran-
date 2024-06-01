@@ -4,6 +4,7 @@ package impl
 import org.scalatest.funsuite.AnyFunSuite
 import guarana.util.{strongRef, MacroUtils}
 import scala.annotation.compileTimeOnly
+import scala.runtime.IntRef
 
 class BindingMacroTests extends AnyFunSuite {
 
@@ -72,6 +73,18 @@ class BindingMacroTests extends AnyFunSuite {
   test("Bindings generate references to prefix containing 'this'") {
     Binding.dynDebug {
       dontCaptureMe.someSeq.iterator.filter(_ % 2 == 0).foreach(println)
+    }
+  }
+
+  test("Bindings correctly capture path to varriable assignments") {
+    val intRef = IntRef(0)
+    class Mut(var text: String)
+    val v = Mut("foo")
+    Binding.dynDebug {
+      intRef.elem = 1
+    }
+    Binding.dynDebug {
+      v.text = "???"
     }
   }
   // MacroUtils.softFail

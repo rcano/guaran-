@@ -29,7 +29,7 @@ class CssLaf(val scenegraph: Scenegraph) extends MetalLookAndFeel {
     CssLaf.associateScenegraph(scenegraph)
 
     defaults.keySet.nn.asScala.foreach {
-      case k if k.toString endsWith ".acceleratorFont" => smallFontKeys += k
+      case k if k.toString `endsWith` ".acceleratorFont" => smallFontKeys += k
       case k if k.toString.pipe(s => s.endsWith(".font") || s.endsWith("Font")) => fontKeys += k
       case _ =>
     }
@@ -56,7 +56,7 @@ class CssLaf(val scenegraph: Scenegraph) extends MetalLookAndFeel {
       }
     }
 
-    defaults.keySet.nn.asScala.filter(_.toString endsWith "border") foreach (k => defaults.put(k, CssBorder(scenegraph)))
+    defaults.keySet.nn.asScala.filter(_.toString `endsWith` "border") foreach (k => defaults.put(k, CssBorder(scenegraph)))
 
     defaults.put("ComboBox.border", new BorderUIResource(new CssBorder(scenegraph)))
     defaults.put("TitledBorder.border", new BorderUIResource(new CssBorder(scenegraph)))
@@ -85,7 +85,7 @@ class CssLaf(val scenegraph: Scenegraph) extends MetalLookAndFeel {
   override def uninitialize(): Unit = {
     val defaults = UIManager.getDefaults.nn
     defaults.remove(CssLaf.UiDefaultsCssLafKey)
-    defaults.keySet.nn.asScala.filter(_.toString endsWith "border") foreach (k => defaults.remove(k))
+    defaults.keySet.nn.asScala.filter(_.toString `endsWith` "border") foreach (k => defaults.remove(k))
   }
 }
 

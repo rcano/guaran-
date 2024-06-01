@@ -21,7 +21,7 @@ trait StateMachine[A] extends PartialFunction[A, Unit] {
   }
   def namedTransition(name: String)(f: PartialFunction[A, Transition]) = Transition(name, f)
 
-  private[this] var curr: Transition = initState
+  private var curr: Transition = initState
   def initState: Transition
   def apply(a: A): Unit = {
     val prev = curr

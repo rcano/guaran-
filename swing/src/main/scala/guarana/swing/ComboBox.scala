@@ -13,7 +13,7 @@ import guarana.swing.util.*
 import scala.jdk.CollectionConverters.*
 import scala.util.chaining.*
 
-opaque type ComboBox[+E] <: Component  = javax.swing.JComboBox[_ <: E] & Component
+opaque type ComboBox[+E] <: Component  = javax.swing.JComboBox[? <: E] & Component
 object ComboBox extends VarsMap {
   val UI: SwingVar.Aux[ComboBox[Any], javax.swing.plaf.ComboBoxUI] = SwingVar[ComboBox[Any], javax.swing.plaf.ComboBoxUI]("UI", _.getUI.nn, _.setUI(_))
   val Action: SwingVar.Aux[ComboBox[Any], javax.swing.Action | Null] = SwingVar[ComboBox[Any], javax.swing.Action | Null]("action", _.getAction, _.setAction(_))
@@ -48,7 +48,7 @@ object ComboBox extends VarsMap {
       def model: Var.Aux[javax.swing.ComboBoxModel[E], v.type] = ComboBox.Model.asInstanceOf[Var.Aux[javax.swing.ComboBoxModel[E], v.type]]
       def popupVisible: Var.Aux[Boolean, v.type] = ComboBox.PopupVisible.asInstanceOf[Var.Aux[Boolean, v.type]]
       def prototypeDisplayValue: Var.Aux[E, v.type] = ComboBox.PrototypeDisplayValue.asInstanceOf[Var.Aux[E, v.type]]
-      def renderer: Var.Aux[javax.swing.ListCellRenderer[_ >: E], v.type] = ComboBox.Renderer.asInstanceOf[Var.Aux[javax.swing.ListCellRenderer[_ >: E], v.type]]
+      def renderer: Var.Aux[javax.swing.ListCellRenderer[? >: E], v.type] = ComboBox.Renderer.asInstanceOf[Var.Aux[javax.swing.ListCellRenderer[? >: E], v.type]]
       def selectedIndex: Var.Aux[Int, v.type] = ComboBox.SelectedIndex.asInstanceOf[Var.Aux[Int, v.type]]
       def selectedItem: Var.Aux[Option[E], v.type] = ComboBox.SelectedItem.asInstanceOf[Var.Aux[Option[E], v.type]]
 
@@ -59,11 +59,11 @@ object ComboBox extends VarsMap {
       def itemListeners: Array[java.awt.event.ItemListener] = v.getItemListeners.asInstanceOf
       def popupMenuListeners: Array[javax.swing.event.PopupMenuListener] = v.getPopupMenuListeners.asInstanceOf
       def selectedObjects: Seq[E] = v.getSelectedObjects.nn.toIndexedSeq.asInstanceOf
-      def unwrap: javax.swing.JComboBox[_ <: E] = v
+      def unwrap: javax.swing.JComboBox[? <: E] = v
     }
   }
 
-  def wrap[E](v: javax.swing.JComboBox[_ <: E]) = v.asInstanceOf[ComboBox[E]]
+  def wrap[E](v: javax.swing.JComboBox[? <: E]) = v.asInstanceOf[ComboBox[E]]
 
   def init[E](v: ComboBox[E]): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
     Component.init(v)
@@ -120,7 +120,7 @@ object ComboBox extends VarsMap {
     popupVisible: Opt[Binding[Boolean]] = UnsetParam,
     prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     prototypeDisplayValue: Opt[Binding[E]] = UnsetParam,
-    renderer: Opt[Binding[javax.swing.ListCellRenderer[_ >: E]]] = UnsetParam,
+    renderer: Opt[Binding[javax.swing.ListCellRenderer[? >: E]]] = UnsetParam,
     requestFocusEnabled: Opt[Binding[Boolean]] = UnsetParam,
     selectedIndex: Opt[Binding[Int]] = UnsetParam,
     selectedItem: Opt[Binding[Option[E]]] = UnsetParam,

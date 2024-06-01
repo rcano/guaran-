@@ -18,7 +18,7 @@ val HeadlessToolkit = new AbstractToolkit {
 
   ConsoleReporter.forRegistry(engine.metrics).unn.convertDurationsTo(MICROSECONDS).unn.build().unn.start(10, SECONDS)
 
-  engine.scriptEngine run script {
+  engine.scriptEngine `run` script {
     doUntil { _ =>
       for (_ <- 0 until 8) engine.scheduleTask((time, elapsed) => Thread.sleep((math.random() * 20).toInt))
       // and submit a bunch of really small ones

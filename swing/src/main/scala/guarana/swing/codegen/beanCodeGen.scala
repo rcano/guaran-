@@ -38,7 +38,7 @@ import scala.util.control.NonFatal
       //handle cases like SomeType.ThisType[ActualParam1, ActualParam2...]
     case tpe: java.lang.reflect.ParameterizedType => 
 //      val owner = Option(tpe.getOwnerType).map(_.asInstanceOf[Class[_]]).map(_ + ".").getOrElse("")
-      tpe.getRawType.asInstanceOf[Class[_]].getCanonicalName.unn + tpe.getActualTypeArguments.nn.map {
+      tpe.getRawType.asInstanceOf[Class[?]].getCanonicalName.unn + tpe.getActualTypeArguments.nn.map {
         case tv: java.lang.reflect.TypeVariable[_] => tv.getName
         case other => adaptType(other.nn)
       }.mkString("[", ", ", "]")  + " | Null"
@@ -66,7 +66,7 @@ import scala.util.control.NonFatal
 
   def toNodeName(n: String) = n match {
     case "Container" => "Node"
-    case other if other startsWith "J" => other.drop(1)
+    case other if other `startsWith` "J" => other.drop(1)
     case other => other
   }
 
@@ -123,7 +123,7 @@ import scala.util.control.NonFatal
         if beanProperties.nonEmpty
       } yield {
 
-        val parentMethods = Iterator.unfold(c.getSuperclass.unn: Class[_])(Option(_).map(c => c.nn.getDeclaredMethods -> c.unn.getSuperclass.unn))
+        val parentMethods = Iterator.unfold(c.getSuperclass.unn: Class[?])(Option(_).map(c => c.nn.getDeclaredMethods -> c.unn.getSuperclass.unn))
           .flatMap(_.nn.map(m => m.nn.getName -> m.nn.getGenericParameterTypes.nn.toSeq)).toSet
         def inParents(m: (String, String, PropertyDescriptor, java.lang.reflect.Method)): Boolean =
           parentMethods(m._4.getName -> m._4.getGenericParameterTypes.nn.toSeq)

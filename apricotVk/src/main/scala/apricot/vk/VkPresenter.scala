@@ -135,10 +135,10 @@ final class VkPresenter(
     KHRSwapchain.vkQueuePresentKHR(
       queue,
       VkFactory.queuePresent(
-        waitSemaphores = stack.longs(waitSempahores: _*),
+        waitSemaphores = stack.longs(waitSempahores*),
         swapChainCount = 1,
         swapChains = stack.longs(currentSwapchain),
-        imageIndices = stack.ints(images: _*)
+        imageIndices = stack.ints(images*)
       )
     ) match {
       case VK10.VK_SUCCESS | KHRSwapchain.VK_SUBOPTIMAL_KHR =>

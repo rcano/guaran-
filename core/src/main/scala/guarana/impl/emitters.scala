@@ -20,7 +20,7 @@ object EmitterStation {
 }
 private[impl] class EmitterStationImpl extends EmitterStation {
   import EmitterStationImpl.*
-  private val emittersData = new Long2ObjectHashMap[EmitterData[_]](32, 0.8)
+  private val emittersData = new Long2ObjectHashMap[EmitterData[?]](32, 0.8)
 
   def hasEmitter[A](emitter: Emitter[A])(using v: ValueOf[emitter.ForInstance]): Boolean =
     emittersData.containsKey(Keyed(emitter, v.value).id)
@@ -62,7 +62,7 @@ private[impl] class EmitterStationImpl extends EmitterStation {
 
   def snapshot: EmitterStation = {
     val res = EmitterStationImpl()
-    res.emittersData putAll this.emittersData
+    res.emittersData `putAll` this.emittersData
     res
   }
 }

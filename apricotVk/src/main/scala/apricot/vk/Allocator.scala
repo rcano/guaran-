@@ -12,7 +12,7 @@ import scala.util.chaining._
 
 trait Allocator[S]:
   type NonNullS = S
-  type Buffer <: CustomBuffer[_]
+  type Buffer <: CustomBuffer[?]
   inline def stackCalloc(stack: MemoryStack): NonNullS
   inline def stackMalloc(stack: MemoryStack): NonNullS
   inline def calloc(): NonNullS
@@ -73,7 +73,7 @@ private trait LowPrioGivens {
     classOf[org.lwjgl.vulkan.VkApplicationInfo].getProtectionDomain.getCodeSource.getLocation,
   ).map(File(_).path)
 
-  val finder = java.lang.module.ModuleFinder.of(paths.toSeq: _*)
+  val finder = java.lang.module.ModuleFinder.of(paths.toSeq*)
   val genGivens = for
     className <- finder.findAll.asScala.toSeq.flatMap(_.open().list.iterator.asScala)
     if className.endsWith(".class")

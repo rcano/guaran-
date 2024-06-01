@@ -13,16 +13,16 @@ import guarana.swing.util.*
 import scala.jdk.CollectionConverters.*
 import scala.util.chaining.*
 
-opaque type ListView[+E] <: Component  = javax.swing.JList[_ <: E] & Component
+opaque type ListView[+E] <: Component  = javax.swing.JList[? <: E] & Component
 object ListView extends VarsMap {
   val UI: SwingVar.Aux[ListView[Any], javax.swing.plaf.ListUI] = SwingVar[ListView[Any], javax.swing.plaf.ListUI]("UI", _.getUI.nn, _.setUI(_))
-  val CellRenderer: SwingVar.Aux[ListView[Any], javax.swing.ListCellRenderer[_]] = SwingVar[ListView[Any], javax.swing.ListCellRenderer[_]]("cellRenderer", _.getCellRenderer.nn, (l, c) => l.setCellRenderer(c.asInstanceOf))
+  val CellRenderer: SwingVar.Aux[ListView[Any], javax.swing.ListCellRenderer[?]] = SwingVar[ListView[Any], javax.swing.ListCellRenderer[?]]("cellRenderer", _.getCellRenderer.nn, (l, c) => l.setCellRenderer(c.asInstanceOf))
   val DragEnabled: SwingVar.Aux[ListView[Any], Boolean] = SwingVar[ListView[Any], Boolean]("dragEnabled", _.getDragEnabled, _.setDragEnabled(_))
   val DropMode: SwingVar.Aux[ListView[Any], javax.swing.DropMode | Null] = SwingVar[ListView[Any], javax.swing.DropMode | Null]("dropMode", _.getDropMode, _.setDropMode(_))
   val FixedCellHeight: SwingVar.Aux[ListView[Any], Int] = SwingVar[ListView[Any], Int]("fixedCellHeight", _.getFixedCellHeight, _.setFixedCellHeight(_))
   val FixedCellWidth: SwingVar.Aux[ListView[Any], Int] = SwingVar[ListView[Any], Int]("fixedCellWidth", _.getFixedCellWidth, _.setFixedCellWidth(_))
   val LayoutOrientation: SwingVar.Aux[ListView[Any], Int] = SwingVar[ListView[Any], Int]("layoutOrientation", _.getLayoutOrientation, _.setLayoutOrientation(_))
-  val Model: SwingVar.Aux[ListView[Any], javax.swing.ListModel[_]] = SwingVar[ListView[Any], javax.swing.ListModel[_]]("model", _.getModel.nn, (l, m) => l.setModel(m.asInstanceOf))
+  val Model: SwingVar.Aux[ListView[Any], javax.swing.ListModel[?]] = SwingVar[ListView[Any], javax.swing.ListModel[?]]("model", _.getModel.nn, (l, m) => l.setModel(m.asInstanceOf))
   val PrototypeCellValue: SwingVar.Aux[ListView[Any], Any] = SwingVar[ListView[Any], Any]("prototypeCellValue", _.getPrototypeCellValue, (l, p) => l.setPrototypeCellValue(p.asInstanceOf))
   val SelectedIndex: SwingVar.Aux[ListView[Any], Int] = SwingVar[ListView[Any], Int]("selectedIndex", _.getSelectedIndex, _.setSelectedIndex(_))
   val SelectedIndices: SwingVar.Aux[ListView[Any], Array[Int]] = SwingVar[ListView[Any], Array[Int]]("selectedIndices", _.getSelectedIndices.nn, _.setSelectedIndices(_))
@@ -39,7 +39,7 @@ object ListView extends VarsMap {
   object Ops {
     extension [E](v: ListView[E]) {
       def UI: Var.Aux[javax.swing.plaf.ListUI, v.type] = ListView.UI.asInstanceOf[Var.Aux[javax.swing.plaf.ListUI, v.type]]
-      def cellRenderer: Var.Aux[javax.swing.ListCellRenderer[_ >: E], v.type] = ListView.CellRenderer.asInstanceOf[Var.Aux[javax.swing.ListCellRenderer[_ >: E], v.type]]
+      def cellRenderer: Var.Aux[javax.swing.ListCellRenderer[? >: E], v.type] = ListView.CellRenderer.asInstanceOf[Var.Aux[javax.swing.ListCellRenderer[? >: E], v.type]]
       def dragEnabled: Var.Aux[Boolean, v.type] = ListView.DragEnabled.asInstanceOf[Var.Aux[Boolean, v.type]]
       def dropMode: Var.Aux[javax.swing.DropMode | Null, v.type] = ListView.DropMode.asInstanceOf[Var.Aux[javax.swing.DropMode | Null, v.type]]
       def fixedCellHeight: Var.Aux[Int, v.type] = ListView.FixedCellHeight.asInstanceOf[Var.Aux[Int, v.type]]
@@ -72,11 +72,11 @@ object ListView extends VarsMap {
       def selectedValue: Option[E] = { val r = v.getSelectedValue; if (r == null) None else Some(r) }
       def selectedValues: Seq[E] = v.getSelectedValuesList.nn.asScala.asInstanceOf
       def selectionEmpty: Boolean = v.isSelectionEmpty
-      def unwrap: javax.swing.JList[_ <: E] = v
+      def unwrap: javax.swing.JList[? <: E] = v
     }
   }
 
-  def wrap[E](v: javax.swing.JList[_ <: E]) = v.asInstanceOf[ListView[E]]
+  def wrap[E](v: javax.swing.JList[? <: E]) = v.asInstanceOf[ListView[E]]
 
   def init[E](v: ListView[E]): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
     Component.init(v)
@@ -108,7 +108,7 @@ object ListView extends VarsMap {
     background: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     border: Opt[Binding[javax.swing.border.Border | Null]] = UnsetParam,
     bounds: Opt[Binding[Bounds]] = UnsetParam,
-    cellRenderer: Opt[Binding[javax.swing.ListCellRenderer[_ >: E]]] = UnsetParam,
+    cellRenderer: Opt[Binding[javax.swing.ListCellRenderer[? >: E]]] = UnsetParam,
     componentOrientation: Opt[Binding[java.awt.ComponentOrientation]] = UnsetParam,
     componentPopupMenu: Opt[Binding[PopupMenu | Null]] = UnsetParam,
     cursor: Opt[Binding[java.awt.Cursor | Null]] = UnsetParam,

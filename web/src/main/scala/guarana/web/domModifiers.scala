@@ -23,7 +23,7 @@ object child {
       val v = Var[String]("child.text", "", eagerEvaluation = true).forInstance(base)
       val tn = dom.document.createTextNode("")
       base.unwrap.append(tn)
-      v := Binding.dyn {
+      v := Binding.dynDebug {
         val newv = b()
         tn.textContent = newv
         newv

@@ -4,7 +4,7 @@ import compiletime.{constValue, erasedValue, summonFrom, error}
 import scala.util.chaining.*
 
 trait ProductFields[P <: Product] {
-  def fields: Seq[(String, scala.reflect.ClassTag[_])]
+  def fields: Seq[(String, scala.reflect.ClassTag[?])]
 }
 
 object ProductFields {
@@ -32,7 +32,7 @@ trait ProductLenses[P <: Product] {
 }
 object ProductLenses {
 
-  inline def lenseForLabels[T <: Tuple, P <: Product]: List[_] = inline compiletime.erasedValue[T] match {
+  inline def lenseForLabels[T <: Tuple, P <: Product]: List[?] = inline compiletime.erasedValue[T] match {
     case EmptyTuple => Nil
     case _: (t *: ts) => lense[P](compiletime.constValue[t]) :: lenseForLabels[ts, P]
   }

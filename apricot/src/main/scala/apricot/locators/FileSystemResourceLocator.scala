@@ -30,7 +30,7 @@ class FileSystemResourceLocator(root: File, engine: ApricotEngine[? <: AbstractT
   private val subscribedFiles = HashMap.empty[File, ArrayBuffer[FileResource#SubscriptionImpl[?]]]
 
   FileSystemWatcher // initialize early
-  engine.scriptEngine run script {
+  engine.scriptEngine `run` script {
     doUntil { _ =>
       FileSystemWatcher.poll()
       false

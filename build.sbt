@@ -4,7 +4,7 @@ inThisBuild(
   Seq(
     organization := "guarana",
     version := "0.0.6-SNAPSHOT",
-    scalaVersion := "3.3.2",
+    scalaVersion := "3.4.2",
     fork := true,
     libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.18" % "test",
     Compile / packageDoc / publishArtifact := false,
@@ -12,12 +12,15 @@ inThisBuild(
       "-Yexplicit-nulls",
       "-deprecation",
       "-unchecked",
-      "-language:implicitConversions"
+      "-language:implicitConversions",
+      "-rewrite", "-source", "3.4-migration"
     ),
   ) ++ addCommandAlias("enableDebug", """set javaOptions += "-agentlib:jdwp=transport=dt_socket,server=y,address=5555,suspend=y"""")
 )
 
 lazy val guaraná = Project(id = "guarana", base = file(".")).aggregate(coreJvm, swing, qt, apricot, apricotVk)
+
+lazy val scribeVersion = "3.13.5"
 
 lazy val core = // select supported platforms
   crossProject(JVMPlatform, NativePlatform, JSPlatform)
@@ -26,7 +29,7 @@ lazy val core = // select supported platforms
     .settings(
       libraryDependencies ++= Seq(
         "com.github.rssh" %% "dotty-cps-async" % "0.9.20",
-        "com.outr" %%% "scribe" % "3.13.0",
+        "com.outr" %%% "scribe" % scribeVersion,
       )
     )
     // configure JVM settings
@@ -136,7 +139,6 @@ lazy val web = Project(id = "guarana-web", base = file("web"))
 lazy val lwjglVersion = "3.3.3"
 lazy val lwjglClassifier = "natives-linux"
 
-lazy val scribeVersion = "3.13.0"
 
 lazy val apricot = Project(id = "apricot", base = file("apricot"))
   .settings(
@@ -179,6 +181,7 @@ val shaderObjects = taskKey[Seq[Path]]("Compiles .frag and .vert files into spir
 lazy val apricotVk = Project(id = "apricotVk", base = file("apricotVk"))
   .settings(
     scalacOptions -= "-Yexplicit-nulls",
+    scalacOptions ++= Seq("-Ydebug", "-Ydebug-error", "-Ydebug-unpickling"),
     libraryDependencies ++= Seq(
       "org.lwjgl" % "lwjgl-vulkan" % lwjglVersion,
     ),

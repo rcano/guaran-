@@ -96,7 +96,7 @@ package codegen {
     val allMutVars: Vector[(NodeDescr, Property)] = Iterator.unfold(Seq(n)) {
       case Seq() => None
       case parents => 
-        val allParentVars = parents.flatMap(p => p.props.filterNot(prop => seenVars(prop.name) || prop.visibility.exists(_ startsWith "private")).map(p -> _))
+        val allParentVars = parents.flatMap(p => p.props.filterNot(prop => seenVars(prop.name) || prop.visibility.exists(_ `startsWith` "private")).map(p -> _))
         seenVars ++= allParentVars.map(_._2.name)
         Some(allParentVars -> parents.flatMap(_.upperBounds.collect { case n: NodeDescr => n }))
     }.flatten.toVector.filter(!_._2.readOnly).sortBy(_._2.name)
@@ -123,7 +123,7 @@ package codegen {
       } else Seq.empty 
 
     val sortedProps = n.props.sortBy(_.name)
-    val nonPrivateSortedProps = sortedProps.filterNot(_.visibility.exists(_ startsWith "private"))
+    val nonPrivateSortedProps = sortedProps.filterNot(_.visibility.exists(_ `startsWith` "private"))
     val sortedEmitters = n.emitters.sortBy(_.name)
 
     val upperBounds = if (n.upperBounds.nonEmpty) n.upperBounds.mkString("<: ", " & ", "") else ""

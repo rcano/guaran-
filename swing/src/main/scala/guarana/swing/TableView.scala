@@ -35,7 +35,7 @@ object TableView extends VarsMap {
   val RowHeight: SwingVar.Aux[TableView, Int] = SwingVar[TableView, Int]("rowHeight", _.getRowHeight, _.setRowHeight(_))
   val RowMargin: SwingVar.Aux[TableView, Int] = SwingVar[TableView, Int]("rowMargin", _.getRowMargin, _.setRowMargin(_))
   val RowSelectionAllowed: SwingVar.Aux[TableView, Boolean] = SwingVar[TableView, Boolean]("rowSelectionAllowed", _.getRowSelectionAllowed, _.setRowSelectionAllowed(_))
-  val RowSorter: SwingVar.Aux[TableView, javax.swing.RowSorter[_ <: javax.swing.table.TableModel] | Null] = SwingVar[TableView, javax.swing.RowSorter[_ <: javax.swing.table.TableModel] | Null]("rowSorter", _.getRowSorter, _.setRowSorter(_))
+  val RowSorter: SwingVar.Aux[TableView, javax.swing.RowSorter[? <: javax.swing.table.TableModel] | Null] = SwingVar[TableView, javax.swing.RowSorter[? <: javax.swing.table.TableModel] | Null]("rowSorter", _.getRowSorter, _.setRowSorter(_))
   private val SelectedRowsMut: Var[Array[Int]] = Var[Array[Int]]("selectedRowsMut", Array(), false)
   val SelectionBackground: SwingVar.Aux[TableView, java.awt.Color | Null] = SwingVar[TableView, java.awt.Color | Null]("selectionBackground", _.getSelectionBackground, _.setSelectionBackground(_))
   val SelectionForeground: SwingVar.Aux[TableView, java.awt.Color | Null] = SwingVar[TableView, java.awt.Color | Null]("selectionForeground", _.getSelectionForeground, _.setSelectionForeground(_))
@@ -46,7 +46,6 @@ object TableView extends VarsMap {
   val TableHeader: SwingVar.Aux[TableView, javax.swing.table.JTableHeader | Null] = SwingVar[TableView, javax.swing.table.JTableHeader | Null]("tableHeader", _.getTableHeader, _.setTableHeader(_))
   val UpdateSelectionOnSort: SwingVar.Aux[TableView, Boolean] = SwingVar[TableView, Boolean]("updateSelectionOnSort", _.getUpdateSelectionOnSort, _.setUpdateSelectionOnSort(_))
 
-  
 
   given ops: Ops.type = Ops
   object Ops {
@@ -71,7 +70,7 @@ object TableView extends VarsMap {
       def rowHeight: Var.Aux[Int, v.type] = TableView.RowHeight.asInstanceOf[Var.Aux[Int, v.type]]
       def rowMargin: Var.Aux[Int, v.type] = TableView.RowMargin.asInstanceOf[Var.Aux[Int, v.type]]
       def rowSelectionAllowed: Var.Aux[Boolean, v.type] = TableView.RowSelectionAllowed.asInstanceOf[Var.Aux[Boolean, v.type]]
-      def rowSorter: Var.Aux[javax.swing.RowSorter[_ <: javax.swing.table.TableModel] | Null, v.type] = TableView.RowSorter.asInstanceOf[Var.Aux[javax.swing.RowSorter[_ <: javax.swing.table.TableModel] | Null, v.type]]
+      def rowSorter: Var.Aux[javax.swing.RowSorter[? <: javax.swing.table.TableModel] | Null, v.type] = TableView.RowSorter.asInstanceOf[Var.Aux[javax.swing.RowSorter[? <: javax.swing.table.TableModel] | Null, v.type]]
       def selectionBackground: Var.Aux[java.awt.Color | Null, v.type] = TableView.SelectionBackground.asInstanceOf[Var.Aux[java.awt.Color | Null, v.type]]
       def selectionForeground: Var.Aux[java.awt.Color | Null, v.type] = TableView.SelectionForeground.asInstanceOf[Var.Aux[java.awt.Color | Null, v.type]]
       def selectionModel: Var.Aux[javax.swing.ListSelectionModel, v.type] = TableView.SelectionModel.asInstanceOf[Var.Aux[javax.swing.ListSelectionModel, v.type]]
@@ -165,7 +164,7 @@ object TableView extends VarsMap {
     rowHeight: Opt[Binding[Int]] = UnsetParam,
     rowMargin: Opt[Binding[Int]] = UnsetParam,
     rowSelectionAllowed: Opt[Binding[Boolean]] = UnsetParam,
-    rowSorter: Opt[Binding[javax.swing.RowSorter[_ <: javax.swing.table.TableModel] | Null]] = UnsetParam,
+    rowSorter: Opt[Binding[javax.swing.RowSorter[? <: javax.swing.table.TableModel] | Null]] = UnsetParam,
     selectionBackground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     selectionForeground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
     selectionModel: Opt[Binding[javax.swing.ListSelectionModel]] = UnsetParam,

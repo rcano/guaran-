@@ -90,7 +90,7 @@ private[impl] class SignalSwitchboardImpl[Signal[+T] <: util.Unique](
       case Value(null) => null.asInstanceOf[T]
       case Value(value: T @unchecked) => value
       case Recompute(oldv) =>
-        signalRels.get(s.id).?(_.dependents fastForeach (e => remove(Keyed(e)))) //when recomputing the value, we gotta undo all the dependents
+        signalRels.get(s.id).?(_.dependents `fastForeach` (e => remove(Keyed(e)))) //when recomputing the value, we gotta undo all the dependents
 
         val tracker = new TrackingContext(s)
         // before computing the value, we set the signalState to the oldValue in case the compute lambda has a self reference
@@ -108,7 +108,7 @@ private[impl] class SignalSwitchboardImpl[Signal[+T] <: util.Unique](
           if deps == null then
             deps = new LongHashSet()
             signalDeps.put(dep, deps)
-          deps add s.id
+          deps `add` s.id
         )
 
         if (result != oldv)
@@ -188,8 +188,8 @@ private[impl] class SignalSwitchboardImpl[Signal[+T] <: util.Unique](
         signalRels.remove(s.id) match {
           case null =>
           case Relationships(deps, denpts) =>
-            denpts fastForeach (l => remove(Keyed(l)))
-            deps fastForeach (dep =>
+            denpts `fastForeach` (l => remove(Keyed(l)))
+            deps `fastForeach` (dep =>
               signalDeps.get(dep).?(_.remove(s.id))
             )
         }
@@ -199,10 +199,10 @@ private[impl] class SignalSwitchboardImpl[Signal[+T] <: util.Unique](
 
   def snapshot(newReporter: Reporter[Signal]): SignalSwitchboard[Signal] = {
     val res = new SignalSwitchboardImpl[Signal](newReporter, signalDescriptor)
-    res.signalStates putAll signalStates
-    res.signalDeps putAll signalDeps
-    res.signalEvaluator putAll signalEvaluator
-    res.signalRels putAll signalRels
+    res.signalStates `putAll` signalStates
+    res.signalDeps `putAll` signalDeps
+    res.signalEvaluator `putAll` signalEvaluator
+    res.signalRels `putAll` signalRels
     res
   }
 
@@ -211,15 +211,15 @@ private[impl] class SignalSwitchboardImpl[Signal[+T] <: util.Unique](
     val dependencies = new LongHashSet(4)
     val dependents = new LongHashSet(4)
     def get[T](s: Keyed[Signal[T]]) = {
-      if (forSignal != s) dependencies add s.id
+      if (forSignal != s) dependencies `add` s.id
       outerSb.get(s)
     }
     def update[T](s: Keyed[Signal[T]], value: T) = {
-      if (forSignal != s) dependents add s.id
+      if (forSignal != s) dependents `add` s.id
       outerSb.update(s, value)
     }
     def bind[T](s: Keyed[Signal[T]])(compute: SignalSwitchboard[Signal] => T) = {
-      if (forSignal != s) dependents add s.id
+      if (forSignal != s) dependents `add` s.id
       outerSb.bind(s)(compute)
     }
     def externalPropertyChanged[T](s: Keyed[Signal[T]], oldValue: Option[T]): Unit = outerSb.externalPropertyChanged(s, oldValue)

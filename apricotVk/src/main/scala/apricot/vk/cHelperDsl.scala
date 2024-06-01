@@ -166,11 +166,11 @@ extension (inline buff: StringLikeBuffer)
         res.flip()
       case seq: Seq[StringLike] =>
         val res = allocBuffer[PointerBuffer](seq.size, allocMethod)
-        seq foreach (s => res put s.toNative(allocMethod))
+        seq foreach (s => res `put` s.toNative(allocMethod))
         res.flip()
 
 extension (buff: IntBuffer | LongBuffer)
-  transparent inline def toArray(): Array[_] = inline buff match {
+  transparent inline def toArray(): Array[?] = inline buff match {
     case buff: IntBuffer =>
       val res = new Array[Int](buff.capacity)
       buff.position(0)

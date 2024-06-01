@@ -19,8 +19,8 @@ extension (d: Double | Float | Int) {
 trait VarsMap {
   protected var ignoreProperties = collection.mutable.Set.empty[String]
   protected lazy val VarsMap = getClass.getDeclaredMethods.asInstanceOf[Array[java.lang.reflect.Method]].iterator
-    .filter(f => classOf[SwingVar[_]].isAssignableFrom(f.getReturnType) && f.getParameterCount == 0)
-    .map(_.invoke(this).asInstanceOf[SwingVar[_]])
+    .filter(f => classOf[SwingVar[?]].isAssignableFrom(f.getReturnType) && f.getParameterCount == 0)
+    .map(_.invoke(this).asInstanceOf[SwingVar[?]])
     .map(v => v.name.toLowerCase.nn -> v).toMap
   protected inline def varsPropertyListener(instance: Any, debug: Boolean = false)(using sg: Scenegraph): java.beans.PropertyChangeListener = { evt =>
     val property = evt.unn.getPropertyName.unn.toLowerCase.unn
@@ -90,6 +90,13 @@ def Font(name: String, style: Opt[Int] = UnsetParam, size: Opt[Double] = UnsetPa
   ifSet(style, s => res = res.deriveFont(s).nn)
   ifSet(size, s => res = res.deriveFont(s.toFloat).nn)
   res
+}
+
+extension (n: Node) {
+  /** Wraps this node in a box that ensures it is centered horizontally */
+  def xCentered: Scenegraph ?=>  VarContextAction[Node] = Hbox(nodes = Seq(n))
+  /** Wraps this node in a box that ensures it is centered vertically */
+  def yCentered: Scenegraph ?=>  VarContextAction[Node] = Hbox(nodes = Seq(n))
 }
 
 type Bounds = java.awt.Rectangle

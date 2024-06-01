@@ -30,10 +30,8 @@ object BindingMacro {
 
       val referencesFinder = new TreeAccumulator[List[Ref]] {
         override def foldTree(x: List[Ref], tree: Tree)(owner: Symbol): List[Ref] = tree match {
-          case r: Ref => extractHoistablePrefix(r) match {
-            case Some(prefix) if shouldHoistSymbol(prefix) => prefix :: x
-            case _ => x
-          }
+          case Assign(Select(r, _), _) => extractHoistablePrefix(r).filter(shouldHoistSymbol).toList ::: x
+          case r: Ref => extractHoistablePrefix(r).filter(shouldHoistSymbol).toList ::: x
           case other => foldOverTree(x, other)(owner)
         }
       }

@@ -93,10 +93,10 @@ abstract class AbstractToolkit {
     * for external properties, they'll notify that they were change, and we want to avoid resetting the value and discarding the user
     * provided Binding.
     */
-  private def reactingToVar[R](k: Keyed[Signal[_]])(f: => R): R = {
-    reactingExtVars add k.id
+  private def reactingToVar[R](k: Keyed[Signal[?]])(f: => R): R = {
+    reactingExtVars `add` k.id
     val res = f
-    reactingExtVars remove k.id
+    reactingExtVars `remove` k.id
     res
   }
   private object reporter extends SignalSwitchboard.Reporter[Signal] {
@@ -107,8 +107,8 @@ abstract class AbstractToolkit {
         f(ctx)
     }
 
-    def signalRemoved(sb: SignalSwitchboard[Signal], s: Keyed[Signal[_]]): Unit = ()
-    def signalInvalidated(sb: SignalSwitchboard[Signal], s: Keyed[Signal[_]]) = {
+    def signalRemoved(sb: SignalSwitchboard[Signal], s: Keyed[Signal[?]]): Unit = ()
+    def signalInvalidated(sb: SignalSwitchboard[Signal], s: Keyed[Signal[?]]) = {
       scribe.debug(s"Var(${instancesData.get(s.instanceId).?(_.instance.deref)}, ${seenVars.get(s.keyId)}) invalidated")
       seenVars.get(s.keyId) match {
         case v: Var[_] if v.eagerEvaluation =>
@@ -239,7 +239,7 @@ abstract class AbstractToolkit {
     /** Read the current value of ObsVal as it is read by doing `prop()` within a VarContext */
     def apply[T](v: ObsVal[T])(using instance: ValueOf[v.ForInstance]): T = {
       val keyed: Keyed[ObsVal[T]] = v
-      switchboard.get(keyed) getOrElse (stylist(getMetrics(), v, instance.value)(using AbstractToolkit.this) getOrElse v.initialValue(
+      switchboard.get(keyed) `getOrElse` (stylist(getMetrics(), v, instance.value)(using AbstractToolkit.this) getOrElse v.initialValue(
         instance.value
       ))
     }

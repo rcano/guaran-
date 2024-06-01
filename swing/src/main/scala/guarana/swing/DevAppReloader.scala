@@ -81,7 +81,7 @@ object DevAppReloader {
   }
 
   var reloadCounter = 0
-  var lastApplication: Class[?] | Null = _
+  var lastApplication: Class[?] | Null = scala.compiletime.uninitialized
   @volatile var recompiling = false
   def reloadApp(classesDirectories: Array[Path], reloadableClassPattern: Regex, mainApp: String, otherArgs: Array[String]): Unit = {
     if (!recompiling) { // if I'm already recompiling, ignore the request. This might happen if the watcher thread detects many file changing in quick not not so quick intervals
@@ -91,7 +91,7 @@ object DevAppReloader {
 
       val classLoadingMxBean = java.lang.management.ManagementFactory.getClassLoadingMXBean().nn
       out.println("currently loaded classes " + classLoadingMxBean.getLoadedClassCount)
-      SwingUtilities invokeLater new Runnable {
+      SwingUtilities `invokeLater` new Runnable {
         def run: Unit = {
           var framePosition: Option[java.awt.Rectangle] = None
 
@@ -124,8 +124,8 @@ object DevAppReloader {
           out.println(classesDirectories.mkString("Root urls:[\n", "\n", "\n]"))
           val loader = new URLClassLoader(classesDirectories.map(_.toAbsolutePath.unn.toUri.unn.toURL.unn).toArray) {
             //override default class loader behaviour to prioritize classes in this classloader
-            override def loadClass(name: String, resolve: Boolean): Class[_] = {
-              var res: Class[_] | Null = findLoadedClass(name)
+            override def loadClass(name: String, resolve: Boolean): Class[?] = {
+              var res: Class[?] | Null = findLoadedClass(name)
               val startTime = System.currentTimeMillis
 
 

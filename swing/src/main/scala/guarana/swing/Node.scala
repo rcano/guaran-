@@ -72,6 +72,16 @@ object Node extends VarsMap {
       def size(x: Int, y: Int) = v.setSize(x, y)
       def showing = v.isShowing
       def unwrap: java.awt.Component = v
+
+      def onFirstTimeVisible(f: v.type => Unit): Scenegraph ?=> Unit = {
+        lazy val hl: java.awt.event.HierarchyListener = { evt => 
+          if ((evt.getChangeFlags() & java.awt.event.HierarchyEvent.DISPLAYABILITY_CHANGED) > 0 && v.isDisplayable()) {
+            v.removeHierarchyListener(hl)
+            summon[Scenegraph].update(f(v))
+          }
+        }
+        v.addHierarchyListener(hl)
+      }
     }
   }
 
@@ -79,14 +89,14 @@ object Node extends VarsMap {
 
   def init(v: Node): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
     v.addPropertyChangeListener(varsPropertyListener(v))
-    v addMouseMotionListener new java.awt.event.MouseMotionListener {
+    v `addMouseMotionListener` new java.awt.event.MouseMotionListener {
       def mouseDragged(evt: java.awt.event.MouseEvent | Null) = ()
       def mouseMoved(evt: java.awt.event.MouseEvent | Null) = sc.update {
         val nnEvt = evt.nn
         Node.MouseLocationMut.forInstance(v) := (nnEvt.getX, nnEvt.getY)
       }
     }
-    v addFocusListener new FocusListener {
+    v `addFocusListener` new FocusListener {
       def focusGained(evt: FocusEvent) = sc.update {
         Node.FocusedMut.forInstance(v) := true 
         summon[Emitter.Context].emit(v.focusEvents, (evt.nn -> true))
@@ -96,7 +106,7 @@ object Node extends VarsMap {
         summon[Emitter.Context].emit(v.focusEvents, (evt.nn -> false))
       }
     }
-    v addComponentListener new ComponentAdapter {
+    v `addComponentListener` new ComponentAdapter {
       override def componentMoved(e: ComponentEvent): Unit = updateBounds()
       override def componentResized(e: ComponentEvent): Unit = updateBounds()
       def updateBounds(): Unit = sc.update {

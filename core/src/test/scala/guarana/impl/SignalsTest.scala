@@ -10,7 +10,7 @@ class SignalsTest extends AnyFunSuite {
   trait Signal[+T] extends util.Unique {
     def keyed: Keyed[this.type] = Keyed(this, this)
   }
-  implicit def keyedSignal(s: Signal[_]): Keyed[s.type] = Keyed(s, s)
+  implicit def keyedSignal(s: Signal[?]): Keyed[s.type] = Keyed(s, s)
 
   def signal[T](initValue: T)(implicit sb: SignalSwitchboard[Signal], inferredName: guarana.util.DeclaringOwner) = {
     new Signal[T] {
@@ -19,8 +19,8 @@ class SignalsTest extends AnyFunSuite {
   }
 
   val noopReporter = new SignalSwitchboard.Reporter[Signal] {
-    def signalRemoved(sb: guarana.impl.SignalSwitchboard[Signal], s: Keyed[Signal[_]]): Unit = ()
-    def signalInvalidated(sb: guarana.impl.SignalSwitchboard[Signal], s: Keyed[Signal[_]]): Unit = ()
+    def signalRemoved(sb: guarana.impl.SignalSwitchboard[Signal], s: Keyed[Signal[?]]): Unit = ()
+    def signalInvalidated(sb: guarana.impl.SignalSwitchboard[Signal], s: Keyed[Signal[?]]): Unit = ()
     def signalUpdated[T](
       sb: guarana.impl.SignalSwitchboard[Signal],
       s: Keyed[Signal[T]],

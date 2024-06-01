@@ -18,7 +18,7 @@ object Slider extends VarsMap {
   val UI: SwingVar.Aux[Slider, javax.swing.plaf.SliderUI] = SwingVar[Slider, javax.swing.plaf.SliderUI]("UI", _.getUI.nn, _.setUI(_))
   val Extent: SwingVar.Aux[Slider, Int] = SwingVar[Slider, Int]("extent", _.getExtent, _.setExtent(_))
   val Inverted: SwingVar.Aux[Slider, Boolean] = SwingVar[Slider, Boolean]("inverted", _.getInverted, _.setInverted(_))
-  val LabelTable: SwingVar.Aux[Slider, java.util.Dictionary[_, _] | Null] = SwingVar[Slider, java.util.Dictionary[_, _] | Null]("labelTable", _.getLabelTable, _.setLabelTable(_))
+  val LabelTable: SwingVar.Aux[Slider, java.util.Dictionary[?, ?] | Null] = SwingVar[Slider, java.util.Dictionary[?, ?] | Null]("labelTable", _.getLabelTable, _.setLabelTable(_))
   val MajorTickSpacing: SwingVar.Aux[Slider, Int] = SwingVar[Slider, Int]("majorTickSpacing", _.getMajorTickSpacing, _.setMajorTickSpacing(_))
   val Max: SwingVar.Aux[Slider, Int] = SwingVar[Slider, Int]("max", _.getMaximum, _.setMaximum(_))
   val Min: SwingVar.Aux[Slider, Int] = SwingVar[Slider, Int]("min", _.getMinimum, _.setMinimum(_))
@@ -40,7 +40,7 @@ object Slider extends VarsMap {
       def UI: Var.Aux[javax.swing.plaf.SliderUI, v.type] = Slider.UI.asInstanceOf[Var.Aux[javax.swing.plaf.SliderUI, v.type]]
       def extent: Var.Aux[Int, v.type] = Slider.Extent.asInstanceOf[Var.Aux[Int, v.type]]
       def inverted: Var.Aux[Boolean, v.type] = Slider.Inverted.asInstanceOf[Var.Aux[Boolean, v.type]]
-      def labelTable: Var.Aux[java.util.Dictionary[_, _] | Null, v.type] = Slider.LabelTable.asInstanceOf[Var.Aux[java.util.Dictionary[_, _] | Null, v.type]]
+      def labelTable: Var.Aux[java.util.Dictionary[?, ?] | Null, v.type] = Slider.LabelTable.asInstanceOf[Var.Aux[java.util.Dictionary[?, ?] | Null, v.type]]
       def majorTickSpacing: Var.Aux[Int, v.type] = Slider.MajorTickSpacing.asInstanceOf[Var.Aux[Int, v.type]]
       def max: Var.Aux[Int, v.type] = Slider.Max.asInstanceOf[Var.Aux[Int, v.type]]
       def min: Var.Aux[Int, v.type] = Slider.Min.asInstanceOf[Var.Aux[Int, v.type]]
@@ -99,7 +99,7 @@ object Slider extends VarsMap {
     inheritsPopupMenu: Opt[Binding[Boolean]] = UnsetParam,
     inputVerifier: Opt[Binding[javax.swing.InputVerifier | Null]] = UnsetParam,
     inverted: Opt[Binding[Boolean]] = UnsetParam,
-    labelTable: Opt[Binding[java.util.Dictionary[_, _] | Null]] = UnsetParam,
+    labelTable: Opt[Binding[java.util.Dictionary[?, ?] | Null]] = UnsetParam,
     majorTickSpacing: Opt[Binding[Int]] = UnsetParam,
     max: Opt[Binding[Int]] = UnsetParam,
     maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,

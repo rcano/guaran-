@@ -99,6 +99,16 @@ case object Node extends NodeDescr(
     |def requestFocusInWindow() = v.requestFocusInWindow()
     |def size(x: Int, y: Int) = v.setSize(x, y)
     |def showing = v.isShowing
+    |
+    |def onFirstTimeVisible(f: v.type => Unit): Scenegraph ?=> Unit = {
+    |  lazy val hl: java.awt.event.HierarchyListener = { evt => 
+    |    if ((evt.getChangeFlags() & java.awt.event.HierarchyEvent.DISPLAYABILITY_CHANGED) > 0 && v.isDisplayable()) {
+    |      v.removeHierarchyListener(hl)
+    |      summon[Scenegraph].update(f(v))
+    |    }
+    |  }
+    |  v.addHierarchyListener(hl)
+    |}
     """.stripMargin.trim.unn.split("\n").nnn.toIndexedSeq,
   emitters = Seq(
     EmitterDescr("focusEvents", "(FocusEvent, Boolean)", Nil),
@@ -106,14 +116,14 @@ case object Node extends NodeDescr(
     EmitterDescr("keyEvents", "guarana.swing.KeyEvent", Nil),
   ),
   initExtra = """
-  |v addMouseMotionListener new java.awt.event.MouseMotionListener {
+  |v `addMouseMotionListener` new java.awt.event.MouseMotionListener {
   |  def mouseDragged(evt: java.awt.event.MouseEvent | Null) = ()
   |  def mouseMoved(evt: java.awt.event.MouseEvent | Null) = sc.update {
   |    val nnEvt = evt.nn
   |    Node.MouseLocationMut.forInstance(v) := (nnEvt.getX, nnEvt.getY)
   |  }
   |}
-  |v addFocusListener new FocusListener {
+  |v `addFocusListener` new FocusListener {
   |  def focusGained(evt: FocusEvent) = sc.update {
   |    Node.FocusedMut.forInstance(v) := true 
   |    summon[Emitter.Context].emit(v.focusEvents, (evt.nn -> true))
@@ -123,7 +133,7 @@ case object Node extends NodeDescr(
   |    summon[Emitter.Context].emit(v.focusEvents, (evt.nn -> false))
   |  }
   |}
-  |v addComponentListener new ComponentAdapter {
+  |v `addComponentListener` new ComponentAdapter {
   |  override def componentMoved(e: ComponentEvent): Unit = updateBounds()
   |  override def componentResized(e: ComponentEvent): Unit = updateBounds()
   |  def updateBounds(): Unit = sc.update {
@@ -342,6 +352,18 @@ case object Pane extends NodeDescr(
   upperBounds = Seq(Component),
   props = Seq(
     SwingProp("UI", "javax.swing.plaf.PanelUI"),
+  ),
+)
+
+case object FlowPane extends NodeDescr(
+  "FlowPane",
+  "javax.swing.JPanel",
+  upperBounds = Seq(Pane),
+  props = Seq(
+    SwingProp("UI", "javax.swing.plaf.PanelUI"),
+    SwingProp("nodes", "Seq[Node]",
+      "c => (0 until c.getComponentCount).map(c.getComponent(_).asInstanceOf[Node])",
+      "(p, children) => { p.removeAll(); children foreach (n => p.add(n.unwrap)) }"),
   ),
 )
 
@@ -908,7 +930,7 @@ case object ProgressBar extends NodeDescr(
 
 case object ListView extends NodeDescr(
   "ListView",
-  "javax.swing.JList[_ <: E]",
+  "javax.swing.JList[? <: E]",
   tpeParams = Seq("+E"),
   upperBounds = Seq(Component),
   props = Seq(
@@ -992,7 +1014,7 @@ case object TableView extends NodeDescr(
     SwingProp("rowHeight", "Int"),
     SwingProp("rowMargin", "Int"),
     SwingProp("rowSelectionAllowed", "Boolean", "_.getRowSelectionAllowed", "_.setRowSelectionAllowed(_)"),
-    SwingProp("rowSorter", "javax.swing.RowSorter[_ <: javax.swing.table.TableModel] | Null"),
+    SwingProp("rowSorter", "javax.swing.RowSorter[? <: javax.swing.table.TableModel] | Null"),
     SwingProp("selectionBackground", "java.awt.Color | Null"),
     SwingProp("selectionForeground", "java.awt.Color | Null"),
     SwingProp("selectionModel", "javax.swing.ListSelectionModel"),
@@ -1210,7 +1232,7 @@ case object TabbedPane extends NodeDescr(
 
 case object Combobox extends NodeDescr(
   "ComboBox",
-  "javax.swing.JComboBox[_ <: E]",
+  "javax.swing.JComboBox[? <: E]",
   tpeParams = Seq("+E"),
   upperBounds = Seq(Component),
   props = Seq(
@@ -1370,7 +1392,7 @@ def genCode(n: NodeDescr): String = {
   val allVars: Vector[(NodeDescr, Property)] = Iterator.unfold(Seq(n)) {
     case Seq() => None
     case parents => 
-      val allParentVars = parents.flatMap(p => p.props.filterNot(prop => seenVars(prop.name) || prop.visibility.exists(_ startsWith "private")).map(p -> _))
+      val allParentVars = parents.flatMap(p => p.props.filterNot(prop => seenVars(prop.name) || prop.visibility.exists(_ `startsWith` "private")).map(p -> _))
       seenVars ++= allParentVars.map(_._2.name)
       Some(allParentVars -> parents.flatMap(_.upperBounds.collect { case n: NodeDescr => n }))
   }.flatten.toVector.sortBy(_._2.name)
@@ -1378,7 +1400,7 @@ def genCode(n: NodeDescr): String = {
   val initializers = 
     if (!n.isAbstract) {
       val instantiation = if (n.customCreator.isEmpty)
-          s"${if (n != Node) n.underlying.replaceAll(raw"_ <: ", "") else "java.awt.Container"}(${n.uninitExtraParams.map(_.passAs).mkString(", ")}).asInstanceOf[${n.name}$tpeParams]"
+          s"${if (n != Node) n.underlying.replaceAll(raw"? <: ", "") else "java.awt.Container"}(${n.uninitExtraParams.map(_.passAs).mkString(", ")}).asInstanceOf[${n.name}$tpeParams]"
         else
           n.customCreator.mkString("\n  ")
       s"""def uninitialized$tpeParams(${n.uninitExtraParams.filterNot(_.erased).map(t => s"${t.name}: ${t.tpe}").mkString(", ")}): ${n.name}$tpeParams = {
@@ -1401,7 +1423,7 @@ def genCode(n: NodeDescr): String = {
     } else Seq.empty 
 
   val sortedProps = n.props.sortBy(_.name)
-  val nonPrivateSortedProps = sortedProps.filterNot(_.visibility.exists(_ startsWith "private"))
+  val nonPrivateSortedProps = sortedProps.filterNot(_.visibility.exists(_ `startsWith` "private"))
   val sortedEmitters = n.emitters.sortBy(_.name)
 
   val upperBounds = if (n.upperBounds.nonEmpty) n.upperBounds.mkString("<: ", " & ", "") else ""
