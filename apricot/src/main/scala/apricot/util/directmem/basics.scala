@@ -7,7 +7,7 @@ trait Sized[T] {
 }
 
 object Sized {
-  inline def apply[T](s: Int): Sized[T] = new Sized[T] { def size = s }
+  def apply[T](s: Int): Sized[T] = new Sized[T] { def size = s }
   given Sized[Byte] = apply(1)
   given Sized[Int] = apply(4)
   given Sized[Long] = apply(8)

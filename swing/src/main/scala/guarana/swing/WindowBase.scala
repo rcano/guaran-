@@ -23,7 +23,7 @@ object WindowBase extends VarsMap {
   val LocationByPlatform: SwingVar.Aux[WindowBase, Boolean] = SwingVar[WindowBase, Boolean]("locationByPlatform", _.isLocationByPlatform, _.setLocationByPlatform(_))
   val ModalExclusionType: SwingVar.Aux[WindowBase, java.awt.Dialog.ModalExclusionType] = SwingVar[WindowBase, java.awt.Dialog.ModalExclusionType]("modalExclusionType", _.getModalExclusionType.nn, _.setModalExclusionType(_))
   val Opacity: SwingVar.Aux[WindowBase, Float] = SwingVar[WindowBase, Float]("opacity", _.getOpacity, _.setOpacity(_))
-  val Root: SwingVar.Aux[WindowBase, Node] = SwingVar[WindowBase, Node]("root", c => Node.wrap(c.getComponent(0).asInstanceOf[Container]), { (w, n) => w.add(n.unwrap, 0) })
+  val Root: SwingVar.Aux[WindowBase, Node] = SwingVar[WindowBase, Node]("root", c => Node.wrap(c.getComponent(0).asInstanceOf[Container]), (w, n) => w.add(n.unwrap, 0))
   val Shape: SwingVar.Aux[WindowBase, java.awt.Shape | Null] = SwingVar[WindowBase, java.awt.Shape | Null]("shape", _.getShape, _.setShape(_))
   val Tpe: SwingVar.Aux[WindowBase, java.awt.Window.Type] = SwingVar[WindowBase, java.awt.Window.Type]("tpe", _.getType.nn, _.setType(_))
 

@@ -88,6 +88,7 @@ object Toolkit extends AbstractToolkit, animation.TimersDef {
         t.start()
       }
       override def stop(): Unit = t.stop()
+      override def isRunning = t.isActive()
     }
 
   }

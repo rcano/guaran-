@@ -17,7 +17,7 @@ opaque type GridPane <: Pane  = javax.swing.JPanel & Pane
 object GridPane extends VarsMap {
   val AutoCreateContainerGaps: SwingVar.Aux[GridPane, Boolean] = SwingVar[GridPane, Boolean]("autoCreateContainerGaps", _.getLayout.asInstanceOf[GroupLayout].getAutoCreateContainerGaps(), _.getLayout.asInstanceOf[GroupLayout].setAutoCreateContainerGaps(_))
   val Hgap: Var[Double] = Var[Double]("hgap", 0.0, false)
-  val LayoutVar: SwingVar.Aux[GridPane, Unit] = SwingVar[GridPane, Unit]("layoutVar", _ => (), (_, _) => ())
+  private val LayoutVar: SwingVar.Aux[GridPane, Unit] = SwingVar[GridPane, Unit]("layoutVar", _ => (), (_, _) => ())
   val Rows: Var[Seq[Seq[Node]]] = Var[Seq[Seq[Node]]]("rows", Seq.empty, false)
   val Vgap: Var[Double] = Var[Double]("vgap", 0.0, false)
 
@@ -28,7 +28,6 @@ object GridPane extends VarsMap {
     extension (v: GridPane) {
       def autoCreateContainerGaps: Var.Aux[Boolean, v.type] = GridPane.AutoCreateContainerGaps.asInstanceOf[Var.Aux[Boolean, v.type]]
       def hgap: Var.Aux[Double, v.type] = GridPane.Hgap.asInstanceOf[Var.Aux[Double, v.type]]
-      def layoutVar: Var.Aux[Unit, v.type] = GridPane.LayoutVar.asInstanceOf[Var.Aux[Unit, v.type]]
       def rows: Var.Aux[Seq[Seq[Node]], v.type] = GridPane.Rows.asInstanceOf[Var.Aux[Seq[Seq[Node]], v.type]]
       def vgap: Var.Aux[Double, v.type] = GridPane.Vgap.asInstanceOf[Var.Aux[Double, v.type]]
 
@@ -112,7 +111,6 @@ object GridPane extends VarsMap {
     hgap: Opt[Binding[Double]] = UnsetParam,
     inheritsPopupMenu: Opt[Binding[Boolean]] = UnsetParam,
     inputVerifier: Opt[Binding[javax.swing.InputVerifier | Null]] = UnsetParam,
-    layoutVar: Opt[Binding[Unit]] = UnsetParam,
     maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     name: Opt[Binding[String | Null]] = UnsetParam,
@@ -149,7 +147,6 @@ object GridPane extends VarsMap {
     ifSet(hgap, GridPane.ops.hgap(res) := _)
     ifSet(inheritsPopupMenu, Component.ops.inheritsPopupMenu(res) := _)
     ifSet(inputVerifier, Component.ops.inputVerifier(res) := _)
-    ifSet(layoutVar, GridPane.ops.layoutVar(res) := _)
     ifSet(maxSize, Node.ops.maxSize(res) := _)
     ifSet(minSize, Node.ops.minSize(res) := _)
     ifSet(name, Node.ops.name(res) := _)

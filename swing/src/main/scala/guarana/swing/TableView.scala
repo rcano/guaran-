@@ -46,6 +46,7 @@ object TableView extends VarsMap {
   val TableHeader: SwingVar.Aux[TableView, javax.swing.table.JTableHeader | Null] = SwingVar[TableView, javax.swing.table.JTableHeader | Null]("tableHeader", _.getTableHeader, _.setTableHeader(_))
   val UpdateSelectionOnSort: SwingVar.Aux[TableView, Boolean] = SwingVar[TableView, Boolean]("updateSelectionOnSort", _.getUpdateSelectionOnSort, _.setUpdateSelectionOnSort(_))
 
+  
 
   given ops: Ops.type = Ops
   object Ops {

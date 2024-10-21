@@ -12,5 +12,12 @@ trait TimerLike[T] {
   extension (t: T) {
     def start(): Unit
     def stop(): Unit
+    def restart(): Unit = {
+      stop()
+      start()
+    }
+
+    def isRunning: Boolean
+    def isStopped: Boolean = !isRunning
   }
 }

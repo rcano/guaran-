@@ -7,7 +7,7 @@ import guarana.{ExternalVar, Var}
 
 @experimental
 class varsApi[VarsDefinitionType] extends MacroAnnotation {
-  def transform(using Quotes)(tree: quotes.reflect.Definition): List[quotes.reflect.Definition] = {
+  def transform(using Quotes)(tree: quotes.reflect.Definition, companion: Option[quotes.reflect.Definition]): List[quotes.reflect.Definition] = {
     import quotes.reflect.*
     val VarInstanceTpe = TypeRepr.of[Var[?]]
     val ExtVarInstanceTpe = TypeRepr.of[ExternalVar[?]]

@@ -7,10 +7,8 @@ import guarana.util.MacroUtils
 object test {
   
   type Point2D = Struct {
-    def x: Double
-    def x_=(d: Double): Unit
-    def y: Double
-    def y_=(d: Double): Unit
+    var x: Double
+    var y: Double
   }
   object Point2D {
     given sized: Sized[Point2D] = Struct.derivedSized[Point2D]

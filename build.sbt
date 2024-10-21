@@ -3,24 +3,24 @@ name := "guarana"
 inThisBuild(
   Seq(
     organization := "guarana",
-    version := "0.0.6-SNAPSHOT",
-    scalaVersion := "3.4.2",
+    version := "0.0.8-SNAPSHOT",
+    scalaVersion := "3.5.1",
     fork := true,
-    libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.18" % "test",
+    libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.19" % "test",
     Compile / packageDoc / publishArtifact := false,
     ThisBuild / scalacOptions ++= Seq(
       "-Yexplicit-nulls",
       "-deprecation",
       "-unchecked",
       "-language:implicitConversions",
-      "-rewrite", "-source", "3.4-migration"
+      "-rewrite", "-source", "3.5-migration"
     ),
   ) ++ addCommandAlias("enableDebug", """set javaOptions += "-agentlib:jdwp=transport=dt_socket,server=y,address=5555,suspend=y"""")
 )
 
 lazy val guaraná = Project(id = "guarana", base = file(".")).aggregate(coreJvm, swing, qt, apricot, apricotVk)
 
-lazy val scribeVersion = "3.13.5"
+lazy val scribeVersion = "3.15.0"
 
 lazy val core = // select supported platforms
   crossProject(JVMPlatform, NativePlatform, JSPlatform)
@@ -28,7 +28,7 @@ lazy val core = // select supported platforms
     .withoutSuffixFor(JVMPlatform)
     .settings(
       libraryDependencies ++= Seq(
-        "com.github.rssh" %% "dotty-cps-async" % "0.9.20",
+        "com.github.rssh" %% "dotty-cps-async" % "0.9.21",
         "com.outr" %%% "scribe" % scribeVersion,
       )
     )
@@ -76,11 +76,11 @@ lazy val swing = Project(id = "guarana-swing", base = file("swing"))
     scalacOptions -= "-Yexplicit-nulls",
     libraryDependencies ++= Seq(
       ("com.github.pathikrit" %% "better-files" % "3.9.2").cross(CrossVersion.for3Use2_13),
-      "com.formdev" % "flatlaf" % "3.4" % "provided",
+      "com.formdev" % "flatlaf" % "3.5.1" % "provided",
       "com.jhlabs" % "filters" % "2.0.235-1" % "provided",
-      "io.dropwizard.metrics" % "metrics-core" % "4.2.25" % "test",
-      "org.scalatest" %% "scalatest-funsuite" % "3.2.18" % "test",
-      "com.typesafe.play" %% "play-json" % "2.10.4" % "test",
+      "io.dropwizard.metrics" % "metrics-core" % "4.2.26" % "test",
+      "org.scalatest" %% "scalatest-funsuite" % "3.2.19" % "test",
+      "com.typesafe.play" %% "play-json" % "2.10.6" % "test",
     ),
     ThisBuild / moduleJars := {
       val attributedJars = (Compile / dependencyClasspathAsJars).value.filterNot(_.metadata(moduleID.key).organization == "org.scala-lang")
@@ -136,21 +136,22 @@ lazy val web = Project(id = "guarana-web", base = file("web"))
     scalaJSUseMainModuleInitializer := true
   )
 
-lazy val lwjglVersion = "3.3.3"
+lazy val lwjglVersion = "3.3.4"
 lazy val lwjglClassifier = "natives-linux"
 
 
 lazy val apricot = Project(id = "apricot", base = file("apricot"))
   .settings(
+    scalacOptions += "-experimental",
     libraryDependencies ++= Seq(
       ("com.github.pathikrit" %% "better-files" % "3.9.2").cross(CrossVersion.for3Use2_13),
-      "org.jetbrains" % "annotations" % "24.1.0",
+      "com.google.code.findbugs" % "jsr305" % "3.0.2",
       "org.lwjgl" % "lwjgl" % lwjglVersion classifier lwjglClassifier,
       "org.lwjgl" % "lwjgl-glfw" % lwjglVersion,
       "org.lwjgl" % "lwjgl-glfw" % lwjglVersion classifier lwjglClassifier,
       "org.lwjgl" % "lwjgl-opengl" % lwjglVersion,
       "org.lwjgl" % "lwjgl-opengl" % lwjglVersion classifier lwjglClassifier,
-      "io.dropwizard.metrics" % "metrics-core" % "4.2.25",
+      "io.dropwizard.metrics" % "metrics-core" % "4.2.26",
       "com.outr" %% "scribe" % scribeVersion,
       "com.outr" %% "scribe-file" % scribeVersion,
       "org.scala-lang" %% "scala3-tasty-inspector" % scalaVersion.value % "provided,runtime"
@@ -166,6 +167,7 @@ lazy val apricot = Project(id = "apricot", base = file("apricot"))
 
 lazy val apricotSkia = Project(id = "apricotSkia", base = file("apricotSkia"))
   .settings(
+    scalacOptions += "-experimental",
     libraryDependencies ++= Seq(
       "io.github.humbleui.skija" % "skija-linux" % "0.96.0",
       "com.github.blemale" %% "scaffeine" % "5.1.2",
@@ -181,7 +183,7 @@ val shaderObjects = taskKey[Seq[Path]]("Compiles .frag and .vert files into spir
 lazy val apricotVk = Project(id = "apricotVk", base = file("apricotVk"))
   .settings(
     scalacOptions -= "-Yexplicit-nulls",
-    scalacOptions ++= Seq("-Ydebug", "-Ydebug-error", "-Ydebug-unpickling"),
+    scalacOptions ++= Seq("-Ydebug", "-Ydebug-error", "-Ydebug-unpickling", "-experimental"),
     libraryDependencies ++= Seq(
       "org.lwjgl" % "lwjgl-vulkan" % lwjglVersion,
     ),
@@ -205,7 +207,7 @@ lazy val apricotVk = Project(id = "apricotVk", base = file("apricotVk"))
         val dest: java.nio.file.Path = outputPath(p)
         Files.createDirectories(dest.getParent)
         Process(
-          Seq("/home/randa/Programs/vulkan-sdk-1.2.154.0/x86_64/bin/glslangValidator", "-H", "-o", dest.toString, p.toString)
+          Seq("glslangValidator", "-H", "-o", dest.toString, p.toString)
         ) ! logger
       }
       shaderObjects.inputFiles.map(f => outputPath(f))

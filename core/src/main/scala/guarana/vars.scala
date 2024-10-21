@@ -3,6 +3,7 @@ package guarana
 import language.implicitConversions
 import scala.annotation.targetName
 import scala.annotation.compileTimeOnly
+import scala.concurrent.duration.FiniteDuration
 
 // type Keyed[+T] = impl.Keyed[T]
 // export impl.Keyed
@@ -128,6 +129,33 @@ object Binding {
   inline def dynDebug[T](inline f: VarContextAction[T]) = impl.BindingMacro.dynDebug[T](f)
 
   val Null = Const[Null](() => null)
+
+  private val DebounceEmitter = Emitter[Any]()
+  extension [T](theVar: ObsVal[T])
+    def debounce(
+        duration: FiniteDuration
+    )(using tk: AbstractToolkit & animation.TimersDef, instance: ValueOf[theVar.ForInstance]): Compute[T] = {
+      tk.update {
+        val debouncer = DebounceEmitter.asInstanceOf[Emitter[T]].forInstance(instance.value)
+        var lastValue = theVar()
+        val notifier = debouncer.toVar(lastValue, EventIterator)
+        val timer = tk.TimerLike(
+          duration,
+          timer => {
+            timer.stop()
+            tk.update(summon[Emitter.Context].emit(debouncer, lastValue))
+          },
+          _ => ()
+        )
+        instance.value.varUpdates := EventIterator.foreach {
+          case theVar(_, newv) =>
+            lastValue = newv
+            timer.restart()
+          case _ =>
+        }
+        bind(implicit ctx => notifier())
+      }
+    }
 }
 
 trait ExternalObsVal[+T] extends ObsVal[T] {
@@ -142,7 +170,7 @@ object ExternalObsVal {
   }
   def apply[N, T](varName: => String, getter: N => T, onFirstAssociation: N => Unit = Var.doNothingOnFirstAssociation): Aux[N, T] = {
     val ofa = onFirstAssociation
-      new ExternalObsVal[T] {
+    new ExternalObsVal[T] {
       lazy val name = varName
       type ForInstance <: N & Singleton
       def get(n: ForInstance) = getter(n)
@@ -170,7 +198,7 @@ trait ExternalVar[T] extends Var[T] with ExternalObsVal[T] {
         ctx(this) = Binding.bind { ctx =>
           wr.deref match {
             case null => c(ctx)
-            case instance => 
+            case instance =>
               val t = c(ctx)
               set(instance.asInstanceOf[ForInstance], t)
               t
@@ -185,7 +213,13 @@ object ExternalVar {
   type Aux[N, T] = ExternalVar[T] {
     type ForInstance <: N & Singleton
   }
-  def apply[N, T](varName: => String, getter: N => T, setter: (N, T) => Unit, eagerEvaluation: Boolean = false, onFirstAssociation: N => Unit = Var.doNothingOnFirstAssociation): Aux[N, T] = {
+  def apply[N, T](
+      varName: => String,
+      getter: N => T,
+      setter: (N, T) => Unit,
+      eagerEvaluation: Boolean = false,
+      onFirstAssociation: N => Unit = Var.doNothingOnFirstAssociation
+  ): Aux[N, T] = {
     val ev = eagerEvaluation
     val ofa = onFirstAssociation
     new ExternalVar[T] with util.Unique {

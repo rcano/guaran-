@@ -13,7 +13,7 @@ import guarana.swing.util.*
 import scala.jdk.CollectionConverters.*
 import scala.util.chaining.*
 
-opaque type Node  >: java.awt.Component <: AnyRef = java.awt.Component
+opaque type Node  >: java.awt.Component = java.awt.Component
 object Node extends VarsMap {
   val Background: SwingVar.Aux[Node, java.awt.Color | Null] = SwingVar[Node, java.awt.Color | Null]("background", _.getBackground, _.setBackground(_))
   val Bounds: SwingVar.Aux[Node, Bounds] = SwingVar[Node, Bounds]("bounds", _.getBounds.nn, _.setBounds(_))
@@ -71,8 +71,7 @@ object Node extends VarsMap {
       def requestFocusInWindow() = v.requestFocusInWindow()
       def size(x: Int, y: Int) = v.setSize(x, y)
       def showing = v.isShowing
-      def unwrap: java.awt.Component = v
-
+      
       def onFirstTimeVisible(f: v.type => Unit): Scenegraph ?=> Unit = {
         lazy val hl: java.awt.event.HierarchyListener = { evt => 
           if ((evt.getChangeFlags() & java.awt.event.HierarchyEvent.DISPLAYABILITY_CHANGED) > 0 && v.isDisplayable()) {
@@ -82,12 +81,14 @@ object Node extends VarsMap {
         }
         v.addHierarchyListener(hl)
       }
+      def unwrap: java.awt.Component = v
     }
   }
 
   def wrap(v: java.awt.Component) = v.asInstanceOf[Node]
 
   def init(v: Node): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
+    
     v.addPropertyChangeListener(varsPropertyListener(v))
     v `addMouseMotionListener` new java.awt.event.MouseMotionListener {
       def mouseDragged(evt: java.awt.event.MouseEvent | Null) = ()

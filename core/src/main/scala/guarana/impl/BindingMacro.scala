@@ -5,10 +5,10 @@ import scala.quoted.*
 
 object BindingMacro {
 
-  inline def dyn[T](inline f: VarContextAction[T]): Binding[T] = ${ cleanUpBindingClosure('{ f }, false) }
-  inline def dynDebug[T](inline f: VarContextAction[T]): Binding[T] = ${ cleanUpBindingClosure('{ f }, true) }
+  inline def dyn[T](inline f: VarContextAction[T]): Binding.Compute[T] = ${ cleanUpBindingClosure('{ f }, false) }
+  inline def dynDebug[T](inline f: VarContextAction[T]): Binding.Compute[T] = ${ cleanUpBindingClosure('{ f }, true) }
 
-  private def cleanUpBindingClosure[T: Type](expr: Expr[VarContextAction[T]], debug: Boolean)(using Quotes): Expr[Binding[T]] = {
+  private def cleanUpBindingClosure[T: Type](expr: Expr[VarContextAction[T]], debug: Boolean)(using Quotes): Expr[Binding.Compute[T]] = {
     Macros(debug).cleanUpBindingClosure(expr)
   }
 
@@ -23,7 +23,7 @@ object BindingMacro {
     val WeakRefTypeRepr = TypeRepr.of[util.WeakRef[?]]
     val StrongRefAnnotTypeRepr = TypeRepr.of[util.strongRef]
 
-    def cleanUpBindingClosure[T: Type](expr: Expr[VarContextAction[T]]): Expr[Binding[T]] = {
+    def cleanUpBindingClosure[T: Type](expr: Expr[VarContextAction[T]]): Expr[Binding.Compute[T]] = {
 
       println(s"Raw code:\n  ${expr.asTerm.show}")
       println("")
@@ -67,7 +67,7 @@ object BindingMacro {
       println("Result:\n" + res.show)
       if (debug) report.info(res.show)
 
-      res.asExprOf[Binding[T]]
+      res.asExprOf[Binding.Compute[T]]
     }
 
     /** Compute the longest prefix (ltr) that needs hoisting, if any. SymbolPath here is reversed, meaning head the symbol of the current

@@ -2,87 +2,86 @@ package guarana
 package impl
 
 import language.higherKinds
-import org.agrona.collections.{LongHashSet, Long2ObjectHashMap}
+import org.agrona.collections.{Long2ObjectHashMap, LongHashSet}
 import scala.jdk.CollectionConverters.*
 import AgronaUtils.*
 import SignalSwitchboard.*
 
 trait SignalSwitchboard[Signal[+T] <: util.Unique] {
-  /**
-   * Obtains the current value of the signal
-   */
+
+  /** Obtains the current value of the signal
+    */
   def apply[T](s: Keyed[Signal[T]]): T = get(s).getOrElse(throw new IllegalArgumentException(s"$s is not defined"))
 
-  /**
-   * Conditional getter for a signal's value.
-   */
+  /** Conditional getter for a signal's value.
+    */
   def get[T](s: Keyed[Signal[T]]): Entry[T]
 
-  /**
-   * Obtains the current value of the signal if the signal is found, otherwise register it with initialValue and return it.
-   */
+  /** Obtains the current value of the signal if the signal is found, otherwise register it with initialValue and return it.
+    */
   def getOrElseUpdate[T](s: Keyed[Signal[T]], initValue: => T): T = {
     get(s) match {
       case NotFound =>
         val result = initValue
         update(s, result)
         result
-      case res: T => res
+      case res: T @unchecked => res
     }
   }
-  /**
-   * Change the value of the signal, propagating changes as needed
-   */
+
+  /** Change the value of the signal, propagating changes as needed
+    */
   def update[T](s: Keyed[Signal[T]], value: T): Unit
-  /** Notifies the switchboard that an externally tracked value changed.
-    * We can't accurately track the old value, that'll depend on the external property system.
+
+  /** Notifies the switchboard that an externally tracked value changed. We can't accurately track the old value, that'll depend on the
+    * external property system.
     */
   def externalPropertyChanged[T](s: Keyed[Signal[T]], oldValue: Option[T]): Unit
-  /**
-   * Bind a signal to a value computed from other signals.
-   * The context passed to the compute function will detect which signals were read and which were written. The former will become dependencies
-   * for this signal (meaning that if any of those changes, this signal will be updated in turn) while the later will become dependents (which
-   * means that when the current value of the signal changes, they will be disposed)
-   * @param s The signal to be bound
-   * @param deps Dependencies for this signal
-   * @param compute the function that computes the new value. Note that the elements of the Array correspond to the dependencies, but
-   *        we must use an array instead of scala's Function type because there may be more than 22 dependencies.
-   */
+
+  /** Bind a signal to a value computed from other signals. The context passed to the compute function will detect which signals were read
+    * and which were written. The former will become dependencies for this signal (meaning that if any of those changes, this signal will be
+    * updated in turn) while the later will become dependents (which means that when the current value of the signal changes, they will be
+    * disposed)
+    * @param s
+    *   The signal to be bound
+    * @param deps
+    *   Dependencies for this signal
+    * @param compute
+    *   the function that computes the new value. Note that the elements of the Array correspond to the dependencies, but we must use an
+    *   array instead of scala's Function type because there may be more than 22 dependencies.
+    */
   def bind[T](s: Keyed[Signal[T]])(compute: SignalSwitchboard[Signal] => T): Unit
-  /**
-   * Removes the passed signal, removing all internal state as well as dependent signals.
-   */
+
+  /** Removes the passed signal, removing all internal state as well as dependent signals.
+    */
   def remove(s: Keyed[Signal[Any]]): Unit
-  /**
-   * Returns a new SignalSwitchboard which is a copy of this one.
-   */
+
+  /** Returns a new SignalSwitchboard which is a copy of this one.
+    */
   def snapshot(newReporter: Reporter[Signal]): SignalSwitchboard[Signal]
 
   def relationships(s: Keyed[Signal[Any]]): Option[Relationships[Signal]]
 }
 
 private[impl] class SignalSwitchboardImpl[Signal[+T] <: util.Unique](
-  val reporter: Reporter[Signal],
-  val signalDescriptor: SignalDescriptor[Signal]
+    val reporter: Reporter[Signal],
+    val signalDescriptor: SignalDescriptor[Signal],
+    val useReentrancyDetection: Boolean
 ) extends SignalSwitchboard[Signal] {
   import State.*
   private val signalStates = new Long2ObjectHashMap[State](1024, 0.67f)
-  // private val signalStates = KeyedWeakHashMap[Signal[Any], State]
 
-  /**
-   * Stores signals that should be updated when the key signal changes
-   */
-  // private val signalDeps = KeyedWeakHashMap[Signal[Any], Set[Keyed[Signal[Any]]]].withDefaultValue(Set.empty)
+  /** Stores signals that should be updated when the key signal changes
+    */
   private val signalDeps = new Long2ObjectHashMap[LongHashSet]()
 
-  /**
-   * Stores signals whose current binding is dependent on the binding of the key Signal.
-   */
-  // private val signalRels = KeyedWeakHashMap[Signal[Any], Relationships[Signal]]
+  /** Stores signals whose current binding is dependent on the binding of the key Signal.
+    */
   private val signalRels = new Long2ObjectHashMap[Relationships[Signal]]()
-  
-  // private val signalEvaluator = KeyedWeakHashMap[Signal[Any], Compute[Signal]]
+
   private val signalEvaluator = new Long2ObjectHashMap[Compute[Signal]]()
+
+  private val reentrancyDetector = new LongHashSet(32);
 
   def get[T](s: Keyed[Signal[T]]): Entry[T] = {
     (signalStates.get(s.id): @unchecked) match {
@@ -90,17 +89,30 @@ private[impl] class SignalSwitchboardImpl[Signal[+T] <: util.Unique](
       case Value(null) => null.asInstanceOf[T]
       case Value(value: T @unchecked) => value
       case Recompute(oldv) =>
-        signalRels.get(s.id).?(_.dependents `fastForeach` (e => remove(Keyed(e)))) //when recomputing the value, we gotta undo all the dependents
+        signalRels
+          .get(s.id)
+          .?(_.dependents `fastForeach` (e => remove(Keyed(e)))) //when recomputing the value, we gotta undo all the dependents
 
+        if (reentrancyDetector.contains(s.id))
+          throw new IllegalStateException(s"Detected evaluation loop in ${signalDescriptor.describe(s)} ${s.descrString}")
+
+        if (useReentrancyDetection) reentrancyDetector.add(s.id)
         val tracker = new TrackingContext(s)
         // before computing the value, we set the signalState to the oldValue in case the compute lambda has a self reference
         if (oldv != null) signalStates.put(s.id, Value(oldv))
         else signalStates.remove(s.id)
         val result = signalEvaluator.get(s.id).asInstanceOf[Compute[Signal]].f(tracker)
         signalStates.put(s.id, Value(result))
+        if (useReentrancyDetection) reentrancyDetector.remove(s.id)
 
         val computedRels = Relationships[Signal](tracker.dependencies, tracker.dependents)
-        scribe.debug(s"recomputed signal $s to $result, new relationships: $computedRels")
+        tracker.dependents.fastForeach(l =>
+          if (computedRels.dependencies.contains(l))
+            throw new IllegalStateException(
+              s"Var ${signalDescriptor.describe(s)} depends on ${signalDescriptor.describe(Keyed(l))} but it also has it as dependent, this will always lead to stack overflow"
+            )
+        )
+        scribe.debug(s"recomputed signal ${signalDescriptor.describe(s)} ${s.descrString} to $result, new relationships: $computedRels")
         signalRels.put(s.id, computedRels)
 
         tracker.dependencies.fastForeach(dep =>
@@ -124,24 +136,30 @@ private[impl] class SignalSwitchboardImpl[Signal[+T] <: util.Unique](
     unbindPrev(s)
     reporter.signalRemoved(this, s)
   }
-    
+
   def update[T](s: Keyed[Signal[T]], value: T): Unit = {
-    val oldv = signalStates.get(s.id).toOption
-    if (!oldv.exists {
-      case Value(`value`) => true
-      case External => 
-        /* external properties must always fire, since we have to way of tracking for a value change because we get notified of update after the underlying
+    val currState = signalStates.get(s.id).toOption
+    if (
+      !currState.exists {
+        case Value(`value`) => true
+        case External =>
+          /* external properties must always fire, since we have to way of tracking for a value change because we get notified of update after the underlying
            value was modified. There's no way of weaving this. In the future we might investigate how to do it, but we have to be mindful of allocations as well.
            ExternalVar implementors are encouraged to make this check on their own before notifying the switchboard.
-        */
-        false 
+           */
+          false
         // signalDescriptor.getExternal(s) == value
-      case _ => false
-    }) {
+        case _ => false
+      }
+    ) {
       unbindPrev(s)
       signalStates.put(s.id, if signalDescriptor.isExternal(s) then External else Value(value))
-      propagateSignal(None)(s)
-      reporter.signalUpdated(this, s, oldv, value, EmptyUnmodifiableLongHashSet, EmptyUnmodifiableLongHashSet)
+      propagateSignal(s)
+      val oldValue = currState.flatMap {
+        case Value(v) => Some(v) 
+        case _ => None
+      }
+      reporter.signalUpdated(this, s, currState, value, EmptyUnmodifiableLongHashSet, EmptyUnmodifiableLongHashSet)
     }
   }
 
@@ -150,22 +168,24 @@ private[impl] class SignalSwitchboardImpl[Signal[+T] <: util.Unique](
     // so we don't unbind its current state and instead just propagate the signal invalidation, unless there is no current state, in
     // which case it means the external signal was never observed, and we need to setup an initial state so signal propagation works
     if !signalStates.containsKey(s.id) then signalStates.put(s.id, External)
-    propagateSignal(None)(s)
+    propagateSignal(s)
     reporter.signalUpdated(this, s, oldValue, signalDescriptor.getExternal(s), EmptyUnmodifiableLongHashSet, EmptyUnmodifiableLongHashSet)
-  
+
   def bind[T](s: Keyed[Signal[T]])(compute: SignalSwitchboard[Signal] => T): Unit = {
     unbindPrev(s)
-    signalStates.put(s.id, Recompute(get(s).orNull)) 
+    signalStates.put(s.id, Recompute(get(s).orNull))
     signalEvaluator.put(s.id, Compute[Signal](compute))
-    propagateSignal(None)(s)
+    propagateSignal(s)
   }
 
-  private def propagateSignal(parent: Option[Keyed[Signal[Any]]])(s: Keyed[Signal[Any]]): Unit = {
+  private val depth = new java.util.concurrent.atomic.AtomicInteger(0)
+  private def propagateSignal(s: Keyed[Signal[Any]]): Unit = {
     // due to how propagating signal works, where the set of dependencies is iterated, it is entirely possible to find during
     // the iteration a signal that was removed, hence why we check here if that's the case by checking the state
     if !signalStates.containsKey(s.id) then return
 
-    scribe.debug(s"propagating invalidation for $s")
+    scribe.debug(s"${"  " * depth.getAndIncrement()}propagating invalidation for ${signalDescriptor
+      .describe(s)} ${s.descrString} ${signalRels.get(s.id).?(_.descr(signalDescriptor))}")
     signalEvaluator.get(s.id).? { compute =>
       signalStates.get(s.id) match {
         case null => signalStates.put(s.id, Recompute(null))
@@ -174,10 +194,11 @@ private[impl] class SignalSwitchboardImpl[Signal[+T] <: util.Unique](
         case External => signalStates.put(s.id, Recompute(signalDescriptor.getExternal(s)))
       }
     }
-    signalDeps.get(s.id).?(_.fastForeach(l => propagateSignal(Some(s))(Keyed(l))))
+    signalDeps.get(s.id).?(_.fastForeach(l => propagateSignal(Keyed(l))))
 
     // report at the end of the process, so that all of `s` dependencies get reported and invalidated first
     reporter.signalInvalidated(this, s)
+    scribe.debug(s"${"  " * depth.decrementAndGet()}done propagating invalidation for ${signalDescriptor.describe(s)} ${s.descrString}")
   }
 
   def relationships(s: Keyed[Signal[Any]]) = signalRels.get(s.id).toOption
@@ -189,16 +210,14 @@ private[impl] class SignalSwitchboardImpl[Signal[+T] <: util.Unique](
           case null =>
           case Relationships(deps, denpts) =>
             denpts `fastForeach` (l => remove(Keyed(l)))
-            deps `fastForeach` (dep =>
-              signalDeps.get(dep).?(_.remove(s.id))
-            )
+            deps `fastForeach` (dep => signalDeps.get(dep).?(_.remove(s.id)))
         }
-      case _ => 
+      case _ =>
     }
   }
 
   def snapshot(newReporter: Reporter[Signal]): SignalSwitchboard[Signal] = {
-    val res = new SignalSwitchboardImpl[Signal](newReporter, signalDescriptor)
+    val res = new SignalSwitchboardImpl[Signal](newReporter, signalDescriptor, useReentrancyDetection)
     res.signalStates `putAll` signalStates
     res.signalDeps `putAll` signalDeps
     res.signalEvaluator `putAll` signalEvaluator
@@ -232,9 +251,7 @@ object SignalSwitchboard {
   type Entry[T] = T | NotFound.type
   object NotFound
 
-  private[impl] val EmptyUnmodifiableLongHashSet = new LongHashSet {
-
-  }
+  private[impl] val EmptyUnmodifiableLongHashSet = new LongHashSet {}
 
   extension [T](e: Entry[T]) {
     inline def getOrElse[U >: T](inline r: U): U = e match
@@ -251,14 +268,27 @@ object SignalSwitchboard {
     case Recompute(oldValue: Any)
     case External
   }
-  
+
   private[impl] case class Compute[Signal[+T] <: util.Unique](f: SignalSwitchboard[Signal] => Any)
 
-  private[impl] case class Relationships[Signal[T] <: util.Unique](dependencies: LongHashSet, dependents: LongHashSet)
+  case class Relationships[Signal[+T] <: util.Unique] private[impl] (dependencies: LongHashSet, dependents: LongHashSet) {
+    def descr(sd: SignalDescriptor[Signal]): String = {
+      val depsStr = dependencies.asScala.map(id => Keyed(id).descrString).mkString(", ")
+      val dpntsStr = dependents.asScala.map(id => Keyed(id).descrString).mkString(", ")
+      s"Relationships(deps=$depsStr, dpnts=$dpntsStr)"
+    }
+  }
 
   trait Reporter[Signal[+T] <: util.Unique] {
     def signalRemoved(sb: SignalSwitchboard[Signal], s: Keyed[Signal[Any]]): Unit
-    def signalUpdated[T](sb: SignalSwitchboard[Signal], s: Keyed[Signal[T]], oldValue: Option[T], newValue: T, dependencies: LongHashSet, dependents: LongHashSet): Unit
+    def signalUpdated[T](
+        sb: SignalSwitchboard[Signal],
+        s: Keyed[Signal[T]],
+        oldValue: Option[T],
+        newValue: T,
+        dependencies: LongHashSet,
+        dependents: LongHashSet
+    ): Unit
     def signalInvalidated(sb: SignalSwitchboard[Signal], s: Keyed[Signal[Any]]): Unit
   }
 
@@ -268,12 +298,19 @@ object SignalSwitchboard {
     def describe[T](s: Keyed[Signal[T]]): String
   }
 
-  def apply[Signal[+T] <: util.Unique](reporter: Reporter[Signal], signalDescriptor: SignalDescriptor[Signal]): SignalSwitchboard[Signal] =
-    new SignalSwitchboardImpl[Signal](reporter, signalDescriptor)
+  def apply[Signal[+T] <: util.Unique](
+      reporter: Reporter[Signal],
+      signalDescriptor: SignalDescriptor[Signal],
+      useReentrancyDetection: Boolean
+  ): SignalSwitchboard[Signal] =
+    new SignalSwitchboardImpl[Signal](reporter, signalDescriptor, useReentrancyDetection)
 }
 
 /** Specialized SignalSwitchboard that doesn't copy the original one until a write is performed. */
-class CopyOnWriteSignalSwitchboard[Signal[+T] <: util.Unique](val copy: SignalSwitchboard[Signal], val reporter: SignalSwitchboard.Reporter[Signal]) extends SignalSwitchboard[Signal] {
+class CopyOnWriteSignalSwitchboard[Signal[+T] <: util.Unique](
+    val copy: SignalSwitchboard[Signal],
+    val reporter: SignalSwitchboard.Reporter[Signal]
+) extends SignalSwitchboard[Signal] {
   var copied: SignalSwitchboard[Signal] | Null = null
   inline def theInstance = if (copied != null) copied.asInstanceOf[SignalSwitchboard[Signal]] else copy
   private def createCopy() = if (copied == null) copied = copy.snapshot(reporter)

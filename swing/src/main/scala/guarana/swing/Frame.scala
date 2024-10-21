@@ -146,7 +146,7 @@ object Frame extends VarsMap {
     ifSet(visible, Node.ops.visible(res) := _)
     res
   }
- 
+  
   def mainWindow: Option[Frame] =
     java.awt.Frame.getFrames match
       case Array(jf: JFrame, _*) => Some(wrap(jf))

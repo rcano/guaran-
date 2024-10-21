@@ -1,9 +1,6 @@
 package apricot
 
-import language.experimental.erasedDefinitions
-
 import guarana.unn
-import scala.annotation.experimental
 import scala.collection.immutable.SortedSet
 import scala.concurrent.ExecutionContext
 import scala.quoted.*

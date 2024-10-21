@@ -32,7 +32,7 @@ abstract class AbstractToolkit {
       s"$instanceDescr: $theVar"
     }
   }
-  private val switchboard = SignalSwitchboard[Signal](reporter, signalDescriptor)
+  private val switchboard = SignalSwitchboard[Signal](reporter, signalDescriptor, false)
   private val emitterStation = EmitterStation()
   case class InstanceData(instance: util.WeakRef[AnyRef], vars: IntHashSet, emitters: IntHashSet)
   private val instancesData = new Int2ObjectHashMap[InstanceData]()
@@ -47,36 +47,21 @@ abstract class AbstractToolkit {
   /** Reads the Metrics for the system */
   def getMetrics(): Stylist.Metrics
 
-  private val threadLocalContext = new ThreadLocal[ContextImpl] {
-    override def initialValue = null
-  }
+  private val stackContext = ScopedValue.newInstance[ContextImpl]()
 
   def update[R](f: this.type ?=> ToolkitAction[R]): R = Await.result(updateAsync(f), Duration.Inf)
   def updateAsync[R](f: this.type ?=> ToolkitAction[R]): Future[R] = {
     val res = Promise[R]()
     def impl() = res.complete(Try {
-      var locallyCreatedContext = false
-      var ctx = threadLocalContext.get()
-      if (ctx == null) {
-        // in an ideal world, we would use a context like the following:
-        // ctx = new ContextImpl(CopyOnWriteSignalSwitchboard(switchboard, reporter), CopyOnWriteEmitterStation(emitterStation))
-        // this would make the toolkit immutable, allowing you to rollback changes in case of exception.
-        // Unfortunately, due to the already mutable nature of of most UI toolkits, like swing, once you impact an external property,
-        // it would not matter rolling back, and it doesn't  make sense to track all changes and try to undo them (even though possible)
-        // beacuse it's already contrarian to how mutable toolkits works anyway. Given all of this, we'll prefer speed here and hence
-        // directly mutate the toolkit state.
-        ctx = ContextImpl(switchboard, instancesData, externalVars, seenVars, emitterStation)
-        threadLocalContext.set(ctx)
-        locallyCreatedContext = true
+      if (!stackContext.isBound()) {
+        ScopedValue.getWhere(
+          stackContext,
+          ContextImpl(switchboard, instancesData, externalVars, seenVars, emitterStation),
+          () => f(using this)(using stackContext.get())
+        )
+      } else {
+        f(using this)(using stackContext.get())
       }
-      val res = f(using this)(using ctx)
-      if (locallyCreatedContext) {
-        // in an immutable world, we would need to update our internal state:
-        // switchboard = ctx.switchboard.theInstance
-        // emitterStation = ctx.emitterStation.theInstance
-        threadLocalContext.set(null)
-      }
-      res
     })
 
     if (isOnToolkitThread()) impl()
@@ -101,21 +86,17 @@ abstract class AbstractToolkit {
   }
   private object reporter extends SignalSwitchboard.Reporter[Signal] {
 
-    private def withContext(f: ContextImpl => Any): Unit = {
-      val ctx = threadLocalContext.get()
-      if (ctx != null) //during toolkit bootstrapping, context is null
-        f(ctx)
-    }
-
     def signalRemoved(sb: SignalSwitchboard[Signal], s: Keyed[Signal[?]]): Unit = ()
     def signalInvalidated(sb: SignalSwitchboard[Signal], s: Keyed[Signal[?]]) = {
-      scribe.debug(s"Var(${instancesData.get(s.instanceId).?(_.instance.deref)}, ${seenVars.get(s.keyId)}) invalidated")
+      scribe.debug(s"Keyed(${instancesData.get(s.instanceId).?(_.instance.deref)}, ${seenVars.get(s.keyId)}) invalidated")
       seenVars.get(s.keyId) match {
         case v: Var[_] if v.eagerEvaluation =>
-          scribe.debug(s"Var(${instancesData.get(s.instanceId).?(_.instance.deref)}, ${seenVars.get(s.keyId)}) eagerly evaluating")
-          withContext { ctx =>
-            reactingToVar(s) { ctx.switchboard.get(s) }
-          }
+          scribe.debug(s"Keyed(${instancesData.get(s.instanceId).?(_.instance.deref)}, ${seenVars.get(s.keyId)}) eagerly evaluating")
+          /* We intentionally don't run evaluations on the same stack that's reacting to signal invalidation, we do it on the next frame. This prevents some potentially huge
+           * chain recation calls by distributing as tasks to the eventloop.
+           * We also read straight from the switchboard because we want it to be computed, not affect our VarContext tracking.
+           */
+          runOnToolkitThread(() => reactingToVar(s) { switchboard.get(s) }) 
         case _ =>
       }
       // s.keyed match {
@@ -134,15 +115,16 @@ abstract class AbstractToolkit {
         dependencies: LongHashSet,
         dependents: LongHashSet
     ): Unit = {
-      withContext { ctx =>
+      if (stackContext.isBound()) {
+        val ctx = stackContext.get()
         given Emitter.Context = ctx
         // FIXME: broken api
         val data = instancesData.get(s.instanceId).unn
         val instanceOpt = data.instance
-        scribe.debug(s"Var(${instanceOpt.deref}, ${seenVars.get(s.keyId)}) updated")
+        scribe.debug(s"Keyed(${instanceOpt.deref}, ${seenVars.get(s.keyId)}) updated")
         instanceOpt.deref.toOption.foreach { instance =>
           if (emitterStation.hasListeners(instance.varUpdates)) {
-            scribe.debug(s"Var($instance, ${seenVars.get(s.keyId)}) has listeners on its changes, emitting VarValueChanged")
+            scribe.debug(s"Keyed($instance, ${seenVars.get(s.keyId)}) has listeners on its changes, emitting VarValueChanged")
             seenVars.get(s.keyId).?(v => ctx.emit(instance.varUpdates, VarValueChanged(v, instance, oldValue, newValue)))
           }
         }
@@ -150,12 +132,20 @@ abstract class AbstractToolkit {
     }
   }
 
-  private class SwitchboardAsVarContext(
-      switchboard: SignalSwitchboard[Signal],
-      instancesData: Int2ObjectHashMap[InstanceData],
-      externalVars: IntHashSet,
-      seenVars: Int2ObjectHashMap[Signal[?]],
-  ) extends VarContext {
+  /** ContextImpl can use a snapshotted switchboard so the changes can be applied: they are seen (this is in order to properly implement
+    * sequence in code) and after the lambda that uses this context is done, the updated switchboard replaces the old one, and we update our
+    * tracking. But due to guarana being mostly used to build on top of existing frameworks which are mutable already, there's no much point
+    * in this, so we opt to mutate in place. Nevertheless the framework is built with that flexbility in mind.
+    */
+  private class ContextImpl(
+      val switchboard: SignalSwitchboard[Signal],
+      val instancesData: Int2ObjectHashMap[InstanceData],
+      val externalVars: IntHashSet,
+      val seenVars: Int2ObjectHashMap[Signal[?]],
+      val emitterStation: EmitterStation,
+  ) extends VarContext,
+        Emitter.Context {
+
     def recordInstance(instance: Any): InstanceData = {
       val instanceId = Keyed.getId(instance)
       instancesData.get(instanceId) match
@@ -168,7 +158,7 @@ abstract class AbstractToolkit {
           cleaner.register(
             instance,
             () => instancesData.remove(instanceId).?(data =>
-              println(f"instance data 0x$instanceId%H removed")
+              scribe.debug(f"instance data 0x$instanceId%H removed")
               data.vars.fastForeach(v => switchboard.remove(Keyed.raw(v, instanceId)))
               data.emitters.fastForeach(v => emitterStation.remove(Keyed.raw(v, instanceId)))
             )
@@ -189,39 +179,50 @@ abstract class AbstractToolkit {
     }
 
     def apply[T](v: ObsVal[T])(using instance: ValueOf[v.ForInstance]): T = {
+      checkActiveContext()
       recordVarUsage(v)
       switchboard
         .get(v)
         .getOrElse(stylist(getMetrics(), v, instance.value)(using AbstractToolkit.this) getOrElse v.initialValue(instance.value))
     }
     def update[T](v: Var[T], binding: Binding[T])(using instance: ValueOf[v.ForInstance]): Unit = {
+      checkActiveContext()
       recordVarUsage(v)
       binding match {
         case Binding.Const(c) => switchboard(v) = c()
-        case Binding.Compute(c) => switchboard.bind(v)(sb => c(new SwitchboardAsVarContext(sb, instancesData, externalVars, seenVars)))
+        case Binding.Compute(c) =>
+          switchboard.bind(v)(sb =>
+            val ctx = stackContext.orElse(null) match {
+              case null =>
+                new ContextImpl(
+                  sb,
+                  AbstractToolkit.this.instancesData,
+                  AbstractToolkit.this.externalVars,
+                  AbstractToolkit.this.seenVars,
+                  AbstractToolkit.this.emitterStation
+                )
+              case parent => new ContextImpl(sb, parent.instancesData, parent.externalVars, parent.seenVars, parent.emitterStation)
+            }
+
+            ScopedValue.getWhere(stackContext, ctx, () => c(stackContext.get()))
+          )
       }
     }
     def externalPropertyUpdated[T](v: ObsVal[T], oldValue: Option[T])(using instance: ValueOf[v.ForInstance]): Unit = {
+      checkActiveContext()
       recordVarUsage(v)
       if (!reactingExtVars.contains(ObsVal.obs2Keyed(v).id)) {
         switchboard.externalPropertyChanged(v, oldValue)
       }
     }
-  }
 
-  /** ContextImpl can use a snapshotted switchboard so the changes can be applied: they are seen (this is in order to properly implement
-    * sequence in code) and after the lambda that uses this context is done, the updated switchboard replaces the old one, and we update our
-    * tracking. But due to guarana being mostly to build on top of existing frameworks which are mutable already, there's no much point in this,
-    * so we opt to mutate in place. Nevertheless the framework is built with that flexbility in mind.
-    */
-  private class ContextImpl(
-      val switchboard: SignalSwitchboard[Signal],
-      val instanceVars: Int2ObjectHashMap[InstanceData],
-      val externalVars: IntHashSet,
-      val seenVars: Int2ObjectHashMap[Signal[?]],
-      val emitterStation: EmitterStation,
-  ) extends SwitchboardAsVarContext(switchboard, instanceVars, externalVars, seenVars)
-      with Emitter.Context {
+    private def checkActiveContext(): Unit = {
+      val tlc = stackContext.orElse(null)
+      if (tlc == null || tlc != this)
+        throw IllegalStateException(
+          s"Scenegraph VarContext $this is no longer active, this means this context was leaked/captured onto a lambda"
+        )
+    }
 
     //Emitter.Context
 

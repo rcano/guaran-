@@ -737,7 +737,7 @@ class Long2ObjectHashMap[V <: Object | Null](
     /** {@inheritDoc}
       */
     override def toArray(): Array[Object] = {
-      return toArray(new Array[Object](size()))
+      return toArray[Object](new Array[Object](size()))
     }
 
     /** {@inheritDoc}

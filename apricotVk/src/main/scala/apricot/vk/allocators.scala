@@ -10526,326 +10526,326 @@ object allocators:
     transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeCapabilitiesKHR.malloc(capacity, stack).unn
     transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeCapabilitiesKHR.calloc(capacity).unn
     transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeCapabilitiesKHR.malloc(capacity).unn
-  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH264CapabilitiesEXT] with
-    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH264CapabilitiesEXT.Buffer
-    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264CapabilitiesEXT.calloc(stack).unn
-    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264CapabilitiesEXT.malloc(stack).unn
-    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH264CapabilitiesEXT.calloc().unn
-    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH264CapabilitiesEXT.malloc().unn
-    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264CapabilitiesEXT.calloc(capacity, stack).unn
-    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264CapabilitiesEXT.malloc(capacity, stack).unn
-    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264CapabilitiesEXT.calloc(capacity).unn
-    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264CapabilitiesEXT.malloc(capacity).unn
-  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH264DpbSlotInfoEXT] with
-    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH264DpbSlotInfoEXT.Buffer
-    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264DpbSlotInfoEXT.calloc(stack).unn
-    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264DpbSlotInfoEXT.malloc(stack).unn
-    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH264DpbSlotInfoEXT.calloc().unn
-    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH264DpbSlotInfoEXT.malloc().unn
-    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264DpbSlotInfoEXT.calloc(capacity, stack).unn
-    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264DpbSlotInfoEXT.malloc(capacity, stack).unn
-    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264DpbSlotInfoEXT.calloc(capacity).unn
-    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264DpbSlotInfoEXT.malloc(capacity).unn
-  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH264FrameSizeEXT] with
-    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH264FrameSizeEXT.Buffer
-    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264FrameSizeEXT.calloc(stack).unn
-    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264FrameSizeEXT.malloc(stack).unn
-    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH264FrameSizeEXT.calloc().unn
-    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH264FrameSizeEXT.malloc().unn
-    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264FrameSizeEXT.calloc(capacity, stack).unn
-    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264FrameSizeEXT.malloc(capacity, stack).unn
-    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264FrameSizeEXT.calloc(capacity).unn
-    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264FrameSizeEXT.malloc(capacity).unn
-  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH264GopRemainingFrameInfoEXT] with
-    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH264GopRemainingFrameInfoEXT.Buffer
-    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264GopRemainingFrameInfoEXT.calloc(stack).unn
-    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264GopRemainingFrameInfoEXT.malloc(stack).unn
-    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH264GopRemainingFrameInfoEXT.calloc().unn
-    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH264GopRemainingFrameInfoEXT.malloc().unn
-    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264GopRemainingFrameInfoEXT.calloc(capacity, stack).unn
-    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264GopRemainingFrameInfoEXT.malloc(capacity, stack).unn
-    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264GopRemainingFrameInfoEXT.calloc(capacity).unn
-    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264GopRemainingFrameInfoEXT.malloc(capacity).unn
-  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH264NaluSliceInfoEXT] with
-    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH264NaluSliceInfoEXT.Buffer
-    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264NaluSliceInfoEXT.calloc(stack).unn
-    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264NaluSliceInfoEXT.malloc(stack).unn
-    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH264NaluSliceInfoEXT.calloc().unn
-    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH264NaluSliceInfoEXT.malloc().unn
-    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264NaluSliceInfoEXT.calloc(capacity, stack).unn
-    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264NaluSliceInfoEXT.malloc(capacity, stack).unn
-    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264NaluSliceInfoEXT.calloc(capacity).unn
-    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264NaluSliceInfoEXT.malloc(capacity).unn
-  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH264PictureInfoEXT] with
-    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH264PictureInfoEXT.Buffer
-    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264PictureInfoEXT.calloc(stack).unn
-    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264PictureInfoEXT.malloc(stack).unn
-    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH264PictureInfoEXT.calloc().unn
-    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH264PictureInfoEXT.malloc().unn
-    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264PictureInfoEXT.calloc(capacity, stack).unn
-    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264PictureInfoEXT.malloc(capacity, stack).unn
-    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264PictureInfoEXT.calloc(capacity).unn
-    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264PictureInfoEXT.malloc(capacity).unn
-  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH264ProfileInfoEXT] with
-    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH264ProfileInfoEXT.Buffer
-    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264ProfileInfoEXT.calloc(stack).unn
-    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264ProfileInfoEXT.malloc(stack).unn
-    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH264ProfileInfoEXT.calloc().unn
-    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH264ProfileInfoEXT.malloc().unn
-    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264ProfileInfoEXT.calloc(capacity, stack).unn
-    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264ProfileInfoEXT.malloc(capacity, stack).unn
-    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264ProfileInfoEXT.calloc(capacity).unn
-    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264ProfileInfoEXT.malloc(capacity).unn
-  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH264QpEXT] with
-    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH264QpEXT.Buffer
-    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264QpEXT.calloc(stack).unn
-    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264QpEXT.malloc(stack).unn
-    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH264QpEXT.calloc().unn
-    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH264QpEXT.malloc().unn
-    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264QpEXT.calloc(capacity, stack).unn
-    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264QpEXT.malloc(capacity, stack).unn
-    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264QpEXT.calloc(capacity).unn
-    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264QpEXT.malloc(capacity).unn
-  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH264QualityLevelPropertiesEXT] with
-    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH264QualityLevelPropertiesEXT.Buffer
-    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264QualityLevelPropertiesEXT.calloc(stack).unn
-    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264QualityLevelPropertiesEXT.malloc(stack).unn
-    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH264QualityLevelPropertiesEXT.calloc().unn
-    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH264QualityLevelPropertiesEXT.malloc().unn
-    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264QualityLevelPropertiesEXT.calloc(capacity, stack).unn
-    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264QualityLevelPropertiesEXT.malloc(capacity, stack).unn
-    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264QualityLevelPropertiesEXT.calloc(capacity).unn
-    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264QualityLevelPropertiesEXT.malloc(capacity).unn
-  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH264RateControlInfoEXT] with
-    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH264RateControlInfoEXT.Buffer
-    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264RateControlInfoEXT.calloc(stack).unn
-    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264RateControlInfoEXT.malloc(stack).unn
-    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH264RateControlInfoEXT.calloc().unn
-    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH264RateControlInfoEXT.malloc().unn
-    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264RateControlInfoEXT.calloc(capacity, stack).unn
-    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264RateControlInfoEXT.malloc(capacity, stack).unn
-    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264RateControlInfoEXT.calloc(capacity).unn
-    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264RateControlInfoEXT.malloc(capacity).unn
-  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH264RateControlLayerInfoEXT] with
-    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH264RateControlLayerInfoEXT.Buffer
-    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264RateControlLayerInfoEXT.calloc(stack).unn
-    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264RateControlLayerInfoEXT.malloc(stack).unn
-    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH264RateControlLayerInfoEXT.calloc().unn
-    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH264RateControlLayerInfoEXT.malloc().unn
-    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264RateControlLayerInfoEXT.calloc(capacity, stack).unn
-    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264RateControlLayerInfoEXT.malloc(capacity, stack).unn
-    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264RateControlLayerInfoEXT.calloc(capacity).unn
-    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264RateControlLayerInfoEXT.malloc(capacity).unn
-  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH264SessionCreateInfoEXT] with
-    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH264SessionCreateInfoEXT.Buffer
-    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264SessionCreateInfoEXT.calloc(stack).unn
-    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264SessionCreateInfoEXT.malloc(stack).unn
-    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH264SessionCreateInfoEXT.calloc().unn
-    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH264SessionCreateInfoEXT.malloc().unn
-    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264SessionCreateInfoEXT.calloc(capacity, stack).unn
-    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264SessionCreateInfoEXT.malloc(capacity, stack).unn
-    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264SessionCreateInfoEXT.calloc(capacity).unn
-    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264SessionCreateInfoEXT.malloc(capacity).unn
-  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersAddInfoEXT] with
-    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersAddInfoEXT.Buffer
-    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersAddInfoEXT.calloc(stack).unn
-    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersAddInfoEXT.malloc(stack).unn
-    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersAddInfoEXT.calloc().unn
-    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersAddInfoEXT.malloc().unn
-    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersAddInfoEXT.calloc(capacity, stack).unn
-    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersAddInfoEXT.malloc(capacity, stack).unn
-    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersAddInfoEXT.calloc(capacity).unn
-    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersAddInfoEXT.malloc(capacity).unn
-  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersCreateInfoEXT] with
-    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersCreateInfoEXT.Buffer
-    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersCreateInfoEXT.calloc(stack).unn
-    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersCreateInfoEXT.malloc(stack).unn
-    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersCreateInfoEXT.calloc().unn
-    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersCreateInfoEXT.malloc().unn
-    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersCreateInfoEXT.calloc(capacity, stack).unn
-    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersCreateInfoEXT.malloc(capacity, stack).unn
-    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersCreateInfoEXT.calloc(capacity).unn
-    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersCreateInfoEXT.malloc(capacity).unn
-  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersFeedbackInfoEXT] with
-    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersFeedbackInfoEXT.Buffer
-    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersFeedbackInfoEXT.calloc(stack).unn
-    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersFeedbackInfoEXT.malloc(stack).unn
-    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersFeedbackInfoEXT.calloc().unn
-    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersFeedbackInfoEXT.malloc().unn
-    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersFeedbackInfoEXT.calloc(capacity, stack).unn
-    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersFeedbackInfoEXT.malloc(capacity, stack).unn
-    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersFeedbackInfoEXT.calloc(capacity).unn
-    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersFeedbackInfoEXT.malloc(capacity).unn
-  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersGetInfoEXT] with
-    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersGetInfoEXT.Buffer
-    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersGetInfoEXT.calloc(stack).unn
-    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersGetInfoEXT.malloc(stack).unn
-    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersGetInfoEXT.calloc().unn
-    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersGetInfoEXT.malloc().unn
-    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersGetInfoEXT.calloc(capacity, stack).unn
-    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersGetInfoEXT.malloc(capacity, stack).unn
-    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersGetInfoEXT.calloc(capacity).unn
-    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersGetInfoEXT.malloc(capacity).unn
-  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH265CapabilitiesEXT] with
-    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH265CapabilitiesEXT.Buffer
-    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265CapabilitiesEXT.calloc(stack).unn
-    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265CapabilitiesEXT.malloc(stack).unn
-    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH265CapabilitiesEXT.calloc().unn
-    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH265CapabilitiesEXT.malloc().unn
-    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265CapabilitiesEXT.calloc(capacity, stack).unn
-    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265CapabilitiesEXT.malloc(capacity, stack).unn
-    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265CapabilitiesEXT.calloc(capacity).unn
-    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265CapabilitiesEXT.malloc(capacity).unn
-  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH265DpbSlotInfoEXT] with
-    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH265DpbSlotInfoEXT.Buffer
-    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265DpbSlotInfoEXT.calloc(stack).unn
-    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265DpbSlotInfoEXT.malloc(stack).unn
-    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH265DpbSlotInfoEXT.calloc().unn
-    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH265DpbSlotInfoEXT.malloc().unn
-    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265DpbSlotInfoEXT.calloc(capacity, stack).unn
-    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265DpbSlotInfoEXT.malloc(capacity, stack).unn
-    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265DpbSlotInfoEXT.calloc(capacity).unn
-    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265DpbSlotInfoEXT.malloc(capacity).unn
-  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH265FrameSizeEXT] with
-    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH265FrameSizeEXT.Buffer
-    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265FrameSizeEXT.calloc(stack).unn
-    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265FrameSizeEXT.malloc(stack).unn
-    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH265FrameSizeEXT.calloc().unn
-    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH265FrameSizeEXT.malloc().unn
-    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265FrameSizeEXT.calloc(capacity, stack).unn
-    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265FrameSizeEXT.malloc(capacity, stack).unn
-    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265FrameSizeEXT.calloc(capacity).unn
-    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265FrameSizeEXT.malloc(capacity).unn
-  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH265GopRemainingFrameInfoEXT] with
-    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH265GopRemainingFrameInfoEXT.Buffer
-    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265GopRemainingFrameInfoEXT.calloc(stack).unn
-    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265GopRemainingFrameInfoEXT.malloc(stack).unn
-    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH265GopRemainingFrameInfoEXT.calloc().unn
-    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH265GopRemainingFrameInfoEXT.malloc().unn
-    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265GopRemainingFrameInfoEXT.calloc(capacity, stack).unn
-    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265GopRemainingFrameInfoEXT.malloc(capacity, stack).unn
-    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265GopRemainingFrameInfoEXT.calloc(capacity).unn
-    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265GopRemainingFrameInfoEXT.malloc(capacity).unn
-  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH265NaluSliceSegmentInfoEXT] with
-    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH265NaluSliceSegmentInfoEXT.Buffer
-    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265NaluSliceSegmentInfoEXT.calloc(stack).unn
-    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265NaluSliceSegmentInfoEXT.malloc(stack).unn
-    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH265NaluSliceSegmentInfoEXT.calloc().unn
-    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH265NaluSliceSegmentInfoEXT.malloc().unn
-    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265NaluSliceSegmentInfoEXT.calloc(capacity, stack).unn
-    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265NaluSliceSegmentInfoEXT.malloc(capacity, stack).unn
-    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265NaluSliceSegmentInfoEXT.calloc(capacity).unn
-    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265NaluSliceSegmentInfoEXT.malloc(capacity).unn
-  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH265PictureInfoEXT] with
-    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH265PictureInfoEXT.Buffer
-    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265PictureInfoEXT.calloc(stack).unn
-    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265PictureInfoEXT.malloc(stack).unn
-    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH265PictureInfoEXT.calloc().unn
-    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH265PictureInfoEXT.malloc().unn
-    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265PictureInfoEXT.calloc(capacity, stack).unn
-    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265PictureInfoEXT.malloc(capacity, stack).unn
-    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265PictureInfoEXT.calloc(capacity).unn
-    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265PictureInfoEXT.malloc(capacity).unn
-  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH265ProfileInfoEXT] with
-    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH265ProfileInfoEXT.Buffer
-    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265ProfileInfoEXT.calloc(stack).unn
-    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265ProfileInfoEXT.malloc(stack).unn
-    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH265ProfileInfoEXT.calloc().unn
-    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH265ProfileInfoEXT.malloc().unn
-    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265ProfileInfoEXT.calloc(capacity, stack).unn
-    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265ProfileInfoEXT.malloc(capacity, stack).unn
-    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265ProfileInfoEXT.calloc(capacity).unn
-    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265ProfileInfoEXT.malloc(capacity).unn
-  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH265QpEXT] with
-    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH265QpEXT.Buffer
-    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265QpEXT.calloc(stack).unn
-    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265QpEXT.malloc(stack).unn
-    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH265QpEXT.calloc().unn
-    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH265QpEXT.malloc().unn
-    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265QpEXT.calloc(capacity, stack).unn
-    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265QpEXT.malloc(capacity, stack).unn
-    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265QpEXT.calloc(capacity).unn
-    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265QpEXT.malloc(capacity).unn
-  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH265QualityLevelPropertiesEXT] with
-    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH265QualityLevelPropertiesEXT.Buffer
-    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265QualityLevelPropertiesEXT.calloc(stack).unn
-    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265QualityLevelPropertiesEXT.malloc(stack).unn
-    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH265QualityLevelPropertiesEXT.calloc().unn
-    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH265QualityLevelPropertiesEXT.malloc().unn
-    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265QualityLevelPropertiesEXT.calloc(capacity, stack).unn
-    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265QualityLevelPropertiesEXT.malloc(capacity, stack).unn
-    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265QualityLevelPropertiesEXT.calloc(capacity).unn
-    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265QualityLevelPropertiesEXT.malloc(capacity).unn
-  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH265RateControlInfoEXT] with
-    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH265RateControlInfoEXT.Buffer
-    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265RateControlInfoEXT.calloc(stack).unn
-    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265RateControlInfoEXT.malloc(stack).unn
-    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH265RateControlInfoEXT.calloc().unn
-    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH265RateControlInfoEXT.malloc().unn
-    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265RateControlInfoEXT.calloc(capacity, stack).unn
-    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265RateControlInfoEXT.malloc(capacity, stack).unn
-    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265RateControlInfoEXT.calloc(capacity).unn
-    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265RateControlInfoEXT.malloc(capacity).unn
-  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH265RateControlLayerInfoEXT] with
-    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH265RateControlLayerInfoEXT.Buffer
-    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265RateControlLayerInfoEXT.calloc(stack).unn
-    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265RateControlLayerInfoEXT.malloc(stack).unn
-    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH265RateControlLayerInfoEXT.calloc().unn
-    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH265RateControlLayerInfoEXT.malloc().unn
-    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265RateControlLayerInfoEXT.calloc(capacity, stack).unn
-    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265RateControlLayerInfoEXT.malloc(capacity, stack).unn
-    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265RateControlLayerInfoEXT.calloc(capacity).unn
-    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265RateControlLayerInfoEXT.malloc(capacity).unn
-  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH265SessionCreateInfoEXT] with
-    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH265SessionCreateInfoEXT.Buffer
-    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265SessionCreateInfoEXT.calloc(stack).unn
-    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265SessionCreateInfoEXT.malloc(stack).unn
-    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH265SessionCreateInfoEXT.calloc().unn
-    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH265SessionCreateInfoEXT.malloc().unn
-    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265SessionCreateInfoEXT.calloc(capacity, stack).unn
-    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265SessionCreateInfoEXT.malloc(capacity, stack).unn
-    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265SessionCreateInfoEXT.calloc(capacity).unn
-    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265SessionCreateInfoEXT.malloc(capacity).unn
-  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersAddInfoEXT] with
-    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersAddInfoEXT.Buffer
-    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersAddInfoEXT.calloc(stack).unn
-    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersAddInfoEXT.malloc(stack).unn
-    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersAddInfoEXT.calloc().unn
-    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersAddInfoEXT.malloc().unn
-    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersAddInfoEXT.calloc(capacity, stack).unn
-    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersAddInfoEXT.malloc(capacity, stack).unn
-    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersAddInfoEXT.calloc(capacity).unn
-    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersAddInfoEXT.malloc(capacity).unn
-  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersCreateInfoEXT] with
-    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersCreateInfoEXT.Buffer
-    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersCreateInfoEXT.calloc(stack).unn
-    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersCreateInfoEXT.malloc(stack).unn
-    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersCreateInfoEXT.calloc().unn
-    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersCreateInfoEXT.malloc().unn
-    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersCreateInfoEXT.calloc(capacity, stack).unn
-    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersCreateInfoEXT.malloc(capacity, stack).unn
-    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersCreateInfoEXT.calloc(capacity).unn
-    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersCreateInfoEXT.malloc(capacity).unn
-  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersFeedbackInfoEXT] with
-    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersFeedbackInfoEXT.Buffer
-    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersFeedbackInfoEXT.calloc(stack).unn
-    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersFeedbackInfoEXT.malloc(stack).unn
-    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersFeedbackInfoEXT.calloc().unn
-    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersFeedbackInfoEXT.malloc().unn
-    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersFeedbackInfoEXT.calloc(capacity, stack).unn
-    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersFeedbackInfoEXT.malloc(capacity, stack).unn
-    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersFeedbackInfoEXT.calloc(capacity).unn
-    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersFeedbackInfoEXT.malloc(capacity).unn
-  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersGetInfoEXT] with
-    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersGetInfoEXT.Buffer
-    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersGetInfoEXT.calloc(stack).unn
-    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersGetInfoEXT.malloc(stack).unn
-    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersGetInfoEXT.calloc().unn
-    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersGetInfoEXT.malloc().unn
-    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersGetInfoEXT.calloc(capacity, stack).unn
-    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersGetInfoEXT.malloc(capacity, stack).unn
-    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersGetInfoEXT.calloc(capacity).unn
-    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersGetInfoEXT.malloc(capacity).unn
+  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH264CapabilitiesKHR] with
+    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH264CapabilitiesKHR.Buffer
+    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264CapabilitiesKHR.calloc(stack).unn
+    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264CapabilitiesKHR.malloc(stack).unn
+    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH264CapabilitiesKHR.calloc().unn
+    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH264CapabilitiesKHR.malloc().unn
+    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264CapabilitiesKHR.calloc(capacity, stack).unn
+    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264CapabilitiesKHR.malloc(capacity, stack).unn
+    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264CapabilitiesKHR.calloc(capacity).unn
+    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264CapabilitiesKHR.malloc(capacity).unn
+  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH264DpbSlotInfoKHR] with
+    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH264DpbSlotInfoKHR.Buffer
+    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264DpbSlotInfoKHR.calloc(stack).unn
+    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264DpbSlotInfoKHR.malloc(stack).unn
+    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH264DpbSlotInfoKHR.calloc().unn
+    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH264DpbSlotInfoKHR.malloc().unn
+    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264DpbSlotInfoKHR.calloc(capacity, stack).unn
+    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264DpbSlotInfoKHR.malloc(capacity, stack).unn
+    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264DpbSlotInfoKHR.calloc(capacity).unn
+    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264DpbSlotInfoKHR.malloc(capacity).unn
+  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH264FrameSizeKHR] with
+    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH264FrameSizeKHR.Buffer
+    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264FrameSizeKHR.calloc(stack).unn
+    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264FrameSizeKHR.malloc(stack).unn
+    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH264FrameSizeKHR.calloc().unn
+    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH264FrameSizeKHR.malloc().unn
+    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264FrameSizeKHR.calloc(capacity, stack).unn
+    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264FrameSizeKHR.malloc(capacity, stack).unn
+    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264FrameSizeKHR.calloc(capacity).unn
+    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264FrameSizeKHR.malloc(capacity).unn
+  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH264GopRemainingFrameInfoKHR] with
+    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH264GopRemainingFrameInfoKHR.Buffer
+    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264GopRemainingFrameInfoKHR.calloc(stack).unn
+    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264GopRemainingFrameInfoKHR.malloc(stack).unn
+    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH264GopRemainingFrameInfoKHR.calloc().unn
+    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH264GopRemainingFrameInfoKHR.malloc().unn
+    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264GopRemainingFrameInfoKHR.calloc(capacity, stack).unn
+    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264GopRemainingFrameInfoKHR.malloc(capacity, stack).unn
+    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264GopRemainingFrameInfoKHR.calloc(capacity).unn
+    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264GopRemainingFrameInfoKHR.malloc(capacity).unn
+  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH264NaluSliceInfoKHR] with
+    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH264NaluSliceInfoKHR.Buffer
+    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264NaluSliceInfoKHR.calloc(stack).unn
+    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264NaluSliceInfoKHR.malloc(stack).unn
+    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH264NaluSliceInfoKHR.calloc().unn
+    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH264NaluSliceInfoKHR.malloc().unn
+    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264NaluSliceInfoKHR.calloc(capacity, stack).unn
+    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264NaluSliceInfoKHR.malloc(capacity, stack).unn
+    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264NaluSliceInfoKHR.calloc(capacity).unn
+    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264NaluSliceInfoKHR.malloc(capacity).unn
+  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH264PictureInfoKHR] with
+    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH264PictureInfoKHR.Buffer
+    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264PictureInfoKHR.calloc(stack).unn
+    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264PictureInfoKHR.malloc(stack).unn
+    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH264PictureInfoKHR.calloc().unn
+    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH264PictureInfoKHR.malloc().unn
+    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264PictureInfoKHR.calloc(capacity, stack).unn
+    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264PictureInfoKHR.malloc(capacity, stack).unn
+    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264PictureInfoKHR.calloc(capacity).unn
+    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264PictureInfoKHR.malloc(capacity).unn
+  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH264ProfileInfoKHR] with
+    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH264ProfileInfoKHR.Buffer
+    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264ProfileInfoKHR.calloc(stack).unn
+    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264ProfileInfoKHR.malloc(stack).unn
+    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH264ProfileInfoKHR.calloc().unn
+    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH264ProfileInfoKHR.malloc().unn
+    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264ProfileInfoKHR.calloc(capacity, stack).unn
+    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264ProfileInfoKHR.malloc(capacity, stack).unn
+    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264ProfileInfoKHR.calloc(capacity).unn
+    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264ProfileInfoKHR.malloc(capacity).unn
+  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH264QpKHR] with
+    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH264QpKHR.Buffer
+    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264QpKHR.calloc(stack).unn
+    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264QpKHR.malloc(stack).unn
+    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH264QpKHR.calloc().unn
+    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH264QpKHR.malloc().unn
+    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264QpKHR.calloc(capacity, stack).unn
+    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264QpKHR.malloc(capacity, stack).unn
+    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264QpKHR.calloc(capacity).unn
+    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264QpKHR.malloc(capacity).unn
+  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH264QualityLevelPropertiesKHR] with
+    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH264QualityLevelPropertiesKHR.Buffer
+    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264QualityLevelPropertiesKHR.calloc(stack).unn
+    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264QualityLevelPropertiesKHR.malloc(stack).unn
+    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH264QualityLevelPropertiesKHR.calloc().unn
+    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH264QualityLevelPropertiesKHR.malloc().unn
+    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264QualityLevelPropertiesKHR.calloc(capacity, stack).unn
+    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264QualityLevelPropertiesKHR.malloc(capacity, stack).unn
+    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264QualityLevelPropertiesKHR.calloc(capacity).unn
+    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264QualityLevelPropertiesKHR.malloc(capacity).unn
+  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH264RateControlInfoKHR] with
+    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH264RateControlInfoKHR.Buffer
+    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264RateControlInfoKHR.calloc(stack).unn
+    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264RateControlInfoKHR.malloc(stack).unn
+    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH264RateControlInfoKHR.calloc().unn
+    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH264RateControlInfoKHR.malloc().unn
+    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264RateControlInfoKHR.calloc(capacity, stack).unn
+    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264RateControlInfoKHR.malloc(capacity, stack).unn
+    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264RateControlInfoKHR.calloc(capacity).unn
+    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264RateControlInfoKHR.malloc(capacity).unn
+  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH264RateControlLayerInfoKHR] with
+    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH264RateControlLayerInfoKHR.Buffer
+    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264RateControlLayerInfoKHR.calloc(stack).unn
+    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264RateControlLayerInfoKHR.malloc(stack).unn
+    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH264RateControlLayerInfoKHR.calloc().unn
+    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH264RateControlLayerInfoKHR.malloc().unn
+    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264RateControlLayerInfoKHR.calloc(capacity, stack).unn
+    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264RateControlLayerInfoKHR.malloc(capacity, stack).unn
+    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264RateControlLayerInfoKHR.calloc(capacity).unn
+    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264RateControlLayerInfoKHR.malloc(capacity).unn
+  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH264SessionCreateInfoKHR] with
+    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH264SessionCreateInfoKHR.Buffer
+    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264SessionCreateInfoKHR.calloc(stack).unn
+    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264SessionCreateInfoKHR.malloc(stack).unn
+    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH264SessionCreateInfoKHR.calloc().unn
+    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH264SessionCreateInfoKHR.malloc().unn
+    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264SessionCreateInfoKHR.calloc(capacity, stack).unn
+    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264SessionCreateInfoKHR.malloc(capacity, stack).unn
+    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264SessionCreateInfoKHR.calloc(capacity).unn
+    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264SessionCreateInfoKHR.malloc(capacity).unn
+  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersAddInfoKHR] with
+    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersAddInfoKHR.Buffer
+    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersAddInfoKHR.calloc(stack).unn
+    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersAddInfoKHR.malloc(stack).unn
+    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersAddInfoKHR.calloc().unn
+    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersAddInfoKHR.malloc().unn
+    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersAddInfoKHR.calloc(capacity, stack).unn
+    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersAddInfoKHR.malloc(capacity, stack).unn
+    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersAddInfoKHR.calloc(capacity).unn
+    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersAddInfoKHR.malloc(capacity).unn
+  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersCreateInfoKHR] with
+    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersCreateInfoKHR.Buffer
+    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersCreateInfoKHR.calloc(stack).unn
+    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersCreateInfoKHR.malloc(stack).unn
+    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersCreateInfoKHR.calloc().unn
+    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersCreateInfoKHR.malloc().unn
+    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersCreateInfoKHR.calloc(capacity, stack).unn
+    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersCreateInfoKHR.malloc(capacity, stack).unn
+    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersCreateInfoKHR.calloc(capacity).unn
+    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersCreateInfoKHR.malloc(capacity).unn
+  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersFeedbackInfoKHR] with
+    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersFeedbackInfoKHR.Buffer
+    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersFeedbackInfoKHR.calloc(stack).unn
+    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersFeedbackInfoKHR.malloc(stack).unn
+    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersFeedbackInfoKHR.calloc().unn
+    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersFeedbackInfoKHR.malloc().unn
+    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersFeedbackInfoKHR.calloc(capacity, stack).unn
+    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersFeedbackInfoKHR.malloc(capacity, stack).unn
+    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersFeedbackInfoKHR.calloc(capacity).unn
+    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersFeedbackInfoKHR.malloc(capacity).unn
+  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersGetInfoKHR] with
+    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersGetInfoKHR.Buffer
+    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersGetInfoKHR.calloc(stack).unn
+    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersGetInfoKHR.malloc(stack).unn
+    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersGetInfoKHR.calloc().unn
+    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersGetInfoKHR.malloc().unn
+    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersGetInfoKHR.calloc(capacity, stack).unn
+    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersGetInfoKHR.malloc(capacity, stack).unn
+    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersGetInfoKHR.calloc(capacity).unn
+    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH264SessionParametersGetInfoKHR.malloc(capacity).unn
+  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH265CapabilitiesKHR] with
+    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH265CapabilitiesKHR.Buffer
+    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265CapabilitiesKHR.calloc(stack).unn
+    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265CapabilitiesKHR.malloc(stack).unn
+    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH265CapabilitiesKHR.calloc().unn
+    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH265CapabilitiesKHR.malloc().unn
+    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265CapabilitiesKHR.calloc(capacity, stack).unn
+    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265CapabilitiesKHR.malloc(capacity, stack).unn
+    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265CapabilitiesKHR.calloc(capacity).unn
+    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265CapabilitiesKHR.malloc(capacity).unn
+  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH265DpbSlotInfoKHR] with
+    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH265DpbSlotInfoKHR.Buffer
+    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265DpbSlotInfoKHR.calloc(stack).unn
+    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265DpbSlotInfoKHR.malloc(stack).unn
+    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH265DpbSlotInfoKHR.calloc().unn
+    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH265DpbSlotInfoKHR.malloc().unn
+    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265DpbSlotInfoKHR.calloc(capacity, stack).unn
+    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265DpbSlotInfoKHR.malloc(capacity, stack).unn
+    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265DpbSlotInfoKHR.calloc(capacity).unn
+    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265DpbSlotInfoKHR.malloc(capacity).unn
+  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH265FrameSizeKHR] with
+    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH265FrameSizeKHR.Buffer
+    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265FrameSizeKHR.calloc(stack).unn
+    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265FrameSizeKHR.malloc(stack).unn
+    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH265FrameSizeKHR.calloc().unn
+    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH265FrameSizeKHR.malloc().unn
+    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265FrameSizeKHR.calloc(capacity, stack).unn
+    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265FrameSizeKHR.malloc(capacity, stack).unn
+    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265FrameSizeKHR.calloc(capacity).unn
+    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265FrameSizeKHR.malloc(capacity).unn
+  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH265GopRemainingFrameInfoKHR] with
+    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH265GopRemainingFrameInfoKHR.Buffer
+    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265GopRemainingFrameInfoKHR.calloc(stack).unn
+    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265GopRemainingFrameInfoKHR.malloc(stack).unn
+    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH265GopRemainingFrameInfoKHR.calloc().unn
+    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH265GopRemainingFrameInfoKHR.malloc().unn
+    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265GopRemainingFrameInfoKHR.calloc(capacity, stack).unn
+    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265GopRemainingFrameInfoKHR.malloc(capacity, stack).unn
+    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265GopRemainingFrameInfoKHR.calloc(capacity).unn
+    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265GopRemainingFrameInfoKHR.malloc(capacity).unn
+  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH265NaluSliceSegmentInfoKHR] with
+    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH265NaluSliceSegmentInfoKHR.Buffer
+    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265NaluSliceSegmentInfoKHR.calloc(stack).unn
+    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265NaluSliceSegmentInfoKHR.malloc(stack).unn
+    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH265NaluSliceSegmentInfoKHR.calloc().unn
+    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH265NaluSliceSegmentInfoKHR.malloc().unn
+    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265NaluSliceSegmentInfoKHR.calloc(capacity, stack).unn
+    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265NaluSliceSegmentInfoKHR.malloc(capacity, stack).unn
+    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265NaluSliceSegmentInfoKHR.calloc(capacity).unn
+    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265NaluSliceSegmentInfoKHR.malloc(capacity).unn
+  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH265PictureInfoKHR] with
+    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH265PictureInfoKHR.Buffer
+    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265PictureInfoKHR.calloc(stack).unn
+    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265PictureInfoKHR.malloc(stack).unn
+    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH265PictureInfoKHR.calloc().unn
+    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH265PictureInfoKHR.malloc().unn
+    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265PictureInfoKHR.calloc(capacity, stack).unn
+    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265PictureInfoKHR.malloc(capacity, stack).unn
+    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265PictureInfoKHR.calloc(capacity).unn
+    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265PictureInfoKHR.malloc(capacity).unn
+  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH265ProfileInfoKHR] with
+    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH265ProfileInfoKHR.Buffer
+    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265ProfileInfoKHR.calloc(stack).unn
+    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265ProfileInfoKHR.malloc(stack).unn
+    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH265ProfileInfoKHR.calloc().unn
+    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH265ProfileInfoKHR.malloc().unn
+    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265ProfileInfoKHR.calloc(capacity, stack).unn
+    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265ProfileInfoKHR.malloc(capacity, stack).unn
+    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265ProfileInfoKHR.calloc(capacity).unn
+    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265ProfileInfoKHR.malloc(capacity).unn
+  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH265QpKHR] with
+    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH265QpKHR.Buffer
+    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265QpKHR.calloc(stack).unn
+    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265QpKHR.malloc(stack).unn
+    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH265QpKHR.calloc().unn
+    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH265QpKHR.malloc().unn
+    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265QpKHR.calloc(capacity, stack).unn
+    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265QpKHR.malloc(capacity, stack).unn
+    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265QpKHR.calloc(capacity).unn
+    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265QpKHR.malloc(capacity).unn
+  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH265QualityLevelPropertiesKHR] with
+    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH265QualityLevelPropertiesKHR.Buffer
+    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265QualityLevelPropertiesKHR.calloc(stack).unn
+    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265QualityLevelPropertiesKHR.malloc(stack).unn
+    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH265QualityLevelPropertiesKHR.calloc().unn
+    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH265QualityLevelPropertiesKHR.malloc().unn
+    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265QualityLevelPropertiesKHR.calloc(capacity, stack).unn
+    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265QualityLevelPropertiesKHR.malloc(capacity, stack).unn
+    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265QualityLevelPropertiesKHR.calloc(capacity).unn
+    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265QualityLevelPropertiesKHR.malloc(capacity).unn
+  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH265RateControlInfoKHR] with
+    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH265RateControlInfoKHR.Buffer
+    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265RateControlInfoKHR.calloc(stack).unn
+    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265RateControlInfoKHR.malloc(stack).unn
+    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH265RateControlInfoKHR.calloc().unn
+    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH265RateControlInfoKHR.malloc().unn
+    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265RateControlInfoKHR.calloc(capacity, stack).unn
+    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265RateControlInfoKHR.malloc(capacity, stack).unn
+    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265RateControlInfoKHR.calloc(capacity).unn
+    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265RateControlInfoKHR.malloc(capacity).unn
+  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH265RateControlLayerInfoKHR] with
+    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH265RateControlLayerInfoKHR.Buffer
+    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265RateControlLayerInfoKHR.calloc(stack).unn
+    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265RateControlLayerInfoKHR.malloc(stack).unn
+    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH265RateControlLayerInfoKHR.calloc().unn
+    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH265RateControlLayerInfoKHR.malloc().unn
+    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265RateControlLayerInfoKHR.calloc(capacity, stack).unn
+    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265RateControlLayerInfoKHR.malloc(capacity, stack).unn
+    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265RateControlLayerInfoKHR.calloc(capacity).unn
+    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265RateControlLayerInfoKHR.malloc(capacity).unn
+  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH265SessionCreateInfoKHR] with
+    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH265SessionCreateInfoKHR.Buffer
+    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265SessionCreateInfoKHR.calloc(stack).unn
+    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265SessionCreateInfoKHR.malloc(stack).unn
+    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH265SessionCreateInfoKHR.calloc().unn
+    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH265SessionCreateInfoKHR.malloc().unn
+    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265SessionCreateInfoKHR.calloc(capacity, stack).unn
+    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265SessionCreateInfoKHR.malloc(capacity, stack).unn
+    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265SessionCreateInfoKHR.calloc(capacity).unn
+    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265SessionCreateInfoKHR.malloc(capacity).unn
+  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersAddInfoKHR] with
+    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersAddInfoKHR.Buffer
+    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersAddInfoKHR.calloc(stack).unn
+    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersAddInfoKHR.malloc(stack).unn
+    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersAddInfoKHR.calloc().unn
+    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersAddInfoKHR.malloc().unn
+    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersAddInfoKHR.calloc(capacity, stack).unn
+    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersAddInfoKHR.malloc(capacity, stack).unn
+    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersAddInfoKHR.calloc(capacity).unn
+    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersAddInfoKHR.malloc(capacity).unn
+  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersCreateInfoKHR] with
+    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersCreateInfoKHR.Buffer
+    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersCreateInfoKHR.calloc(stack).unn
+    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersCreateInfoKHR.malloc(stack).unn
+    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersCreateInfoKHR.calloc().unn
+    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersCreateInfoKHR.malloc().unn
+    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersCreateInfoKHR.calloc(capacity, stack).unn
+    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersCreateInfoKHR.malloc(capacity, stack).unn
+    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersCreateInfoKHR.calloc(capacity).unn
+    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersCreateInfoKHR.malloc(capacity).unn
+  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersFeedbackInfoKHR] with
+    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersFeedbackInfoKHR.Buffer
+    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersFeedbackInfoKHR.calloc(stack).unn
+    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersFeedbackInfoKHR.malloc(stack).unn
+    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersFeedbackInfoKHR.calloc().unn
+    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersFeedbackInfoKHR.malloc().unn
+    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersFeedbackInfoKHR.calloc(capacity, stack).unn
+    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersFeedbackInfoKHR.malloc(capacity, stack).unn
+    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersFeedbackInfoKHR.calloc(capacity).unn
+    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersFeedbackInfoKHR.malloc(capacity).unn
+  given Allocator[org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersGetInfoKHR] with
+    type Buffer = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersGetInfoKHR.Buffer
+    inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersGetInfoKHR.calloc(stack).unn
+    inline def stackMalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersGetInfoKHR.malloc(stack).unn
+    inline def calloc() = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersGetInfoKHR.calloc().unn
+    inline def malloc() = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersGetInfoKHR.malloc().unn
+    transparent inline def stackCallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersGetInfoKHR.calloc(capacity, stack).unn
+    transparent inline def stackMallocBuffer(stack: MemoryStack, capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersGetInfoKHR.malloc(capacity, stack).unn
+    transparent inline def callocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersGetInfoKHR.calloc(capacity).unn
+    transparent inline def mallocBuffer(capacity: Int) = org.lwjgl.vulkan.VkVideoEncodeH265SessionParametersGetInfoKHR.malloc(capacity).unn
   given Allocator[org.lwjgl.vulkan.VkVideoEncodeInfoKHR] with
     type Buffer = org.lwjgl.vulkan.VkVideoEncodeInfoKHR.Buffer
     inline def stackCalloc(stack: MemoryStack) = org.lwjgl.vulkan.VkVideoEncodeInfoKHR.calloc(stack).unn

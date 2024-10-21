@@ -7,13 +7,7 @@ import scala.concurrent.{Await, Future, Promise}
 import scala.concurrent.duration.{Duration, FiniteDuration}
 import scala.util.Try
 
-object Scenegraph extends animation.TimersDef {
-  type ContextAction[+R] = VarContext & Emitter.Context ?=> R
-
-  /////////////////////////////////
-  // Timers
-  /////////////////////////////////
-
+trait SwingTimers extends animation.TimersDef {
   type Timer = javax.swing.Timer
   given TimerLike: animation.TimerLike[Timer] with {
 
@@ -31,19 +25,25 @@ object Scenegraph extends animation.TimersDef {
     extension (t: Timer) {
       override def start(): Unit = t.start()
       override def stop(): Unit = t.stop()
+      override def restart(): Unit = t.restart()
+      override def isRunning = t.isRunning()
     }
   }
 }
-class Scenegraph extends AbstractToolkit {
+
+object Scenegraph extends SwingTimers {
+  type ContextAction[+R] = VarContext & Emitter.Context ?=> R
+}
+class Scenegraph extends AbstractToolkit, SwingTimers {
 
   protected def isOnToolkitThread() = SwingUtilities.isEventDispatchThread
   protected def runOnToolkitThread(r: () => Any): Unit = SwingUtilities.invokeLater(() => r())
 
   private val systemEm: Double = plaf.CssLaf.fontDeterminedByOs.map(_.getSize2D.toDouble).getOrElse(14)
-  val emSize = Var[Double]("emSize", systemEm).forInstance[this.type] 
+  val emSize = Var[Double]("emSize", systemEm).forInstance[this.type]
 
   extension (sr: stateReader.type) {
-    def emSize: Double = 
+    def emSize: Double =
       val prop = Scenegraph.this.emSize
       sr.getOrDefault(prop)(using ValueOf(Scenegraph.this))
   }
@@ -73,7 +73,7 @@ class Scenegraph extends AbstractToolkit {
     def keyPressed(evt: java.awt.event.KeyEvent): Unit = keyEvent(evt.nn, KeyPressed(evt.nn))
     def keyReleased(evt: java.awt.event.KeyEvent): Unit = keyEvent(evt.nn, KeyReleased(evt.nn))
     def keyTyped(evt: java.awt.event.KeyEvent): Unit = keyEvent(evt.nn, KeyTyped(evt.nn))
-    
+
     // Members declared in java.awt.event.MouseListener
     private def mouseEvent(rawEvent: java.awt.event.MouseEvent, evt: MouseEvent): Unit = {
       val source = rawEvent.getSource()
@@ -95,13 +95,13 @@ class Scenegraph extends AbstractToolkit {
     }
     def mousePressed(evt: java.awt.event.MouseEvent): Unit = mouseEvent(evt.nn, MousePressed(evt.nn))
 
-    /** variable for tracking dragging. Only one is needed because only one node can be
-        dragged at any given time */
+    /** variable for tracking dragging. Only one is needed because only one node can be dragged at any given time
+      */
     private var dragStart: Option[java.awt.event.MouseEvent] = None
 
     // Members declared in java.awt.event.MouseMotionListener
     def mouseDragged(evt: java.awt.event.MouseEvent): Unit = update {
-      // manually inline mouseEvent since we are running update anyway 
+      // manually inline mouseEvent since we are running update anyway
       val source = evt.getSource()
       val emitter = Node.MouseEvents.forInstance(source)
       if (stateReader.hasEmitter(emitter)) summon[Emitter.Context].emit(emitter, MouseDragged(evt.nn))
@@ -119,26 +119,28 @@ class Scenegraph extends AbstractToolkit {
     }
 
     def mouseReleased(evt: java.awt.event.MouseEvent): Unit = update {
-      // manually inline mouseEvent since we are running update anyway 
+      // manually inline mouseEvent since we are running update anyway
       val source = evt.getSource()
       val emitter = Node.MouseEvents.forInstance(source)
       if (stateReader.hasEmitter(emitter)) summon[Emitter.Context].emit(emitter, MouseReleased(evt.nn))
       dragStart match {
         case None =>
-        case Some(origin) => 
+        case Some(origin) =>
           Node.MouseDragMut.forInstance(source) :=
-            Some(MouseDrag(
-              MousePosition(origin.getX, origin.getY, origin.getXOnScreen, origin.getYOnScreen),
-              MousePosition(evt.getX, evt.getY, evt.getXOnScreen, evt.getYOnScreen),
-              true,
-              evt.nn,
-              origin
-            ))
+            Some(
+              MouseDrag(
+                MousePosition(origin.getX, origin.getY, origin.getXOnScreen, origin.getYOnScreen),
+                MousePosition(evt.getX, evt.getY, evt.getXOnScreen, evt.getYOnScreen),
+                true,
+                evt.nn,
+                origin
+              )
+            )
           dragStart = None
       }
     }
     def mouseMoved(evt: java.awt.event.MouseEvent): Unit = update {
-      // manually inline mouseEvent since we are running update anyway 
+      // manually inline mouseEvent since we are running update anyway
       val source = evt.getSource()
       val emitter = Node.MouseEvents.forInstance(source)
       if (stateReader.hasEmitter(emitter)) summon[Emitter.Context].emit(emitter, MouseMoved(evt.nn))

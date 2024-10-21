@@ -21,6 +21,8 @@ object Keyed {
     def keyId: Int = ((k >>> 32) & 0xFFFFFFFF).toInt
     def instanceId: Int = (k & 0xFFFFFFFF).toInt
     def id: Long = k
+
+    def descrString: String = f"KeyedDescr(instance=$instanceId%H, key=$keyId%H, total=$id)"
   }
 
   /** SAM Type for pluggable id infering (not using function due to monomorphization cost)*/
