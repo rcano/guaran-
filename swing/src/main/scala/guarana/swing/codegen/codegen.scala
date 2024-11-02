@@ -123,7 +123,7 @@ case object Node
     |def size(x: Int, y: Int) = v.setSize(x, y)
     |def showing = v.isShowing
     |
-    |def onFirstTimeVisible(f: v.type => Unit): Scenegraph ?=> Unit = {
+    |def onFirstTimeVisible(f: v.type => ToolkitAction[Unit]): Scenegraph ?=> Unit = {
     |  lazy val hl: java.awt.event.HierarchyListener = { evt => 
     |    if ((evt.getChangeFlags() & java.awt.event.HierarchyEvent.DISPLAYABILITY_CHANGED) > 0 && v.isDisplayable()) {
     |      v.removeHierarchyListener(hl)

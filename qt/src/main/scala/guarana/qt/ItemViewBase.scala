@@ -86,13 +86,13 @@ object ItemViewBase {
     ScrollAreaBase.init(v)
     Toolkit.connectVar(IconSize.forInstance[v.type], v.iconSizeChanged.unn)
     Toolkit.update(ItemViewBaseInitialized.forInstance[v.type] := true)
-    v.activated.unn.connect(slot[io.qt.core.QModelIndex](index => Toolkit.update(summon[Emitter.Context].emit(Ops.activated(v), index))))
-    v.clicked.unn.connect(slot[io.qt.core.QModelIndex](index => Toolkit.update(summon[Emitter.Context].emit(Ops.clicked(v), index))))
-    v.doubleClicked.unn.connect(slot[io.qt.core.QModelIndex](index => Toolkit.update(summon[Emitter.Context].emit(Ops.doubleClicked(v), index))))
-    v.entered.unn.connect(slot[io.qt.core.QModelIndex](index => Toolkit.update(summon[Emitter.Context].emit(Ops.entered(v), index))))
-    v.iconSizeChanged.unn.connect(slot[io.qt.core.QSize](s => Toolkit.update(summon[Emitter.Context].emit(Ops.iconSizeChanged(v), s))))
-    v.pressed.unn.connect(slot[io.qt.core.QModelIndex](index => Toolkit.update(summon[Emitter.Context].emit(Ops.pressed(v), index))))
-    v.viewportEntered.unn.connect(slot(Toolkit.update(summon[Emitter.Context].emit(Ops.viewportEntered(v), ()))))
+    v.activated.unn.connect(slot[io.qt.core.QModelIndex](index => Toolkit.update(summon[VarContext].emit(Ops.activated(v), index))))
+    v.clicked.unn.connect(slot[io.qt.core.QModelIndex](index => Toolkit.update(summon[VarContext].emit(Ops.clicked(v), index))))
+    v.doubleClicked.unn.connect(slot[io.qt.core.QModelIndex](index => Toolkit.update(summon[VarContext].emit(Ops.doubleClicked(v), index))))
+    v.entered.unn.connect(slot[io.qt.core.QModelIndex](index => Toolkit.update(summon[VarContext].emit(Ops.entered(v), index))))
+    v.iconSizeChanged.unn.connect(slot[io.qt.core.QSize](s => Toolkit.update(summon[VarContext].emit(Ops.iconSizeChanged(v), s))))
+    v.pressed.unn.connect(slot[io.qt.core.QModelIndex](index => Toolkit.update(summon[VarContext].emit(Ops.pressed(v), index))))
+    v.viewportEntered.unn.connect(slot(Toolkit.update(summon[VarContext].emit(Ops.viewportEntered(v), ()))))
   }
   
   

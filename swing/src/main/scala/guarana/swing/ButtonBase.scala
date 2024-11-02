@@ -127,7 +127,7 @@ object ButtonBase extends VarsMap {
       wasSelected = v.isSelected
     }
     v.addChangeListener(cl)
-    val al: java.awt.event.ActionListener = evt => sc.update(summon[Emitter.Context].emit(v.actionEvents, evt.nn))
+    val al: java.awt.event.ActionListener = evt => sc.update(summon[VarContext].emit(v.actionEvents, evt.nn))
     v.addActionListener(al)
   }
   

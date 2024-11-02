@@ -39,25 +39,25 @@ class GlfwWindow(val engine: ApricotEngine[? <: AbstractToolkit], windowHints: M
   private val windowIconifiedListener: GLFWWindowIconifyCallbackI = (_, b) =>
     tk.update(summon[VarContext].externalPropertyUpdated(iconified, Some(!b)))
   private val windowKeyListener: GLFWKeyCallbackI = (_, key, scancode, action, mods) =>
-    tk.update(summon[Emitter.Context].emit(keyEvents, KeyEvent(key.asInstanceOf, InputAction.of(action), mods.asInstanceOf, scancode)))
+    tk.update(summon[VarContext].emit(keyEvents, KeyEvent(key.asInstanceOf, InputAction.of(action), mods.asInstanceOf, scancode)))
   private val windowCharListener: GLFWCharCallbackI = (_, codepoint) =>
-    tk.update(summon[Emitter.Context].emit(charInputEvents, codepoint.toChar))
+    tk.update(summon[VarContext].emit(charInputEvents, codepoint.toChar))
   private val windowCursorEnterListener: GLFWCursorEnterCallbackI = (_, entered) =>
     tk.update {
       this.mousePosition := (-1.0, -1.0)
-      summon[Emitter.Context].emit(mouseEvents, if entered then MouseEvent.Entered else MouseEvent.Exited)
+      summon[VarContext].emit(mouseEvents, if entered then MouseEvent.Entered else MouseEvent.Exited)
     }
   private val windowCursorPosListener: GLFWCursorPosCallbackI = (_, x, y) =>
     tk.update {
       this.mousePosition := (x, y)
-      summon[Emitter.Context].emit(mouseEvents, MouseEvent.Moved(x, y))
+      summon[VarContext].emit(mouseEvents, MouseEvent.Moved(x, y))
     }
   private val windowMouseButtonListener: GLFWMouseButtonCallbackI = (_, btn, action, mods) =>
     tk.update(
-      summon[Emitter.Context].emit(mouseEvents, MouseEvent.Button(btn.asInstanceOf, InputAction.of(action).asInstanceOf, mods.asInstanceOf))
+      summon[VarContext].emit(mouseEvents, MouseEvent.Button(btn.asInstanceOf, InputAction.of(action).asInstanceOf, mods.asInstanceOf))
     )
   private val windowScrollListener: GLFWScrollCallbackI = (_, xoffset, yoffset) =>
-    tk.update(summon[Emitter.Context].emit(mouseEvents, MouseEvent.Scrolled(xoffset, yoffset)))
+    tk.update(summon[VarContext].emit(mouseEvents, MouseEvent.Scrolled(xoffset, yoffset)))
   private val windowFocusListener: GLFWWindowFocusCallbackI = (_, focused) => tk.update(this.focused := focused)
   private val windowCloseListener: GLFWWindowCloseCallbackI = _ => tk.update(this.closeAction()())
   private val windowDropListener: GLFWDropCallbackI = (_, count, filePathes) => ()

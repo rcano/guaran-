@@ -32,7 +32,7 @@ trait SwingTimers extends animation.TimersDef {
 }
 
 object Scenegraph extends SwingTimers {
-  type ContextAction[+R] = VarContext & Emitter.Context ?=> R
+  type ContextAction[+R] = VarContext ?=> R
 }
 class Scenegraph extends AbstractToolkit, SwingTimers {
 
@@ -68,7 +68,7 @@ class Scenegraph extends AbstractToolkit, SwingTimers {
     private def keyEvent(rawEvent: java.awt.event.KeyEvent, evt: KeyEvent): Unit = {
       val source = rawEvent.getSource()
       val emitter = Node.KeyEvents.forInstance(source)
-      if (stateReader.hasEmitter(emitter)) update(summon[Emitter.Context].emit(emitter, evt))
+      if (stateReader.hasEmitter(emitter)) update(summon[VarContext].emit(emitter, evt))
     }
     def keyPressed(evt: java.awt.event.KeyEvent): Unit = keyEvent(evt.nn, KeyPressed(evt.nn))
     def keyReleased(evt: java.awt.event.KeyEvent): Unit = keyEvent(evt.nn, KeyReleased(evt.nn))
@@ -78,7 +78,7 @@ class Scenegraph extends AbstractToolkit, SwingTimers {
     private def mouseEvent(rawEvent: java.awt.event.MouseEvent, evt: MouseEvent): Unit = {
       val source = rawEvent.getSource()
       val emitter = Node.MouseEvents.forInstance(source)
-      if (stateReader.hasEmitter(emitter)) update(summon[Emitter.Context].emit(emitter, evt))
+      if (stateReader.hasEmitter(emitter)) update(summon[VarContext].emit(emitter, evt))
     }
     def mouseClicked(evt: java.awt.event.MouseEvent): Unit = mouseEvent(evt.nn, MouseClicked(evt.nn))
     def mouseEntered(evt: java.awt.event.MouseEvent): Unit = update {
@@ -104,7 +104,7 @@ class Scenegraph extends AbstractToolkit, SwingTimers {
       // manually inline mouseEvent since we are running update anyway
       val source = evt.getSource()
       val emitter = Node.MouseEvents.forInstance(source)
-      if (stateReader.hasEmitter(emitter)) summon[Emitter.Context].emit(emitter, MouseDragged(evt.nn))
+      if (stateReader.hasEmitter(emitter)) summon[VarContext].emit(emitter, MouseDragged(evt.nn))
       // dragStart match {
       //   case None => dragStart = Some(evt.nn)
       //   case Some(origin) => Node.MouseDragMut.forInstance(source) :=
@@ -122,7 +122,7 @@ class Scenegraph extends AbstractToolkit, SwingTimers {
       // manually inline mouseEvent since we are running update anyway
       val source = evt.getSource()
       val emitter = Node.MouseEvents.forInstance(source)
-      if (stateReader.hasEmitter(emitter)) summon[Emitter.Context].emit(emitter, MouseReleased(evt.nn))
+      if (stateReader.hasEmitter(emitter)) summon[VarContext].emit(emitter, MouseReleased(evt.nn))
       dragStart match {
         case None =>
         case Some(origin) =>
@@ -143,7 +143,7 @@ class Scenegraph extends AbstractToolkit, SwingTimers {
       // manually inline mouseEvent since we are running update anyway
       val source = evt.getSource()
       val emitter = Node.MouseEvents.forInstance(source)
-      if (stateReader.hasEmitter(emitter)) summon[Emitter.Context].emit(emitter, MouseMoved(evt.nn))
+      if (stateReader.hasEmitter(emitter)) summon[VarContext].emit(emitter, MouseMoved(evt.nn))
       // Node.MouseDragMut.forInstance(source) := None
     }
 

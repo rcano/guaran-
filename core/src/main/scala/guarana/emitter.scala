@@ -7,10 +7,10 @@ trait Emitter[A] extends util.Unique {
 
   final def forInstance[S <: Singleton](s: S): Emitter.Aux[A, S] = this.asInstanceOf[Emitter.Aux[A, S]]
 
-  final def :=(listener: EventIterator[A])(implicit ctx: Emitter.Context, instance: ValueOf[ForInstance]): Unit = ctx.listen(this)(listener)
+  final def :=(listener: EventIterator[A])(implicit ctx: VarContext, instance: ValueOf[ForInstance]): Unit = ctx.listen(this)(listener)
 
   final def toVar(initialValue: A, listener: EventIterator[A])(implicit
-      ctx: VarContext & Emitter.Context,
+      ctx: VarContext,
       instance: ValueOf[ForInstance]
   ): ObsVal.Aux[A, ForInstance] = {
     val res = Var[A]("emitter-var", initialValue).forInstance[ForInstance]
@@ -46,11 +46,6 @@ object Emitter {
     override def toString = inferredName.toString
   }
 
-  trait Context {
-    def listen[A](emitter: Emitter[A])(f: EventIterator[A])(implicit instance: ValueOf[emitter.ForInstance]): Unit
-    def emit[A](emitter: Emitter[A], evt: A)(implicit instance: ValueOf[emitter.ForInstance]): Unit
-  }
-
   implicit def emitter2Keyed[T](e: Emitter[T])(using instance: ValueOf[e.ForInstance]): Keyed[e.type] = Keyed(e, instance.value)
 }
 
@@ -77,7 +72,7 @@ object EventIterator extends EventIterator[Any] {
   def drop(size: Int) = step0.drop(size)
   def dropWhile[U <: Any](pred: ToolkitAction[U => Boolean]): EventIterator[U] = step0.dropWhile(pred)
 
-  private type Step[-T] = (VarContext & Emitter.Context, T) => StepResult[T]
+  private type Step[-T] = (VarContext, T) => StepResult[T]
   private case class StepResult[-T](stepNewState: Option[Step[T]], abortIteartor: Boolean, passThroughElem: Boolean)
 
   private case class EventIteratorImpl[T](opsChain: collection.Seq[Step[T]]) extends EventIterator[T] {
@@ -100,7 +95,7 @@ object EventIterator extends EventIterator[Any] {
 
     def foreach[U <: T](f: ToolkitAction[U => Any]): EventIterator[U] = {
       lazy val step: Step[U] = new Step[U] {
-        def apply(ctx: VarContext & Emitter.Context, u: U) = { f(using ctx)(u); StepResult(Some(step), false, true) }
+        def apply(ctx: VarContext, u: U) = { f(using ctx)(u); StepResult(Some(step), false, true) }
         override def toString = "foreach"
       }
       EventIteratorImpl[U](opsChain :+ step)
@@ -108,21 +103,21 @@ object EventIterator extends EventIterator[Any] {
     private val doNothing = [T] => (t: T) => (): Any
     def forsome[U <: T](f: ToolkitAction[PartialFunction[U, Any]]): EventIterator[U] = {
       lazy val step: Step[U] = new Step[U] {
-        def apply(ctx: VarContext & Emitter.Context, u: U) = { f(using ctx).applyOrElse(u, doNothing[U]); StepResult(Some(step), false, true) }
+        def apply(ctx: VarContext, u: U) = { f(using ctx).applyOrElse(u, doNothing[U]); StepResult(Some(step), false, true) }
         override def toString = "foreach"
       }
       EventIteratorImpl[U](opsChain :+ step)
     }
     def filter[U <: T](pred: ToolkitAction[U => Boolean]): EventIterator[U] = {
       lazy val step: Step[U] = new Step[U] {
-        def apply(ctx: VarContext & Emitter.Context, u: U) = StepResult(Some(step), false, pred(using ctx)(u))
+        def apply(ctx: VarContext, u: U) = StepResult(Some(step), false, pred(using ctx)(u))
         override def toString = s"filter(${pred(using null.asInstanceOf)})"
       }
       EventIteratorImpl[U](opsChain :+ step)
     }
     def take(size: Int): EventIterator[T] = {
       def step(size: Int): Step[T] = new Step[T] {
-        def apply(ctx: VarContext & Emitter.Context, t: T) = {
+        def apply(ctx: VarContext, t: T) = {
           if (size > 1) StepResult(Some(step(size - 1)), false, true) else StepResult[Any](None, true, true)
         }
         override def toString = s"take($size)"
@@ -131,7 +126,7 @@ object EventIterator extends EventIterator[Any] {
     }
     def takeWhile[U <: T](pred: ToolkitAction[U => Boolean]): EventIterator[U] = {
       lazy val step: Step[U] = new Step[U] {
-        def apply(ctx: VarContext & Emitter.Context, t: U) =
+        def apply(ctx: VarContext, t: U) =
           if (pred(using ctx)(t)) StepResult(Some(step), false, true) else StepResult[Any](None, true, false)
         override def toString = s"takeWhile(${pred(using null.asInstanceOf)})"
       }
@@ -139,7 +134,7 @@ object EventIterator extends EventIterator[Any] {
     }
     def drop(size: Int): EventIterator[T] = {
       def step(size: Int): Step[T] = new Step[T] {
-        def apply(ctx: VarContext & Emitter.Context, t: T) =
+        def apply(ctx: VarContext, t: T) =
           if (size > 0) StepResult(Some(step(size - 1)), false, false) else StepResult[Any](None, false, true)
         override def toString = s"drop($size)"
       }
@@ -147,7 +142,7 @@ object EventIterator extends EventIterator[Any] {
     }
     def dropWhile[U <: T](pred: ToolkitAction[U => Boolean]): EventIterator[U] = {
       lazy val step: Step[U] = new Step[U] {
-        def apply(ctx: VarContext & Emitter.Context, t: U) =
+        def apply(ctx: VarContext, t: U) =
           if (pred(using ctx)(t)) StepResult(Some(step), false, false) else StepResult[Any](None, false, true)
         override def toString = s"dropWhile(${pred(using null.asInstanceOf)})"
       }

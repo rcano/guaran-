@@ -2,15 +2,16 @@ package guarana
 
 import language.implicitConversions
 import impl.AgronaUtils.*
+import guarana.impl.{CopyOnWriteEmitterStation, CopyOnWriteSignalSwitchboard, EmitterStation, SignalSwitchboard}
 import javax.swing.SwingUtilities
 import org.agrona.collections.{Int2ObjectHashMap, IntHashSet, LongHashSet}
 import scala.concurrent.{Await, Future, Promise}
 import scala.concurrent.duration.Duration
 import scala.util.Try
-import guarana.impl.{CopyOnWriteEmitterStation, CopyOnWriteSignalSwitchboard, EmitterStation, SignalSwitchboard}
 import scala.collection.View.Single
+import scala.util.chaining.*
 
-type ToolkitAction[+R] = VarContext & Emitter.Context ?=> R
+type ToolkitAction[+R] = VarContext ?=> R
 abstract class AbstractToolkit {
 
   type Signal[+T] = ObsVal[T]
@@ -47,6 +48,7 @@ abstract class AbstractToolkit {
   /** Reads the Metrics for the system */
   def getMetrics(): Stylist.Metrics
 
+  val varcontextLogger = scribe.Logger("varcontext")
   private val stackContext = ScopedValue.newInstance[ContextImpl]()
 
   def update[R](f: this.type ?=> ToolkitAction[R]): R = Await.result(updateAsync(f), Duration.Inf)
@@ -54,12 +56,13 @@ abstract class AbstractToolkit {
     val res = Promise[R]()
     def impl() = res.complete(Try {
       if (!stackContext.isBound()) {
-        ScopedValue.getWhere(
-          stackContext,
-          ContextImpl(switchboard, instancesData, externalVars, seenVars, emitterStation),
-          () => f(using this)(using stackContext.get())
-        )
+        val ctx = ContextImpl(switchboard, instancesData, externalVars, seenVars, emitterStation)
+        varcontextLogger.debug(s"no current varcontext, installing $ctx")
+        val res = ScopedValue.getWhere(stackContext, ctx, () => f(using this)(using stackContext.get()))
+        varcontextLogger.debug(s"context $ctx popped")
+        res
       } else {
+        varcontextLogger.debug(s"using existing var context ${stackContext.get()}")
         f(using this)(using stackContext.get())
       }
     })
@@ -92,11 +95,13 @@ abstract class AbstractToolkit {
       seenVars.get(s.keyId) match {
         case v: Var[_] if v.eagerEvaluation =>
           scribe.debug(s"Keyed(${instancesData.get(s.instanceId).?(_.instance.deref)}, ${seenVars.get(s.keyId)}) eagerly evaluating")
-          /* We intentionally don't run evaluations on the same stack that's reacting to signal invalidation, we do it on the next frame. This prevents some potentially huge
+          /* We intentionally don't run evaluations on the same tick and context that's reacting to signal invalidation, we do it on the next frame. This prevents some potentially huge
            * chain recation calls by distributing as tasks to the eventloop.
            * We also read straight from the switchboard because we want it to be computed, not affect our VarContext tracking.
            */
-          runOnToolkitThread(() => reactingToVar(s) { switchboard.get(s) }) 
+          reactingToVar(s) { switchboard.get(s) }
+        // val stack = new Exception()
+        // runOnToolkitThread(() => try reactingToVar(s) { switchboard.get(s) } catch case any: Throwable => {any.addSuppressed(stack); throw any})
         case _ =>
       }
       // s.keyed match {
@@ -117,7 +122,7 @@ abstract class AbstractToolkit {
     ): Unit = {
       if (stackContext.isBound()) {
         val ctx = stackContext.get()
-        given Emitter.Context = ctx
+        given VarContext = ctx
         // FIXME: broken api
         val data = instancesData.get(s.instanceId).unn
         val instanceOpt = data.instance
@@ -143,8 +148,7 @@ abstract class AbstractToolkit {
       val externalVars: IntHashSet,
       val seenVars: Int2ObjectHashMap[Signal[?]],
       val emitterStation: EmitterStation,
-  ) extends VarContext,
-        Emitter.Context {
+  ) extends VarContext {
 
     def recordInstance(instance: Any): InstanceData = {
       val instanceId = Keyed.getId(instance)
@@ -194,6 +198,7 @@ abstract class AbstractToolkit {
           switchboard.bind(v)(sb =>
             val ctx = stackContext.orElse(null) match {
               case null =>
+                varcontextLogger.debug(s"evaluating binding, no existing context.")
                 new ContextImpl(
                   sb,
                   AbstractToolkit.this.instancesData,
@@ -201,10 +206,14 @@ abstract class AbstractToolkit {
                   AbstractToolkit.this.seenVars,
                   AbstractToolkit.this.emitterStation
                 )
-              case parent => new ContextImpl(sb, parent.instancesData, parent.externalVars, parent.seenVars, parent.emitterStation)
+              case parent =>
+                varcontextLogger.debug(s"evaluating binding, existing context = $parent")
+                new ContextImpl(sb, parent.instancesData, parent.externalVars, parent.seenVars, parent.emitterStation)
             }
-
-            ScopedValue.getWhere(stackContext, ctx, () => c(stackContext.get()))
+            varcontextLogger.debug(s"evaluating binding, installing context $ctx")
+            val res = ScopedValue.getWhere(stackContext, ctx, () => c(stackContext.get()))
+            varcontextLogger.debug(s"evaluating binding, context $ctx popped")
+            res
           )
       }
     }
@@ -226,12 +235,16 @@ abstract class AbstractToolkit {
 
     //Emitter.Context
 
-    def emit[A](emitter: Emitter[A], evt: A)(using instance: ValueOf[emitter.ForInstance]): Unit =
+    def emit[A](emitter: Emitter[A], evt: A)(using instance: ValueOf[emitter.ForInstance]): Unit = {
+      checkActiveContext()
       recordInstance(instance.value).emitters.add(emitter.uniqueId)
-      emitterStation.emit(emitter, evt)(using summon, this)
-    def listen[A](emitter: Emitter[A])(f: EventIterator[A])(using instance: ValueOf[emitter.ForInstance]): Unit =
+      emitterStation.emit(emitter, evt)(using instance, this)
+    }
+    def listen[A](emitter: Emitter[A])(f: EventIterator[A])(using instance: ValueOf[emitter.ForInstance]): Unit = {
+      checkActiveContext()
       recordInstance(instance.value).emitters.add(emitter.uniqueId)
       emitterStation.listen(emitter)(f)
+    }
   }
 
   /** Read-only view of the current state of vars value in the toolkit */

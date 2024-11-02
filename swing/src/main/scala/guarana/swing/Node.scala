@@ -72,7 +72,7 @@ object Node extends VarsMap {
       def size(x: Int, y: Int) = v.setSize(x, y)
       def showing = v.isShowing
       
-      def onFirstTimeVisible(f: v.type => Unit): Scenegraph ?=> Unit = {
+      def onFirstTimeVisible(f: v.type => ToolkitAction[Unit]): Scenegraph ?=> Unit = {
         lazy val hl: java.awt.event.HierarchyListener = { evt => 
           if ((evt.getChangeFlags() & java.awt.event.HierarchyEvent.DISPLAYABILITY_CHANGED) > 0 && v.isDisplayable()) {
             v.removeHierarchyListener(hl)
@@ -100,11 +100,11 @@ object Node extends VarsMap {
     v `addFocusListener` new FocusListener {
       def focusGained(evt: FocusEvent) = sc.update {
         Node.FocusedMut.forInstance(v) := true 
-        summon[Emitter.Context].emit(v.focusEvents, (evt.nn -> true))
+        summon[VarContext].emit(v.focusEvents, (evt.nn -> true))
       }
       def focusLost(evt: FocusEvent) = sc.update {
         Node.FocusedMut.forInstance(v) := false
-        summon[Emitter.Context].emit(v.focusEvents, (evt.nn -> false))
+        summon[VarContext].emit(v.focusEvents, (evt.nn -> false))
       }
     }
     v `addComponentListener` new ComponentAdapter {

@@ -38,7 +38,7 @@ class SignalsTest extends AnyFunSuite {
   }
 
   test("simple signal propagation") {
-    implicit val sb = SignalSwitchboard[Signal](noopReporter, signalDescriptor)
+    implicit val sb = SignalSwitchboard[Signal](noopReporter, signalDescriptor, false)
     val count = signal(0)
     val text = signal("")
     sb.bind(text)(ctx => s"current count = ${ctx(count)}")
@@ -50,7 +50,7 @@ class SignalsTest extends AnyFunSuite {
   }
 
   test("complex signal propagation") {
-    implicit val sb = SignalSwitchboard[Signal](noopReporter, signalDescriptor)
+    implicit val sb = SignalSwitchboard[Signal](noopReporter, signalDescriptor, false)
     val count = signal(0)
     val name = signal("Unk")
     val text = signal("")
@@ -65,7 +65,7 @@ class SignalsTest extends AnyFunSuite {
   }
 
   test("signal rebinding disposes old binding") {
-    implicit val sb = SignalSwitchboard[Signal](noopReporter, signalDescriptor)
+    implicit val sb = SignalSwitchboard[Signal](noopReporter, signalDescriptor, false)
     val count = signal(0)
     val text = signal("")
     sb.bind(text)(ctx => s"current count = ${ctx(count)}")
@@ -82,7 +82,7 @@ class SignalsTest extends AnyFunSuite {
 
 
   test("signal self reference") {
-    implicit val sb = SignalSwitchboard[Signal](noopReporter, signalDescriptor)
+    implicit val sb = SignalSwitchboard[Signal](noopReporter, signalDescriptor, false)
     val count = signal(0)
     sb.bind(count) { ctx =>
       println(s"current count = ${ctx(count)}")

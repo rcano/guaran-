@@ -9,7 +9,7 @@ trait EmitterStation {
 
   def hasEmitter[A](emitter: Emitter[A])(using ValueOf[emitter.ForInstance]): Boolean
   def hasListeners[A](emitter: Emitter[A])(using ValueOf[emitter.ForInstance]): Boolean
-  def emit[A](emitter: Emitter[A], evt: A)(using ValueOf[emitter.ForInstance], VarContext & Emitter.Context): Unit
+  def emit[A](emitter: Emitter[A], evt: A)(using ValueOf[emitter.ForInstance], VarContext): Unit
   def listen[A](emitter: Emitter[A])(f: EventIterator[A])(using ValueOf[emitter.ForInstance]): Unit
   def remove[A](emitter: Keyed[Emitter[A]]): Unit
 
@@ -30,7 +30,7 @@ private[impl] class EmitterStationImpl extends EmitterStation {
       _.listeners.nonEmpty,
       false
     )
-  def emit[A](emitter: Emitter[A], evt: A)(using v: ValueOf[emitter.ForInstance], ctx: VarContext & Emitter.Context): Unit = {
+  def emit[A](emitter: Emitter[A], evt: A)(using v: ValueOf[emitter.ForInstance], ctx: VarContext): Unit = {
     val key = Keyed(emitter, v.value).id
     emittersData.get(key) match {
       case null => //do nothing
@@ -90,7 +90,7 @@ class CopyOnWriteEmitterStation(val copy: EmitterStation) extends EmitterStation
   private def createCopy() = if (copied == null) copied = copy.snapshot
   def hasEmitter[A](emitter: Emitter[A])(using ValueOf[emitter.ForInstance]): Boolean = theInstance.hasEmitter(emitter)
   def hasListeners[A](emitter: Emitter[A])(using ValueOf[emitter.ForInstance]): Boolean = theInstance.hasListeners(emitter)
-  def emit[A](emitter: Emitter[A], evt: A)(using ValueOf[emitter.ForInstance], VarContext & Emitter.Context): Unit = {
+  def emit[A](emitter: Emitter[A], evt: A)(using ValueOf[emitter.ForInstance], VarContext): Unit = {
     if (theInstance.hasEmitter(emitter)) {
       createCopy()
       theInstance.emit(emitter, evt)

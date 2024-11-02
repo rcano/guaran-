@@ -4,7 +4,7 @@ package qt
 import Binding.dyn
 
 class ValidatedWidget[W <: Widget, T](val widget: W)(using vs: ValidatedWidget.ValidationSupport[W, T])(validate: T => Option[String])(using
-    VarContext & Emitter.Context
+    VarContext
 ) {
   def validatedValue = ValidatedWidget.ValidatedValue.asInstanceOf[ObsVal.Aux[String Either T, widget.type]]
   def validValue = ValidatedWidget.ValidValue.asInstanceOf[ObsVal.Aux[Option[T], widget.type]]

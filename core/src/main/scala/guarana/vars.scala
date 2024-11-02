@@ -14,6 +14,9 @@ trait VarContext {
   def update[T](v: Var[T], binding: Binding[T])(using instance: ValueOf[v.ForInstance]): Unit
   def apply[T](v: ObsVal[T])(using instance: ValueOf[v.ForInstance]): T
 
+  def listen[A](emitter: Emitter[A])(f: EventIterator[A])(implicit instance: ValueOf[emitter.ForInstance]): Unit
+  def emit[A](emitter: Emitter[A], evt: A)(implicit instance: ValueOf[emitter.ForInstance]): Unit
+
   def externalPropertyUpdated[T](v: ObsVal[T], oldValue: Option[T])(using instance: ValueOf[v.ForInstance]): Unit
 }
 object VarContext {
@@ -143,7 +146,7 @@ object Binding {
           duration,
           timer => {
             timer.stop()
-            tk.update(summon[Emitter.Context].emit(debouncer, lastValue))
+            tk.update(summon[VarContext].emit(debouncer, lastValue))
           },
           _ => ()
         )

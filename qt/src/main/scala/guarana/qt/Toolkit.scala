@@ -42,7 +42,7 @@ object Toolkit extends AbstractToolkit, animation.TimersDef {
   }
   /** Connects a signal to an emitter */
   def connectEmitter[T, U](emitter: Emitter[T], signal: QObject#Signal1[U])(using VarToSignalTypeAdapter[T, U], ValueOf[emitter.ForInstance]): Unit = {
-    val slot: QMetaObject.Slot1[U] = value => update(summon[Emitter.Context].emit(emitter, value.asInstanceOf[T]))
+    val slot: QMetaObject.Slot1[U] = value => update(summon[VarContext].emit(emitter, value.asInstanceOf[T]))
     signal.connect(slot, Qt.ConnectionType.DirectConnection)
   }
 

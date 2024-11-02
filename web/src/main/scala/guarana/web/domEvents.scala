@@ -13,7 +13,7 @@ def eventEmitter[T <: dom.Event](
 
     private[guarana] override def onFirstListener(v: Any)(using ev: v.type <:< ForInstance): Unit = {
       val domElem = ev(v)
-      val listener: js.Function1[T, ?] = evt => Toolkit.update(summon[Emitter.Context].emit(this, evt)(using ValueOf(domElem)))
+      val listener: js.Function1[T, ?] = evt => Toolkit.update(summon[VarContext].emit(this, evt)(using ValueOf(domElem)))
       domElem.unwrap.addEventListener[T](eventName, listener, false)
       domElem.unwrap.asInstanceOf[js.Dynamic].__emitter_listener = listener
     }

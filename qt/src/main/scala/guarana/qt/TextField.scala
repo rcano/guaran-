@@ -91,10 +91,10 @@ object TextField {
       vc.externalPropertyUpdated(Ops.selectedText(v), None)
     }))
     v.cursorPositionChanged.unn.connect(slot((oldp: java.lang.Integer, newp: java.lang.Integer) => Toolkit.update(summon[VarContext].externalPropertyUpdated(Ops.cursorPosition(v), Some(oldp)))))
-    v.editingFinished.unn.connect(slot(Toolkit.update(summon[Emitter.Context].emit(Ops.events(v), Event.EditFinished))))
-    v.inputRejected.unn.connect(slot(Toolkit.update(summon[Emitter.Context].emit(Ops.events(v), Event.InputRejected))))
-    v.returnPressed.unn.connect(slot(Toolkit.update(summon[Emitter.Context].emit(Ops.events(v), Event.ReturnPressed))))
-    v.textEdited.unn.connect(slot((newText: String) => Toolkit.update(summon[Emitter.Context].emit(Ops.textEdited(v), newText))))
+    v.editingFinished.unn.connect(slot(Toolkit.update(summon[VarContext].emit(Ops.events(v), Event.EditFinished))))
+    v.inputRejected.unn.connect(slot(Toolkit.update(summon[VarContext].emit(Ops.events(v), Event.InputRejected))))
+    v.returnPressed.unn.connect(slot(Toolkit.update(summon[VarContext].emit(Ops.events(v), Event.ReturnPressed))))
+    v.textEdited.unn.connect(slot((newText: String) => Toolkit.update(summon[VarContext].emit(Ops.textEdited(v), newText))))
   }
   def uninitialized(): TextField = {
     val res = new io.qt.widgets.QLineEdit()
