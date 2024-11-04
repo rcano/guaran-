@@ -156,7 +156,7 @@ object Test {
             Label(text = dyn { s"selected ${spinner.value()}" })
           )
         ),
-        bottom = Hbox(nodes = Seq(Box.horizontalGlue(), login)),
+        bottom = Hbox(nodes = Seq(BusyIcon(), Box.horizontalGlue(), login)),
         border = dyn { javax.swing.BorderFactory.createEmptyBorder(1.em.toInt, 1.em.toInt, 1.em.toInt, 1.em.toInt) }
       ),
       componentB = ScrollPane(content = ListView(model = Seq.tabulate(20)(i => s"elem $i"): javax.swing.ListModel[String])),

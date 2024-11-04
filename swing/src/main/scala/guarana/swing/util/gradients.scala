@@ -139,7 +139,7 @@ class RoundRectangleGradientPaint private(
     hints: RenderingHints
   ): PaintContext = new PaintContext {
     val xformedUserBounds = xform.createTransformedShape(userBounds).unn.getBounds2D.unn
-    var image = {
+    var image: BufferedImage | Null = {
       if inheritedColorModel.getTransparency == Transparency.TRANSLUCENT then
         val raster = inheritedColorModel.createCompatibleWritableRaster(
           deviceBounds.getWidth.ceil.toInt,

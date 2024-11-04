@@ -14,6 +14,8 @@ extension (d: Double | Float | Int) {
     }) * sc.emSize()
 }
 
+inline def scenegraph(using s: Scenegraph): Scenegraph = s
+
 /** Calculates the map of name→var for this node by using reflection
   */
 trait VarsMap {
@@ -24,10 +26,10 @@ trait VarsMap {
     .map(v => v.name.toLowerCase.nn -> v).toMap
   protected inline def varsPropertyListener(instance: Any, debug: Boolean = false)(using sg: Scenegraph): java.beans.PropertyChangeListener = { evt =>
     val property = evt.unn.getPropertyName.unn.toLowerCase.unn
-    if (debug) println(s"Trying to update $property")
+    if (debug) scribe.info(s"Trying to update $property")
     VarsMap.get(property) foreach {
       case sv: SwingVar[t] =>
-        if (debug) println("  found swing var")
+        if (debug) scribe.info("  found swing var")
         sg.update(summon[VarContext].externalPropertyUpdated(sv, Some(evt.unn.getOldValue.asInstanceOf[t]))(using ValueOf(instance.asInstanceOf[sv.ForInstance])))
     }
   }: java.beans.PropertyChangeListener
@@ -64,22 +66,22 @@ object Box {
     minWidth: Binding[Double],
     maxWidth: Binding[Double],
     minHeight: Binding[Double],
-    maxHeight: Binding[Double]): Scenegraph ?=>  VarContextAction[Node] = {
+    maxHeight: Binding[Double]): Scenegraph ?=>  VarContextAction[Component] = {
 
-    val res = Node.wrap(javax.swing.Box.createGlue().nn.asInstanceOf[java.awt.Container])
-    Node.init(res)
+    val res = Component.wrap(javax.swing.Box.createGlue().nn.asInstanceOf[javax.swing.JComponent])
+    Component.init(res)
     res.minSize := Binding.dyn((minWidth(), minHeight()))
     res.prefSize := Binding.dyn(res.minSize())
     res.maxSize := Binding.dyn((maxWidth(), maxHeight()))
     res
   }
 
-  def glue(): Scenegraph ?=> VarContextAction[Node] = createFiller(0.0, Int.MaxValue.toDouble, 0.0, Int.MaxValue.toDouble)
-  def horizontalGlue(): Scenegraph ?=> VarContextAction[Node] = createFiller(0.0, Int.MaxValue.toDouble, 0.0, 0.0)
-  def horizontalStrut(width: Binding[Double]): Scenegraph ?=> VarContextAction[Node] = createFiller(width, width, 0.0, Int.MaxValue.toDouble)
-  def verticalGlue(): Scenegraph ?=> VarContextAction[Node] = createFiller(0.0, 0.0, 0.0, Int.MaxValue.toDouble)
-  def verticalStrut(height: Binding[Double]): Scenegraph ?=> VarContextAction[Node] = createFiller(0.0, 0.0, height, height)
-  def strut(width: Binding[Double], height: Binding[Double]): Scenegraph ?=> VarContextAction[Node] = createFiller(width, width, height, height)
+  def glue(): Scenegraph ?=> VarContextAction[Component] = createFiller(0.0, Int.MaxValue.toDouble, 0.0, Int.MaxValue.toDouble)
+  def horizontalGlue(): Scenegraph ?=> VarContextAction[Component] = createFiller(0.0, Int.MaxValue.toDouble, 0.0, 0.0)
+  def horizontalStrut(width: Binding[Double]): Scenegraph ?=> VarContextAction[Component] = createFiller(width, width, 0.0, Int.MaxValue.toDouble)
+  def verticalGlue(): Scenegraph ?=> VarContextAction[Component] = createFiller(0.0, 0.0, 0.0, Int.MaxValue.toDouble)
+  def verticalStrut(height: Binding[Double]): Scenegraph ?=> VarContextAction[Component] = createFiller(0.0, 0.0, height, height)
+  def strut(width: Binding[Double], height: Binding[Double]): Scenegraph ?=> VarContextAction[Component] = createFiller(width, width, height, height)
 }
 
 type Font = java.awt.Font

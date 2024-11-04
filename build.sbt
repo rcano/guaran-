@@ -11,6 +11,7 @@ inThisBuild(
     ThisBuild / scalacOptions ++= Seq(
       "-Yexplicit-nulls",
       "-deprecation",
+      "-Wunused:all",
       "-unchecked",
       "-language:implicitConversions",
       "-rewrite", "-source", "3.5-migration"
@@ -73,9 +74,10 @@ lazy val moduleJars = taskKey[Seq[(Attributed[File], java.lang.module.ModuleDesc
 lazy val swing = Project(id = "guarana-swing", base = file("swing"))
   .dependsOn(coreJvm)
   .settings(
-    scalacOptions -= "-Yexplicit-nulls",
+    // scalacOptions -= "-Yexplicit-nulls",
     libraryDependencies ++= Seq(
       ("com.github.pathikrit" %% "better-files" % "3.9.2").cross(CrossVersion.for3Use2_13),
+      "org.apache.xmlgraphics" % "batik-swing" % "1.18",
       "com.formdev" % "flatlaf" % "3.5.1" % "provided",
       "com.jhlabs" % "filters" % "2.0.235-1" % "provided",
       "io.dropwizard.metrics" % "metrics-core" % "4.2.26" % "test",
@@ -92,16 +94,16 @@ lazy val swing = Project(id = "guarana-swing", base = file("swing"))
       }
       modules
     },
-    ThisBuild / javaOptions ++= {
-      val modules = moduleJars.value
-      if (modules.isEmpty) Seq()
-      else
-        Seq(
-          "--add-modules=" + modules.map(_._2.name).mkString(","),
-          "--module-path=" + modules.map(_._1.data.getAbsolutePath).mkString(java.io.File.pathSeparator)
-        )
-    },
-    // ThisBuild / javaOptions += "-Xmx100m",
+    // ThisBuild / javaOptions ++= {
+    //   val modules = moduleJars.value
+    //   if (modules.isEmpty) Seq()
+    //   else
+    //     Seq(
+    //       "--add-modules=" + modules.map(_._2.name).mkString(","),
+    //       "--module-path=" + modules.map(_._1.data.getAbsolutePath).mkString(java.io.File.pathSeparator)
+    //     )
+    // },
+    ThisBuild / javaOptions += "-Xmx100m",
     ThisBuild / javaOptions ++= Seq("-Dsun.java2d.uiScale.enabled=true", "-Dsun.java2d.uiScale=2"),
     ThisBuild / outputStrategy := Some(StdoutOutput)
   )
