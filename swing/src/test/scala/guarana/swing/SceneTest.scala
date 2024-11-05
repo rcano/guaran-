@@ -127,7 +127,7 @@ object Test {
 
     scenegraph.emSize := dyn { emModifier.value() }
 
-    val combobox = ComboBox[String](items = Seq("A", "B", "C"))
+    val combobox = ComboBox(items = Seq("A", "B", "C"))
     val spinner = Spinner[Int](model = javax.swing.SpinnerNumberModel(10, 0, 100, 1))
 
     val tab1Content = SplitPane(

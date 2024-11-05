@@ -20,7 +20,11 @@ object GridPane extends VarsMap {
   private val LayoutVar: SwingVar.Aux[GridPane, Unit] = SwingVar[GridPane, Unit]("layoutVar", _ => (), (_, _) => ())
   val Rows: Var[Seq[Seq[Node]]] = Var[Seq[Seq[Node]]]("rows", Seq.empty, false)
   val Vgap: Var[Double] = Var[Double]("vgap", 0.0, false)
-
+  final val LayoutDefaultSize = GroupLayout.DEFAULT_SIZE
+  final val LayoutPreferredSize = GroupLayout.PREFERRED_SIZE
+  val LayoutMin: Var[LayoutDefaultSize.type | LayoutPreferredSize.type | Int] = Var.autoName(LayoutDefaultSize)
+  val LayoutPref: Var[LayoutDefaultSize.type | LayoutPreferredSize.type | Int] = Var.autoName(LayoutDefaultSize)
+  val LayoutMax: Var[LayoutDefaultSize.type | LayoutPreferredSize.type | Int] = Var.autoName(LayoutDefaultSize)
   
 
   given ops: Ops.type = Ops
@@ -48,7 +52,9 @@ object GridPane extends VarsMap {
     val hgap = v.hgap().toInt
     val vgap = v.vgap().toInt
     
-    val layout = v.getLayout.asInstanceOf[GroupLayout]
+    val layout = GroupLayout(v)
+    v.setLayout(layout)
+
     val hgroup = layout.createSequentialGroup().nn
     val vgroup = layout.createSequentialGroup().nn
     
@@ -62,19 +68,23 @@ object GridPane extends VarsMap {
       colSize = row.length
       (node, colIdx) <- row.zipWithIndex
     } {
+      val nodeLayoutMin = LayoutMin.forInstance(node)
+      val nodeLayoutPref = LayoutPref.forInstance(node)
+      val nodeLayoutMax = LayoutMax.forInstance(node)
+
       hSeqGroups
         .getOrElseUpdate(colIdx, layout.createParallelGroup().nn.tap { g => 
           hgroup.addGroup(g)
           if (hgap > 0 && colIdx < colSize - 1) hgroup.addGap(hgap)
         })
-        .addComponent(node.unwrap)
+        .addComponent(node.unwrap, nodeLayoutMin(), nodeLayoutPref(), nodeLayoutMax())
     
       vSeqGroups
         .getOrElseUpdate(rowIdx, layout.createBaselineGroup(true, false).nn.tap { g => 
           vgroup.addGroup(g)
           if (vgap > 0 && rowIdx < rowSize - 1) vgroup.addGap(vgap)
         })
-        .addComponent(node.unwrap)
+        .addComponent(node.unwrap, nodeLayoutMin(), nodeLayoutPref(), nodeLayoutMax())
     }
     
     layout.setHorizontalGroup(hgroup)

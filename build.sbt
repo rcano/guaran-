@@ -104,7 +104,7 @@ lazy val swing = Project(id = "guarana-swing", base = file("swing"))
     //     )
     // },
     ThisBuild / javaOptions += "-Xmx100m",
-    ThisBuild / javaOptions ++= Seq("-Dsun.java2d.uiScale.enabled=true", "-Dsun.java2d.uiScale=2"),
+    ThisBuild / javaOptions ++= Seq("-Dsun.java2d.uiScale.enabled=true", "-Dsun.java2d.uiScale=1.5"),
     ThisBuild / outputStrategy := Some(StdoutOutput)
   )
 

@@ -541,6 +541,13 @@ case object GridPane
           "_.getLayout.asInstanceOf[GroupLayout].setAutoCreateContainerGaps(_)"
         ),
       ),
+      companionObjectExtras = Seq(
+        "final val LayoutDefaultSize = GroupLayout.DEFAULT_SIZE",
+        "final val LayoutPreferredSize = GroupLayout.PREFERRED_SIZE",
+        "val LayoutMin: Var[LayoutDefaultSize.type | LayoutPreferredSize.type | Int] = Var.autoName(LayoutDefaultSize)",
+        "val LayoutPref: Var[LayoutDefaultSize.type | LayoutPreferredSize.type | Int] = Var.autoName(LayoutDefaultSize)",
+        "val LayoutMax: Var[LayoutDefaultSize.type | LayoutPreferredSize.type | Int] = Var.autoName(LayoutDefaultSize)"
+      ),
       uninitExtra = Seq("res.asInstanceOf[JPanel].setLayout(GroupLayout(res))"),
       initExtra = """
       |sc.update(LayoutVar.forInstance(v) := Binding.dyn {
@@ -548,7 +555,9 @@ case object GridPane
       |val hgap = v.hgap().toInt
       |val vgap = v.vgap().toInt
 
-      |val layout = v.getLayout.asInstanceOf[GroupLayout]
+      |val layout = GroupLayout(v)
+      |v.setLayout(layout)
+
       |val hgroup = layout.createSequentialGroup().nn
       |val vgroup = layout.createSequentialGroup().nn
 
@@ -562,19 +571,23 @@ case object GridPane
       |  colSize = row.length
       |  (node, colIdx) <- row.zipWithIndex
       |} {
+      |  val nodeLayoutMin = LayoutMin.forInstance(node)
+      |  val nodeLayoutPref = LayoutPref.forInstance(node)
+      |  val nodeLayoutMax = LayoutMax.forInstance(node)
+      |
       |  hSeqGroups
       |    .getOrElseUpdate(colIdx, layout.createParallelGroup().nn.tap { g => 
       |      hgroup.addGroup(g)
       |      if (hgap > 0 && colIdx < colSize - 1) hgroup.addGap(hgap)
       |    })
-      |    .addComponent(node.unwrap)
+      |    .addComponent(node.unwrap, nodeLayoutMin(), nodeLayoutPref(), nodeLayoutMax())
 
       |  vSeqGroups
       |    .getOrElseUpdate(rowIdx, layout.createBaselineGroup(true, false).nn.tap { g => 
       |      vgroup.addGroup(g)
       |      if (vgap > 0 && rowIdx < rowSize - 1) vgroup.addGap(vgap)
       |    })
-      |    .addComponent(node.unwrap)
+      |    .addComponent(node.unwrap, nodeLayoutMin(), nodeLayoutPref(), nodeLayoutMax())
       |}
 
       |layout.setHorizontalGroup(hgroup)
