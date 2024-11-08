@@ -3,7 +3,7 @@ package web
 
 import org.scalajs.dom
 
-opaque type Element >: dom.Element <: scalajs.js.Object = dom.Element
+opaque type Element <: dom.Element & scalajs.js.Object = dom.Element
 object Element {
   extension [Tag <: Element](tag: Tag) {
     def amend(modifiers: Modifier[Tag]*): ToolkitAction[Tag] = {

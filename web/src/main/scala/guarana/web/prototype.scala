@@ -40,7 +40,7 @@ import guarana.util.cfor
       val id = scala.util.Random.nextInt(100)
       val res = div(color := c)
       res.amend(child.text := dyn {
-        println(s"$id: changing!")
+        println(s"$id: changing! div size: ${res.dimensions()}")
         s"my own size is ${res.dimensions()}"
       })
       res
@@ -72,7 +72,10 @@ import guarana.util.cfor
         checkbox,
         child.text := dyn { if (checkbox.checked()) "it is checked" else "try again" },
         br(),
-        button("change the div", onClick := EventIterator.foreach(_ => watchmeDiv := newWatchmeDiv())),
+        button("change the div", onClick := EventIterator.foreach(evt => 
+          dom.console.info(s"got event", evt)
+          watchmeDiv := newWatchmeDiv())
+        ),
         child := dyn { watchmeDiv() },
         br(),
         br(),

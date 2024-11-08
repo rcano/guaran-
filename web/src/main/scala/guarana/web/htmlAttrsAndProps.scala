@@ -5,7 +5,7 @@ import guarana.web.utils.OnOff
 
 import scalajs.js
 
-/** Creates a Var view that uses a Boolean to indicate if these classes should be neabled or not */
+/** Creates a Var view that uses a Boolean to indicate if these classes should be enabled or not */
 def htmlClass(classes: String*): ExternalVar.Aux[HtmlElement, Boolean] = ExternalVar[HtmlElement, Boolean](
   classes.mkString(" "),
   node => {
@@ -389,9 +389,20 @@ object HtmlProps {
       val r = v.unwrap.getBoundingClientRect()
       (r.width, r.height)
     },
-    (v, t) => ???,
+    (v, t) => throw new UnsupportedOperationException("It's not valid to set the dimensions of an element directly"), // this is unreachable anyway, we only expose this as an ObsVal
     eagerEvaluation = true,
     onFirstAssociation = n => Toolkit.resizeObserver.observe(n.unwrap) // The following issue seems to imply that ResizeObserver uses weak references: https://github.com/w3c/csswg-drafts/issues/6397
+  )
+
+  /** A view into the classlist of an element. Note that this isn't a 1:1 tracking of classes because html doesn't notify of changes to it. */
+  lazy val ClassList: ExternalVar.Aux[Element, Seq[String]] = ExternalVar[Element, Seq[String]](
+    "class",
+    v => v.classList.toSeq,
+    (v, t) => {
+      v.classList.foreach(v.classList.remove)
+      t.foreach(v.classList.add)
+    },
+    eagerEvaluation = true,
   )
 
   /** Special signal that tracks an element dimensions using the special Observer WebApi
@@ -972,6 +983,9 @@ object HtmlPropsApi {
   /** @see [[package.HtmlProps.Checked]] */
   lazy val checked = ModifierVar[HtmlElement, Boolean](HtmlProps.Checked)
 
+  /** @see [[package.HtmlProps.ClassList]] */
+  lazy val classList = ModifierVar[Element, Seq[String]](HtmlProps.ClassList)
+
   /** @see [[package.HtmlProps.Selected]] */
   lazy val selected = ModifierVar[HtmlElement, Boolean](HtmlProps.Selected)
 
@@ -1164,6 +1178,8 @@ object HtmlPropsApi {
       * See also: defaultChecked prop / attribute
       */
     def checked = HtmlProps.Checked.forInstance(elem)
+
+    def classList = HtmlProps.ClassList.forInstance(elem)
 
     /** Indicates whether an `<option>` element is _currently_ selected. This is different from `selected` _attribute_, which contains the
       * _initial_ selected status of the element. More info: https://stackoverflow.com/a/6004028/2601788 (`selected` behaves similar to

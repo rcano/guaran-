@@ -7,6 +7,7 @@ import scala.util.Try
 import scala.util.chaining.*
 import Binding.dyn
 import util.UnsetParam
+import guarana.swing.util.SvgUtils
 
 object Test {
   def main(args: Array[String]): Unit = {
@@ -109,6 +110,12 @@ object Test {
     val passwordTf = PasswordField(columns = 5)
     val login = Button(
       text = "Login",
+      icon = javax.swing.ImageIcon(
+        SvgUtils.loadAsImage(
+          "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciICB2aWV3Qm94PSIwIDAgNDggNDgiIHdpZHRoPSI0OHB4IiBoZWlnaHQ9IjQ4cHgiIGJhc2VQcm9maWxlPSJiYXNpYyI+PHBhdGggZmlsbD0iIzEyZDllMyIgZD0iTTM3LDZIOWMtMi43NTcsMC01LDIuMjQzLTUsNXYyOGMwLDIuNzU3LDIuMjQzLDUsNSw1aDI4YzIuNzU3LDAsNS0yLjI0Myw1LTVWMTEJQzQyLDguMjQzLDM5Ljc1Nyw2LDM3LDZ6Ii8+PHBhdGggZmlsbD0iIzMyNDU2MSIgZD0iTTQ3LDEzYy0wLjU1MywwLTEtMC40NDctMS0xVjJIMzZjLTAuNTUzLDAtMS0wLjQ0Ny0xLTFzMC40NDctMSwxLTFoMTFjMC41NTMsMCwxLDAuNDQ3LDEsMXYxMQlDNDgsMTIuNTUzLDQ3LjU1MywxMyw0NywxM3oiLz48cGF0aCBmaWxsPSIjMzI0NTYxIiBkPSJNMjksMjBjLTAuMjU2LDAtMC41MTItMC4wOTgtMC43MDctMC4yOTNjLTAuMzkxLTAuMzkxLTAuMzkxLTEuMDIzLDAtMS40MTRsMTgtMTgJYzAuMzkxLTAuMzkxLDEuMDIzLTAuMzkxLDEuNDE0LDBzMC4zOTEsMS4wMjMsMCwxLjQxNGwtMTgsMThDMjkuNTEyLDE5LjkwMiwyOS4yNTYsMjAsMjksMjB6Ii8+PC9zdmc+",
+          width = 15f
+        )
+      ),
       enabled = dyn { userTf.currentText().nonEmpty && passwordTf.currentText().nonEmpty },
       defaultCapable = true
     )

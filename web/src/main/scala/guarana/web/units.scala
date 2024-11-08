@@ -24,7 +24,7 @@ extension (d: Double) {
   def vh: StylableSize = s"${d}vh"
   def vmin: StylableSize = s"${d}vmin"
   def vmax: StylableSize = s"${d}vmax"
-  def pct: StylableSize = s"${d}pct"
+  def pct: StylableSize = s"${d}%"
 }
 
 given Conversion[(StylableSize, StylableSize), StylableSize] = t => s"${t._1} ${t._2}"

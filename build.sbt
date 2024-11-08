@@ -78,6 +78,7 @@ lazy val swing = Project(id = "guarana-swing", base = file("swing"))
     libraryDependencies ++= Seq(
       ("com.github.pathikrit" %% "better-files" % "3.9.2").cross(CrossVersion.for3Use2_13),
       "org.apache.xmlgraphics" % "batik-swing" % "1.18",
+      "org.apache.xmlgraphics" % "batik-transcoder" % "1.18",
       "com.formdev" % "flatlaf" % "3.5.1" % "provided",
       "com.jhlabs" % "filters" % "2.0.235-1" % "provided",
       "io.dropwizard.metrics" % "metrics-core" % "4.2.26" % "test",
