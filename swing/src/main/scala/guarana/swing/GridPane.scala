@@ -80,7 +80,7 @@ object GridPane extends VarsMap {
         .addComponent(node.unwrap, nodeLayoutMin(), nodeLayoutPref(), nodeLayoutMax())
     
       vSeqGroups
-        .getOrElseUpdate(rowIdx, layout.createBaselineGroup(true, false).nn.tap { g => 
+        .getOrElseUpdate(rowIdx, layout.createBaselineGroup(true, true).nn.tap { g => 
           vgroup.addGroup(g)
           if (vgap > 0 && rowIdx < rowSize - 1) vgroup.addGap(vgap)
         })

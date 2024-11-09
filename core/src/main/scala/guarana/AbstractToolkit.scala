@@ -121,7 +121,7 @@ abstract class AbstractToolkit {
         dependents: LongHashSet
     ): Unit = {
       if (stackContext.isBound()) {
-        val ctx = stackContext.get().unn
+        val ctx = (stackContext.get(): ContextImpl | Null).unn
         given VarContext = ctx
         // FIXME: broken api
         val data = instancesData.get(s.instanceId).unn

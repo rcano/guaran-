@@ -11,7 +11,6 @@ import scala.jdk.CollectionConverters.*
 import scala.util.control.NonFatal
 import scala.util.chaining.*
 import scala.util.matching.Regex
-import scala.reflect.Selectable.reflectiveSelectable
 
 /**
  * Main application used during developement for hot reloading of the application using classloaders magic.
@@ -24,6 +23,7 @@ object DevAppReloader {
 
   def launch(classesDirectories: Array[Path], reloadableClassPattern: Regex, mainClass: String, args: Array[String]) = {
     //install a monitor on the classes to detect a change
+    classesDirectories.foreach(f => if (!Files.exists(f)) throw new IllegalStateException(s"directory $f doesn't exists"))
     val fileWatcher = classesDirectories.head.getFileSystem.unn.newWatchService.unn
     classesDirectories foreach { classesDir =>
       Files.walkFileTree(classesDir, new FileVisitor[Path] {
@@ -103,15 +103,15 @@ object DevAppReloader {
               case _: NoSuchMethodException => //expected
               case NonFatal(e) => out.println("stopping application failed"); e.printStackTrace()
             }
-            // framePosition = java.awt.Frame.getFrames.asInstanceOf[Array[java.awt.Frame]]
-            //   .collect { case f: javax.swing.JFrame => f }
-            //   .map { jf =>
-            //     val pos = jf.getBounds.nn
-            //     jf.setVisible(false)
-            //     jf.dispose()
-            //     println(s"disposing frame $jf")
-            //     pos
-            //   }.headOption
+            framePosition = java.awt.Frame.getFrames.asInstanceOf[Array[java.awt.Frame]]
+              .collect { case f: javax.swing.JFrame => f }
+              .map { jf =>
+                val pos = jf.getBounds.nn
+                jf.setVisible(false)
+                jf.dispose()
+                println(s"disposing frame $jf")
+                pos
+              }.headOption
             
             val cl = lastApplication.unn.getClassLoader.asInstanceOf[URLClassLoader]
             System.gc()
@@ -154,11 +154,11 @@ object DevAppReloader {
           lastApplication = loader.loadClass(mainApp)
           lastApplication.unn.getDeclaredMethod("main", classOf[Array[String]]).unn.invoke(null, otherArgs)
 
-          // framePosition foreach { pos =>
-          //   java.awt.Frame.getFrames.asInstanceOf[Array[java.awt.Frame]]
-          //     .collectFirst { case f: javax.swing.JFrame => f }
-          //     .foreach(_.setBounds(pos))
-          // }
+          framePosition foreach { pos =>
+            java.awt.Frame.getFrames.asInstanceOf[Array[java.awt.Frame]]
+              .collectFirst { case f: javax.swing.JFrame => f }
+              .foreach(_.setBounds(pos))
+          }
           recompiling = false
         }
       }
