@@ -4,7 +4,7 @@ inThisBuild(
   Seq(
     organization := "guarana",
     version := "0.0.8-SNAPSHOT",
-    scalaVersion := "3.5.1",
+    scalaVersion := "3.6.2",
     fork := true,
     libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.19" % "test",
     Compile / packageDoc / publishArtifact := false,
@@ -14,14 +14,16 @@ inThisBuild(
       "-Wunused:all",
       "-unchecked",
       "-language:implicitConversions",
-      "-rewrite", "-source", "3.5-migration"
+      "-rewrite",
+      "-source",
+      "3.6-migration"
     ),
   ) ++ addCommandAlias("enableDebug", """set javaOptions += "-agentlib:jdwp=transport=dt_socket,server=y,address=5555,suspend=y"""")
 )
 
 lazy val guaraná = Project(id = "guarana", base = file(".")).aggregate(coreJvm, swing, qt, apricot, apricotVk)
 
-lazy val scribeVersion = "3.15.0"
+lazy val scribeVersion = "3.16.0"
 
 lazy val core = // select supported platforms
   crossProject(JVMPlatform, NativePlatform, JSPlatform)
@@ -46,7 +48,7 @@ lazy val qt = Project(id = "guarana-qt", base = file("qt"))
   .dependsOn(coreJvm)
   .settings(
     // qt/envVars += ("QT_DEBUG_PLUGINS" -> "1"),
-    libraryDependencies += ("com.github.pathikrit" %% "better-files" % "3.9.2").cross(CrossVersion.for3Use2_13),
+    libraryDependencies += ("com.github.pathikrit" %% "better-files" % "3.9.2"),
     // libraryDependencies += "org.bytedeco" % "javacpp" % "1.5.5",
     // libraryDependencies += "org.bytedeco" % "javacpp" % "1.5.5" classifier "linux-x86_64",
     // libraryDependencies += "org.bytedeco" % "qt" % "5.15.2-1.5.5",
@@ -76,7 +78,7 @@ lazy val swing = Project(id = "guarana-swing", base = file("swing"))
   .settings(
     // scalacOptions -= "-Yexplicit-nulls",
     libraryDependencies ++= Seq(
-      ("com.github.pathikrit" %% "better-files" % "3.9.2").cross(CrossVersion.for3Use2_13),
+      ("com.github.pathikrit" %% "better-files" % "3.9.2"),
       "org.apache.xmlgraphics" % "batik-swing" % "1.18",
       "org.apache.xmlgraphics" % "batik-transcoder" % "1.18",
       "com.formdev" % "flatlaf" % "3.5.1" % "provided",
@@ -121,7 +123,7 @@ lazy val webDefsGen = Project(id = "web-defs-gen", base = file("webDefsGen"))
   .dependsOn(coreJvm)
   .settings(
     scalacOptions -= "-Yexplicit-nulls",
-    libraryDependencies += ("com.github.pathikrit" %% "better-files" % "3.9.2" cross CrossVersion.for3Use2_13)
+    libraryDependencies += ("com.github.pathikrit" %% "better-files" % "3.9.2")
   )
 
 import org.scalajs.linker.interface.ModuleSplitStyle
@@ -139,15 +141,14 @@ lazy val web = Project(id = "guarana-web", base = file("web"))
     scalaJSUseMainModuleInitializer := true
   )
 
-lazy val lwjglVersion = "3.3.4"
+lazy val lwjglVersion = "3.3.6"
 lazy val lwjglClassifier = "natives-linux"
-
 
 lazy val apricot = Project(id = "apricot", base = file("apricot"))
   .settings(
     scalacOptions += "-experimental",
     libraryDependencies ++= Seq(
-      ("com.github.pathikrit" %% "better-files" % "3.9.2").cross(CrossVersion.for3Use2_13),
+      "com.github.pathikrit" %% "better-files" % "3.9.2",
       "com.google.code.findbugs" % "jsr305" % "3.0.2",
       "org.lwjgl" % "lwjgl" % lwjglVersion classifier lwjglClassifier,
       "org.lwjgl" % "lwjgl-glfw" % lwjglVersion,
@@ -182,39 +183,42 @@ import scala.sys.process._
 import java.nio.file.{Files, Path}
 import sbt.nio.Keys._
 
-val shaderObjects = taskKey[Seq[Path]]("Compiles .frag and .vert files into spir-v files")
+lazy val shaderObjects = taskKey[Seq[Path]]("Compiles .frag and .vert files into spir-v files")
+lazy val shaderObjectsImpl = Def.task[Seq[Path]] {
+  val logger = streams.value.log
+  val baseDir = baseDirectory.value / "src" / "main" / "resources" / "shader"
+  val destDir = (Compile / classDirectory).value / "shader"
+  val fileMapper = sbt.io.Path.rebase(baseDir, destDir)
+  def outputPath(p: Path) = (fileMapper(p.toFile).get.getParentFile / (p.getFileName.toString + ".spv")).toPath
+  val changes = shaderObjects.inputFileChanges
+  changes.deleted.foreach { p =>
+    logger.info(s"deleting $p")
+    Files.deleteIfExists(outputPath(p))
+  }
+  (changes.created ++ changes.modified).toSet foreach { (p: Path) =>
+    logger.info(s"compiling shader $p")
+    val dest: java.nio.file.Path = outputPath(p)
+    Files.createDirectories(dest.getParent)
+    Process(
+      Seq("glslangValidator", "-H", "-o", dest.toString, p.toString)
+    ) ! logger
+  }
+  shaderObjects.inputFiles.map(f => outputPath(f))
+}
+
 lazy val apricotVk = Project(id = "apricotVk", base = file("apricotVk"))
   .settings(
     scalacOptions -= "-Yexplicit-nulls",
     scalacOptions ++= Seq("-Ydebug", "-Ydebug-error", "-Ydebug-unpickling", "-experimental"),
     libraryDependencies ++= Seq(
       "org.lwjgl" % "lwjgl-vulkan" % lwjglVersion,
+      "org.octad" %%% "durian" % "0.1.0-SNAPSHOT" % "test",
     ),
     shaderObjects / fileInputs ++= Seq(
       baseDirectory.value.toGlob / "src" / "main" / "resources" / "shader" / RecursiveGlob / "*.vert",
       baseDirectory.value.toGlob / "src" / "main" / "resources" / "shader" / RecursiveGlob / "*.frag",
     ),
-    shaderObjects := {
-      val logger = streams.value.log
-      val baseDir = baseDirectory.value / "src" / "main" / "resources" / "shader"
-      val destDir = (Compile / classDirectory).value / "shader"
-      val fileMapper = sbt.io.Path.rebase(baseDir, destDir)
-      def outputPath(p: Path) = (fileMapper(p.toFile).get.getParentFile / (p.getFileName.toString + ".spv")).toPath
-      val changes = shaderObjects.inputFileChanges
-      changes.deleted.foreach { p =>
-        logger.info(s"deleting $p")
-        Files.deleteIfExists(outputPath(p))
-      }
-      (changes.created ++ changes.modified).toSet foreach { (p: Path) =>
-        logger.info(s"compiling shader $p")
-        val dest: java.nio.file.Path = outputPath(p)
-        Files.createDirectories(dest.getParent)
-        Process(
-          Seq("glslangValidator", "-H", "-o", dest.toString, p.toString)
-        ) ! logger
-      }
-      shaderObjects.inputFiles.map(f => outputPath(f))
-    },
+    shaderObjects := shaderObjectsImpl.value,
     Compile / compile / compileInputs := (Compile / compile / compileInputs)
       .dependsOn(shaderObjects)
       .value,

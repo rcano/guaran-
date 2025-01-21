@@ -115,4 +115,4 @@ private trait LowPrioGivens {
       } catch case ex => None
   yield genCode
 
-  File("gen.txt").clear.appendText(genGivens.mkString("\n"))
+  File("gen.txt").clear().appendText(genGivens.mkString("\n"))

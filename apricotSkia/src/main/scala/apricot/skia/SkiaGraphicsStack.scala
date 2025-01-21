@@ -11,7 +11,7 @@ import org.lwjgl.opengl.GL
 class SkiaGraphicsStack extends GraphicsStack {
   type Color = Int
   type Image = skija.Image
-  type GraphicsContext = SkiaGraphicsContext
+  type GraphicsContext = SurfaceBaseSkiaGraphicsContext
 
   override protected object imageSupport extends ImageSupport {
 
@@ -37,10 +37,21 @@ class SkiaGraphicsStack extends GraphicsStack {
     }
   }
 
+  trait SurfaceBaseSkiaGraphicsContext extends GraphicsStack.GraphicsContext{
+    def surface: skija.Surface
+    def canvas: skija.Canvas
+
+    override def renderLayers(layers: Iterable[Layer], clearFirst: Boolean, color: Int): Unit = {
+      if (clearFirst) canvas.clear(color)
+      layers.foreach(_.draw(SkiaGraphicsStack.this, this))
+      surface.flush()
+    }
+  }
+
   private val initializedWindows = scala.collection.concurrent.TrieMap.empty[SkiaGraphicsContext, Unit]
-  class SkiaGraphicsContext private[SkiaGraphicsStack] (window: GlfwWindow) extends GraphicsStack.GraphicsContext {
+  class SkiaGraphicsContext private[SkiaGraphicsStack] (window: GlfwWindow) extends SurfaceBaseSkiaGraphicsContext {
     initializedWindows(this) = ()
-    private[SkiaGraphicsStack]val glCapabilities = {
+    private[SkiaGraphicsStack] val glCapabilities = {
       org.lwjgl.glfw.GLFW.glfwMakeContextCurrent(window.windowHandle)
       GL.createCapabilities().unn
     }
@@ -52,9 +63,7 @@ class SkiaGraphicsStack extends GraphicsStack {
 
     override def renderLayers(layers: Iterable[Layer], clearFirst: Boolean, color: Int): Unit = {
       org.lwjgl.glfw.GLFW.glfwMakeContextCurrent(window.windowHandle)
-      if (clearFirst) canvas.clear(color)
-      layers.foreach(_.draw(SkiaGraphicsStack.this, this))
-      surface.flush()
+      super.renderLayers(layers, clearFirst, color)
     }
 
     private[SkiaGraphicsStack] var closed = false

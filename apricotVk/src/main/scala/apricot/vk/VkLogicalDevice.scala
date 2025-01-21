@@ -51,7 +51,7 @@ object VkLogicalDevice:
   extension [pDev <: VkPhysicalDevice & Singleton](instance: VkLogicalDevice[pDev])
     inline def unwrap: vulkan.VkDevice = instance.asInstanceOf
     def createCommandPool(graphicsQueueFamilyIndex: Int, flags: Int)(using MemoryStack): VkCommandPool[instance.type] =
-      val createCommandPoolInfo = alloc[VkCommandPoolCreateInfo](stackMalloc)
+      val createCommandPoolInfo = alloc[VkCommandPoolCreateInfo](stackCalloc)
         .sType(VK10.VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO)
         .queueFamilyIndex(graphicsQueueFamilyIndex)
         .flags(flags)

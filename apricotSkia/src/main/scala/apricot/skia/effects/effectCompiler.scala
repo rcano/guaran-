@@ -10,6 +10,8 @@ import io.github.humbleui.skija
 import scala.collection.immutable.SortedMap
 import scala.compiletime.uninitialized
 import scala.concurrent.duration._
+import io.github.humbleui.skija.Canvas
+import io.github.humbleui.skija.Surface
 
 trait Effect:
   def location: (Double, Double)
@@ -19,6 +21,7 @@ trait Effect:
 
 object EffectCompiler {
 
+  extension (gContext: GraphicsStack#GraphicsContext) private inline def canvas: skija.Canvas = gContext.asInstanceOf[SkiaGraphicsStack#GraphicsContext].canvas
   def compile(particle: ParticleDescr): ParticleLike = {
     makeParticleLike(particle, collection.mutable.Map.empty)
   }
@@ -68,10 +71,11 @@ object EffectCompiler {
 
       def updateImpl(currentTimeNanos: Long, elapsed: Long): Unit = effect.? { effect => effect.update(currentTimeNanos) }
       def render(graphicsStack: GraphicsStack, gContext: graphicsStack.GraphicsContext): Unit = effect.? { effect =>
-        // canvas.save()
-        // canvas.translate(location._1.toFloat, location._2.toFloat)
-        // effect.render(surface, canvas)
-        // canvas.restore()
+        val canvas = gContext.canvas
+        canvas.save()
+        canvas.translate(location._1.toFloat, location._2.toFloat)
+        effect.render(graphicsStack, gContext)
+        canvas.restore()
       }
     }
   }
@@ -245,25 +249,27 @@ object EffectCompiler {
       shaders.?(c => paint.setShader(c(at)))
       alpha.?(c => paint.setAlphaf(c(at).toFloat))
 
-      //positioning must happen _before_ transformation is applied, otherwise it will be wonky
-      // canvas.save()
-      // val (x, y) = positionCurve.nullFold(_(at), (0.0, 0.0))
-      // canvas.translate(startX.toFloat + x.toFloat, startY.toFloat + y.toFloat)
+      val canvas = gContext.canvas
 
-      // transformation.?(c =>
-      //   val tr = skija.Matrix33
-      //     .makeTranslate(particle.getWidth / 2.0f, particle.getHeight / 2.0f)
-      //     .makeConcat(c(at))
-      //     .makeConcat(skija.Matrix33.makeTranslate(-particle.getWidth / 2.0f, -particle.getHeight / 2.0f))
-      //   canvas.concat(tr)
-      // )
-      // blur.?(c =>
-      //   val blurStrenght = c(at)
-      //   val maskFilter = skija.MaskFilter.makeBlur(skija.FilterBlurMode.NORMAL, blurStrenght.toFloat)
-      //   paint.setMaskFilter(maskFilter)
-      // )
-      // canvas.drawImage(particle, 0, 0, paint)
-      // canvas.restore()
+      //positioning must happen _before_ transformation is applied, otherwise it will be wonky
+      canvas.save()
+      val (x, y) = positionCurve.nullFold(_(at), (0.0, 0.0))
+      canvas.translate(startX.toFloat + x.toFloat, startY.toFloat + y.toFloat)
+
+      transformation.?(c =>
+        val tr = skija.Matrix33
+          .makeTranslate(particle.getWidth / 2.0f, particle.getHeight / 2.0f)
+          .makeConcat(c(at))
+          .makeConcat(skija.Matrix33.makeTranslate(-particle.getWidth / 2.0f, -particle.getHeight / 2.0f))
+        canvas.concat(tr)
+      )
+      blur.?(c =>
+        val blurStrenght = c(at)
+        val maskFilter = skija.MaskFilter.makeBlur(skija.FilterBlurMode.NORMAL, blurStrenght.toFloat)
+        paint.setMaskFilter(maskFilter)
+      )
+      canvas.drawImage(particle, 0, 0, paint)
+      canvas.restore()
     }
 
     private[EffectCompiler] def resetTo(
@@ -325,15 +331,29 @@ object EffectCompiler {
     val canvas = offscreenCanvas.getCanvas
     canvas.translate(insets.left.toFloat, insets.top.toFloat)
 
+    var skiaGraphicsStack: SkiaGraphicsStack | Null = null
+    var offscreenGContext: SkiaGraphicsStack#SurfaceBaseSkiaGraphicsContext | Null = null
+
     def takeSnapshot(ord: Int): skija.Image = {
       canvas.clear(0x00000000)
       underlying.setTimeAt(snapshotTimeNanos * ord)
-      // underlying.render(offscreenCanvas, canvas)
-      offscreenCanvas.makeImageSnapshot().nn
+      val s = skiaGraphicsStack.unn
+      underlying.render(s, offscreenGContext.asInstanceOf[s.GraphicsContext])
+      offscreenCanvas.makeImageSnapshot().unn
     }
 
     val paint = skija.Paint()
     def render(graphicsStack: GraphicsStack, gContext: graphicsStack.GraphicsContext): Unit = {
+      if (offscreenGContext == null) {
+        val gs = graphicsStack.asInstanceOf[SkiaGraphicsStack]
+        skiaGraphicsStack = gs
+        offscreenGContext = new gs.SurfaceBaseSkiaGraphicsContext {
+          override def close(): Unit = ()
+          override def surface: Surface = offscreenCanvas
+          override def canvas: Canvas = CachedParticleInstance.this.canvas
+        }
+      }
+
       val at = (totalElapsedNanos.toDouble / durationInNanos).min(1.0)
       val ord = (totalElapsedNanos.toDouble / snapshotTimeNanos).toInt.min(1)
 

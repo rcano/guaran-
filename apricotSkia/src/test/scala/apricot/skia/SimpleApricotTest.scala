@@ -32,6 +32,7 @@ import animation.ScriptDsl.{*, given}
 
   for (windowTitle <- Seq("Apricot skia test", "secondary window")) {
     val window = engine.tk.update {
+      glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11)
       val window = tools.GlfwWindow(engine)
   
       window.size := (800, 600)

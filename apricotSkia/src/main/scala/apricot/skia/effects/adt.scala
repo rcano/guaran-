@@ -90,7 +90,7 @@ object Curve {
 
 /** Keypoint? keyframe? */
 case class CurvePoint[T](point: Double, value: T)
-extension [T](t: T) def at(v: Double): CurvePoint[T] = CurvePoint(v, t)
+extension [T](t: T) infix def at(v: Double): CurvePoint[T] = CurvePoint(v, t)
 
 /** Either a generator of curves (which allows each spawned particle to behave differently) or a simple curve (shared by all particles) */
 type GeneratedCurve[T] = ValueGenerator[Curve[T]]

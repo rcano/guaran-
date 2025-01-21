@@ -1,18 +1,17 @@
 package apricot
 package locators
 
-import language.experimental.erasedDefinitions
-
-import better.files.{File, FileExtensions, FileMonitor}
-import guarana.{nnn, unn, AbstractToolkit}
-import guarana.animation.ScriptDsl.{given, *}
-import java.util.concurrent.Executors
-import java.nio.file.{Path => JPath, StandardWatchEventKinds, WatchEvent, WatchKey}
+import better.files.File
+import guarana.animation.ScriptDsl.{*, given}
+import guarana.{AbstractToolkit, unn}
+import java.nio.file.{Path as JPath, StandardWatchEventKinds, WatchEvent, WatchKey}
 import scala.annotation.experimental
 import scala.collection.mutable.{ArrayBuffer, HashMap}
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 import scala.util.chaining.*
-import scala.util.control.{NoStackTrace, NonFatal}
+import scala.util.control.NonFatal
+
+import language.experimental.erasedDefinitions
 import ResourceManager.*
 
 class FileSystemResourceLocator(root: File, engine: ApricotEngine[? <: AbstractToolkit]) extends ResourceLocator {

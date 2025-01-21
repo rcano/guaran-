@@ -3,7 +3,6 @@ package loader
 
 import guarana.unn
 import guarana.animation.ScriptEngine
-import apricot.graphics.GraphicsStack
 
 class AnimationLoader[Image]()(using
     se: ScriptEngine,

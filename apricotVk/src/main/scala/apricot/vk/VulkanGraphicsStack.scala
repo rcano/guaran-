@@ -69,7 +69,7 @@ class VulkanGraphicsStack(
       enabledLayers = Seq("VK_LAYER_LUNARG_standard_validation").toPointerBuffer(stackMalloc)
     )
   }
-  scribe.debug(s"Vulkan ogical device initialized: $logicalDevice")
+  scribe.debug(s"Vulkan logical device initialized: $logicalDevice")
 
   val graphicsCommandPool = withStack {
     logicalDevice.createCommandPool(
@@ -181,7 +181,7 @@ class VulkanGraphicsStack(
       if (recordedBatches.isEmpty) return // no layer recorded anything
 
       val toPresent = recordedBatches.removeHead()
-      val img = presenter.acquireNextImage(1_000_000, toPresent.acquireImageSemaphore, VK10.VK_NULL_HANDLE)
+      val img = presenter.acquireNextImage(10_000_000, toPresent.acquireImageSemaphore, VK10.VK_NULL_HANDLE)
       VkUtil.expectResult(
         VK10.vkQueueSubmit(
           graphicsQueue,

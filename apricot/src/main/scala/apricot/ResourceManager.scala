@@ -1,13 +1,10 @@
 package apricot
 
 import guarana.unn
-import scala.collection.immutable.SortedSet
-import scala.concurrent.ExecutionContext
-import scala.quoted.*
-import scala.ref.WeakReference
-import java.util.ServiceLoader
 import java.util.concurrent.Executors
-import ResourceManager._
+import scala.concurrent.ExecutionContext
+
+import ResourceManager.*
 
 class ResourceManager {
   private val locators = collection.mutable.ArrayBuffer.empty[ResourceLocator]

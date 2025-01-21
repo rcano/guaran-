@@ -32,7 +32,7 @@ object VkCommandPool:
       level: VK10.VK_COMMAND_BUFFER_LEVEL_PRIMARY.type | VK10.VK_COMMAND_BUFFER_LEVEL_SECONDARY.type = VK10.VK_COMMAND_BUFFER_LEVEL_PRIMARY
     )(using MemoryStack, ValueOf[vkDevice]): Array[VkCommandBuffer] =
       val vkDevice = valueOf[vkDevice]
-      val createInfo = alloc[VkCommandBufferAllocateInfo](stackMalloc)
+      val createInfo = alloc[VkCommandBufferAllocateInfo](stackCalloc)
         .sType(VK10.VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO)
         .commandPool(instance.unwrap)
         .level(level)

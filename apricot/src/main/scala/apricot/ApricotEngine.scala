@@ -37,10 +37,13 @@ class ApricotEngine[Tk <: AbstractToolkit](
   given ResourceManager = resourceManager
   given GraphicsStack = graphicsStack
 
+  protected def devClassFolders: Set[better.files.File] = Set(
+    better.files.File("./target/scala-3.6.2/classes/"),
+    better.files.File("./target/scala-3.6.2-RC2/test-classes/")
+  )
+
   if devMode then
-    resourceManager.register(new locators.FileSystemResourceLocator(better.files.File("./target/scala-3.2.0-RC2/classes/"), this))
-    val testClasses = better.files.File("./target/scala-3.2.0-RC2/test-classes/")
-    if testClasses.exists then resourceManager.register(new locators.FileSystemResourceLocator(testClasses, this))
+    devClassFolders.filter(_.exists).foreach(f => resourceManager.register(new locators.FileSystemResourceLocator(f, this)))
   else resourceManager.register(new locators.ClassLoaderLocator(this))
 
   private val pendingTasks = collection.mutable.Queue.empty[() => Any]
