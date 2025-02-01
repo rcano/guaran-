@@ -29,16 +29,18 @@ object VkBuffer:
     inline def bindToMemory(memAddr: NativeHandle, offset: Int)(using ValueOf[vkDevice]): Unit =
       VkUtil.expectResult(VK10.vkBindBufferMemory(valueOf[vkDevice].unwrap, unwrap, memAddr, offset), VK10.VK_SUCCESS)
 
-    def findAppropriateHeap(reqs: VkMemoryRequirements, device: VkPhysicalDevice, heapFlags: Int)(using
+    def findAppropriateHeap(reqs: VkMemoryRequirements, device: VkPhysicalDevice, heapFlags: Int, notPresentFlags: Int = -1)(using
         MemoryStack,
         ValueOf[vkDevice]
-    ): Int = {
+    ): Option[Int] = {
       VkUtil
         .BufferWrapper(device.memoryProperties.memoryTypes())
         .zipWithIndex
         .collectFirst {
-          case (memTpe, idx) if reqs.memoryTypeBits().hasFlags(1 << idx) && memTpe.propertyFlags().hasFlags(heapFlags) =>
+          case (memTpe, idx)
+              if reqs.memoryTypeBits().hasFlags(1 << idx) && memTpe
+                .propertyFlags()
+                .hasFlags(heapFlags) && (notPresentFlags == -1 || !memTpe.propertyFlags().hasFlags(notPresentFlags)) =>
             idx
         }
-        .getOrElse(throw new IllegalStateException("Couldn't find appropriate heap with the given flags"))
     }

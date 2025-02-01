@@ -95,6 +95,9 @@ class VulkanGraphicsStack(
 
     scribe.debug(s"initializing Vulkan on window $window...")
 
+    /** A context specific disposer. You can add your own Managed to this disposer if you intend them to be released when the context is being shutdown (because the window was closed, for instance) */
+    val disposer = Disposer()
+
     val surfaceHandle: NativeHandle = (GLFWVulkan
       .glfwCreateWindowSurface(physicalDevice.vulkanInstance.unwrap, window.windowHandle, null, _: LongBuffer))
       .returning(malloc)(VK10.VK_SUCCESS.==, "failed creating window surface")
@@ -205,7 +208,9 @@ class VulkanGraphicsStack(
     }
 
     override def close(): Unit = {
+      if (closed) return
       closed = true
+      disposer.close()
       logicalDevice.waitIdle() //wait for the graphics device to be done with all our resources in order to dispose
       (availableBatches ++ recordedBatches ++ submittedBatches).foreach { batch =>
         logicalDevice.destroyFence(batch.imagePresentedFence)

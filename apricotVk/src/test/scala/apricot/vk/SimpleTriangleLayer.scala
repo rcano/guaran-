@@ -37,6 +37,11 @@ class SimpleTriangleLayer(
 
     var lastSwapChainId = VK10.VK_NULL_HANDLE
     def draw(gc: vkStack.VkGraphicsContext): Unit = {
+      if (renderPass == VkRenderPass.NoInstance) {
+        // if this is our first draw, we'll create some context-specific (i.e window specific) resources to reuse
+        renderPass = gc.disposer.track(gc.createDefaultRenderPass())
+        pipeline = gc.disposer.track(createPipeline(vkStack.logicalDevice, renderPass))(vkStack.logicalDevice.destroyPipeline)
+      }
       if (gc.presenter.swapChain != lastSwapChainId) {
         if gc.presenter.swapChain != VK10.VK_NULL_HANDLE then dispose()
         setup(gc)
@@ -87,6 +92,12 @@ class SimpleTriangleLayer(
             )
 
           batch.commandBuffer.bindPipeline(pipeline, VK10.VK_PIPELINE_BIND_POINT_GRAPHICS)
+
+          batch.commandBuffer.setViewport(gc.presenter.swapchainSize._1.toFloat, gc.presenter.swapchainSize._2.toFloat, maxDepth = 1)
+          batch.commandBuffer.setScissors(
+            allocBuffer[VkRect2D](1, calloc).put(0, VkFactory.rect2d(gc.presenter.swapchainSize._1, gc.presenter.swapchainSize._2))
+          )
+          
           batch.commandBuffer.draw(vertexCount = 3, instanceCount = 1, firstVertex = 0, firstInstance = 0)
           batch.commandBuffer.endRenderPass()
 
@@ -119,28 +130,23 @@ class SimpleTriangleLayer(
 
     private def setup(gc: vkStack.VkGraphicsContext): Unit = {
       import vkStack.Color
-      renderPass = disposer.track(gc.createDefaultRenderPass())
       frameBuffers = withStack { stack ?=>
         val size = gc.presenter.swapchainSize
-        for img <- gc.presenter.imageViews
-        yield disposer.track(vkStack.logicalDevice.createFrameBuffer(renderPass, stack.longs(img), size._1, size._2, 1))(
-          vkStack.logicalDevice.destroyFrameBuffer
-        )
+        for (img <- gc.presenter.imageViews)
+          yield disposer.track(vkStack.logicalDevice.createFrameBuffer(renderPass, stack.longs(img), size._1, size._2, 1))(
+            vkStack.logicalDevice.destroyFrameBuffer
+          )
       }.asInstanceOf[IArray[NativeHandle]]
-
-      pipeline = disposer.track(createPipeline(vkStack.physicalDevice, vkStack.logicalDevice, gc.presenter, renderPass))(
-        vkStack.logicalDevice.destroyPipeline
-      )
 
       lastSwapChainId = gc.presenter.swapChain
     }
 
     private def createPipeline(
-        device: VkPhysicalDevice,
+        // device: VkPhysicalDevice,
         logicalDevice: VkLogicalDevice.Any,
-        presentationEngine: VkPresenter,
+        // presentationEngine: VkPresenter,
         renderPass: VkRenderPass[logicalDevice.type]
-    ): NativeHandle = withStack {
+    ): NativeHandle = withStack { stack ?=>
       val pipelineLayout = disposer.track(logicalDevice.createPipelineLayout())(logicalDevice.destroyPipelineLayout)
 
       val PolygonMode = VK10.VK_POLYGON_MODE_FILL
@@ -149,19 +155,20 @@ class SimpleTriangleLayer(
 
       val pipelineCreateInfo = VkFactory
         .graphicsPipelines(1)
+        .pDynamicState(VkFactory.pipelineDynamicState(stack.ints(VK10.VK_DYNAMIC_STATE_VIEWPORT, VK10.VK_DYNAMIC_STATE_SCISSOR)))
         .renderPass(renderPass.unwrap)
         .pVertexInputState(VkFactory.pipelineVertexInputState(null, null))
         .pInputAssemblyState(VkFactory.pipelineInputAssemblyState(topology = VK10.VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST))
         .pViewportState(
           VkFactory.pipelineViewportState(
             viewportCount = 1,
-            viewports = allocBuffer[VkViewport](1, calloc)
-              .width(presentationEngine.swapchainSize._1)
-              .height(presentationEngine.swapchainSize._2)
-              .maxDepth(1),
+            // viewports = allocBuffer[VkViewport](1, calloc)
+            //   .width(presentationEngine.swapchainSize._1)
+            //   .height(presentationEngine.swapchainSize._2)
+            //   .maxDepth(1),
             scissorCount = 1,
-            scissors = allocBuffer[VkRect2D](1, calloc)
-              .put(0, VkFactory.rect2d(presentationEngine.swapchainSize._1, presentationEngine.swapchainSize._2))
+            // scissors = allocBuffer[VkRect2D](1, calloc)
+            //   .put(0, VkFactory.rect2d(presentationEngine.swapchainSize._1, presentationEngine.swapchainSize._2))
           )
         )
         .pRasterizationState(

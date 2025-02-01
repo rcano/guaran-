@@ -56,6 +56,7 @@ final class VkPresenter(
         if conf.swapchainExtent != null then conf.swapchainExtent
         else if currentCapabilities.currentExtent.width == -1 then alloc[VkExtent2D](stackMalloc).set(800, 680)
         else currentCapabilities.currentExtent
+        
       val surfaceTansform =
         if currentCapabilities.supportedTransforms.hasFlags(KHRSurface.VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR) then
           KHRSurface.VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR

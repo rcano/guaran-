@@ -21,7 +21,7 @@ object VkFactory {
       primitiveRestartEnabled: Boolean = false,
       flags: Int = 0,
       inline allocMethod: AllocMethod = stackCalloc
-  )(using MemoryStack) =
+  ) =
     alloc[VkPipelineInputAssemblyStateCreateInfo](allocMethod)
       .sType(VK10.VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO)
       .topology(topology)
