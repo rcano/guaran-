@@ -4,7 +4,7 @@ package guarana
 package swing
 
 import language.implicitConversions
-import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, PopupMenu => _, *}
+import java.awt.{Component => _, Menu => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, PopupMenu => _, *}
 import java.awt.event.*
 import javax.swing.{Action => _, *}
 import javax.swing.event.*
@@ -72,7 +72,7 @@ object Node extends VarsMap {
       def size(x: Int, y: Int) = v.setSize(x, y)
       def showing = v.isShowing
       
-      def onFirstTimeVisible(f: v.type => ToolkitAction[Unit]): Scenegraph ?=> Unit = {
+      def onFirstTimeVisible(f: v.type => VarContextAction[Unit]): Scenegraph ?=> Unit = {
         lazy val hl: java.awt.event.HierarchyListener = { evt => 
           if ((evt.getChangeFlags() & java.awt.event.HierarchyEvent.DISPLAYABILITY_CHANGED) > 0 && v.isDisplayable()) {
             v.removeHierarchyListener(hl)

@@ -6,6 +6,9 @@ import javax.swing.SwingUtilities
 import scala.concurrent.{Await, Future, Promise}
 import scala.concurrent.duration.{Duration, FiniteDuration}
 import scala.util.Try
+import java.beans.PropertyChangeListener
+import java.beans.PropertyChangeEvent
+import javax.swing.UIManager
 
 trait SwingTimers extends animation.TimersDef {
   type Timer = javax.swing.Timer
@@ -32,7 +35,6 @@ trait SwingTimers extends animation.TimersDef {
 }
 
 object Scenegraph extends SwingTimers {
-  type ContextAction[+R] = VarContext ?=> R
 }
 class Scenegraph extends AbstractToolkit, SwingTimers {
 
@@ -55,12 +57,16 @@ class Scenegraph extends AbstractToolkit, SwingTimers {
     def descent(font: Any): Double = peer.getFontMetrics(font.asInstanceOf).unn.getDescent
     def stringWidth(font: Any, s: String): Double = peer.getFontMetrics(font.asInstanceOf).unn.charsWidth(s.toCharArray, 0, s.length)
   }
+
   update {
     sysMetrics := Binding.dyn {
       val currSize = emSize()(using ValueOf(this))
       Stylist.Metrics(currSize, -1, -1, fontMetrics)
     }
   }
+
+  UIManager.getDefaults().addPropertyChangeListener(fontsDefaultsChangeListener)
+
   def getMetrics(): Stylist.Metrics = stateReader.getOrDefault(sysMetrics)
 
   object awtInputListener extends javax.swing.event.MouseInputListener, java.awt.event.KeyListener {
@@ -145,6 +151,19 @@ class Scenegraph extends AbstractToolkit, SwingTimers {
       val emitter = Node.MouseEvents.forInstance(source)
       if (stateReader.hasEmitter(emitter)) summon[VarContext].emit(emitter, MouseMoved(evt.nn))
       // Node.MouseDragMut.forInstance(source) := None
+    }
+
+  }
+
+  private object fontsDefaultsChangeListener extends PropertyChangeListener {
+
+    override def propertyChange(evt: PropertyChangeEvent): Unit = {
+      evt.getPropertyName() match {
+        case "Panel.font" => update(summon[VarContext].externalPropertyUpdated(Fonts.Base, Option(evt.getOldValue())))
+        case "TextField.font" => update(summon[VarContext].externalPropertyUpdated(Fonts.Input, Option(evt.getOldValue())))
+        case "Label.font" => update(summon[VarContext].externalPropertyUpdated(Fonts.Label, Option(evt.getOldValue())))
+        case _ => 
+      }
     }
 
   }

@@ -6,7 +6,7 @@ import org.scalajs.dom
 opaque type Element <: dom.Element & scalajs.js.Object = dom.Element
 object Element {
   extension [Tag <: Element](tag: Tag) {
-    def amend(modifiers: Modifier[Tag]*): ToolkitAction[Tag] = {
+    def amend(modifiers: Modifier[Tag]*): VarContextAction[Tag] = {
       modifiers.foreach(_.apply(tag))
       tag
     }
@@ -112,11 +112,11 @@ object HtmlElement {
 
 
 trait Modifier[-T] {
-  def apply(t: T): ToolkitAction[Unit]
+  def apply(t: T): VarContextAction[Unit]
 }
 object Modifier {
-  inline def apply[T](inline action: ToolkitAction[T => Unit]): Modifier[T] = new Modifier[T] {
-    def apply(t: T): ToolkitAction[Unit] = action(t)
+  inline def apply[T](inline action: VarContextAction[T => Unit]): Modifier[T] = new Modifier[T] {
+    def apply(t: T): VarContextAction[Unit] = action(t)
   }
   val empty: Modifier[Any] = apply(_ => ())
   given optModifier[T]: Conversion[Option[Modifier[T]], Modifier[T]] = {
@@ -146,7 +146,7 @@ class ModifierEmitter[Base, T](val v: Emitter[T] { type ForInstance <: Base & Si
 }
 
 class TagCreator[Tag <: Element](tagName: String) {
-  def apply(modifiers: Modifier[Tag]*): ToolkitAction[Tag] =
+  def apply(modifiers: Modifier[Tag]*): VarContextAction[Tag] =
     Element.amend(dom.document.createElement(tagName).asInstanceOf[Tag])(modifiers*)
 }
 

@@ -101,7 +101,7 @@ object Slider {
     windowModified: Opt[Binding[Boolean]] = UnsetParam,
     windowOpacity: Opt[Binding[Double]] = UnsetParam,
     windowTitle: Opt[Binding[java.lang.String | Null]] = UnsetParam
-  ): ToolkitAction[Slider] = {
+  ): VarContextAction[Slider] = {
     val res = uninitialized()
     Slider.init(res)
     ifSet(acceptDrops, Widget.ops.acceptDrops(res) := _)

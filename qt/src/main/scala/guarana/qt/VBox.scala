@@ -93,7 +93,7 @@ object VBox {
     windowModified: Opt[Binding[Boolean]] = UnsetParam,
     windowOpacity: Opt[Binding[Double]] = UnsetParam,
     windowTitle: Opt[Binding[java.lang.String | Null]] = UnsetParam
-  ): ToolkitAction[VBox] = {
+  ): VarContextAction[VBox] = {
     val res = uninitialized()
     VBox.init(res)
     ifSet(acceptDrops, Widget.ops.acceptDrops(res) := _)

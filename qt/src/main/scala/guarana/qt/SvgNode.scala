@@ -89,7 +89,7 @@ object SvgNode {
     windowModified: Opt[Binding[Boolean]] = UnsetParam,
     windowOpacity: Opt[Binding[Double]] = UnsetParam,
     windowTitle: Opt[Binding[java.lang.String | Null]] = UnsetParam
-  ): ToolkitAction[SvgNode] = {
+  ): VarContextAction[SvgNode] = {
     val res = uninitialized()
     SvgNode.init(res)
     ifSet(acceptDrops, Widget.ops.acceptDrops(res) := _)

@@ -11,7 +11,7 @@ import scala.util.Try
 import scala.collection.View.Single
 import scala.util.chaining.*
 
-type ToolkitAction[+R] = VarContext ?=> R
+type ToolkitAction[-Tk <: AbstractToolkit, +R] = Tk ?=> VarContextAction[R]
 abstract class AbstractToolkit {
 
   type Signal[+T] = ObsVal[T]
@@ -26,9 +26,11 @@ abstract class AbstractToolkit {
     def describe[T](s: Keyed[ObsVal[T]]): String = {
       val data = instancesData.get(s.instanceId).unn
       val theVar = seenVars.get(s.keyId)
-      val instanceDescr = data.instance.deref.toString match {
-        case s if s.length < 30 => s
-        case s => s.take(27) + "..."
+      val maxWidth = 60
+      var instanceDescr = data.instance.deref.toString.stripPrefix("javax.swing.")
+      instanceDescr = instanceDescr match {
+        case s if s.length < maxWidth => s
+        case s => s.take(maxWidth - 3) + "..."
       }
       s"$instanceDescr: $theVar"
     }
@@ -51,8 +53,8 @@ abstract class AbstractToolkit {
   val varcontextLogger = scribe.Logger("varcontext")
   private val stackContext = ScopedValue.newInstance[ContextImpl | Null]()
 
-  def update[R](f: this.type ?=> ToolkitAction[R]): R = Await.result(updateAsync(f), Duration.Inf)
-  def updateAsync[R](f: this.type ?=> ToolkitAction[R]): Future[R] = {
+  def update[R](f: this.type ?=> VarContextAction[R]): R = Await.result(updateAsync(f), Duration.Inf)
+  def updateAsync[R](f: this.type ?=> VarContextAction[R]): Future[R] = {
     val res = Promise[R]()
     def impl() = res.complete(Try {
       if (!stackContext.isBound()) {

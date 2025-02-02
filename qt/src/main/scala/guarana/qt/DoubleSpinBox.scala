@@ -121,7 +121,7 @@ object DoubleSpinBox {
     windowOpacity: Opt[Binding[Double]] = UnsetParam,
     windowTitle: Opt[Binding[java.lang.String | Null]] = UnsetParam,
     wrapping: Opt[Binding[Boolean]] = UnsetParam
-  ): ToolkitAction[DoubleSpinBox] = {
+  ): VarContextAction[DoubleSpinBox] = {
     val res = uninitialized()
     DoubleSpinBox.init(res)
     ifSet(accelerated, SpinBoxBase.ops.accelerated(res) := _)

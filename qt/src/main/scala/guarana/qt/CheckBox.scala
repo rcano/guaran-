@@ -98,7 +98,7 @@ object CheckBox {
     windowModified: Opt[Binding[Boolean]] = UnsetParam,
     windowOpacity: Opt[Binding[Double]] = UnsetParam,
     windowTitle: Opt[Binding[java.lang.String | Null]] = UnsetParam
-  ): ToolkitAction[CheckBox] = {
+  ): VarContextAction[CheckBox] = {
     val res = uninitialized()
     CheckBox.init(res)
     ifSet(acceptDrops, Widget.ops.acceptDrops(res) := _)

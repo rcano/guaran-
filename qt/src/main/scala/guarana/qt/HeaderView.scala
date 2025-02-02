@@ -143,7 +143,7 @@ object HeaderView {
     windowModified: Opt[Binding[Boolean]] = UnsetParam,
     windowOpacity: Opt[Binding[Double]] = UnsetParam,
     windowTitle: Opt[Binding[java.lang.String | Null]] = UnsetParam
-  ): ToolkitAction[HeaderView] = {
+  ): VarContextAction[HeaderView] = {
     val res = uninitialized(orientation, parent)
     HeaderView.init(res)
     ifSet(acceptDrops, Widget.ops.acceptDrops(res) := _)

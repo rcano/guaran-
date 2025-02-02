@@ -4,7 +4,7 @@ package guarana
 package swing
 
 import language.implicitConversions
-import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, PopupMenu => _, *}
+import java.awt.{Component => _, Menu => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, PopupMenu => _, *}
 import java.awt.event.*
 import javax.swing.{Action => _, *}
 import javax.swing.event.*
@@ -78,12 +78,10 @@ object Component extends VarsMap {
   def init(v: Component): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
     Node.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
-    
     v.putClientProperty(InitializedKey, true)
+    
   }
-
-
-  def isInitialized(v: Component): Boolean = v.getClientProperty(InitializedKey) != null
   
+  def isInitialized(v: Component): Boolean = v.getClientProperty(InitializedKey) != null
   val InitializedKey = "guarana-initialized-key"
 }

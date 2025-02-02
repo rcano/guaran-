@@ -56,7 +56,7 @@ object Action extends VarsMap {
     name: Opt[Binding[String | Null]] = UnsetParam,
     selected: Opt[Binding[Boolean | Null]] = UnsetParam,
     smallIcon: Opt[Binding[Icon | Null]] = UnsetParam,
-  )(onAction: Scenegraph.ContextAction[java.awt.event.ActionEvent => Any]): Scenegraph ?=> VarContextAction[Action] = {
+  )(onAction: VarContextAction[java.awt.event.ActionEvent => Any]): ToolkitAction[Scenegraph, Action] = {
     val res = wrap(new javax.swing.AbstractAction() {
       override def actionPerformed(evt: java.awt.event.ActionEvent) =
         summon[Scenegraph].update(onAction(evt.asInstanceOf))

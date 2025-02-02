@@ -135,7 +135,7 @@ object TableView {
     windowOpacity: Opt[Binding[Double]] = UnsetParam,
     windowTitle: Opt[Binding[java.lang.String | Null]] = UnsetParam,
     wordWrap: Opt[Binding[Boolean]] = UnsetParam
-  ): ToolkitAction[TableView] = {
+  ): VarContextAction[TableView] = {
     val res = uninitialized()
     TableView.init(res)
     ifSet(acceptDrops, Widget.ops.acceptDrops(res) := _)

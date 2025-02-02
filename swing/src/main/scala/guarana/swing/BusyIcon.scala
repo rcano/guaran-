@@ -27,7 +27,7 @@ object BusyIcon {
       minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
       prefSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
       visible: Opt[Binding[Boolean]] = UnsetParam,
-  )(using Scenegraph): ToolkitAction[Component] = {
+  ): ToolkitAction[Scenegraph, Component] = {
     import iconDefinition.*
     if (!icon.endsWith(".svg")) throw IllegalStateException("Only svg are supported")
 

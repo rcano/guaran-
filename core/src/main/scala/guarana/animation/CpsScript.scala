@@ -13,7 +13,7 @@ enum StepEvalResult {
 }
 import StepEvalResult._
 
-class Script(val nextStep: ScriptEngine ?=> ToolkitAction[Long => StepEvalResult]) {
+class Script(val nextStep: ScriptEngine ?=> ToolkitAction[AbstractToolkit, Long => StepEvalResult]) {
   def &(other: Script): Script = Script { l =>
     (nextStep(l), other.nextStep(l)) match {
       case (Done, Done) => Done
@@ -72,10 +72,10 @@ object ScriptDsl {
   }
   given scriptCpsMonadContext: cps.CpsPureMonadInstanceContextBody[ScriptMonad] = cps.CpsPureMonadInstanceContextBody(scriptCpsMonad)
   
-  inline def script(inline script: ScriptEngine ?=> ToolkitAction[Any]): Script = 
+  inline def script(inline script: ScriptEngine ?=> ToolkitAction[AbstractToolkit, Any]): Script = 
     Script(_ => NextStep(cps.async(using scriptCpsMonad)(script)))
   
-  inline def interp(during: FiniteDuration)(inline action: ScriptEngine ?=> ToolkitAction[Double => Any]): Unit = 
+  inline def interp(during: FiniteDuration)(inline action: ScriptEngine ?=> ToolkitAction[AbstractToolkit, Double => Any]): Unit = 
     val deadline = during.toMillis
     doUntil { l => 
       action(l.toDouble / deadline min 1)
@@ -85,12 +85,12 @@ object ScriptDsl {
     val deadline = d.toMillis
     doUntil(_ >= deadline)
 
-  inline def waitUntil(inline cond: ScriptEngine ?=> ToolkitAction[Boolean]): Unit =
+  inline def waitUntil(inline cond: ScriptEngine ?=> ToolkitAction[AbstractToolkit, Boolean]): Unit =
     doUntil(_ => cond)
 
-  inline def doUntil(inline cond: ScriptEngine ?=> ToolkitAction[Long => Boolean]): Unit =
+  inline def doUntil(inline cond: ScriptEngine ?=> ToolkitAction[AbstractToolkit, Long => Boolean]): Unit =
     cps.await[ScriptMonad, Unit, ScriptMonad](doUntilStep(cond))
-  def doUntilStep(cond: ScriptEngine ?=> ToolkitAction[Long => Boolean]): Script =
+  def doUntilStep(cond: ScriptEngine ?=> ToolkitAction[AbstractToolkit, Long => Boolean]): Script =
     Script { l => if cond(l) then Done else Cont }
   
   inline def parallel(t: NonEmptyTuple)(using inline u: Tuple.Union[t.type] =:= Script): Unit = {

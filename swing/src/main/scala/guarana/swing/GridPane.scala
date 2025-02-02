@@ -4,7 +4,7 @@ package guarana
 package swing
 
 import language.implicitConversions
-import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, PopupMenu => _, *}
+import java.awt.{Component => _, Menu => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, PopupMenu => _, *}
 import java.awt.event.*
 import javax.swing.{Action => _, *}
 import javax.swing.event.*
@@ -20,11 +20,7 @@ object GridPane extends VarsMap {
   private val LayoutVar: SwingVar.Aux[GridPane, Unit] = SwingVar[GridPane, Unit]("layoutVar", _ => (), (_, _) => ())
   val Rows: Var[Seq[Seq[Node]]] = Var[Seq[Seq[Node]]]("rows", Seq.empty, false)
   val Vgap: Var[Double] = Var[Double]("vgap", 0.0, false)
-  final val LayoutDefaultSize = GroupLayout.DEFAULT_SIZE
-  final val LayoutPreferredSize = GroupLayout.PREFERRED_SIZE
-  val LayoutMin: Var[LayoutDefaultSize.type | LayoutPreferredSize.type | Int] = Var.autoName(LayoutDefaultSize)
-  val LayoutPref: Var[LayoutDefaultSize.type | LayoutPreferredSize.type | Int] = Var.autoName(LayoutDefaultSize)
-  val LayoutMax: Var[LayoutDefaultSize.type | LayoutPreferredSize.type | Int] = Var.autoName(LayoutDefaultSize)
+
   
 
   given ops: Ops.type = Ops
@@ -54,7 +50,7 @@ object GridPane extends VarsMap {
     
     val layout = GroupLayout(v)
     v.setLayout(layout)
-
+    
     val hgroup = layout.createSequentialGroup().nn
     val vgroup = layout.createSequentialGroup().nn
     
@@ -71,7 +67,7 @@ object GridPane extends VarsMap {
       val nodeLayoutMin = LayoutMin.forInstance(node)
       val nodeLayoutPref = LayoutPref.forInstance(node)
       val nodeLayoutMax = LayoutMax.forInstance(node)
-
+    
       hSeqGroups
         .getOrElseUpdate(colIdx, layout.createParallelGroup().nn.tap { g => 
           hgroup.addGroup(g)
@@ -80,7 +76,7 @@ object GridPane extends VarsMap {
         .addComponent(node.unwrap, nodeLayoutMin(), nodeLayoutPref(), nodeLayoutMax())
     
       vSeqGroups
-        .getOrElseUpdate(rowIdx, layout.createBaselineGroup(true, true).nn.tap { g => 
+        .getOrElseUpdate(rowIdx, layout.createBaselineGroup(true, false).nn.tap { g => 
           vgroup.addGroup(g)
           if (vgap > 0 && rowIdx < rowSize - 1) vgroup.addGap(vgap)
         })
@@ -171,5 +167,9 @@ object GridPane extends VarsMap {
     ifSet(visible, Node.ops.visible(res) := _)
     res
   }
-  
+  final val LayoutDefaultSize = GroupLayout.DEFAULT_SIZE
+  final val LayoutPreferredSize = GroupLayout.PREFERRED_SIZE
+  val LayoutMin: Var[LayoutDefaultSize.type | LayoutPreferredSize.type | Int] = Var.autoName(LayoutDefaultSize)
+  val LayoutPref: Var[LayoutDefaultSize.type | LayoutPreferredSize.type | Int] = Var.autoName(LayoutDefaultSize)
+  val LayoutMax: Var[LayoutDefaultSize.type | LayoutPreferredSize.type | Int] = Var.autoName(LayoutDefaultSize)
 }

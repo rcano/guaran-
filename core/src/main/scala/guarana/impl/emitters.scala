@@ -73,7 +73,7 @@ private[impl] object EmitterStationImpl {
   ) {
     def addListener(listener: EventIterator[T]): EmitterData[T] = copy(itIdx + 1, listeners.updated(itIdx, listener))
 
-    def emit(evt: T, emitter: Emitter[T], instance: emitter.ForInstance): ToolkitAction[EmitterData[T]] = {
+    def emit(evt: T, emitter: Emitter[T], instance: emitter.ForInstance): VarContextAction[EmitterData[T]] = {
       var updatedListeners = collection.immutable.IntMap.empty[EventIterator[T]]
       for ((key, listener) <- listeners) {
         listener.step(evt) foreach (newState => updatedListeners = updatedListeners.updated(key, newState))

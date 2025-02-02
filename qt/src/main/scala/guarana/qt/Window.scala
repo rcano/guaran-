@@ -133,7 +133,7 @@ object Window {
     width: Opt[Binding[Int]] = UnsetParam,
     x: Opt[Binding[Int]] = UnsetParam,
     y: Opt[Binding[Int]] = UnsetParam
-  ): ToolkitAction[Window] = {
+  ): VarContextAction[Window] = {
     val res = uninitialized()
     Window.init(res)
     ifSet(flags, Window.ops.flags(res) := _)

@@ -115,7 +115,7 @@ object ScrollAreaBase {
     windowModified: Opt[Binding[Boolean]] = UnsetParam,
     windowOpacity: Opt[Binding[Double]] = UnsetParam,
     windowTitle: Opt[Binding[java.lang.String | Null]] = UnsetParam
-  ): ToolkitAction[ScrollAreaBase] = {
+  ): VarContextAction[ScrollAreaBase] = {
     val res = uninitialized()
     ScrollAreaBase.init(res)
     ifSet(acceptDrops, Widget.ops.acceptDrops(res) := _)

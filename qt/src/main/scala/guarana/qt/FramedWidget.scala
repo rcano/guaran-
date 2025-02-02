@@ -103,7 +103,7 @@ object FramedWidget {
     windowModified: Opt[Binding[Boolean]] = UnsetParam,
     windowOpacity: Opt[Binding[Double]] = UnsetParam,
     windowTitle: Opt[Binding[java.lang.String | Null]] = UnsetParam
-  ): ToolkitAction[FramedWidget] = {
+  ): VarContextAction[FramedWidget] = {
     val res = uninitialized()
     FramedWidget.init(res)
     ifSet(acceptDrops, Widget.ops.acceptDrops(res) := _)

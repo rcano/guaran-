@@ -107,7 +107,7 @@ object Dial {
     windowOpacity: Opt[Binding[Double]] = UnsetParam,
     windowTitle: Opt[Binding[java.lang.String | Null]] = UnsetParam,
     wrapping: Opt[Binding[Boolean]] = UnsetParam
-  ): ToolkitAction[Dial] = {
+  ): VarContextAction[Dial] = {
     val res = uninitialized()
     Dial.init(res)
     ifSet(acceptDrops, Widget.ops.acceptDrops(res) := _)

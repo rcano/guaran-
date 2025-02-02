@@ -4,7 +4,7 @@ package guarana
 package swing
 
 import language.implicitConversions
-import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, PopupMenu => _, *}
+import java.awt.{Component => _, Menu => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, PopupMenu => _, *}
 import java.awt.event.*
 import javax.swing.{Action => _, *}
 import javax.swing.event.*
@@ -19,6 +19,10 @@ object MenuBar extends VarsMap {
   val BorderPainted: SwingVar.Aux[MenuBar, Boolean] = SwingVar[MenuBar, Boolean]("borderPainted", _.isBorderPainted, _.setBorderPainted(_))
   val HelpMenu: SwingVar.Aux[MenuBar, javax.swing.JMenu | Null] = SwingVar[MenuBar, javax.swing.JMenu | Null]("helpMenu", _.getHelpMenu, _.setHelpMenu(_))
   val Margin: SwingVar.Aux[MenuBar, java.awt.Insets | Null] = SwingVar[MenuBar, java.awt.Insets | Null]("margin", _.getMargin, _.setMargin(_))
+  val Menus: SwingVar.Aux[MenuBar, Seq[Menu]] = SwingVar[MenuBar, Seq[Menu]]("menus", m => Seq.tabulate(m.getMenuCount())(m.getMenu(_).asInstanceOf[Menu]), { (m, items) =>
+ m.removeAll()
+ items.foreach(i => m.add(i.unwrap))
+})
   val SelectionModel: SwingVar.Aux[MenuBar, javax.swing.SingleSelectionModel | Null] = SwingVar[MenuBar, javax.swing.SingleSelectionModel | Null]("selectionModel", _.getSelectionModel, _.setSelectionModel(_))
 
   
@@ -30,6 +34,7 @@ object MenuBar extends VarsMap {
       def borderPainted: Var.Aux[Boolean, v.type] = MenuBar.BorderPainted.asInstanceOf[Var.Aux[Boolean, v.type]]
       def helpMenu: Var.Aux[javax.swing.JMenu | Null, v.type] = MenuBar.HelpMenu.asInstanceOf[Var.Aux[javax.swing.JMenu | Null, v.type]]
       def margin: Var.Aux[java.awt.Insets | Null, v.type] = MenuBar.Margin.asInstanceOf[Var.Aux[java.awt.Insets | Null, v.type]]
+      def menus: Var.Aux[Seq[Menu], v.type] = MenuBar.Menus.asInstanceOf[Var.Aux[Seq[Menu], v.type]]
       def selectionModel: Var.Aux[javax.swing.SingleSelectionModel | Null, v.type] = MenuBar.SelectionModel.asInstanceOf[Var.Aux[javax.swing.SingleSelectionModel | Null, v.type]]
 
       
@@ -81,6 +86,7 @@ object MenuBar extends VarsMap {
     inputVerifier: Opt[Binding[javax.swing.InputVerifier | Null]] = UnsetParam,
     margin: Opt[Binding[java.awt.Insets | Null]] = UnsetParam,
     maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
+    menus: Opt[Binding[Seq[Menu]]] = UnsetParam,
     minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     name: Opt[Binding[String | Null]] = UnsetParam,
     opaque: Opt[Binding[Boolean]] = UnsetParam,
@@ -117,6 +123,7 @@ object MenuBar extends VarsMap {
     ifSet(inputVerifier, Component.ops.inputVerifier(res) := _)
     ifSet(margin, MenuBar.ops.margin(res) := _)
     ifSet(maxSize, Node.ops.maxSize(res) := _)
+    ifSet(menus, MenuBar.ops.menus(res) := _)
     ifSet(minSize, Node.ops.minSize(res) := _)
     ifSet(name, Node.ops.name(res) := _)
     ifSet(opaque, Component.ops.opaque(res) := _)

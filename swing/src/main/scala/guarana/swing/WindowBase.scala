@@ -4,7 +4,7 @@ package guarana
 package swing
 
 import language.implicitConversions
-import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, PopupMenu => _, *}
+import java.awt.{Component => _, Menu => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, PopupMenu => _, *}
 import java.awt.event.*
 import javax.swing.{Action => _, *}
 import javax.swing.event.*

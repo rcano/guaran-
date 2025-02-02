@@ -92,7 +92,7 @@ object ColorDialog {
     windowModified: Opt[Binding[Boolean]] = UnsetParam,
     windowOpacity: Opt[Binding[Double]] = UnsetParam,
     windowTitle: Opt[Binding[java.lang.String | Null]] = UnsetParam
-  ): ToolkitAction[ColorDialog] = {
+  ): VarContextAction[ColorDialog] = {
     val res = uninitialized()
     ColorDialog.init(res)
     ifSet(acceptDrops, Widget.ops.acceptDrops(res) := _)

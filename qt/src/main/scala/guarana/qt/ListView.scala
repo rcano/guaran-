@@ -151,7 +151,7 @@ object ListView {
     windowOpacity: Opt[Binding[Double]] = UnsetParam,
     windowTitle: Opt[Binding[java.lang.String | Null]] = UnsetParam,
     wordWrap: Opt[Binding[Boolean]] = UnsetParam
-  ): ToolkitAction[ListView] = {
+  ): VarContextAction[ListView] = {
     val res = uninitialized()
     ListView.init(res)
     ifSet(acceptDrops, Widget.ops.acceptDrops(res) := _)

@@ -123,7 +123,7 @@ case object Node
     |def size(x: Int, y: Int) = v.setSize(x, y)
     |def showing = v.isShowing
     |
-    |def onFirstTimeVisible(f: v.type => ToolkitAction[Unit]): Scenegraph ?=> Unit = {
+    |def onFirstTimeVisible(f: v.type => VarContextAction[Unit]): Scenegraph ?=> Unit = {
     |  lazy val hl: java.awt.event.HierarchyListener = { evt => 
     |    if ((evt.getChangeFlags() & java.awt.event.HierarchyEvent.DISPLAYABILITY_CHANGED) > 0 && v.isDisplayable()) {
     |      v.removeHierarchyListener(hl)
@@ -149,11 +149,11 @@ case object Node
   |v `addFocusListener` new FocusListener {
   |  def focusGained(evt: FocusEvent) = sc.update {
   |    Node.FocusedMut.forInstance(v) := true 
-  |    summon[Emitter.Context].emit(v.focusEvents, (evt.nn -> true))
+  |    summon[VarContext].emit(v.focusEvents, (evt.nn -> true))
   |  }
   |  def focusLost(evt: FocusEvent) = sc.update {
   |    Node.FocusedMut.forInstance(v) := false
-  |    summon[Emitter.Context].emit(v.focusEvents, (evt.nn -> false))
+  |    summon[VarContext].emit(v.focusEvents, (evt.nn -> false))
   |  }
   |}
   |v `addComponentListener` new ComponentAdapter {
@@ -707,7 +707,7 @@ case object TextField
         EmitterDescr(
           "actionEvents",
           "java.awt.event.ActionEvent",
-          """val al: java.awt.event.ActionListener = evt => sc.update(summon[Emitter.Context].emit(v.actionEvents, evt.nn))
+          """val al: java.awt.event.ActionListener = evt => sc.update(summon[VarContext].emit(v.actionEvents, evt.nn))
         |v.addActionListener(al)
         """.trim.nn.stripMargin.split("\n").asInstanceOf[Array[String]].toIndexedSeq
         ),
@@ -798,7 +798,7 @@ case object ButtonBase
         EmitterDescr(
           "actionEvents",
           "java.awt.event.ActionEvent",
-          """val al: java.awt.event.ActionListener = evt => sc.update(summon[Emitter.Context].emit(v.actionEvents, evt.nn))
+          """val al: java.awt.event.ActionListener = evt => sc.update(summon[VarContext].emit(v.actionEvents, evt.nn))
         |v.addActionListener(al)
         """.trim.nn.stripMargin.split("\n").asInstanceOf[Array[String]].toIndexedSeq
         ),
@@ -943,14 +943,24 @@ case object Menu
       "javax.swing.JMenu",
       upperBounds = Seq(MenuItem),
       props = Seq(
-        SwingProp("UI", "javax.swing.plaf.MenuBarUI | Null"),
+        SwingProp("UI", "javax.swing.plaf.MenuItemUI | Null", "_.getUI().asInstanceOf", "_.setUI(_)"),
         SwingProp("delay", "Int"),
         SwingProp("popupMenuVisible", "Boolean"),
         SwingProp("borderPainted", "Boolean"),
-        SwingProp("helpMenu", "javax.swing.JMenu | Null"),
         SwingProp("margin", "java.awt.Insets | Null"),
-        SwingProp("selectionModel", "javax.swing.SingleSelectionModel | Null"),
         SwingProp("accelerator", "javax.swing.KeyStroke | Null"),
+        SwingProp(
+          "items",
+          "Seq[MenuItem | Component]",
+          "m => m.getMenuComponents().toSeq.asInstanceOf[Seq[MenuItem | Component]]",
+          """(m, items) => {
+                  |    m.removeAll()
+                  |    items foreach {
+                  |      case i: MenuItem => m.remove(i.unwrap) // I'm aware of the runtime check, it works after erasure of opaque types
+                  |      case c: Component => m.remove(c.unwrap)
+                  |  }
+                  |}""".stripMargin
+        )
       ),
       opsExtra = Seq(
         "def itemCount: Int = v.getItemCount",
@@ -962,7 +972,7 @@ case object Menu
         "def topLevelMenu: Boolean = v.isTopLevelMenu"
       ),
       companionObjectExtras = Seq(
-        "def apply(a: Action): MenuItem = wrap(javax.swing.JMenu(a.unwrap)).tap(init)"
+        "def apply(a: Action): Scenegraph ?=> Menu = wrap(javax.swing.JMenu(a.unwrap)).tap(init)"
       )
     )
 
@@ -977,6 +987,15 @@ case object MenuBar
         SwingProp("helpMenu", "javax.swing.JMenu | Null"),
         SwingProp("margin", "java.awt.Insets | Null"),
         SwingProp("selectionModel", "javax.swing.SingleSelectionModel | Null"),
+        SwingProp(
+          "menus",
+          "Seq[Menu]",
+          "m => Seq.tabulate(m.getMenuCount())(m.getMenu(_).asInstanceOf[Menu])",
+          """|{ (m, items) =>
+             | m.removeAll()
+             | items.foreach(i => m.add(i.unwrap))
+             |}""".stripMargin
+        )
       ),
       opsExtra = Seq(
         "def component: java.awt.Component | Null = v.getComponent",
@@ -1001,7 +1020,7 @@ case object Slider
         SwingProp("UI", "javax.swing.plaf.SliderUI"),
         SwingProp("extent", "Int"),
         SwingProp("inverted", "Boolean", "_.getInverted", "_.setInverted(_)"),
-        SwingProp("labelTable", "java.util.Dictionary[_, _] | Null"),
+        SwingProp("labelTable", "java.util.Dictionary[?, ?] | Null"),
         SwingProp("majorTickSpacing", "Int"),
         SwingProp("min", "Int", "_.getMinimum", "_.setMinimum(_)"),
         SwingProp("max", "Int", "_.getMaximum", "_.setMaximum(_)"),
@@ -1716,7 +1735,7 @@ def genCode(n: NodeDescr): String = {
     |package swing
 
     |import language.implicitConversions
-    |import java.awt.{Component => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, PopupMenu => _, *}
+    |import java.awt.{Component => _, Menu => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, PopupMenu => _, *}
     |import java.awt.event.*
     |import javax.swing.{Action => _, *}
     |import javax.swing.event.*
@@ -1755,6 +1774,7 @@ def genCode(n: NodeDescr): String = {
               CheckBox,
               RadioButton,
               MenuBar,
+              Menu,
               MenuItem,
               CheckBoxMenuItem,
               RadioButtonMenuItem,

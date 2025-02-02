@@ -229,7 +229,7 @@ object Widget {
     windowModified: Opt[Binding[Boolean]] = UnsetParam,
     windowOpacity: Opt[Binding[Double]] = UnsetParam,
     windowTitle: Opt[Binding[java.lang.String | Null]] = UnsetParam
-  ): ToolkitAction[Widget] = {
+  ): VarContextAction[Widget] = {
     val res = uninitialized(parent, windowFlags)
     Widget.init(res)
     ifSet(acceptDrops, Widget.ops.acceptDrops(res) := _)

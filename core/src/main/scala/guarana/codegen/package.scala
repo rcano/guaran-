@@ -112,7 +112,7 @@ package codegen {
           |def apply$tpeParams(
           |  ${if (n.uninitExtraParams.nonEmpty) n.uninitExtraParams.filterNot(_.erased).map(t => s"${t.name}: ${t.tpe}").mkString(", ") + "," else ""}
           |  ${allMutVars.map(v => s"${v._2.name}: Opt[Binding[${v._2.tpe}]] = UnsetParam").mkString(",\n  ")}
-          |): ${if !toolkitIsGlobal then "Toolkit ?=> " else ""}ToolkitAction[${n.name}$tpeParams] = {
+          |): ${if !toolkitIsGlobal then "Toolkit ?=> " else ""}VarContextAction[${n.name}$tpeParams] = {
           |  val res = uninitialized$tpeParams(${n.uninitExtraParams.filterNot(_.erased).map(_.name).mkString(", ")})
           |  ${n.name}.init(res)
           |  ${allMutVars.map(v => s"ifSet(${v._2.name}, ${v._1.name}.ops.${v._2.name}(res) := _)").mkString("\n  ")}

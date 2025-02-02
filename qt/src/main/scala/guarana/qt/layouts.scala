@@ -97,7 +97,7 @@ object HBoxLayout {
       widgetSpacing: Opt[Binding[Double]] = UnsetParam,
       spacing: Opt[Binding[Double]] = UnsetParam,
       nodes: Opt[Binding[Seq[Widget | LayoutItem]]] = UnsetParam,
-  ): ToolkitAction[HBoxLayout] = {
+  ): VarContextAction[HBoxLayout] = {
     val res = (widget: @unchecked) match
       case UnsetParam => QHBoxLayout()
       case w: QWidget => QHBoxLayout(w)
@@ -130,7 +130,7 @@ object VBoxLayout {
       widgetSpacing: Opt[Binding[Double]] = UnsetParam,
       spacing: Opt[Binding[Double]] = UnsetParam,
       nodes: Opt[Binding[Seq[Widget | LayoutItem]]] = UnsetParam,
-  ): ToolkitAction[VBoxLayout] = {
+  ): VarContextAction[VBoxLayout] = {
     val res = (widget: @unchecked) match
       case UnsetParam => QVBoxLayout()
       case w: QWidget => QVBoxLayout(w)
@@ -183,7 +183,7 @@ object FormLayout {
       spacing: Opt[Binding[Double]] = UnsetParam,
       fieldGrowthPolicy: Opt[Binding[QFormLayout.FieldGrowthPolicy]] = UnsetParam,
       rows: Opt[Binding[Seq[(Widget, Widget)]]] = UnsetParam,
-  ): ToolkitAction[FormLayout] = {
+  ): VarContextAction[FormLayout] = {
     val res = (widget: @unchecked) match
       case UnsetParam => QFormLayout()
       case w: QWidget => QFormLayout(w)
@@ -255,7 +255,7 @@ object GridLayout {
       horizontalSpacing: Opt[Binding[Double]] = UnsetParam,
       verticalSpacing: Opt[Binding[Double]] = UnsetParam,
       nodes: Opt[Binding[Seq[GridCell]]] = UnsetParam,
-  ): ToolkitAction[GridLayout] = {
+  ): VarContextAction[GridLayout] = {
     val res = (widget: @unchecked) match
       case UnsetParam => QGridLayout()
       case w: QWidget => QGridLayout(w)
