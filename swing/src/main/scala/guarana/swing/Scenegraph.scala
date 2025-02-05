@@ -162,6 +162,7 @@ class Scenegraph extends AbstractToolkit, SwingTimers {
         case "Panel.font" => update(summon[VarContext].externalPropertyUpdated(Fonts.Base, Option(evt.getOldValue())))
         case "TextField.font" => update(summon[VarContext].externalPropertyUpdated(Fonts.Input, Option(evt.getOldValue())))
         case "Label.font" => update(summon[VarContext].externalPropertyUpdated(Fonts.Label, Option(evt.getOldValue())))
+        case Color.themeColorVars(colorVar) => update(summon[VarContext].externalPropertyUpdated(colorVar, Option(evt.getOldValue())))
         case _ => 
       }
     }
