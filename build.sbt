@@ -3,7 +3,7 @@ name := "guarana"
 inThisBuild(
   Seq(
     organization := "guarana",
-    version := "0.0.9-SNAPSHOT",
+    version := "0.1.0-SNAPSHOT",
     scalaVersion := "3.6.3",
     fork := true,
     libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.19" % "test",

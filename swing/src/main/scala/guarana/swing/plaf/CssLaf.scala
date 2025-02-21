@@ -111,7 +111,7 @@ object CssLaf {
 
   lazy val fontDeterminedByOs: Option[FontUIResource] = {
     val tk = java.awt.Toolkit.getDefaultToolkit().nn
-      desktopEnvironment match {
+    desktopEnvironment match {
       case DesktopEnvironment.Windows => tk.getDesktopProperty("win.messagebox.font").toOption.map(f => FontUIResource(f.asInstanceOf[Font]))
       case DesktopEnvironment.Macos => Some(FontUIResource("Luida Grande", Font.PLAIN, 13))
       case DesktopEnvironment.Kde => Some(FontUIResource(LinuxFontPolicy.getKdeFont()))

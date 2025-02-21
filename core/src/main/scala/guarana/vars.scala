@@ -42,6 +42,7 @@ sealed trait ObsVal[+T] extends util.Unique {
     */
   private[guarana] def onFirstAssociation(v: Any)(using v.type <:< ForInstance): Unit = ()
 
+  @targetName("value")
   def apply()(using instance: ValueOf[ForInstance]): VarContextAction[T] = c ?=> c(this)
 
   override def toString = s"ObsVal($name)"
