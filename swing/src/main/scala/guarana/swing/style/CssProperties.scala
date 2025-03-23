@@ -8,7 +8,7 @@ object CssProperties {
   val EmptyBackground = style.Background()
   val EmptyBorder = style.Border()
   val EmptyInsets = Insets()
-  val TransparentBackground = style.Background(fills = IArray(BackgroundFill(Color.Transparent, CornerRadii.all(0), EmptyInsets)))
+  val TransparentBackground = style.Background(fills = IArray(BackgroundFill(Color.Transparent, CornerRadii.empty, EmptyInsets)))
 
   val Background = Var[style.Background]("css-background", EmptyBackground)
   val Border = Var[style.Border]("css-border", EmptyBorder)

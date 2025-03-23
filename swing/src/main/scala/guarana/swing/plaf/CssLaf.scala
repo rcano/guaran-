@@ -56,10 +56,13 @@ class CssLaf(val scenegraph: Scenegraph) extends MetalLookAndFeel {
       }
     }
 
-    defaults.keySet.nn.asScala.filter(_.toString `endsWith` "border") foreach (k => defaults.put(k, CssBorder(scenegraph)))
+    def newCssBorder() = BorderUIResource(CssBorder(scenegraph))
+    defaults.keySet.nn.asScala.filter(_.toString `endsWith` "border") foreach (k => defaults.put(k, newCssBorder()))
 
-    defaults.put("ComboBox.border", new BorderUIResource(new CssBorder(scenegraph)))
-    defaults.put("TitledBorder.border", new BorderUIResource(new CssBorder(scenegraph)))
+    defaults.put("ComboBox.border", newCssBorder())
+    defaults.put("TitledBorder.border", newCssBorder())
+    defaults.put("Panel.border", newCssBorder())
+    defaults.put("RootPane.border", newCssBorder())
 
     defaults
   }

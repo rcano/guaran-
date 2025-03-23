@@ -13,16 +13,16 @@ import guarana.swing.util.*
 import scala.jdk.CollectionConverters.*
 import scala.util.chaining.*
 
-opaque type AbsolutePositioningPane <: Pane  = javax.swing.JPanel & Pane
+opaque type AbsolutePositioningPane <: ChildrenSeqPane  = javax.swing.JPanel & ChildrenSeqPane
 object AbsolutePositioningPane extends VarsMap {
-  val Nodes: SwingVar.Aux[AbsolutePositioningPane, Seq[Node]] = SwingVar[AbsolutePositioningPane, Seq[Node]]("nodes", c => (0 until c.getComponentCount).map(c.getComponent(_).asInstanceOf[Node]), (p, children) => { p.removeAll(); children foreach (n => p.add(n.unwrap)) })
+  
 
   
 
   given ops: Ops.type = Ops
   object Ops {
     extension (v: AbsolutePositioningPane) {
-      def nodes: Var.Aux[Seq[Node], v.type] = AbsolutePositioningPane.Nodes.asInstanceOf[Var.Aux[Seq[Node], v.type]]
+      
 
       
 
@@ -34,7 +34,7 @@ object AbsolutePositioningPane extends VarsMap {
   def wrap(v: javax.swing.JPanel) = v.asInstanceOf[AbsolutePositioningPane]
 
   def init(v: AbsolutePositioningPane): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
-    Pane.init(v)
+    ChildrenSeqPane.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
     v.asInstanceOf[JPanel].setLayout(null)
     
@@ -102,7 +102,7 @@ object AbsolutePositioningPane extends VarsMap {
     ifSet(maxSize, Node.ops.maxSize(res) := _)
     ifSet(minSize, Node.ops.minSize(res) := _)
     ifSet(name, Node.ops.name(res) := _)
-    ifSet(nodes, AbsolutePositioningPane.ops.nodes(res) := _)
+    ifSet(nodes, ChildrenSeqPane.ops.nodes(res) := _)
     ifSet(opaque, Component.ops.opaque(res) := _)
     ifSet(prefSize, Node.ops.prefSize(res) := _)
     ifSet(requestFocusEnabled, Component.ops.requestFocusEnabled(res) := _)

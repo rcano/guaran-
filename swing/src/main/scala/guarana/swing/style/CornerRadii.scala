@@ -34,4 +34,5 @@ object CornerRadii {
   def roundRect(arcHeight: Double, arcWidth: Double, percentage: Boolean = false) =
     CornerRadii(arcWidth, arcHeight, arcHeight, arcWidth, arcWidth, arcHeight, arcHeight, arcWidth, percentage, percentage, percentage, percentage, percentage, percentage, percentage, percentage)
   def all(radii: Double, percentage: Boolean = false) = simple(radii, radii, radii, radii, percentage)
+  val empty = all(0)
 }

@@ -24,17 +24,17 @@ object ButtonBase extends VarsMap {
   val DisabledIcon: SwingVar.Aux[ButtonBase, javax.swing.Icon | Null] = SwingVar[ButtonBase, javax.swing.Icon | Null]("disabledIcon", _.getDisabledIcon, _.setDisabledIcon(_))
   val DisabledSelectedIcon: SwingVar.Aux[ButtonBase, javax.swing.Icon | Null] = SwingVar[ButtonBase, javax.swing.Icon | Null]("disabledSelectedIcon", _.getDisabledSelectedIcon, _.setDisabledSelectedIcon(_))
   val DisplayedMnemonicIndex: SwingVar.Aux[ButtonBase, Int] = SwingVar[ButtonBase, Int]("displayedMnemonicIndex", _.getDisplayedMnemonicIndex, _.setDisplayedMnemonicIndex(_))
-  val Enabled: SwingVar.Aux[ButtonBase, Boolean] = SwingVar[ButtonBase, Boolean]("enabled", _.getModel.nn.isEnabled, _.getModel.nn.setEnabled(_))
   val FocusPainted: SwingVar.Aux[ButtonBase, Boolean] = SwingVar[ButtonBase, Boolean]("focusPainted", _.isFocusPainted, _.setFocusPainted(_))
   val HideActionText: SwingVar.Aux[ButtonBase, Boolean] = SwingVar[ButtonBase, Boolean]("hideActionText", _.getHideActionText, _.setHideActionText(_))
   val HorizontalAlignment: SwingVar.Aux[ButtonBase, Int] = SwingVar[ButtonBase, Int]("horizontalAlignment", _.getHorizontalAlignment, _.setHorizontalAlignment(_))
   val HorizontalTextPosition: SwingVar.Aux[ButtonBase, Int] = SwingVar[ButtonBase, Int]("horizontalTextPosition", _.getHorizontalTextPosition, _.setHorizontalTextPosition(_))
   val Icon: SwingVar.Aux[ButtonBase, javax.swing.Icon | Null] = SwingVar[ButtonBase, javax.swing.Icon | Null]("icon", _.getIcon, _.setIcon(_))
-  val IconTextGap: SwingVar.Aux[ButtonBase, Int] = SwingVar[ButtonBase, Int]("iconTextGap", _.getIconTextGap, _.setIconTextGap(_))
+  val IconTextGap: SwingVar.Aux[ButtonBase, Double] = SwingVar[ButtonBase, Double]("iconTextGap", _.getIconTextGap, (l, g) => l.setIconTextGap(g.toInt))
   val Label: SwingVar.Aux[ButtonBase, java.lang.String | Null] = SwingVar[ButtonBase, java.lang.String | Null]("label", _.getLabel, _.setLabel(_))
   val Margin: SwingVar.Aux[ButtonBase, java.awt.Insets | Null] = SwingVar[ButtonBase, java.awt.Insets | Null]("margin", _.getMargin, _.setMargin(_))
   val Mnemonic: SwingVar.Aux[ButtonBase, Int] = SwingVar[ButtonBase, Int]("mnemonic", _.getMnemonic, _.setMnemonic(_))
   val Model: SwingVar.Aux[ButtonBase, javax.swing.ButtonModel | Null] = SwingVar[ButtonBase, javax.swing.ButtonModel | Null]("model", _.getModel, _.setModel(_))
+  val ModelEnabled: SwingVar.Aux[ButtonBase, Boolean] = SwingVar[ButtonBase, Boolean]("modelEnabled", _.getModel.nn.isEnabled, _.getModel.nn.setEnabled(_))
   val MultiClickThreshhold: SwingVar.Aux[ButtonBase, Long] = SwingVar[ButtonBase, Long]("multiClickThreshhold", _.getMultiClickThreshhold, _.setMultiClickThreshhold(_))
   val Pressed: SwingVar.Aux[ButtonBase, Boolean] = SwingVar[ButtonBase, Boolean]("pressed", _.getModel.nn.isPressed, _.getModel.nn.setPressed(_))
   val PressedIcon: SwingVar.Aux[ButtonBase, javax.swing.Icon | Null] = SwingVar[ButtonBase, javax.swing.Icon | Null]("pressedIcon", _.getPressedIcon, _.setPressedIcon(_))
@@ -62,17 +62,17 @@ object ButtonBase extends VarsMap {
       def disabledIcon: Var.Aux[javax.swing.Icon | Null, v.type] = ButtonBase.DisabledIcon.asInstanceOf[Var.Aux[javax.swing.Icon | Null, v.type]]
       def disabledSelectedIcon: Var.Aux[javax.swing.Icon | Null, v.type] = ButtonBase.DisabledSelectedIcon.asInstanceOf[Var.Aux[javax.swing.Icon | Null, v.type]]
       def displayedMnemonicIndex: Var.Aux[Int, v.type] = ButtonBase.DisplayedMnemonicIndex.asInstanceOf[Var.Aux[Int, v.type]]
-      def enabled: Var.Aux[Boolean, v.type] = ButtonBase.Enabled.asInstanceOf[Var.Aux[Boolean, v.type]]
       def focusPainted: Var.Aux[Boolean, v.type] = ButtonBase.FocusPainted.asInstanceOf[Var.Aux[Boolean, v.type]]
       def hideActionText: Var.Aux[Boolean, v.type] = ButtonBase.HideActionText.asInstanceOf[Var.Aux[Boolean, v.type]]
       def horizontalAlignment: Var.Aux[Int, v.type] = ButtonBase.HorizontalAlignment.asInstanceOf[Var.Aux[Int, v.type]]
       def horizontalTextPosition: Var.Aux[Int, v.type] = ButtonBase.HorizontalTextPosition.asInstanceOf[Var.Aux[Int, v.type]]
       def icon: Var.Aux[javax.swing.Icon | Null, v.type] = ButtonBase.Icon.asInstanceOf[Var.Aux[javax.swing.Icon | Null, v.type]]
-      def iconTextGap: Var.Aux[Int, v.type] = ButtonBase.IconTextGap.asInstanceOf[Var.Aux[Int, v.type]]
+      def iconTextGap: Var.Aux[Double, v.type] = ButtonBase.IconTextGap.asInstanceOf[Var.Aux[Double, v.type]]
       def label: Var.Aux[java.lang.String | Null, v.type] = ButtonBase.Label.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
       def margin: Var.Aux[java.awt.Insets | Null, v.type] = ButtonBase.Margin.asInstanceOf[Var.Aux[java.awt.Insets | Null, v.type]]
       def mnemonic: Var.Aux[Int, v.type] = ButtonBase.Mnemonic.asInstanceOf[Var.Aux[Int, v.type]]
       def model: Var.Aux[javax.swing.ButtonModel | Null, v.type] = ButtonBase.Model.asInstanceOf[Var.Aux[javax.swing.ButtonModel | Null, v.type]]
+      def modelEnabled: Var.Aux[Boolean, v.type] = ButtonBase.ModelEnabled.asInstanceOf[Var.Aux[Boolean, v.type]]
       def multiClickThreshhold: Var.Aux[Long, v.type] = ButtonBase.MultiClickThreshhold.asInstanceOf[Var.Aux[Long, v.type]]
       def pressed: Var.Aux[Boolean, v.type] = ButtonBase.Pressed.asInstanceOf[Var.Aux[Boolean, v.type]]
       def pressedIcon: Var.Aux[javax.swing.Icon | Null, v.type] = ButtonBase.PressedIcon.asInstanceOf[Var.Aux[javax.swing.Icon | Null, v.type]]
@@ -114,7 +114,7 @@ object ButtonBase extends VarsMap {
         ctx.externalPropertyUpdated(ops.armed(v), Some(m.isArmed))
       wasArmed = m.isArmed
       if (m.isEnabled != wasEnabled)
-        ctx.externalPropertyUpdated(ops.enabled(v), Some(m.isEnabled))
+        ctx.externalPropertyUpdated(Node.ops.enabled(v), Some(m.isEnabled))
       wasEnabled = m.isEnabled
       if (m.isPressed != wasPressed)
         ctx.externalPropertyUpdated(ops.pressed(v), Some(m.isPressed))

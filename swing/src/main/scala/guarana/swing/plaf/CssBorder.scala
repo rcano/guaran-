@@ -210,7 +210,7 @@ object CssBorder {
 
     var newImWidth = imWidth
     var newImHeight = imHeight
-    var hspace = repeatX match {
+    val hspace = repeatX match {
       case style.BorderRepeat.Stretch => 
         newImWidth = areaWidth
         0
@@ -220,7 +220,7 @@ object CssBorder {
         0
       case _ => 0
     }
-    var vspace = repeatY match {
+    val vspace = repeatY match {
       case style.BorderRepeat.Stretch => 
         newImHeight = areaHeight
         0

@@ -139,40 +139,45 @@ case object Node
         EmitterDescr("keyEvents", "guarana.swing.KeyEvent", Nil),
       ),
       initExtra = """
-  |v `addMouseMotionListener` new java.awt.event.MouseMotionListener {
-  |  def mouseDragged(evt: java.awt.event.MouseEvent | Null) = ()
-  |  def mouseMoved(evt: java.awt.event.MouseEvent | Null) = sc.update {
-  |    val nnEvt = evt.nn
-  |    Node.MouseLocationMut.forInstance(v) := (nnEvt.getX, nnEvt.getY)
-  |  }
-  |}
-  |v `addFocusListener` new FocusListener {
-  |  def focusGained(evt: FocusEvent) = sc.update {
-  |    Node.FocusedMut.forInstance(v) := true 
-  |    summon[VarContext].emit(v.focusEvents, (evt.nn -> true))
-  |  }
-  |  def focusLost(evt: FocusEvent) = sc.update {
-  |    Node.FocusedMut.forInstance(v) := false
-  |    summon[VarContext].emit(v.focusEvents, (evt.nn -> false))
-  |  }
-  |}
-  |v `addComponentListener` new ComponentAdapter {
-  |  override def componentMoved(e: ComponentEvent): Unit = updateBounds()
-  |  override def componentResized(e: ComponentEvent): Unit = updateBounds()
-  |  def updateBounds(): Unit = sc.update {
-  |    summon[VarContext].externalPropertyUpdated(ops.bounds(v), Some(v.getBounds.nn))
-  |  }
+    |v `addMouseMotionListener` new java.awt.event.MouseMotionListener {
+    |  def mouseDragged(evt: java.awt.event.MouseEvent | Null) = ()
+    |  def mouseMoved(evt: java.awt.event.MouseEvent | Null) = sc.update {
+    |    val nnEvt = evt.nn
+    |    Node.MouseLocationMut.forInstance(v) := (nnEvt.getX, nnEvt.getY)
+    |  }
+    |}
+    |v `addFocusListener` new FocusListener {
+    |  def focusGained(evt: FocusEvent) = sc.update {
+    |    Node.FocusedMut.forInstance(v) := true 
+    |    summon[VarContext].emit(v.focusEvents, (evt.nn -> true))
+    |  }
+    |  def focusLost(evt: FocusEvent) = sc.update {
+    |    Node.FocusedMut.forInstance(v) := false
+    |    summon[VarContext].emit(v.focusEvents, (evt.nn -> false))
+    |  }
+    |}
+    |v `addComponentListener` new ComponentAdapter {
+    |  override def componentMoved(e: ComponentEvent): Unit = updateBounds()
+    |  override def componentResized(e: ComponentEvent): Unit = updateBounds()
+    |  def updateBounds(): Unit = sc.update {
+    |    summon[VarContext].externalPropertyUpdated(ops.bounds(v), Some(v.getBounds.nn))
+    |  }
 
 
-  |  v.addKeyListener(sc.awtInputListener)
-  |  v.addMouseListener(sc.awtInputListener)
-  |  v.addMouseMotionListener(sc.awtInputListener)
-  |}
-  """.stripMargin.trim.unn.split("\n").nnn.toIndexedSeq,
+    |  v.addKeyListener(sc.awtInputListener)
+    |  v.addMouseListener(sc.awtInputListener)
+    |  v.addMouseMotionListener(sc.awtInputListener)
+    |}
+     """.stripMargin.trim.split("\n").toIndexedSeq,
       companionObjectExtras = Seq(
         "val MouseLocation: ObsVal[(Int, Int)] = MouseLocationMut",
-        "val MouseDrag: ObsVal[Option[MouseDrag]] = MouseDragMut"
-      )
+        "val MouseDrag: ObsVal[Option[MouseDrag]] = MouseDragMut",
+      ).concat("""|extension [N <: Node](n: N) {
+                  |  def amend(mods: Modifier[N]*): VarContextAction[N] = {
+                  |    mods.foreach(_.apply(n))
+                  |    n
+                  |  }
+                  |}""".stripMargin.trim.split("\n").toIndexedSeq)
     )
 
 case object Component
@@ -410,13 +415,12 @@ case object Pane
       ),
     )
 
-case object FlowPane
+case object ChildrenSeqPane
     extends NodeDescr(
-      "FlowPane",
+      "ChildrenSeqPane",
       "javax.swing.JPanel",
       upperBounds = Seq(Pane),
       props = Seq(
-        SwingProp("UI", "javax.swing.plaf.PanelUI"),
         SwingProp(
           "nodes",
           "Seq[Node]",
@@ -424,20 +428,25 @@ case object FlowPane
           "(p, children) => { p.removeAll(); children foreach (n => p.add(n.unwrap)) }"
         ),
       ),
+      isAbstract = true
+    )
+
+case object FlowPane
+    extends NodeDescr(
+      "FlowPane",
+      "javax.swing.JPanel",
+      upperBounds = Seq(ChildrenSeqPane),
+      props = Seq(
+        SwingProp("UI", "javax.swing.plaf.PanelUI"),
+      ),
     )
 
 case object AbsolutePositioningPane
     extends NodeDescr(
       "AbsolutePositioningPane",
       "javax.swing.JPanel",
-      upperBounds = Seq(Pane),
+      upperBounds = Seq(ChildrenSeqPane),
       props = Seq(
-        SwingProp(
-          "nodes",
-          "Seq[Node]",
-          "c => (0 until c.getComponentCount).map(c.getComponent(_).asInstanceOf[Node])",
-          "(p, children) => { p.removeAll(); children foreach (n => p.add(n.unwrap)) }"
-        ),
       ),
       initExtra = Seq("v.asInstanceOf[JPanel].setLayout(null)"),
     )
@@ -600,30 +609,14 @@ case object Hbox
     extends NodeDescr(
       "Hbox",
       "javax.swing.JPanel",
-      upperBounds = Seq(Pane),
-      props = Seq(
-        SwingProp(
-          "nodes",
-          "Seq[Node]",
-          "c => (0 until c.getComponentCount).map(c.getComponent(_).asInstanceOf[Node])",
-          "(p, children) => { p.removeAll(); children foreach (n => p.add(n.unwrap)) }"
-        ),
-      ),
+      upperBounds = Seq(ChildrenSeqPane),
       uninitExtra = Seq("res.asInstanceOf[JPanel].setLayout(BoxLayout(res, BoxLayout.X_AXIS))"),
     )
 case object Vbox
     extends NodeDescr(
       "Vbox",
       "javax.swing.JPanel",
-      upperBounds = Seq(Pane),
-      props = Seq(
-        SwingProp(
-          "nodes",
-          "Seq[Node]",
-          "c => (0 until c.getComponentCount).map(c.getComponent(_).asInstanceOf[Node])",
-          "(p, children) => { p.removeAll(); children foreach (n => p.add(n.unwrap)) }"
-        ),
-      ),
+      upperBounds = Seq(ChildrenSeqPane),
       uninitExtra = Seq("res.asInstanceOf[JPanel].setLayout(BoxLayout(res, BoxLayout.Y_AXIS))"),
     )
 
@@ -770,13 +763,13 @@ case object ButtonBase
         SwingProp("disabledIcon", "javax.swing.Icon | Null"),
         SwingProp("disabledSelectedIcon", "javax.swing.Icon | Null"),
         SwingProp("displayedMnemonicIndex", "Int"),
-        SwingProp("enabled", "Boolean", "_.getModel.nn.isEnabled", "_.getModel.nn.setEnabled(_)"),
+        SwingProp("modelEnabled", "Boolean", "_.getModel.nn.isEnabled", "_.getModel.nn.setEnabled(_)"),
         SwingProp("focusPainted", "Boolean"),
         SwingProp("hideActionText", "Boolean", "_.getHideActionText", "_.setHideActionText(_)"),
         SwingProp("horizontalAlignment", "Int"),
         SwingProp("horizontalTextPosition", "Int"),
         SwingProp("icon", "javax.swing.Icon | Null"),
-        SwingProp("iconTextGap", "Int"),
+        SwingProp("iconTextGap", "Double", "_.getIconTextGap", "(l, g) => l.setIconTextGap(g.toInt)"),
         SwingProp("label", "java.lang.String | Null"),
         SwingProp("margin", "java.awt.Insets | Null"),
         SwingProp("mnemonic", "Int"),
@@ -817,7 +810,7 @@ case object ButtonBase
     |    ctx.externalPropertyUpdated(ops.armed(v), Some(m.isArmed))
     |  wasArmed = m.isArmed
     |  if (m.isEnabled != wasEnabled)
-    |    ctx.externalPropertyUpdated(ops.enabled(v), Some(m.isEnabled))
+    |    ctx.externalPropertyUpdated(Node.ops.enabled(v), Some(m.isEnabled))
     |  wasEnabled = m.isEnabled
     |  if (m.isPressed != wasPressed)
     |    ctx.externalPropertyUpdated(ops.pressed(v), Some(m.isPressed))
@@ -1444,7 +1437,7 @@ case object TabbedPane
 // combo box
 ////////////////////////////////////////////////////////////////////////////
 
-case object Combobox
+case object ComboBox
     extends NodeDescr(
       "ComboBox",
       "javax.swing.JComboBox[? <: E]",
@@ -1660,6 +1653,28 @@ def genCode(n: NodeDescr): String = {
         s"${if (n != Node) n.underlying.replace("? <: ", "") else "java.awt.Container"}(${n.uninitExtraParams.map(_.passAs).mkString(", ")}).asInstanceOf[${n.name}$tpeParams]"
       else
         n.customCreator.mkString("\n  ")
+
+      // s"""def uninitialized$tpeParams(${n.uninitExtraParams
+      //   .filterNot(_.erased)
+      //   .map(t => s"${t.name}: ${t.tpe}")
+      //   .mkString(", ")}): ${n.name}$tpeParams = {
+      //    |  val res = $instantiation
+      //    |  ${n.uninitExtra.mkString("\n    ")}
+      //    |  res
+      //    |}
+      //    |
+      //    |def apply$tpeParams(
+      //    |  ${if (n.uninitExtraParams.nonEmpty) n.uninitExtraParams.filterNot(_.erased).map(t => s"${t.name}: ${t.tpe}").mkString(", ") + ")(\n" else ""}
+      //    |  mods: Modifier[${n.name}$tpeParams & Singleton]*
+      //    |): Scenegraph ?=> VarContextAction[${n.name}$tpeParams] = {
+      //    |  val res = uninitialized$tpeParams(${n.uninitExtraParams.filterNot(_.erased).map(_.name).mkString(", ")})
+      //    |  ${n.name}.init(res)
+      //    |  mods.foreach(_.apply(res))
+      //    |  res
+      //    |}
+      //    |
+      // """.stripMargin.trim.unn.split("\n").nnn.toSeq
+
       s"""def uninitialized$tpeParams(${n.uninitExtraParams
         .filterNot(_.erased)
         .map(t => s"${t.name}: ${t.tpe}")
@@ -1746,54 +1761,112 @@ def genCode(n: NodeDescr): String = {
     """.stripMargin.trim.nn
   // dest.append(preamble).append("\n\n")
 
-  for (
-    node <- Seq(
-              Node,
-              Component,
-              WindowBase,
-              Window,
-              Frame,
-              Dialog,
-              PopupMenu,
-              Pane,
-              AbsolutePositioningPane,
-              FlowPane,
-              BorderPane,
-              CanvasPane,
-              GridPane,
-              Hbox,
-              Vbox,
-              TextComponent,
-              TextArea,
-              TextField,
-              PasswordField,
-              Label,
-              ButtonBase,
-              Button,
-              ToggleButton,
-              CheckBox,
-              RadioButton,
-              MenuBar,
-              Menu,
-              MenuItem,
-              CheckBoxMenuItem,
-              RadioButtonMenuItem,
-              Slider,
-              ProgressBar,
-              ListView,
-              TableView,
-              ScrollPane,
-              ScrollBar,
-              SplitPane,
-              Combobox,
-              Separator,
-              Spinner,
-              TabbedPane,
-              TreeView,
-            )
-  ) {
+  val toGenerateNodes = Seq(
+    Node,
+    Component,
+    WindowBase,
+    Window,
+    Frame,
+    Dialog,
+    PopupMenu,
+    Pane,
+    ChildrenSeqPane,
+    AbsolutePositioningPane,
+    FlowPane,
+    BorderPane,
+    CanvasPane,
+    GridPane,
+    Hbox,
+    Vbox,
+    TextComponent,
+    TextArea,
+    TextField,
+    PasswordField,
+    Label,
+    ButtonBase,
+    Button,
+    ToggleButton,
+    CheckBox,
+    RadioButton,
+    MenuBar,
+    Menu,
+    MenuItem,
+    CheckBoxMenuItem,
+    RadioButtonMenuItem,
+    Slider,
+    ProgressBar,
+    ListView,
+    TableView,
+    ScrollPane,
+    ScrollBar,
+    SplitPane,
+    ComboBox,
+    Separator,
+    Spinner,
+    TabbedPane,
+    TreeView,
+  )
+
+  val allPropsToNodes =
+    toGenerateNodes.flatMap(n => n.props.filterNot(_.visibility.exists(_ `startsWith` "private")).map(_ -> n)).groupBy(_._1.name)
+  val allEmittersToNodes = toGenerateNodes.flatMap(n => n.emitters.map(_ -> n)).groupBy(_._1.name)
+
+  // allPropsToNodes.filter(_._2.size > 1).foreach((prop, nodes) => println(s"Property $prop is present in nodes ${nodes.map(_._2.name)}"))
+
+  for (node <- toGenerateNodes) {
     val dest = dir / s"${node.name}.scala"
     dest.clear().append(preamble).append("\n\n")
     dest.append(genCode(node))
+
+    // the following is pointless, as too many variables are duplicated and not hierarchical, producing name clashes... ☹
+
+    // val thisNodeProps = allPropsToNodes.filter(_._2.exists(_._2.name == node.name)).map((propName, values) =>
+    //   val name = if (values.size == 1) propName else s"${propName}_${node.name}"
+    //   s"  val $name = ModifierVar(${node.name}.${propName.capitalize})"
+    // )
+    // val thisNodeEmitters = allEmittersToNodes.filter(_._2.exists(_._2.name == node.name)).map((emitterName, values) =>
+    //   val name = if (values.size == 1) emitterName else s"${emitterName}_${node.name}"
+    //   s"  val $name = ModifierEmitter(${node.name}.${emitterName.capitalize})"
+    // )
+
+    // dest.append(s"\n\nprivate[swing] trait ${node.name}Modifiers {\n")
+    // dest.append(thisNodeProps.mkString("\n"))
+    // dest.append("\n")
+    // dest.append(thisNodeEmitters.mkString("\n"))
+    // dest.append("\n}")
+  }
+
+  for (node <- toGenerateNodes) {
+    println(s"""|  /////////////////////////////////////////////////////////////////
+                |  // ${node.name} properties
+                |  /////////////////////////////////////////////////////////////////""".stripMargin)
+    val nodeProps =
+      allPropsToNodes.toSeq.filter((_, candidates) => candidates.sizeIs == 1 && candidates.exists(_._2.name == node.name)).sortBy(_._1)
+    val nodeEmitters =
+      allEmittersToNodes.toSeq.filter((_, candidates) => candidates.sizeIs == 1 && candidates.exists(_._2.name == node.name)).sortBy(_._1)
+
+    nodeProps.foreach { case (propName, Seq((prop, _))) => println(s"  val $propName = ModifierVar(${node.name}.${propName.capitalize})") }
+    nodeEmitters.foreach { case (propName, Seq((emitterDescr, _))) =>
+      println(s"  val $propName = ModifierEmitter(${node.name}.${emitterDescr.name.capitalize})")
+    }
+  }
+
+
+  println(s"""|  /////////////////////////////////////////////////////////////////
+              |  // Multi vars
+              |  /////////////////////////////////////////////////////////////////""".stripMargin)
+  val multiProps = allPropsToNodes.filter(_._2.sizeIs > 1).toSeq.sortBy(_._1)
+  multiProps.foreach { (propName, alternatives) =>
+    val bindingType = alternatives.map(_._1.tpe).distinct.mkString(" | ")
+    val vars = alternatives.map((prop, node) => s"${node.name}.${propName.capitalize}").mkString(", ")
+    // println(s"""  val $propName = MultiVar[$bindingType]($vars)""")
+
+    val assigners = alternatives.map((prop, node) =>
+      val tpeParams = node.tpeParams.mkString("[", ", ", "]").replace("[]", "").replaceAll("[+-]", "")
+      s"""@targetName("assign${node.name}}") def :=$tpeParams(binding: Binding[${prop.tpe}]) = Modifier[${node.name}$tpeParams](_.$propName := binding)"""
+    )
+    println(s"""|  object $propName {
+                |    ${assigners.mkString("\n    ")}
+                |  }""".stripMargin)
   }
 }

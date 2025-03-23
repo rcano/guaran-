@@ -16,7 +16,8 @@ inThisBuild(
       "-language:implicitConversions",
       "-rewrite",
       "-source",
-      "3.6-migration"
+      "3.6-migration",
+      "-explain"
     ),
   ) ++ addCommandAlias("enableDebug", """set javaOptions += "-agentlib:jdwp=transport=dt_socket,server=y,address=5555,suspend=y"""")
 )
@@ -79,15 +80,14 @@ lazy val swing = Project(id = "guarana-swing", base = file("swing"))
     // scalacOptions -= "-Yexplicit-nulls",
     libraryDependencies ++= Seq(
       ("com.github.pathikrit" %% "better-files" % "3.9.2"),
-      "org.apache.xmlgraphics" % "batik-swing" % "1.18",
-      "org.apache.xmlgraphics" % "batik-transcoder" % "1.18",
+      "com.github.weisj" % "jsvg" % "1.7.0",
       "com.formdev" % "flatlaf" % "3.5.1" % "provided",
       "com.jhlabs" % "filters" % "2.0.235-1" % "provided",
       "io.dropwizard.metrics" % "metrics-core" % "4.2.26" % "test",
       "org.scalatest" %% "scalatest-funsuite" % "3.2.19" % "test",
       "com.typesafe.play" %% "play-json" % "2.10.6" % "test",
     ),
-    ThisBuild / moduleJars := {
+    moduleJars := {
       val attributedJars = (Compile / dependencyClasspathAsJars).value.filterNot(_.metadata(moduleID.key).organization == "org.scala-lang")
       val modules = attributedJars.flatMap { aj =>
         try {
@@ -106,9 +106,9 @@ lazy val swing = Project(id = "guarana-swing", base = file("swing"))
     //       "--module-path=" + modules.map(_._1.data.getAbsolutePath).mkString(java.io.File.pathSeparator)
     //     )
     // },
-    ThisBuild / javaOptions += "-Xmx100m",
-    ThisBuild / javaOptions ++= Seq("-Dsun.java2d.uiScale.enabled=true", "-Dsun.java2d.uiScale=1.5"),
-    ThisBuild / outputStrategy := Some(StdoutOutput)
+    javaOptions += "-Xmx100m",
+    javaOptions ++= Seq("-Dsun.java2d.uiScale.enabled=true", "-Dsun.java2d.uiScale=1.5"),
+    outputStrategy := Some(StdoutOutput)
   )
 
 lazy val guaranaTheme = Project(id = "theme", base = file("swing/theme"))

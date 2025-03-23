@@ -96,7 +96,7 @@ def Font(name: String, style: Opt[Int] = UnsetParam, size: Opt[Double] = UnsetPa
 
 extension (n: Node) {
   /** Wraps this node in a box that ensures it is centered horizontally */
-  def xCentered: Scenegraph ?=>  VarContextAction[Node] = Hbox(nodes = Seq(n))
+  def xCentered: Scenegraph ?=>  VarContextAction[Node] = Vbox(nodes = Seq(n))
   /** Wraps this node in a box that ensures it is centered vertically */
   def yCentered: Scenegraph ?=>  VarContextAction[Node] = Hbox(nodes = Seq(n))
 }

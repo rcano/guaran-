@@ -162,4 +162,10 @@ object Node extends VarsMap {
   }
   val MouseLocation: ObsVal[(Int, Int)] = MouseLocationMut
   val MouseDrag: ObsVal[Option[MouseDrag]] = MouseDragMut
+  extension [N <: Node](n: N) {
+    def amend(mods: Modifier[N]*): VarContextAction[N] = {
+      mods.foreach(_.apply(n))
+      n
+    }
+  }
 }

@@ -22,8 +22,8 @@ object Menu extends VarsMap {
   val Items: SwingVar.Aux[Menu, Seq[MenuItem | Component]] = SwingVar[Menu, Seq[MenuItem | Component]]("items", m => m.getMenuComponents().toSeq.asInstanceOf[Seq[MenuItem | Component]], (m, items) => {
     m.removeAll()
     items foreach {
-      case i: MenuItem => m.add(i.unwrap) // I'm aware of the runtime check, it works after erasure of opaque types
-      case c: Component => m.add(c.unwrap)
+      case i: MenuItem => m.remove(i.unwrap) // I'm aware of the runtime check, it works after erasure of opaque types
+      case c: Component => m.remove(c.unwrap)
   }
 })
   val Margin: SwingVar.Aux[Menu, java.awt.Insets | Null] = SwingVar[Menu, java.awt.Insets | Null]("margin", _.getMargin, _.setMargin(_))
@@ -103,7 +103,7 @@ object Menu extends VarsMap {
     horizontalAlignment: Opt[Binding[Int]] = UnsetParam,
     horizontalTextPosition: Opt[Binding[Int]] = UnsetParam,
     icon: Opt[Binding[javax.swing.Icon | Null]] = UnsetParam,
-    iconTextGap: Opt[Binding[Int]] = UnsetParam,
+    iconTextGap: Opt[Binding[Double]] = UnsetParam,
     inheritsPopupMenu: Opt[Binding[Boolean]] = UnsetParam,
     inputVerifier: Opt[Binding[javax.swing.InputVerifier | Null]] = UnsetParam,
     items: Opt[Binding[Seq[MenuItem | Component]]] = UnsetParam,
@@ -113,6 +113,7 @@ object Menu extends VarsMap {
     minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     mnemonic: Opt[Binding[Int]] = UnsetParam,
     model: Opt[Binding[javax.swing.ButtonModel | Null]] = UnsetParam,
+    modelEnabled: Opt[Binding[Boolean]] = UnsetParam,
     multiClickThreshhold: Opt[Binding[Long]] = UnsetParam,
     name: Opt[Binding[String | Null]] = UnsetParam,
     opaque: Opt[Binding[Boolean]] = UnsetParam,
@@ -160,7 +161,7 @@ object Menu extends VarsMap {
     ifSet(disabledSelectedIcon, ButtonBase.ops.disabledSelectedIcon(res) := _)
     ifSet(displayedMnemonicIndex, ButtonBase.ops.displayedMnemonicIndex(res) := _)
     ifSet(doubleBuffered, Component.ops.doubleBuffered(res) := _)
-    ifSet(enabled, ButtonBase.ops.enabled(res) := _)
+    ifSet(enabled, Node.ops.enabled(res) := _)
     ifSet(focusPainted, ButtonBase.ops.focusPainted(res) := _)
     ifSet(focusable, Node.ops.focusable(res) := _)
     ifSet(font, Node.ops.font(res) := _)
@@ -179,6 +180,7 @@ object Menu extends VarsMap {
     ifSet(minSize, Node.ops.minSize(res) := _)
     ifSet(mnemonic, ButtonBase.ops.mnemonic(res) := _)
     ifSet(model, ButtonBase.ops.model(res) := _)
+    ifSet(modelEnabled, ButtonBase.ops.modelEnabled(res) := _)
     ifSet(multiClickThreshhold, ButtonBase.ops.multiClickThreshhold(res) := _)
     ifSet(name, Node.ops.name(res) := _)
     ifSet(opaque, Component.ops.opaque(res) := _)

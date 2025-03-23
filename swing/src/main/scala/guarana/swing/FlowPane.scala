@@ -13,10 +13,9 @@ import guarana.swing.util.*
 import scala.jdk.CollectionConverters.*
 import scala.util.chaining.*
 
-opaque type FlowPane <: Pane  = javax.swing.JPanel & Pane
+opaque type FlowPane <: ChildrenSeqPane  = javax.swing.JPanel & ChildrenSeqPane
 object FlowPane extends VarsMap {
   val UI: SwingVar.Aux[FlowPane, javax.swing.plaf.PanelUI] = SwingVar[FlowPane, javax.swing.plaf.PanelUI]("UI", _.getUI.nn, _.setUI(_))
-  val Nodes: SwingVar.Aux[FlowPane, Seq[Node]] = SwingVar[FlowPane, Seq[Node]]("nodes", c => (0 until c.getComponentCount).map(c.getComponent(_).asInstanceOf[Node]), (p, children) => { p.removeAll(); children foreach (n => p.add(n.unwrap)) })
 
   
 
@@ -24,7 +23,6 @@ object FlowPane extends VarsMap {
   object Ops {
     extension (v: FlowPane) {
       def UI: Var.Aux[javax.swing.plaf.PanelUI, v.type] = FlowPane.UI.asInstanceOf[Var.Aux[javax.swing.plaf.PanelUI, v.type]]
-      def nodes: Var.Aux[Seq[Node], v.type] = FlowPane.Nodes.asInstanceOf[Var.Aux[Seq[Node], v.type]]
 
       
 
@@ -36,7 +34,7 @@ object FlowPane extends VarsMap {
   def wrap(v: javax.swing.JPanel) = v.asInstanceOf[FlowPane]
 
   def init(v: FlowPane): Scenegraph ?=> Unit = (sc: Scenegraph) ?=> {
-    Pane.init(v)
+    ChildrenSeqPane.init(v)
     v.addPropertyChangeListener(varsPropertyListener(v))
     
     
@@ -104,7 +102,7 @@ object FlowPane extends VarsMap {
     ifSet(maxSize, Node.ops.maxSize(res) := _)
     ifSet(minSize, Node.ops.minSize(res) := _)
     ifSet(name, Node.ops.name(res) := _)
-    ifSet(nodes, FlowPane.ops.nodes(res) := _)
+    ifSet(nodes, ChildrenSeqPane.ops.nodes(res) := _)
     ifSet(opaque, Component.ops.opaque(res) := _)
     ifSet(prefSize, Node.ops.prefSize(res) := _)
     ifSet(requestFocusEnabled, Component.ops.requestFocusEnabled(res) := _)

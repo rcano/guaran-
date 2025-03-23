@@ -25,16 +25,17 @@ class CssTextFieldUi extends BasicTextFieldUI, CssTextComponentCommons {
     uninstalled = true
 
   override protected def paintSafely(g: Graphics): Unit = {
+    // when not opaque we must issue this call ourselves because our superclass avoids it...
+    if (!getComponent().isOpaque()) paintBackground(g)
     super.paintSafely(g)
     paintPlaceholder(g)
   }
 
   override protected def paintBackground(g: Graphics): Unit = {
     val textFieldNode = TextComponent.wrap(getComponent.unn)
-    if textFieldNode.unwrap.isOpaque then
-      val bckgr = style.CssProperties.Background.forInstance(textFieldNode) pipe scenegraph.stateReader.apply
-      if bckgr == style.CssProperties.EmptyBackground then super.paintBackground(g)
-      else withinRegion(textFieldNode.unwrap)(RegionPainter.paintRegion(bckgr, g.upgrade, _, _, _, _))
+    val bckgr = style.CssProperties.Background.forInstance(textFieldNode) pipe scenegraph.stateReader.apply
+    if bckgr == style.CssProperties.EmptyBackground then super.paintBackground(g)
+    else withinRegion(textFieldNode.unwrap)(RegionPainter.paintRegion(bckgr, g.upgrade, _, _, _, _))   
   }
 
   // logic copied from FlatLaf

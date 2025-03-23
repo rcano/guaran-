@@ -1,16 +1,15 @@
 package guarana
 package swing
 
+import com.github.weisj.jsvg.attributes.ViewBox
+import com.github.weisj.jsvg.parser.SVGLoader
 import guarana.animation.Timeline
+import guarana.swing.plaf.{upgrade, withAliasing}
 import guarana.util.*
+import java.awt.Graphics
 import java.awt.geom.AffineTransform
-import org.apache.batik.anim.dom.SAXSVGDocumentFactory
-import org.apache.batik.swing.JSVGCanvas
-import org.apache.batik.util.XMLResourceDescriptor
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
-import scala.util.Using
 import scala.util.chaining.*
-import org.apache.batik.swing.svg.JSVGComponent
 
 object BusyIcon {
   case class Definition(icon: String, rotation: Double, interval: FiniteDuration)
@@ -31,19 +30,20 @@ object BusyIcon {
     import iconDefinition.*
     if (!icon.endsWith(".svg")) throw IllegalStateException("Only svg are supported")
 
-    val svgc = JSVGComponent()
-    svgc.setRecenterOnResize(true)
-    svgc.setBackground(Color.Transparent)
-    val res = Component.wrap(svgc).tap(Component.init)
+    val loader = SVGLoader()
+    val svgDoc = loader.load(java.net.URI.create(icon).toURL())
 
-    // manual load the document because batik fails to parse some jar urls that do work. Anyway, just fake the uri so that it always works.
-    val factory = SAXSVGDocumentFactory(XMLResourceDescriptor.getXMLParserClassName())
-    val doc = Using(java.net.URI.create(icon).toURL().openStream())(in => factory.createSVGDocument("icon.svg", in)).get
-    doc
-      .getRootElement()
-      .getViewBox()
-      .?(rect => svgc.setPreferredSize(java.awt.Dimension(rect.getBaseVal().getWidth().toInt, rect.getBaseVal().getHeight().toInt)))
-    svgc.setSVGDocument(doc)
+    var iconRotation: Double = 0
+    val iconComp = new javax.swing.JComponent {
+      override protected def paintComponent(g: Graphics): Unit = {
+        val g2 = g.upgrade.withAliasing
+        g2.rotate(iconRotation, getWidth() / 2, getHeight() / 2)
+        svgDoc.render(this: java.awt.Component, g2, new ViewBox(0, 0, getWidth().toFloat, getHeight().toFloat))
+      }
+    }
+    iconComp.setBackground(Color.Transparent)
+    val res = Component.wrap(iconComp).tap(Component.init)
+
     ifSet(maxSize, res.maxSize := _)
     ifSet(minSize, res.minSize := _)
     ifSet(prefSize, res.prefSize := _)
@@ -52,7 +52,8 @@ object BusyIcon {
     var frame = 0L
     val timeline = Timeline(
       IArray(Timeline.after(interval) {
-        svgc.setRenderingTransform(AffineTransform.getRotateInstance(rotation * frame, svgc.getWidth() / 2, svgc.getHeight() / 2), true)
+        iconRotation = rotation * frame
+        iconComp.repaint()
         frame += 1
       }),
       Timeline.Cycles.Infinite,

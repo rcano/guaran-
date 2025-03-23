@@ -26,8 +26,8 @@ trait CssSwingControlUi extends ComponentUI, CssUi {
 
   override def getPreferredSize(c: JComponent): Dimension | Null = {
     val d = super.getPreferredSize(c)
-    val padding = style.CssProperties.Padding.forInstance(c).pipe(scenegraph.stateReader(_))
     if d != null then
+      val padding = style.CssProperties.Padding.forInstance(c).pipe(scenegraph.stateReader(_))
       d.width += (padding.left + padding.right).toInt
       d.height += (padding.top + padding.bot).toInt
       d

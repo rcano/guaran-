@@ -78,7 +78,7 @@ object RadioButtonMenuItem extends VarsMap {
     horizontalAlignment: Opt[Binding[Int]] = UnsetParam,
     horizontalTextPosition: Opt[Binding[Int]] = UnsetParam,
     icon: Opt[Binding[javax.swing.Icon | Null]] = UnsetParam,
-    iconTextGap: Opt[Binding[Int]] = UnsetParam,
+    iconTextGap: Opt[Binding[Double]] = UnsetParam,
     inheritsPopupMenu: Opt[Binding[Boolean]] = UnsetParam,
     inputVerifier: Opt[Binding[javax.swing.InputVerifier | Null]] = UnsetParam,
     label: Opt[Binding[java.lang.String | Null]] = UnsetParam,
@@ -87,6 +87,7 @@ object RadioButtonMenuItem extends VarsMap {
     minSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
     mnemonic: Opt[Binding[Int]] = UnsetParam,
     model: Opt[Binding[javax.swing.ButtonModel | Null]] = UnsetParam,
+    modelEnabled: Opt[Binding[Boolean]] = UnsetParam,
     multiClickThreshhold: Opt[Binding[Long]] = UnsetParam,
     name: Opt[Binding[String | Null]] = UnsetParam,
     opaque: Opt[Binding[Boolean]] = UnsetParam,
@@ -132,7 +133,7 @@ object RadioButtonMenuItem extends VarsMap {
     ifSet(disabledSelectedIcon, ButtonBase.ops.disabledSelectedIcon(res) := _)
     ifSet(displayedMnemonicIndex, ButtonBase.ops.displayedMnemonicIndex(res) := _)
     ifSet(doubleBuffered, Component.ops.doubleBuffered(res) := _)
-    ifSet(enabled, ButtonBase.ops.enabled(res) := _)
+    ifSet(enabled, Node.ops.enabled(res) := _)
     ifSet(focusPainted, ButtonBase.ops.focusPainted(res) := _)
     ifSet(focusable, Node.ops.focusable(res) := _)
     ifSet(font, Node.ops.font(res) := _)
@@ -150,6 +151,7 @@ object RadioButtonMenuItem extends VarsMap {
     ifSet(minSize, Node.ops.minSize(res) := _)
     ifSet(mnemonic, ButtonBase.ops.mnemonic(res) := _)
     ifSet(model, ButtonBase.ops.model(res) := _)
+    ifSet(modelEnabled, ButtonBase.ops.modelEnabled(res) := _)
     ifSet(multiClickThreshhold, ButtonBase.ops.multiClickThreshhold(res) := _)
     ifSet(name, Node.ops.name(res) := _)
     ifSet(opaque, Component.ops.opaque(res) := _)

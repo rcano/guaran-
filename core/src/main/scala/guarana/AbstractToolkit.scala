@@ -60,7 +60,7 @@ abstract class AbstractToolkit {
       if (!stackContext.isBound()) {
         val ctx = ContextImpl(switchboard, instancesData, externalVars, seenVars, emitterStation)
         varcontextLogger.debug(s"no current varcontext, installing $ctx")
-        val res = ScopedValue.getWhere(stackContext, ctx, () => f(using this)(using stackContext.get().unn))
+        val res = ScopedValue.where(stackContext, ctx).call(() => f(using this)(using stackContext.get().unn))
         varcontextLogger.debug(s"context $ctx popped")
         res
       } else {
@@ -213,7 +213,7 @@ abstract class AbstractToolkit {
                 new ContextImpl(sb, parent.instancesData, parent.externalVars, parent.seenVars, parent.emitterStation)
             }
             varcontextLogger.debug(s"evaluating binding, installing context $ctx")
-            val res = ScopedValue.getWhere(stackContext, ctx, () => c(stackContext.get().unn))
+            val res = ScopedValue.where(stackContext, ctx).call(() => c(stackContext.get().unn))
             varcontextLogger.debug(s"evaluating binding, context $ctx popped")
             res
           )

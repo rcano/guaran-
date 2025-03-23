@@ -65,10 +65,39 @@ object ObsVal {
 
   implicit def obs2Keyed[T](v: ObsVal[T])(implicit instance: ValueOf[v.ForInstance]): Keyed[v.type] = Keyed(v, instance.value)
 
+  val DebounceEmitter = Emitter[Any]()
+
   extension [T, Val[t] <: ObsVal[t]](inline v: Val[T]) {
     inline def forInstance[S <: Singleton](s: S): Val[T] { type ForInstance = S } = v.asInstanceOf[Val[T] { type ForInstance = S }]
     inline def forInstance[S <: Singleton]: Val[T] { type ForInstance = S } = v.asInstanceOf[Val[T] { type ForInstance = S }]
     inline def asObsValIn[S <: Singleton](s: S): ObsVal.Aux[T, S] = v.asInstanceOf[ObsVal.Aux[T, S]]
+  }
+
+  extension [T](v: ObsVal[T]) {
+    def debounce(
+        duration: FiniteDuration
+    )(using tk: AbstractToolkit & animation.TimersDef, instance: ValueOf[v.ForInstance]): ObsVal.Aux[T, instance.value.type] = {
+      tk.update {
+        val debouncer = DebounceEmitter.asInstanceOf[Emitter[T]].forInstance(instance.value)
+        var lastValue = v()
+        val notifier = debouncer.toVar(lastValue, EventIterator)
+        val timer = tk.TimerLike(
+          duration,
+          timer => {
+            timer.stop()
+            tk.update(summon[VarContext].emit(debouncer, lastValue))
+          },
+          _ => ()
+        )
+        instance.value.varUpdates := EventIterator.foreach {
+          case v(_, newv) =>
+            lastValue = newv
+            timer.restart()
+          case _ =>
+        }
+        notifier
+      }
+    }
   }
 }
 
@@ -133,33 +162,6 @@ object Binding {
   inline def dynDebug[T](inline f: VarContextAction[T]) = impl.BindingMacro.dynDebug[T](f)
 
   val Null = Const[Null](() => null)
-
-  private val DebounceEmitter = Emitter[Any]()
-  extension [T](theVar: ObsVal[T])
-    def debounce(
-        duration: FiniteDuration
-    )(using tk: AbstractToolkit & animation.TimersDef, instance: ValueOf[theVar.ForInstance]): Compute[T] = {
-      tk.update {
-        val debouncer = DebounceEmitter.asInstanceOf[Emitter[T]].forInstance(instance.value)
-        var lastValue = theVar()
-        val notifier = debouncer.toVar(lastValue, EventIterator)
-        val timer = tk.TimerLike(
-          duration,
-          timer => {
-            timer.stop()
-            tk.update(summon[VarContext].emit(debouncer, lastValue))
-          },
-          _ => ()
-        )
-        instance.value.varUpdates := EventIterator.foreach {
-          case theVar(_, newv) =>
-            lastValue = newv
-            timer.restart()
-          case _ =>
-        }
-        bind(implicit ctx => notifier())
-      }
-    }
 }
 
 trait ExternalObsVal[+T] extends ObsVal[T] {

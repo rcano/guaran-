@@ -42,7 +42,6 @@ object Timeline {
   final case class KeyFrame(duration: Long, step: Long => Unit, endAction: () => Unit) {
     def +(other: KeyFrame): KeyFrame = {
       val (longerFrame, shorterFrame) = if duration >= other.duration then (this, other) else (other, this)
-      val shorterRatio = shorterFrame.duration.toDouble / longerFrame.duration
       KeyFrame(
         longerFrame.duration,
         elapsed =>
