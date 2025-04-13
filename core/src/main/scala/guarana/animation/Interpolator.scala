@@ -28,7 +28,7 @@ object Interpolator {
     val interp = summon[Interpolator[Double]].interpolate
     (min, max, by) => summon[BoundsLike[Bounds]](
       x = interp(min.x, max.x, by),
-      y = interp(min.x, max.y, by),
+      y = interp(min.y, max.y, by),
       width = interp(min.width, max.width, by),
       height = interp(min.height, max.height, by)
     ) 

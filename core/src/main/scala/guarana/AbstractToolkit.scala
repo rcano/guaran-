@@ -83,10 +83,9 @@ abstract class AbstractToolkit {
     * for external properties, they'll notify that they were change, and we want to avoid resetting the value and discarding the user
     * provided Binding.
     */
-  private def reactingToVar[R](k: Keyed[Signal[?]])(f: => R): R = {
-    reactingExtVars `add` k.id
-    val res = f
-    reactingExtVars `remove` k.id
+  private def reactingToExtVar[R](k: Keyed[Signal[?]])(f: => R): R = {
+    reactingExtVars.add(k.id)
+    val res = try f finally reactingExtVars.remove(k.id)
     res
   }
   private object reporter extends SignalSwitchboard.Reporter[Signal] {
@@ -97,11 +96,24 @@ abstract class AbstractToolkit {
       seenVars.get(s.keyId) match {
         case v: Var[_] if v.eagerEvaluation =>
           scribe.debug(s"Keyed(${instancesData.get(s.instanceId).?(_.instance.deref)}, ${seenVars.get(s.keyId)}) eagerly evaluating")
-          /* We intentionally don't run evaluations on the same tick and context that's reacting to signal invalidation, we do it on the next frame. This prevents some potentially huge
-           * chain recation calls by distributing as tasks to the eventloop.
-           * We also read straight from the switchboard because we want it to be computed, not affect our VarContext tracking.
-           */
-          reactingToVar(s) { switchboard.get(s) }
+          switchboard.get(s)
+          // v match {
+          //   case ev: ExternalVar[t] => reactingToExtVar(s) {
+              
+          //     val data = instancesData.get(s.instanceId).unn
+          //     val instanceOpt = data.instance
+          //     instanceOpt.deref.toOption.foreach { instance =>
+          //       val evInstance = instance.asInstanceOf[ev.ForInstance]
+          //       if (ev.get(evInstance) != curr) ev.set(evInstance, curr)
+          //     }
+          //   }
+
+          //   case _ => switchboard.get(s)
+          // }
+        // /* We intentionally don't run evaluations on the same tick and context that's reacting to signal invalidation, we do it on the next frame. This prevents some potentially huge
+        //  * chain recation calls by distributing as tasks to the eventloop.
+        //  * We also read straight from the switchboard because we want it to be computed, not affect our VarContext tracking.
+        //  */
         // val stack = new Exception()
         // runOnToolkitThread(() => try reactingToVar(s) { switchboard.get(s) } catch case any: Throwable => {any.addSuppressed(stack); throw any})
         case _ =>
@@ -122,14 +134,21 @@ abstract class AbstractToolkit {
         dependencies: LongHashSet,
         dependents: LongHashSet
     ): Unit = {
-      if (stackContext.isBound()) {
-        val ctx = (stackContext.get(): ContextImpl | Null).unn
-        given VarContext = ctx
+      update {
+        val ctx = summon[VarContext].asInstanceOf[ContextImpl]
         // FIXME: broken api
         val data = instancesData.get(s.instanceId).unn
         val instanceOpt = data.instance
         scribe.debug(s"Keyed(${instanceOpt.deref}, ${seenVars.get(s.keyId)}) updated")
         instanceOpt.deref.toOption.foreach { instance =>
+          // println(s"signal updated ${signalDescriptor.describe(s)}, reacting ? ${reactingExtVars.contains(s.id)}")
+          if (signalDescriptor.isExternal(s) && !reactingExtVars.contains(s.id)) {
+            reactingToExtVar(s) {
+              // println(s"    setting external prop ${signalDescriptor.describe(s)}")
+              seenVars.get(s.keyId).?(v => v.asInstanceOf[ExternalVar[T] { type ForInstance = instance.type }].set(instance, newValue))
+            }
+          }
+
           if (emitterStation.hasListeners(instance.varUpdates)) {
             scribe.debug(s"Keyed($instance, ${seenVars.get(s.keyId)}) has listeners on its changes, emitting VarValueChanged")
             seenVars.get(s.keyId).?(v => ctx.emit(instance.varUpdates, VarValueChanged(v, instance, oldValue, newValue)))

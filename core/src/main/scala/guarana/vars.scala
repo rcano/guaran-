@@ -196,34 +196,34 @@ object ExternalObsVal {
 
 trait ExternalVar[T] extends Var[T] with ExternalObsVal[T] {
   private[guarana] def set(n: ForInstance, v: T): Unit
-  @targetName("assign")
-  override def :=(b: Binding[T])(using instance: ValueOf[ForInstance]): VarContextAction[this.type] = {
-    val ctx = summon[VarContext]
-    b match {
-      case Binding.Const(v, tr) =>
-        val t = v()
-        val current = get(instance.value)
-        if (current != t) {
-          set(instance.value, t)
-          ctx(this) = Binding.Const(() => t, tr)
-        }
-      case Binding.Compute(c, tr) =>
-        val wr = impl.WeakRefFactory(instance.value.asInstanceOf[AnyRef])
-        ctx(this) = Binding.Compute(
-          { ctx =>
-            wr.deref match {
-              case null => c(ctx)
-              case instance =>
-                val t = c(ctx)
-                set(instance.asInstanceOf[ForInstance], t)
-                t
-            }
-          },
-          tr
-        )
-    }
-    this
-  }
+  // @targetName("assign")
+  // override def :=(b: Binding[T])(using instance: ValueOf[ForInstance]): VarContextAction[this.type] = {
+  //   val ctx = summon[VarContext]
+  //   b match {
+  //     case Binding.Const(v, tr) =>
+  //       val t = v()
+  //       val current = get(instance.value)
+  //       if (current != t) {
+  //         set(instance.value, t)
+  //         ctx(this) = Binding.Const(() => t, tr)
+  //       }
+  //     case Binding.Compute(c, tr) =>
+  //       val wr = impl.WeakRefFactory(instance.value.asInstanceOf[AnyRef])
+  //       ctx(this) = Binding.Compute(
+  //         { ctx =>
+  //           wr.deref match {
+  //             case null => c(ctx)
+  //             case instance =>
+  //               val t = c(ctx)
+  //               set(instance.asInstanceOf[ForInstance], t)
+  //               t
+  //           }
+  //         },
+  //         tr
+  //       )
+  //   }
+  //   this
+  // }
 }
 
 object ExternalVar {

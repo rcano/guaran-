@@ -17,6 +17,7 @@ class TestStyle()(using scenegraph: Scenegraph) extends Stylist {
   val textFieldBck = style.Background(fills = IArray(style.BackgroundFill(Color.Lavender, style.CornerRadii.all(0), Insets.all(0))))
   val textFieldBckHover = style.Background(fills = IArray(style.BackgroundFill(Color.Lavender.deriveHSB(1.1, 1, 1, 1), style.CornerRadii.all(0), Insets.all(0))))
 
+  def getTransition[T](metrics: Stylist.Metrics, property: ObsVal[T], instance: Any) = None
 
   def apply[T](metrics: Stylist.Metrics, property: ObsVal[T], instance: Any) = {
     lazy val emSize = scenegraph.stateReader.getOrDefault(scenegraph.emSize)

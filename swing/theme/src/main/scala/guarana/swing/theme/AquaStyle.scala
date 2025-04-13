@@ -65,6 +65,7 @@ class AquaStyle() extends Stylist {
     val textAreaEmptyBorder = Border(IArray(BorderStroke.simple(baseBackgroundColorHighlight, BasicStroke(emSize.toFloat / 2), NoCorners, Insets.all(emSize/2))))
   }
 
+  def getTransition[T](metrics: Stylist.Metrics, property: ObsVal[T], instance: Any) = None
   def apply[T](metrics: Stylist.Metrics, property: ObsVal[T], instance: Any): AbstractToolkit ?=> Option[T] = {
     val emSize = metrics.emSize
     val info = toolkit.stateReader
@@ -151,13 +152,13 @@ class AquaStyle() extends Stylist {
               focusAnimation.?(_.timer.stop())
               if hovered then
                 focusAnimation = Timeline(
-                  IArray(KeyFrame(250.millis, opacity, minOpacity, 1, EaseBothCurve)),
+                  IArray(KeyFrame(250.millis, opacity, minOpacity, 1, animation.EaseBothCurve)),
                   Timeline.Cycles.Iterations(2),
                   ups = 30
                 )(Scenegraph)
               else
                 focusAnimation = Timeline(
-                  IArray(KeyFrame(250.millis, opacity, 1, minOpacity, EaseBothCurve)),
+                  IArray(KeyFrame(250.millis, opacity, 1, minOpacity, animation.EaseBothCurve)),
                   Timeline.Cycles.Iterations(2),
                   ups = 30
                 )(Scenegraph)

@@ -134,11 +134,12 @@ private[impl] class SignalSwitchboardImpl[Signal[+T] <: util.Unique](
         val result = compute.transitionDef match {
           case TransitionType.Instant =>
             signalStates.put(s.id, Value(targetValue))
-            if (useReentrancyDetection) reentrancyDetector.remove(s.id)
             targetValue
 
           case defn: (TransitionType.Interp[T] @unchecked) => startTransition[T](s, oldv.asInstanceOf, targetValue, defn)
         }
+
+        if (useReentrancyDetection) reentrancyDetector.remove(s.id)
         
         if (result != oldv)
           reporter.signalUpdated(this, s, Option(oldv), result, computedRels.dependencies, computedRels.dependents)
@@ -157,16 +158,26 @@ private[impl] class SignalSwitchboardImpl[Signal[+T] <: util.Unique](
     val min = oldv.nullFold(v => v, baseValue)
     val initValue = min
 
+    if (initValue == targetValue) {
+      signalStates.put(s.id, Value(targetValue))
+      return initValue
+    }
+
     val trn = Transition(delay, duration, initValue, targetValue, curve, defn.interp)
+    // println(s"${Console.MAGENTA}Creating transition from $initValue -- to -- $targetValue${Console.RESET}")
+
+    val computedRels = signalRels.get(s.id).unn
 
     lazy val anim: Timeline.Animation[timers.Timer] = Timeline(IArray(KeyFrame((delay + duration).toNanos, elapsed => {
       val curr = trn.valueAt(elapsed)
-      // println(s"interpolating var after $elapsed, $curr / $targetValue")
+      // println(s"interpolating var after $elapsed, $initValue / $curr / $targetValue")
       signalStates.put(s.id, Transitioning(curr, anim.timer))
       propagateSignal(s, skipSelf = true)
+      reporter.signalUpdated(this, s, Option(oldv), curr, computedRels.dependencies, computedRels.dependents)
     }, () => {
       signalStates.put(s.id, Value(targetValue))
       propagateSignal(s, skipSelf = true)
+      reporter.signalUpdated(this, s, Option(oldv), targetValue, computedRels.dependencies, computedRels.dependents)
     })), Timeline.Cycles.SingleShot, updatesPerSecond, false)(timers)
 
     signalStates.put(s.id, Transitioning(initValue, anim.timer))
@@ -187,7 +198,7 @@ private[impl] class SignalSwitchboardImpl[Signal[+T] <: util.Unique](
       !currState.exists {
         case Value(`value`) => true
         case External =>
-          /* external properties must always fire, since we have no way of tracking for a value change because we get notified of update after the underlying
+          /* external properties must always update, since we have no way of tracking for a value change because we get notified of update after the underlying
            value was modified. There's no way of weaving this. In the future we might investigate how to do it, but we have to be mindful of allocations as well.
            ExternalVar implementors are encouraged to make this check on their own before notifying the switchboard.
            */
@@ -232,7 +243,7 @@ private[impl] class SignalSwitchboardImpl[Signal[+T] <: util.Unique](
     if !signalStates.containsKey(s.id) then return
 
     scribe.debug(s"${"  " * depth.getAndIncrement()}propagating invalidation for ${signalDescriptor
-      .describe(s)} ${s.descrString} ${signalRels.get(s.id).?(_.descr(signalDescriptor))}")
+      .describe(s)} ${s.descrString} ${signalRels.get(s.id).nullFold(_.descr(signalDescriptor), "No-Rels")}")
     if (!skipSelf) {
       signalEvaluator.get(s.id).? { compute =>
         signalStates.get(s.id) match {
@@ -240,6 +251,7 @@ private[impl] class SignalSwitchboardImpl[Signal[+T] <: util.Unique](
           case _: Recompute => //if already recompute, do nothing
           case Transitioning(currValue, timer) =>
             timer.asInstanceOf[timers.Timer].stop()
+            // println(s"timer interrupted at $currValue")
             signalStates.put(s.id, Recompute(currValue))
           case Value(oldv) => signalStates.put(s.id, Recompute(oldv))
           case External => signalStates.put(s.id, Recompute(signalDescriptor.getExternal(s)))

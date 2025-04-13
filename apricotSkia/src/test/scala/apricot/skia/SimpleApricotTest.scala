@@ -23,6 +23,7 @@ import animation.ScriptDsl.{*, given}
   @threadUnsafe
   lazy val engine: ApricotEngine[AbstractToolkit] = ApricotEngine(true, new AbstractToolkit {
 
+    def timerDefs = animation.TimersDef.UnsupportedTimersDef
     protected def isOnToolkitThread(): Boolean = Thread.currentThread == mainThread
     protected def runOnToolkitThread(r: () => Any): Unit = engine.onNextFrame(r())
     def getMetrics(): Stylist.Metrics = Stylist.Metrics.NoOp
