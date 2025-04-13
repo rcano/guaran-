@@ -30,6 +30,9 @@ trait CssSwingControlUi extends ComponentUI, CssUi {
       val padding = style.CssProperties.Padding.forInstance(c).pipe(scenegraph.stateReader(_))
       d.width += (padding.left + padding.right).toInt
       d.height += (padding.top + padding.bot).toInt
+      val componentInsets = c.getInsets(null)
+      d.width += componentInsets.left + componentInsets.right
+      d.height += componentInsets.top + componentInsets.bottom
       d
     else null
   }

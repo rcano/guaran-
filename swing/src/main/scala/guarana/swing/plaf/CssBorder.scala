@@ -3,8 +3,9 @@ package swing
 package plaf
 
 import language.implicitConversions
-import java.awt.{Component => AwtComponent, Graphics, Graphics2D, Polygon, Shape, geom}
+import java.awt.{Component => AwtComponent, Graphics, Graphics2D, Shape, geom}
 import scala.util.chaining.*
+import guarana.util.cfor
 
 class CssBorder(scenegraph: Scenegraph) extends javax.swing.border.Border {
 
@@ -15,7 +16,7 @@ class CssBorder(scenegraph: Scenegraph) extends javax.swing.border.Border {
     lastComputedInsets = Some(res)
     res.toAwt
   }
-  def isBorderOpaque(): Boolean = true
+  def isBorderOpaque(): Boolean = false
   def paintBorder(awtc: AwtComponent, g: Graphics, x: Int, y: Int, width: Int, height: Int): Unit = {
     val borderSpec = style.CssProperties.Border.forInstance(awtc) pipe (scenegraph.stateReader(_))
     CssBorder.paintBorder(borderSpec, lastComputedInsets.get, g.nn, x, y, width, height)
@@ -25,11 +26,24 @@ object CssBorder {
 
   def getBorderInsets(border: style.Border): Insets = {
     var top, left, bottom, right = 0.0
-    for (insets <- border.strokes.iterator.map(_.insets) ++ border.images.iterator.map(_.insets)) {
+    cfor(0, _ < border.strokes.size) { i =>
+      val strokeBorder = border.strokes(i)
+      val insets = strokeBorder.insets
+      // (strokeBorder.topStyle.getLineWidth() / 2).ceil
+      top = (insets.top ) max top
+      left = (insets.left ) max left
+      bottom = (insets.bot) max bottom
+      right = (insets.right) max right
+      i + 1
+    }
+    cfor(0, _ < border.images.size) { i =>
+      val imageBorder = border.images(i)
+      val insets = imageBorder.insets
       top = insets.top max top
       left = insets.left max left
       bottom = insets.bot max bottom
       right = insets.right max right
+      i + 1
     }
     Insets(top, right, bottom, left)
   }
@@ -52,11 +66,12 @@ object CssBorder {
     // prevent producint a pointy stroke
     for (stroke <- borderSpec.strokes) atBorder(stroke.insets) { (x, y, width, height) =>
       val shape = Option(regionShape).getOrElse {
+        val strokePortion = 1.0
         RegionPainter.shapeForRegion(
-          x + stroke.leftStyle.getLineWidth / 2,
-          y + stroke.topStyle.getLineWidth / 2,
-          width - stroke.leftStyle.getLineWidth / 2 - stroke.rightStyle.getLineWidth / 2,
-          height - stroke.topStyle.getLineWidth / 2 - stroke.botStyle.getLineWidth / 2,
+          x + stroke.leftStyle.getLineWidth / strokePortion,
+          y + stroke.topStyle.getLineWidth / strokePortion,
+          width - stroke.leftStyle.getLineWidth / strokePortion - stroke.rightStyle.getLineWidth / strokePortion,
+          height - stroke.topStyle.getLineWidth / strokePortion - stroke.botStyle.getLineWidth / strokePortion,
           stroke.radii
         )
       }
@@ -190,6 +205,10 @@ object CssBorder {
         0, imageHeight - botSlice, leftSlice, imageHeight,
         image.repeatX, image.repeatY)
     }
+    // g2.setClip(prevClip)
+    // g2.setPaint(Color.Red)
+    // g2.setStroke(java.awt.BasicStroke(1))
+    // g2.drawRect(x.toInt, y.toInt, width.toInt - 1, height.toInt - 1)
 
     g2.dispose()
   }

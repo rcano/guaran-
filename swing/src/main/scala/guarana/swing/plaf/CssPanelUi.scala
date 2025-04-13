@@ -17,7 +17,7 @@ class CssPanelUi extends BasicPanelUI, CssSwingControlUi {
     val bckProp = style.CssProperties.Background.forInstance(c)
     val bck = scenegraph.stateReader(bckProp)
     if (bck.fills.isEmpty && bck.images.isEmpty) super.paint(g, c)
-    else plaf.RegionPainter.paintRegion(bck, g.upgrade.withAliasing, 0, 0, c.getWidth, c.getHeight)
+    else withinRegion(c)(plaf.RegionPainter.paintRegion(bck, g.upgrade.withAliasing, _, _, _, _))
   }
 }
 object CssPanelUi extends CssPanelUi {

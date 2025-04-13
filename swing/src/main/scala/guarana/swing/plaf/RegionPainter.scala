@@ -2,8 +2,7 @@ package guarana.swing
 package plaf
 
 import language.implicitConversions
-import java.awt.{geom, Graphics, Graphics2D, Shape}
-import java.awt.image.MultiResolutionImage
+import java.awt.{geom, Graphics2D, Shape}
 import javax.swing.plaf.synth.*
 import scala.util.chaining.*
 
