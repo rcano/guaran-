@@ -38,6 +38,7 @@ object Scenegraph extends SwingTimers {
 }
 class Scenegraph extends AbstractToolkit, SwingTimers {
 
+  def timerDefs = this
   protected def isOnToolkitThread() = SwingUtilities.isEventDispatchThread
   protected def runOnToolkitThread(r: () => Any): Unit = SwingUtilities.invokeLater(() => r())
 

@@ -96,9 +96,15 @@ def Font(name: String, style: Opt[Int] = UnsetParam, size: Opt[Double] = UnsetPa
 
 extension (n: Node) {
   /** Wraps this node in a box that ensures it is centered horizontally */
-  def xCentered: Scenegraph ?=>  VarContextAction[Node] = Vbox(nodes = Seq(n))
+  def xCentered(setMaxSizeToPrefSize: Boolean = true): Scenegraph ?=>  VarContextAction[Node] = {
+    if (setMaxSizeToPrefSize) n.maxSize := Binding.dyn { n.prefSize() }
+    Hbox(nodes = Seq(Box.horizontalGlue(), n, Box.horizontalGlue()))
+  }
   /** Wraps this node in a box that ensures it is centered vertically */
-  def yCentered: Scenegraph ?=>  VarContextAction[Node] = Hbox(nodes = Seq(n))
+  def yCentered(setMaxSizeToPrefSize: Boolean = true): Scenegraph ?=>  VarContextAction[Node] = {
+    if (setMaxSizeToPrefSize) n.maxSize := Binding.dyn { n.prefSize() }
+    Vbox(nodes = Seq(Box.verticalGlue(), n, Box.verticalGlue()))
+  }
 }
 
 type Bounds = java.awt.Rectangle
@@ -111,6 +117,18 @@ extension (i: Insets) {
 
 extension (obj: Insets.type) {
   def fromAwt(i: java.awt.Insets): Insets = Insets(i.top, i.right, i.bottom, i.left)
+}
+given BoundsLike[Bounds] with {
+
+  override def apply(x: Double, y: Double, width: Double, height: Double): Bounds = Bounds(x, y, width, height)
+
+  extension (b: Bounds) override def x: Double = b.getX()
+
+  extension (b: Bounds) override def y: Double = b.getY()
+
+  extension (b: Bounds) override def width: Double = b.getWidth()
+
+  extension (b: Bounds) override def height: Double = b.getHeight()
 }
 
 object SwingExecutionContext extends scala.concurrent.ExecutionContext {

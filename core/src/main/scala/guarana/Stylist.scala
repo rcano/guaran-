@@ -13,6 +13,11 @@ trait Stylist {
    * Return the style defined value for a given property, if defined.
    */
   def apply[T](metrics: Stylist.Metrics, property: ObsVal[T], instance: Any): AbstractToolkit ?=> Option[T]
+  
+  /**
+   * Return the transition for defined value for a given property, if defined.
+   */
+  def getTransition[T](metrics: Stylist.Metrics, property: ObsVal[T], instance: Any): AbstractToolkit ?=> Option[animation.TransitionType[T]]
 
   /** Notifies the stylist that the cache for the given node should be invalidated, typically
     * called when the node is removed from the toolkit.
@@ -37,6 +42,7 @@ trait Stylist {
 object Stylist {
   val NoOp = new Stylist {
     def apply[T](metrics: Stylist.Metrics, property: ObsVal[T], instance: Any) = None
+    def getTransition[T](metrics: Stylist.Metrics, property: ObsVal[T], instance: Any) = None
     def invalidateCache(node: Any) = ()
     def installDefaults(node: Any) = ()
     def uninstallDefaults(node: Any) = ()

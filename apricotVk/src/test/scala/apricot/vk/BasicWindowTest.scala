@@ -3,6 +3,7 @@ package vk
 
 import better.files.*
 import guarana.{AbstractToolkit, Stylist}
+import guarana.animation.TimersDef
 import java.nio.LongBuffer
 import java.util.concurrent.locks.LockSupport
 import org.lwjgl.glfw.{GLFW, GLFWVulkan}
@@ -26,6 +27,8 @@ object BasicWindowTest {
     lazy val engine: ApricotEngine[AbstractToolkit] = ApricotEngine(
       true,
       new AbstractToolkit {
+
+        def timerDefs: TimersDef = TimersDef.UnsupportedTimersDef
         protected def isOnToolkitThread(): Boolean = Thread.currentThread == mainThread
         protected def runOnToolkitThread(r: () => Any): Unit = engine.onNextFrame(r())
         def getMetrics(): Stylist.Metrics = Stylist.Metrics.NoOp

@@ -5,19 +5,23 @@ import language.implicitConversions
 import java.io.IOException
 import java.net.URLClassLoader
 import java.nio.file.attribute.BasicFileAttributes
-import java.nio.file.{Files , StandardWatchEventKinds, FileVisitor, FileVisitResult, Path, Paths, WatchEvent}
+import java.nio.file.{FileVisitResult, FileVisitor, Files, Path, Paths, StandardWatchEventKinds, WatchEvent}
 import javax.swing.SwingUtilities
 import scala.jdk.CollectionConverters.*
 import scala.util.control.NonFatal
 import scala.util.chaining.*
 import scala.util.matching.Regex
 
-/**
- * Main application used during developement for hot reloading of the application using classloaders magic.
- * Note that this class is meant for a sbt like setup, since it the file monitoring will be done over the directories `target/scala-2.12/classes` and `target/scala-2.12/test-classes`
- */
+/** Main application used during developement for hot reloading of the application using classloaders magic. Note that this class is meant
+  * for a sbt like setup, since it the file monitoring will be done over the directories `target/scala-2.12/classes` and
+  * `target/scala-2.12/test-classes`
+  */
 object DevAppReloader {
   val out = System.out.unn
+
+  trait Reloadable {
+    def onReload(currentFrame: Option[javax.swing.JFrame]): Unit
+  }
 
   // val classesDirectories = Array(Paths.get("target/scala-0.26/classes").nn, Paths.get("target/scala-0.26/test-classes").nn).filter(Files.exists(_)).map(_.toAbsolutePath.nn)
 
@@ -26,9 +30,16 @@ object DevAppReloader {
     classesDirectories.foreach(f => if (!Files.exists(f)) throw new IllegalStateException(s"directory $f doesn't exists"))
     val fileWatcher = classesDirectories.head.getFileSystem.unn.newWatchService.unn
     classesDirectories foreach { classesDir =>
-      Files.walkFileTree(classesDir, new FileVisitor[Path] {
+      Files.walkFileTree(
+        classesDir,
+        new FileVisitor[Path] {
           override def preVisitDirectory(dir: Path, attrs: BasicFileAttributes) = {
-            dir.register(fileWatcher, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY)
+            dir.register(
+              fileWatcher,
+              StandardWatchEventKinds.ENTRY_CREATE,
+              StandardWatchEventKinds.ENTRY_DELETE,
+              StandardWatchEventKinds.ENTRY_MODIFY
+            )
             FileVisitResult.CONTINUE
           }
           override def postVisitDirectory(dir: Path, excec: IOException) = {
@@ -40,8 +51,14 @@ object DevAppReloader {
           override def visitFileFailed(file: Path, excec: IOException) = {
             FileVisitResult.TERMINATE
           }
-        })
-      classesDir.register(fileWatcher, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY)
+        }
+      )
+      classesDir.register(
+        fileWatcher,
+        StandardWatchEventKinds.ENTRY_CREATE,
+        StandardWatchEventKinds.ENTRY_DELETE,
+        StandardWatchEventKinds.ENTRY_MODIFY
+      )
     }
 
     new Thread("ClassesChangesWatcher") {
@@ -50,18 +67,22 @@ object DevAppReloader {
         var updateFound = false
         var lastUpdate = System.currentTimeMillis
 
-        while(!isInterrupted()) {
+        while (!isInterrupted()) {
           val now = System.currentTimeMillis
           val wk = fileWatcher.poll(100, java.util.concurrent.TimeUnit.MILLISECONDS)
           if (wk != null) {
-            wk.pollEvents.nn.asScala foreach {
-              case watchEvent: WatchEvent[Path @unchecked] =>
-                val context = wk.watchable.asInstanceOf[Path].resolve(watchEvent.context).nn
-                out.println(s"detected change $context")
+            wk.pollEvents.nn.asScala foreach { case watchEvent: WatchEvent[Path @unchecked] =>
+              val context = wk.watchable.asInstanceOf[Path].resolve(watchEvent.context).nn
+              out.println(s"detected change $context")
 
-                if (watchEvent.kind == StandardWatchEventKinds.ENTRY_CREATE && Files.isDirectory(context)) {
-                  context.register(fileWatcher, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY)
-                }
+              if (watchEvent.kind == StandardWatchEventKinds.ENTRY_CREATE && Files.isDirectory(context)) {
+                context.register(
+                  fileWatcher,
+                  StandardWatchEventKinds.ENTRY_CREATE,
+                  StandardWatchEventKinds.ENTRY_DELETE,
+                  StandardWatchEventKinds.ENTRY_MODIFY
+                )
+              }
             }
             wk.reset()
             updateFound = true
@@ -75,7 +96,6 @@ object DevAppReloader {
         out.println("watcher dying")
       }
     }.tap(_.setDaemon(true)).start()
-
 
     reloadApp(classesDirectories, reloadableClassPattern, mainClass, args)
   }
@@ -95,7 +115,7 @@ object DevAppReloader {
         def run: Unit = {
           var framePosition: Option[java.awt.Rectangle] = None
 
-          //is there was an application, we need to dispose of it first
+          //if there was an application, we need to dispose of it first
           if (lastApplication != null) {
             val loadedClassesBefore = classLoadingMxBean.getLoadedClassCount
             try lastApplication.unn.getDeclaredMethod("close").nn.invoke(null)
@@ -103,21 +123,24 @@ object DevAppReloader {
               case _: NoSuchMethodException => //expected
               case NonFatal(e) => out.println("stopping application failed"); e.printStackTrace()
             }
-            framePosition = java.awt.Frame.getFrames.asInstanceOf[Array[java.awt.Frame]]
+            framePosition = java.awt.Frame.getFrames
+              .asInstanceOf[Array[java.awt.Frame]]
               .collect { case f: javax.swing.JFrame => f }
               .map { jf =>
                 val pos = jf.getBounds.nn
                 jf.setVisible(false)
                 jf.dispose()
-                println(s"disposing frame $jf")
+                println(s"disposing frame $jf and retaining bounds $pos")
                 pos
-              }.headOption
-            
+              }
+              .lastOption
+
             val cl = lastApplication.unn.getClassLoader.asInstanceOf[URLClassLoader]
             System.gc()
             cl.close()
             val classesDifference = classLoadingMxBean.getLoadedClassCount - loadedClassesBefore
-            if (classesDifference > 0) out.println(Console.YELLOW + s"WARNING: classes failed to be unloaded, leaked: $classesDifference" + Console.RESET)
+            if (classesDifference > 0)
+              out.println(Console.YELLOW + s"WARNING: classes failed to be unloaded, leaked: $classesDifference" + Console.RESET)
             else out.println("unloaded classes " + classLoadingMxBean.getUnloadedClassCount)
           }
 
@@ -128,13 +151,11 @@ object DevAppReloader {
               var res: Class[?] | Null = findLoadedClass(name)
               val startTime = System.currentTimeMillis
 
-
               if reloadableClassPattern.findPrefixOf(name.asInstanceOf[String]).isDefined then
-                while res == null && System.currentTimeMillis - startTime < 60000 do//will retry for an entire minute for this class to appear  
+                while res == null && System.currentTimeMillis - startTime < 60000 do //will retry for an entire minute for this class to appear
                   try res = findClass(name)
                   catch case _: ClassFormatError | _: ClassNotFoundException => Thread.sleep(50) //give it some time
-              else
-                res = super.loadClass(name, false)
+              else res = super.loadClass(name, false)
 
               // while (res == null && System.currentTimeMillis - startTime < 60000) {//will retry for an entire minute for this class to appear
               //   try res = findClass(name)
@@ -155,9 +176,14 @@ object DevAppReloader {
           lastApplication.unn.getDeclaredMethod("main", classOf[Array[String]]).unn.invoke(null, otherArgs)
 
           framePosition foreach { pos =>
-            java.awt.Frame.getFrames.asInstanceOf[Array[java.awt.Frame]]
-              .collectFirst { case f: javax.swing.JFrame => f }
-              .foreach(_.setBounds(pos))
+            SwingUtilities.invokeLater(() =>
+              val frames = java.awt.Frame.getFrames
+                .asInstanceOf[Array[java.awt.Frame]]
+                .collect { case f: javax.swing.JFrame => f }
+              val newFrame = frames.lastOption
+              out.println(s"Attempting to set bounds $pos to found frame $newFrame")
+              newFrame.foreach(_.setBounds(pos))
+            )
           }
           recompiling = false
         }

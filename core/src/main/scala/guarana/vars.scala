@@ -138,31 +138,38 @@ object Var extends VarExtensions {
 }
 
 enum Binding[+T] {
-  case Const(value: () => T)
-  case Compute(compute: VarContext => T)
+  case Const(value: () => T, transitionType: Option[animation.TransitionType[T]] = None)
+  case Compute(compute: VarContext => T, transitionType: Option[animation.TransitionType[T]] = None)
   // case Transition(compute: VarContext => T)
 
   def map[U](f: T => U): Binding[U] = this match {
-    case Const(v) =>
+    case Const(v, t) =>
       val cached = f(v())
-      Const(() => cached)
-    case Compute(compute) => Compute(ctx => f(compute(ctx)))
+      Const(() => cached, None)
+    case Compute(compute, t) => Compute(ctx => f(compute(ctx)), None)
   }
 
   def apply()(using ctx: VarContext): T = this match {
-    case Const(v) => v()
-    case Compute(compute) => compute(ctx)
+    case Const(v, _) => v()
+    case Compute(compute, _) => compute(ctx)
+  }
+
+  def transitionType: Option[animation.TransitionType[T]]
+
+  def withTransition[U >: T](t: Option[animation.TransitionType[U]]): Binding[U] = this match {
+    case Const(v, _) => Const(v, t)
+    case Compute(compute, _) => Compute(compute, t)
   }
 }
 
 object Binding {
-  given const[T]: Conversion[T, Const[T]] = t => new Const(() => t)
-  def bind[T](compute: VarContext => T): Compute[T] = new Compute(compute)
+  given const[T]: Conversion[T, Const[T]] = t => new Const(() => t, None)
+  def bind[T](compute: VarContext => T): Compute[T] = new Compute(compute, None)
 
-  inline def dyn[T](inline f: VarContextAction[T]) = impl.BindingMacro.dyn[T](f)
-  inline def dynDebug[T](inline f: VarContextAction[T]) = impl.BindingMacro.dynDebug[T](f)
+  inline def dyn[T](inline f: VarContextAction[T]): Compute[T] = impl.BindingMacro.dyn[T](f)
+  inline def dynDebug[T](inline f: VarContextAction[T]): Compute[T] = impl.BindingMacro.dynDebug[T](f)
 
-  val Null = Const[Null](() => null)
+  val Null = Const[Null](() => null, None)
 }
 
 trait ExternalObsVal[+T] extends ObsVal[T] {
@@ -193,24 +200,27 @@ trait ExternalVar[T] extends Var[T] with ExternalObsVal[T] {
   override def :=(b: Binding[T])(using instance: ValueOf[ForInstance]): VarContextAction[this.type] = {
     val ctx = summon[VarContext]
     b match {
-      case Binding.Const(v) =>
+      case Binding.Const(v, tr) =>
         val t = v()
         val current = get(instance.value)
         if (current != t) {
           set(instance.value, t)
-          ctx(this) = t
+          ctx(this) = Binding.Const(() => t, tr)
         }
-      case Binding.Compute(c) =>
+      case Binding.Compute(c, tr) =>
         val wr = impl.WeakRefFactory(instance.value.asInstanceOf[AnyRef])
-        ctx(this) = Binding.bind { ctx =>
-          wr.deref match {
-            case null => c(ctx)
-            case instance =>
-              val t = c(ctx)
-              set(instance.asInstanceOf[ForInstance], t)
-              t
-          }
-        }
+        ctx(this) = Binding.Compute(
+          { ctx =>
+            wr.deref match {
+              case null => c(ctx)
+              case instance =>
+                val t = c(ctx)
+                set(instance.asInstanceOf[ForInstance], t)
+                t
+            }
+          },
+          tr
+        )
     }
     this
   }
@@ -315,19 +325,20 @@ class ObsBuffer[T] extends AbstractBuffer[T], IndexedBuffer[T] {
   def length: Int = elements.length
 
   private var sizeVar: Var.Aux[Int, this.type] | Null = null
-  def createSizeVar[tk <: AbstractToolkit](): ToolkitAction[tk, Var.Aux[Int, this.type]] = tk ?=> vc ?=> {
-    if (sizeVar == null) {
-      sizeVar = Var[Int]("size", length).forInstance(this)
-      val zv = sizeVar.unn
-      given ValueOf[this.type] = ValueOf(this)
-      addObserver(false) {
-        case _ => tk.update {
-          zv := length
+  def createSizeVar[tk <: AbstractToolkit](): ToolkitAction[tk, Var.Aux[Int, this.type]] = tk ?=>
+    vc ?=> {
+      if (sizeVar == null) {
+        sizeVar = Var[Int]("size", length).forInstance(this)
+        val zv = sizeVar.unn
+        given ValueOf[this.type] = ValueOf(this)
+        addObserver(false) { case _ =>
+          tk.update {
+            zv := length
+          }
         }
       }
+      sizeVar.unn
     }
-    sizeVar.unn
-  }
 }
 object ObsBuffer {
   enum Event[+T] {

@@ -14,6 +14,7 @@ object Toolkit extends AbstractToolkit, animation.TimersDef {
   // }
   /** Set the args for initializing QT, set this _before_ any call to the toolkit or it wont get picked up */
   var initializationArgs: IArray[String] = IArray()
+  def timerDefs = this
   protected def isOnToolkitThread(): Boolean = qtAppInstance.thread() == QThread.currentThread()
   protected def runOnToolkitThread(r: () => Any): Unit = QCoreApplication.postEvent(qtAppInstance, RunThunk(r))
 

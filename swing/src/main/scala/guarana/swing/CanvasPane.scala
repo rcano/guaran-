@@ -50,6 +50,7 @@ object CanvasPane extends VarsMap {
   def uninitialized(): CanvasPane = {
     val res = new javax.swing.JPanel() {
       override def paintComponent(g: Graphics) = {
+        super.paintComponent(g)
         val sc = getClientProperty(Scenegraph).asInstanceOf[Scenegraph]
         val paintFunction = sc.stateReader(PaintFunction.forInstance(this))(using ValueOf(this))
         paintFunction(g.asInstanceOf[Graphics2D])

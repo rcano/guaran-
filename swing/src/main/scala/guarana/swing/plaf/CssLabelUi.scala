@@ -1,11 +1,11 @@
 package guarana.swing
 package plaf
 
-import language.implicitConversions
-import javax.swing.{AbstractButton, JComponent, JLabel, UIManager}
 import javax.swing.plaf.basic.{BasicGraphicsUtils, BasicLabelUI}
-import scala.annotation.{static, targetName}
-import scala.util.chaining._
+import javax.swing.{JComponent, JLabel}
+import scala.annotation.static
+
+import language.implicitConversions
 
 class CssLabelUi extends BasicLabelUI, CssSwingControlUi, CssBackgroundSupport {
 

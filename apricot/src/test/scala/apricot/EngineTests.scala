@@ -5,8 +5,10 @@ import guarana.{unn, AbstractToolkit, Stylist}
 import guarana.animation.ScriptDsl.{given, *}
 import scala.concurrent.duration.*
 import scala.util.chaining.*
+import guarana.animation.TimersDef
 
 val HeadlessToolkit = new AbstractToolkit {
+  def timerDefs: TimersDef = TimersDef.UnsupportedTimersDef
   protected def isOnToolkitThread() = true
   protected def runOnToolkitThread(r: () => Any): Unit = r()
   

@@ -6,6 +6,9 @@ import org.scalajs.dom
 
 object Toolkit extends AbstractToolkit {
 
+  // TODO: implement timers based on JS timers
+  def timerDefs: animation.TimersDef = animation.TimersDef.UnsupportedTimersDef
+
   override protected def isOnToolkitThread(): Boolean = true
 
   override protected def runOnToolkitThread(r: () => Any): Unit = r()

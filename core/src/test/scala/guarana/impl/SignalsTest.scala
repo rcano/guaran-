@@ -38,13 +38,13 @@ class SignalsTest extends AnyFunSuite {
 
   }
 
-  import SignalSwitchboard.TransitionDef
+  import animation.TransitionType
 
   test("simple signal propagation") {
     implicit val sb = SignalSwitchboard[Signal](noopReporter, signalDescriptor, false, ManualTimers)
     val count = signal(0)
     val text = signal("")
-    sb.bind(text, TransitionDef.Instant)(ctx => s"current count = ${ctx(count)}")
+    sb.bind(text, TransitionType.Instant)(ctx => s"current count = ${ctx(count)}")
 
     assert(sb(text) == "current count = 0")
     assert(sb.relationships(text).exists(_.dependencies.contains(count.keyed.id))) //relationships get computed lazily with the value
@@ -57,7 +57,7 @@ class SignalsTest extends AnyFunSuite {
     val count = signal(0)
     val name = signal("Unk")
     val text = signal("")
-    sb.bind(text, TransitionDef.Instant)(ctx => s"${ctx(count)} for ${ctx(name)}")
+    sb.bind(text, TransitionType.Instant)(ctx => s"${ctx(count)} for ${ctx(name)}")
 
     assert(sb(text) == "0 for Unk")
     assert(sb.relationships(text).exists(r => r.dependencies.contains(count.keyed.id) && r.dependencies.contains(name.keyed.id)))
@@ -71,7 +71,7 @@ class SignalsTest extends AnyFunSuite {
     implicit val sb = SignalSwitchboard[Signal](noopReporter, signalDescriptor, false, ManualTimers)
     val count = signal(0)
     val text = signal("")
-    sb.bind(text, TransitionDef.Instant)(ctx => s"current count = ${ctx(count)}")
+    sb.bind(text, TransitionType.Instant)(ctx => s"current count = ${ctx(count)}")
 
     assert(sb(text) == "current count = 0")
     assert(sb.relationships(text).exists(_.dependencies.contains(count.keyed.id)))
@@ -86,7 +86,7 @@ class SignalsTest extends AnyFunSuite {
   test("signal self reference") {
     implicit val sb = SignalSwitchboard[Signal](noopReporter, signalDescriptor, false, ManualTimers)
     val count = signal(0)
-    sb.bind(count, TransitionDef.Instant) { ctx =>
+    sb.bind(count, TransitionType.Instant) { ctx =>
       println(s"current count = ${ctx(count)}")
       ctx(count) + 1
     }
@@ -102,7 +102,7 @@ class SignalsTest extends AnyFunSuite {
   test("signal transitions on values") {
     implicit val sb = SignalSwitchboard[Signal](noopReporter, signalDescriptor, false, ManualTimers)
     val count = signal(0)
-    sb.update(count, 8, TransitionDef.Interp(Duration.Zero, 400.millis, animation.LinearCurve, 0, 60))
+    sb.update(count, 8, TransitionType.Interp(Duration.Zero, 400.millis, animation.LinearCurve, 0, 60))
     ManualTimers.createdTimers.toSeq.foreach(_.runCurrTime())  // this call causes the Timeline to start tracking time
 
     // advance time some
@@ -118,7 +118,7 @@ class SignalsTest extends AnyFunSuite {
     implicit val sb = SignalSwitchboard[Signal](noopReporter, signalDescriptor, false, ManualTimers)
     val count = signal(4)
     val mult = signal(0)
-    sb.bind(mult, TransitionDef.Interp(Duration.Zero, 400.millis, animation.LinearCurve, 0, 60))(ctx => ctx(count) * 2)
+    sb.bind(mult, TransitionType.Interp(Duration.Zero, 400.millis, animation.LinearCurve, 0, 60))(ctx => ctx(count) * 2)
 
     assert(sb(mult) == 0)
     assert(sb.relationships(mult).exists(_.dependencies.contains(count.keyed.id))) //relationships get computed lazily with the value
@@ -140,7 +140,7 @@ class SignalsTest extends AnyFunSuite {
     implicit val sb = SignalSwitchboard[Signal](noopReporter, signalDescriptor, false, ManualTimers)
     val count = signal(4)
     val mult = signal(0)
-    sb.bind(mult, TransitionDef.Interp(Duration.Zero, 400.millis, animation.LinearCurve, 0, 60))(ctx => ctx(count) * 2)
+    sb.bind(mult, TransitionType.Interp(Duration.Zero, 400.millis, animation.LinearCurve, 0, 60))(ctx => ctx(count) * 2)
 
     assert(sb(mult) == 0)
     assert(sb.relationships(mult).exists(_.dependencies.contains(count.keyed.id))) //relationships get computed lazily with the value

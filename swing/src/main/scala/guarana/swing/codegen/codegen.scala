@@ -461,31 +461,31 @@ case object BorderPane
           "top",
           "Node | Null",
           "c => c.getLayout.asInstanceOf[BorderLayout].getLayoutComponent(BorderLayout.NORTH).asInstanceOf[Node | Null]",
-          "(p, n) => { p.add(if (n == null) null else n.unwrap, BorderLayout.NORTH) }"
+          "(p, n) => { if (n == null) p.remove(p.getLayout().asInstanceOf[BorderLayout].getLayoutComponent(BorderLayout.NORTH)) else p.add(n.unwrap, BorderLayout.NORTH) }"
         ),
         SwingProp(
           "bottom",
           "Node | Null",
           "c => c.getLayout.asInstanceOf[BorderLayout].getLayoutComponent(BorderLayout.SOUTH).asInstanceOf[Node | Null]",
-          "(p, n) => { p.add(if (n == null) null else n.unwrap, BorderLayout.SOUTH) }"
+          "(p, n) => { if (n == null) p.remove(p.getLayout().asInstanceOf[BorderLayout].getLayoutComponent(BorderLayout.SOUTH)) else p.add(n.unwrap, BorderLayout.SOUTH) }"
         ),
         SwingProp(
           "left",
           "Node | Null",
           "c => c.getLayout.asInstanceOf[BorderLayout].getLayoutComponent(BorderLayout.WEST).asInstanceOf[Node | Null]",
-          "(p, n) => { p.add(if (n == null) null else n.unwrap, BorderLayout.WEST) }"
+          "(p, n) => { if (n == null) p.remove(p.getLayout().asInstanceOf[BorderLayout].getLayoutComponent(BorderLayout.WEST)) else p.add(n.unwrap, BorderLayout.WEST) }"
         ),
         SwingProp(
           "right",
           "Node | Null",
           "c => c.getLayout.asInstanceOf[BorderLayout].getLayoutComponent(BorderLayout.EAST).asInstanceOf[Node | Null]",
-          "(p, n) => { p.add(if (n == null) null else n.unwrap, BorderLayout.EAST) }"
+          "(p, n) => { if (n == null) p.remove(p.getLayout().asInstanceOf[BorderLayout].getLayoutComponent(BorderLayout.EAST)) else p.add(n.unwrap, BorderLayout.EAST) }"
         ),
         SwingProp(
           "center",
           "Node | Null",
           "c => c.getLayout.asInstanceOf[BorderLayout].getLayoutComponent(BorderLayout.CENTER).asInstanceOf[Node | Null]",
-          "(p, n) => { p.add(if (n == null) null else n.unwrap, BorderLayout.CENTER) }"
+          "(p, n) => { if (n == null) p.remove(p.getLayout().asInstanceOf[BorderLayout].getLayoutComponent(BorderLayout.CENTER)) else p.add(n.unwrap, BorderLayout.CENTER) }"
         ),
         SwingProp(
           "hgap",
@@ -524,6 +524,7 @@ case object CanvasPane
       customCreator = """
     |new javax.swing.JPanel() {
     |  override def paintComponent(g: Graphics) = {
+    |    super.paintComponents(g)
     |    val sc = getClientProperty(Scenegraph).asInstanceOf[Scenegraph]
     |    val paintFunction = sc.stateReader(PaintFunction.forInstance(this))(using ValueOf(this))
     |    paintFunction(g.asInstanceOf[Graphics2D])

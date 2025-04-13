@@ -5,7 +5,7 @@ import javax.swing.{Action => JAction, Icon, KeyStroke}
 import guarana.util.*
 import guarana.swing.util.*
 
-opaque type Action = javax.swing.AbstractAction
+opaque type Action <: JAction = javax.swing.AbstractAction
 object Action extends VarsMap {
   val Accelerator = customProperty[KeyStroke](JAction.ACCELERATOR_KEY)
   val ActionCommand = customProperty[Any](JAction.ACTION_COMMAND_KEY)

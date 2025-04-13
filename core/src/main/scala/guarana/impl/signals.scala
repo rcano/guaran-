@@ -1,6 +1,7 @@
 package guarana
 package impl
 
+import animation.TransitionType
 import animation.Timeline
 import animation.Timeline.KeyFrame
 import org.agrona.collections.{Long2ObjectHashMap, LongHashSet}
@@ -26,7 +27,7 @@ trait SignalSwitchboard[Signal[+T] <: util.Unique] {
     get(s) match {
       case NotFound =>
         val result = initValue
-        update(s, result, TransitionDef.Instant)
+        update(s, result, TransitionType.Instant)
         result
       case res: T @unchecked => res
     }
@@ -34,7 +35,7 @@ trait SignalSwitchboard[Signal[+T] <: util.Unique] {
 
   /** Change the value of the signal, propagating changes as needed
     */
-  def update[T](s: Keyed[Signal[T]], value: T, transitionDef: TransitionDef[T] = TransitionDef.Instant): Unit
+  def update[T](s: Keyed[Signal[T]], value: T, transitionDef: TransitionType[T] = TransitionType.Instant): Unit
 
   /** Notifies the switchboard that an externally tracked value changed. We can't accurately track the old value, that'll depend on the
     * external property system.
@@ -53,7 +54,7 @@ trait SignalSwitchboard[Signal[+T] <: util.Unique] {
     *   the function that computes the new value. Note that the elements of the Array correspond to the dependencies, but we must use an
     *   array instead of scala's Function type because there may be more than 22 dependencies.
     */
-  def bind[T](s: Keyed[Signal[T]], transitionDef: TransitionDef[T])(compute: SignalSwitchboard[Signal] => T): Unit
+  def bind[T](s: Keyed[Signal[T]], transitionDef: TransitionType[T])(compute: SignalSwitchboard[Signal] => T): Unit
 
   /** Removes the passed signal, removing all internal state as well as dependent signals.
     */
@@ -131,12 +132,12 @@ private[impl] class SignalSwitchboardImpl[Signal[+T] <: util.Unique](
         )
 
         val result = compute.transitionDef match {
-          case TransitionDef.Instant =>
+          case TransitionType.Instant =>
             signalStates.put(s.id, Value(targetValue))
             if (useReentrancyDetection) reentrancyDetector.remove(s.id)
             targetValue
 
-          case defn: (TransitionDef.Interp[T] @unchecked) => startTransition[T](s, oldv.asInstanceOf, targetValue, defn)
+          case defn: (TransitionType.Interp[T] @unchecked) => startTransition[T](s, oldv.asInstanceOf, targetValue, defn)
         }
         
         if (result != oldv)
@@ -151,7 +152,7 @@ private[impl] class SignalSwitchboardImpl[Signal[+T] <: util.Unique](
     }
   }
 
-  private def startTransition[T](s: Keyed[Signal[T]], oldv: T | Null, targetValue: T, defn: TransitionDef.Interp[T]): T = {
+  private def startTransition[T](s: Keyed[Signal[T]], oldv: T | Null, targetValue: T, defn: TransitionType.Interp[T]): T = {
     import defn.*
     val min = oldv.nullFold(v => v, baseValue)
     val initValue = min
@@ -180,7 +181,7 @@ private[impl] class SignalSwitchboardImpl[Signal[+T] <: util.Unique](
     reporter.signalRemoved(this, s)
   }
 
-  def update[T](s: Keyed[Signal[T]], value: T, transitionDef: TransitionDef[T]): Unit = {
+  def update[T](s: Keyed[Signal[T]], value: T, transitionDef: TransitionType[T]): Unit = {
     val currState = signalStates.get(s.id).toOption
     if (
       !currState.exists {
@@ -201,8 +202,8 @@ private[impl] class SignalSwitchboardImpl[Signal[+T] <: util.Unique](
         case _ => None
       }
       transitionDef match {
-        case TransitionDef.Instant => signalStates.put(s.id, if signalDescriptor.isExternal(s) then External else Value(value))
-        case interp: (TransitionDef.Interp[T] @unchecked) => startTransition(s, oldValue.orNull, value, interp)
+        case TransitionType.Instant => signalStates.put(s.id, if signalDescriptor.isExternal(s) then External else Value(value))
+        case interp: (TransitionType.Interp[T] @unchecked) => startTransition(s, oldValue.orNull, value, interp)
       }
       propagateSignal(s)
       reporter.signalUpdated(this, s, oldValue, value, EmptyUnmodifiableLongHashSet, EmptyUnmodifiableLongHashSet)
@@ -217,7 +218,7 @@ private[impl] class SignalSwitchboardImpl[Signal[+T] <: util.Unique](
     propagateSignal(s)
     reporter.signalUpdated(this, s, oldValue, signalDescriptor.getExternal(s), EmptyUnmodifiableLongHashSet, EmptyUnmodifiableLongHashSet)
 
-  def bind[T](s: Keyed[Signal[T]], transitionDef: TransitionDef[T])(compute: SignalSwitchboard[Signal] => T): Unit = {
+  def bind[T](s: Keyed[Signal[T]], transitionDef: TransitionType[T])(compute: SignalSwitchboard[Signal] => T): Unit = {
     unbindPrev(s)
     signalStates.put(s.id, Recompute(get(s).orNull))
     signalEvaluator.put(s.id, Evaluator.Compute[Signal](compute, transitionDef))
@@ -288,11 +289,11 @@ private[impl] class SignalSwitchboardImpl[Signal[+T] <: util.Unique](
       if (forSignal != s) dependencies `add` s.id
       outerSb.get(s)
     }
-    def update[T](s: Keyed[Signal[T]], value: T, transitionDef: TransitionDef[T]) = {
+    def update[T](s: Keyed[Signal[T]], value: T, transitionDef: TransitionType[T]) = {
       if (forSignal != s) dependents `add` s.id
       outerSb.update(s, value, transitionDef)
     }
-    def bind[T](s: Keyed[Signal[T]], transitionDef: TransitionDef[T])(compute: SignalSwitchboard[Signal] => T) = {
+    def bind[T](s: Keyed[Signal[T]], transitionDef: TransitionType[T])(compute: SignalSwitchboard[Signal] => T) = {
       if (forSignal != s) dependents `add` s.id
       outerSb.bind(s, transitionDef)(compute)
     }
@@ -318,13 +319,6 @@ object SignalSwitchboard {
     // inline def foreach(inline f: T => Unit): Unit = if e != NotFound then f(e.asInstanceOf[T])
   }
 
-  enum TransitionDef[+T] {
-    case Instant
-    case Interp[T](delay: FiniteDuration, duration: FiniteDuration, curve: animation.Curve, baseValue: T, updatesPerSecond: Int)(using
-        val interp: animation.Interpolator[T]
-    ) extends TransitionDef[T]
-  }
-
   private[impl] case class Transition[T](delay: FiniteDuration, duration: FiniteDuration, min: T, max: T, curve: animation.Curve, interp: animation.Interpolator[T]) {
     private val delayNs = delay.toNanos
     private val durationNs = duration.toNanos
@@ -343,8 +337,8 @@ object SignalSwitchboard {
 
   private[impl] enum Evaluator {
     case Set
-    case SetWithTransition(transitionDef: TransitionDef[?])
-    case Compute[Signal[+T] <: util.Unique](f: SignalSwitchboard[Signal] => Any, transitionDef: TransitionDef[?])
+    case SetWithTransition(transitionDef: TransitionType[?])
+    case Compute[Signal[+T] <: util.Unique](f: SignalSwitchboard[Signal] => Any, transitionDef: TransitionType[?])
   }
 
   case class Relationships[Signal[+T] <: util.Unique] private[impl] (dependencies: LongHashSet, dependents: LongHashSet) {
@@ -392,12 +386,12 @@ class CopyOnWriteSignalSwitchboard[Signal[+T] <: util.Unique](
   inline def theInstance = if (copied != null) copied.asInstanceOf[SignalSwitchboard[Signal]] else copy
   private def createCopy() = if (copied == null) copied = copy.snapshot(reporter)
   def get[T](s: Keyed[Signal[T]]) = theInstance.get(s)
-  def update[T](s: Keyed[Signal[T]], value: T, transitionDef: TransitionDef[T]) = {
+  def update[T](s: Keyed[Signal[T]], value: T, transitionDef: TransitionType[T]) = {
     createCopy()
     theInstance.update(s, value, transitionDef)
   }
   def externalPropertyChanged[T](s: Keyed[Signal[T]], oldValue: Option[T]): Unit = theInstance.externalPropertyChanged(s, oldValue)
-  def bind[T](s: Keyed[Signal[T]], transitionDef: TransitionDef[T])(compute: SignalSwitchboard[Signal] => T) = {
+  def bind[T](s: Keyed[Signal[T]], transitionDef: TransitionType[T])(compute: SignalSwitchboard[Signal] => T) = {
     createCopy()
     theInstance.bind(s, transitionDef)(compute)
   }

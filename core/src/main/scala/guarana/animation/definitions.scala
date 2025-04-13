@@ -1,5 +1,7 @@
 package guarana.animation
 
+import scala.concurrent.duration.FiniteDuration
+
 /** Models an interpolation curve. It maps a 0..1 interval to another 0..1. The most trivial curve is the linear one
   */
 @FunctionalInterface
@@ -20,3 +22,10 @@ val EaseBothCurve: Curve = t =>
   )
 
 inline def clamp(t: Double) = if t < 0 then 0 else if t > 1 then 1 else t
+
+enum TransitionType[+T] {
+  case Instant
+  case Interp[T](delay: FiniteDuration, duration: FiniteDuration, curve: Curve, baseValue: T, updatesPerSecond: Int)(using
+      val interp: Interpolator[T]
+  ) extends TransitionType[T]
+}

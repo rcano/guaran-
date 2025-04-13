@@ -194,10 +194,11 @@ abstract class AbstractToolkit {
     def update[T](v: Var[T], binding: Binding[T])(using instance: ValueOf[v.ForInstance]): Unit = {
       checkActiveContext()
       recordVarUsage(v)
+      lazy val styleTrn = stylist.getTransition(getMetrics(), v, instance.value)(using AbstractToolkit.this)
       binding match {
-        case Binding.Const(c) => switchboard.update(v, c(), SignalSwitchboard.TransitionDef.Instant)
-        case Binding.Compute(c) =>
-          switchboard.bind(v, SignalSwitchboard.TransitionDef.Instant)(sb =>
+        case Binding.Const(c, trOpt) => switchboard.update(v, c(), trOpt.orElse(styleTrn).getOrElse(animation.TransitionType.Instant))
+        case Binding.Compute(c, trOpt) =>
+          switchboard.bind(v, trOpt.orElse(styleTrn).getOrElse(animation.TransitionType.Instant))(sb =>
             val ctx = stackContext.orElse(null) match {
               case null =>
                 varcontextLogger.debug(s"evaluating binding, no existing context.")
