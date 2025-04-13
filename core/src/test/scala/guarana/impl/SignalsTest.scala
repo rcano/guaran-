@@ -4,13 +4,14 @@ package impl
 import language.implicitConversions
 import org.agrona.collections.LongHashSet
 import org.scalatest.funsuite.AnyFunSuite
+import scala.concurrent.duration.*
 import scala.util.chaining._
 
 class SignalsTest extends AnyFunSuite {
   trait Signal[+T] extends util.Unique {
     def keyed: Keyed[this.type] = Keyed(this, this)
   }
-  implicit def keyedSignal(s: Signal[?]): Keyed[s.type] = Keyed(s, s)
+  implicit def keyedSignal[T](s: Signal[T]): Keyed[s.type] = Keyed(s, s)
 
   def signal[T](initValue: T)(implicit sb: SignalSwitchboard[Signal], inferredName: guarana.util.DeclaringOwner) = {
     new Signal[T] {
@@ -22,12 +23,12 @@ class SignalsTest extends AnyFunSuite {
     def signalRemoved(sb: guarana.impl.SignalSwitchboard[Signal], s: Keyed[Signal[?]]): Unit = ()
     def signalInvalidated(sb: guarana.impl.SignalSwitchboard[Signal], s: Keyed[Signal[?]]): Unit = ()
     def signalUpdated[T](
-      sb: guarana.impl.SignalSwitchboard[Signal],
-      s: Keyed[Signal[T]],
-      oldValue: Option[T],
-      newValue: T,
-      dependencies: LongHashSet,
-      dependents: LongHashSet
+        sb: guarana.impl.SignalSwitchboard[Signal],
+        s: Keyed[Signal[T]],
+        oldValue: Option[T],
+        newValue: T,
+        dependencies: LongHashSet,
+        dependents: LongHashSet
     ): Unit = ()
   }
   val signalDescriptor = new SignalSwitchboard.SignalDescriptor[Signal] {
@@ -37,11 +38,13 @@ class SignalsTest extends AnyFunSuite {
 
   }
 
+  import SignalSwitchboard.TransitionDef
+
   test("simple signal propagation") {
-    implicit val sb = SignalSwitchboard[Signal](noopReporter, signalDescriptor, false)
+    implicit val sb = SignalSwitchboard[Signal](noopReporter, signalDescriptor, false, ManualTimers)
     val count = signal(0)
     val text = signal("")
-    sb.bind(text)(ctx => s"current count = ${ctx(count)}")
+    sb.bind(text, TransitionDef.Instant)(ctx => s"current count = ${ctx(count)}")
 
     assert(sb(text) == "current count = 0")
     assert(sb.relationships(text).exists(_.dependencies.contains(count.keyed.id))) //relationships get computed lazily with the value
@@ -50,11 +53,11 @@ class SignalsTest extends AnyFunSuite {
   }
 
   test("complex signal propagation") {
-    implicit val sb = SignalSwitchboard[Signal](noopReporter, signalDescriptor, false)
+    implicit val sb = SignalSwitchboard[Signal](noopReporter, signalDescriptor, false, ManualTimers)
     val count = signal(0)
     val name = signal("Unk")
     val text = signal("")
-    sb.bind(text)(ctx => s"${ctx(count)} for ${ctx(name)}")
+    sb.bind(text, TransitionDef.Instant)(ctx => s"${ctx(count)} for ${ctx(name)}")
 
     assert(sb(text) == "0 for Unk")
     assert(sb.relationships(text).exists(r => r.dependencies.contains(count.keyed.id) && r.dependencies.contains(name.keyed.id)))
@@ -65,10 +68,10 @@ class SignalsTest extends AnyFunSuite {
   }
 
   test("signal rebinding disposes old binding") {
-    implicit val sb = SignalSwitchboard[Signal](noopReporter, signalDescriptor, false)
+    implicit val sb = SignalSwitchboard[Signal](noopReporter, signalDescriptor, false, ManualTimers)
     val count = signal(0)
     val text = signal("")
-    sb.bind(text)(ctx => s"current count = ${ctx(count)}")
+    sb.bind(text, TransitionDef.Instant)(ctx => s"current count = ${ctx(count)}")
 
     assert(sb(text) == "current count = 0")
     assert(sb.relationships(text).exists(_.dependencies.contains(count.keyed.id)))
@@ -80,11 +83,10 @@ class SignalsTest extends AnyFunSuite {
     assert(sb(text) == "new value")
   }
 
-
   test("signal self reference") {
-    implicit val sb = SignalSwitchboard[Signal](noopReporter, signalDescriptor, false)
+    implicit val sb = SignalSwitchboard[Signal](noopReporter, signalDescriptor, false, ManualTimers)
     val count = signal(0)
-    sb.bind(count) { ctx =>
+    sb.bind(count, TransitionDef.Instant) { ctx =>
       println(s"current count = ${ctx(count)}")
       ctx(count) + 1
     }
@@ -95,5 +97,70 @@ class SignalsTest extends AnyFunSuite {
     assert(sb(count) == 1) //but the signal doesn't trigger itself
     sb(count) = 2
     assert(sb(count) == 2)
+  }
+
+  test("signal transitions on values") {
+    implicit val sb = SignalSwitchboard[Signal](noopReporter, signalDescriptor, false, ManualTimers)
+    val count = signal(0)
+    sb.update(count, 8, TransitionDef.Interp(Duration.Zero, 400.millis, animation.LinearCurve, 0, 60))
+    ManualTimers.createdTimers.toSeq.foreach(_.runCurrTime())  // this call causes the Timeline to start tracking time
+
+    // advance time some
+    Thread.sleep(55)
+    ManualTimers.createdTimers.toSeq.foreach(_.runCurrTime())
+    assert(sb(count) == 1)
+    Thread.sleep(55)
+    ManualTimers.createdTimers.toSeq.foreach(_.runCurrTime())
+    assert(sb(count) == 2)
+  }
+
+  test("signal transitions on bindings") {
+    implicit val sb = SignalSwitchboard[Signal](noopReporter, signalDescriptor, false, ManualTimers)
+    val count = signal(4)
+    val mult = signal(0)
+    sb.bind(mult, TransitionDef.Interp(Duration.Zero, 400.millis, animation.LinearCurve, 0, 60))(ctx => ctx(count) * 2)
+
+    assert(sb(mult) == 0)
+    assert(sb.relationships(mult).exists(_.dependencies.contains(count.keyed.id))) //relationships get computed lazily with the value
+    ManualTimers.createdTimers.toSeq.foreach(_.runCurrTime())  // this call causes the Timeline to start tracking time
+
+    // beacuse we are linearly inteprolating from 0 to 8, in 400 millis, it means the numbre goes up by one every 50ms
+
+    for (expected <- 1 to 8) {
+      // advance time some
+      Thread.sleep(55)
+      ManualTimers.createdTimers.toSeq.foreach(_.runCurrTime())
+      assert(sb(mult) == expected)
+    }
+
+    assert(ManualTimers.createdTimers.isEmpty)
+  }
+
+  test("signal transitions on bindings can be interrupted when a dependency changes") {
+    implicit val sb = SignalSwitchboard[Signal](noopReporter, signalDescriptor, false, ManualTimers)
+    val count = signal(4)
+    val mult = signal(0)
+    sb.bind(mult, TransitionDef.Interp(Duration.Zero, 400.millis, animation.LinearCurve, 0, 60))(ctx => ctx(count) * 2)
+
+    assert(sb(mult) == 0)
+    assert(sb.relationships(mult).exists(_.dependencies.contains(count.keyed.id))) //relationships get computed lazily with the value
+    ManualTimers.createdTimers.toSeq.foreach(_.runCurrTime())  // this call causes the Timeline to start tracking time
+
+    // beacuse we are linearly inteprolating from 0 to 8, in 400 millis, it means the numbre goes up by one every 50ms
+
+    // advance time some
+    Thread.sleep(105)
+    ManualTimers.createdTimers.toSeq.foreach(_.runCurrTime())
+    assert(sb(mult) == 2)
+    sb.update(count, 10)
+    assert(ManualTimers.createdTimers.isEmpty)
+
+    assert(sb(mult) == 2) // value must continue to be it's last known value
+    assert(ManualTimers.createdTimers.size == 1)
+    ManualTimers.createdTimers.toSeq.foreach(_.runCurrTime()) // this call causes the Timeline to start tracking time
+    // after reading it, it must retrigger a transition, this time to the number 20
+    Thread.sleep(105) // wait two "steps"
+    ManualTimers.createdTimers.toSeq.foreach(_.runCurrTime())
+    assert(sb(mult) == 6)
   }
 }

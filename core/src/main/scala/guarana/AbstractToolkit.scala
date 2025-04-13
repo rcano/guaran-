@@ -1,15 +1,14 @@
 package guarana
 
+import guarana.impl.{EmitterStation, SignalSwitchboard}
+import org.agrona.collections.{Int2ObjectHashMap, IntHashSet, LongHashSet}
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future, Promise}
+import scala.util.Try
+import scala.util.chaining.*
+
 import language.implicitConversions
 import impl.AgronaUtils.*
-import guarana.impl.{CopyOnWriteEmitterStation, CopyOnWriteSignalSwitchboard, EmitterStation, SignalSwitchboard}
-import javax.swing.SwingUtilities
-import org.agrona.collections.{Int2ObjectHashMap, IntHashSet, LongHashSet}
-import scala.concurrent.{Await, Future, Promise}
-import scala.concurrent.duration.Duration
-import scala.util.Try
-import scala.collection.View.Single
-import scala.util.chaining.*
 
 type ToolkitAction[-Tk <: AbstractToolkit, +R] = Tk ?=> VarContextAction[R]
 abstract class AbstractToolkit {
@@ -35,7 +34,8 @@ abstract class AbstractToolkit {
       s"$instanceDescr: $theVar"
     }
   }
-  private val switchboard = SignalSwitchboard[Signal](reporter, signalDescriptor, false)
+  def timerDefs: animation.TimersDef
+  private val switchboard = SignalSwitchboard[Signal](reporter, signalDescriptor, false, timerDefs)
   private val emitterStation = EmitterStation()
   case class InstanceData(instance: util.WeakRef[AnyRef], vars: IntHashSet, emitters: IntHashSet)
   private val instancesData = new Int2ObjectHashMap[InstanceData]()
@@ -195,9 +195,9 @@ abstract class AbstractToolkit {
       checkActiveContext()
       recordVarUsage(v)
       binding match {
-        case Binding.Const(c) => switchboard(v) = c()
+        case Binding.Const(c) => switchboard.update(v, c(), SignalSwitchboard.TransitionDef.Instant)
         case Binding.Compute(c) =>
-          switchboard.bind(v)(sb =>
+          switchboard.bind(v, SignalSwitchboard.TransitionDef.Instant)(sb =>
             val ctx = stackContext.orElse(null) match {
               case null =>
                 varcontextLogger.debug(s"evaluating binding, no existing context.")

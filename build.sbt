@@ -33,7 +33,7 @@ lazy val core = // select supported platforms
     .settings(
       libraryDependencies ++= Seq(
         "com.github.rssh" %% "dotty-cps-async" % "0.9.21",
-        "com.outr" %%% "scribe" % scribeVersion,
+        "com.outr" %%% "scribe" % scribeVersion
       )
     )
     // configure JVM settings
@@ -86,6 +86,7 @@ lazy val swing = Project(id = "guarana-swing", base = file("swing"))
       "io.dropwizard.metrics" % "metrics-core" % "4.2.26" % "test",
       "org.scalatest" %% "scalatest-funsuite" % "3.2.19" % "test",
       "com.typesafe.play" %% "play-json" % "2.10.6" % "test",
+      "com.lihaoyi" %% "pprint" % "0.9.0" % "provided",
     ),
     moduleJars := {
       val attributedJars = (Compile / dependencyClasspathAsJars).value.filterNot(_.metadata(moduleID.key).organization == "org.scala-lang")

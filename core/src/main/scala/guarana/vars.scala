@@ -140,6 +140,7 @@ object Var extends VarExtensions {
 enum Binding[+T] {
   case Const(value: () => T)
   case Compute(compute: VarContext => T)
+  // case Transition(compute: VarContext => T)
 
   def map[U](f: T => U): Binding[U] = this match {
     case Const(v) =>
@@ -313,6 +314,20 @@ class ObsBuffer[T] extends AbstractBuffer[T], IndexedBuffer[T] {
   def apply(i: Int): T = elements(i)
   def length: Int = elements.length
 
+  private var sizeVar: Var.Aux[Int, this.type] | Null = null
+  def createSizeVar[tk <: AbstractToolkit](): ToolkitAction[tk, Var.Aux[Int, this.type]] = tk ?=> vc ?=> {
+    if (sizeVar == null) {
+      sizeVar = Var[Int]("size", length).forInstance(this)
+      val zv = sizeVar.unn
+      given ValueOf[this.type] = ValueOf(this)
+      addObserver(false) {
+        case _ => tk.update {
+          zv := length
+        }
+      }
+    }
+    sizeVar.unn
+  }
 }
 object ObsBuffer {
   enum Event[+T] {

@@ -103,7 +103,14 @@ object EventIterator extends EventIterator[Any] {
     private val doNothing = [T] => (t: T) => (): Any
     def forsome[U <: T](f: VarContextAction[PartialFunction[U, Any]]): EventIterator[U] = {
       lazy val step: Step[U] = new Step[U] {
-        def apply(ctx: VarContext, u: U) = { f(using ctx).applyOrElse(u, doNothing[U]); StepResult(Some(step), false, true) }
+        def apply(ctx: VarContext, u: U) = { 
+          if (f(using ctx).isDefinedAt(u)) {
+            f(using ctx).apply(u)
+            StepResult(Some(step), false, true)
+          } else {
+            StepResult(Some(step), false, false)
+          }
+        }
         override def toString = "foreach"
       }
       EventIteratorImpl[U](opsChain :+ step)

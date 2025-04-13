@@ -10,7 +10,12 @@ trait Interpolator[A]:
     */
   inline def withCurve(curve: Double => Double): Interpolator[A] = (min, max, by) => interpolate(min, max, curve(by))
 
-object Interpolator:
+object Interpolator {
+
+  def constant[A](a: A): Interpolator[A] = (_, _, _) => a
+  private val _max: Interpolator[Any] = (_, max, _) => max
+  def max[A]: Interpolator[A] = _max.asInstanceOf
+
   given Interpolator[Byte] = (min, max, by) => (((max - min) * by) + min).toByte
   given Interpolator[Short] = (min, max, by) => (((max - min) * by) + min).toShort
   given Interpolator[Char] = (min, max, by) => (((max - min) * by) + min).toInt.toChar
@@ -32,3 +37,4 @@ object Interpolator:
   given [H: Interpolator, T <: Tuple: Interpolator]: Interpolator[H *: T] = (min, max, by) =>
     summon[Interpolator[H]].interpolate(min.head, max.head, by) 
     *: summon[Interpolator[T]].interpolate(min.tail, max.tail, by)
+}
