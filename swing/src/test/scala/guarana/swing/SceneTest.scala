@@ -1,13 +1,14 @@
 package guarana.swing
 
-import guarana.{given, *}
-import language.implicitConversions
-import scala.concurrent.{impl => _, _}, ExecutionContext.Implicits.given
+import guarana.*
+import guarana.swing.util.SvgUtils
+import scala.concurrent.{impl as _, *}
 import scala.util.Try
 import scala.util.chaining.*
+
+import language.implicitConversions
+import ExecutionContext.Implicits.given
 import Binding.dyn
-import util.UnsetParam
-import guarana.swing.util.SvgUtils
 
 object Test {
   def main(args: Array[String]): Unit = {

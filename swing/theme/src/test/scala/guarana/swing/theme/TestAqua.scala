@@ -93,6 +93,6 @@ object TestAqua {
   val out = new java.io.PrintStream("target/log.txt")
   System.setErr(out)
   System.setOut(out)
-  DevAppReloader.launch(Array(java.nio.file.Paths.get("target/scala-3.0.0-RC1/classes").nn, java.nio.file.Paths.get("target/scala-3.0.0-RC1/test-classes").nn),
+  DevAppReloader.launch(Array(java.nio.file.Paths.get("target/scala-3.6.3/classes").nn, java.nio.file.Paths.get("target/scala-3.6.3/test-classes").nn),
     "guarana.swing.theme.*".r, "guarana.swing.theme.TestAqua", Array())
 }

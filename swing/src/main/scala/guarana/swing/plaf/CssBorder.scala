@@ -59,11 +59,11 @@ object CssBorder {
         height - (insets.top - strokeInsets.top) - (insets.bot - strokeInsets.bot))
     } 
 
-    // For each stroke border, we need to ensure each of the sides is properly clipper
+    // For each stroke border, we need to ensure each of the sides is properly clipped
     // to respect the color chosen. For that, we compute a diagonal line from the corner
     // to the middle of the rectangle, and the proceed to render with the specified paint.
     // We'll special case against sides which are empty (inset or stroke size of 0) in order to
-    // prevent producint a pointy stroke
+    // prevent producing a pointy stroke
     for (stroke <- borderSpec.strokes) atBorder(stroke.insets) { (x, y, width, height) =>
       val shape = Option(regionShape).getOrElse {
         val strokePortion = 1.0

@@ -112,17 +112,17 @@ class Scenegraph extends AbstractToolkit, SwingTimers {
       val source = evt.getSource()
       val emitter = Node.MouseEvents.forInstance(source)
       if (stateReader.hasEmitter(emitter)) summon[VarContext].emit(emitter, MouseDragged(evt.nn))
-      // dragStart match {
-      //   case None => dragStart = Some(evt.nn)
-      //   case Some(origin) => Node.MouseDragMut.forInstance(source) :=
-      //     Some(MouseDrag(
-      //       MousePosition(origin.getX, origin.getY, origin.getXOnScreen, origin.getYOnScreen),
-      //       MousePosition(evt.getX, evt.getY, evt.getXOnScreen, evt.getYOnScreen),
-      //       false,
-      //       evt.nn,
-      //       origin
-      //     ))
-      // }
+      dragStart match {
+        case None => dragStart = Some(evt.nn)
+        case Some(origin) => Node.MouseDragMut.forInstance(source) :=
+          Some(MouseDrag(
+            MousePosition(origin.getX, origin.getY, origin.getXOnScreen, origin.getYOnScreen),
+            MousePosition(evt.getX, evt.getY, evt.getXOnScreen, evt.getYOnScreen),
+            false,
+            evt.nn,
+            origin
+          ))
+      }
     }
 
     def mouseReleased(evt: java.awt.event.MouseEvent): Unit = update {
@@ -144,6 +144,7 @@ class Scenegraph extends AbstractToolkit, SwingTimers {
               )
             )
           dragStart = None
+          SwingUtilities.invokeLater(() => update(Node.MouseDragMut.forInstance(source) := None))
       }
     }
     def mouseMoved(evt: java.awt.event.MouseEvent): Unit = update {

@@ -5,18 +5,27 @@ import guarana.util.*
 import java.awt.Image
 import java.awt.image.BufferedImage
 import com.github.weisj.jsvg.parser.SVGLoader
+import com.github.weisj.jsvg.attributes.ViewBox
 
 object SvgUtils {
 
-  def loadAsImage(uri: String, width: Opt[Float] = UnsetParam, height: Opt[Float] = UnsetParam): Image = {
+  def loadAsImage(uri: String, width: Opt[Double] = UnsetParam, height: Opt[Double] = UnsetParam): Image = {
     val loader = new SVGLoader()
     val loaded = loader.load(java.net.URI.create(uri).toURL())
     val shape = loaded.computeShape()
-    val w = width.getOrElse(shape.getBounds2D().getWidth().toFloat).toInt
-    val h = width.getOrElse(shape.getBounds2D().getHeight().toFloat).toInt
-    
-    val res = BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB)
-    loaded.render(null, res.createGraphics())
+    val bounds2d = shape.getBounds2D()
+    val aspectRatio = bounds2d.getWidth() / bounds2d.getHeight()
+    var w, h = 0.0
+    if (width == UnsetParam && height == UnsetParam) {
+      w = bounds2d.getWidth()
+      h = bounds2d.getHeight()
+    } else {
+      w = width.getOrElse(height.get * aspectRatio)
+      h = height.getOrElse(width.get / aspectRatio)
+    }
+
+    val res = BufferedImage(w.ceil.toInt, h.ceil.toInt, BufferedImage.TYPE_INT_ARGB)
+    loaded.render(null, res.createGraphics(), ViewBox(0, 0, w.toFloat, h.toFloat))
     res
 
     // val transcoder = SvgTranscoder()
