@@ -50,6 +50,7 @@ object CssBorder {
 
   def paintBorder(borderSpec: style.Border, insets: Insets, g: Graphics, x: Double, y: Double, width: Double, height: Double, regionShape: Shape | Null = null, debug: Boolean = false): Unit = {
     val g2 = g.create().upgrade.withAliasing
+    val outerClip = g2.getClip()
 
     /** helper function to relocate x, y, width and height accordingly to its insets */
     inline def atBorder(strokeInsets: Insets)(f: (Double, Double, Double, Double) => Unit): Unit = {
@@ -91,10 +92,11 @@ object CssBorder {
         clip.lineTo(x + (if leftStrokeEmpty then 0 else boxSize), y + (if leftStrokeEmpty then stroke.topStyle.getLineWidth.toDouble else boxSize))
         clip.closePath()
         
-        g2.setClip(clip)
+        g2.clip(clip)
         g2.setPaint(stroke.topStroke)
         g2.setStroke(stroke.topStyle)
         g2.draw(shape)
+        g2.setClip(outerClip)
       }
 
       if (!rightStrokeEmpty) {
@@ -105,10 +107,11 @@ object CssBorder {
         clip.lineTo(x + width - (if topStrokeEmpty then stroke.rightStyle.getLineWidth.toDouble else boxSize), y + (if topStrokeEmpty then 0 else boxSize))
         clip.closePath()
         
-        g2.setClip(clip)
+        g2.clip(clip)
         g2.setPaint(stroke.rightStroke)
         g2.setStroke(stroke.rightStyle)
         g2.draw(shape)
+        g2.setClip(outerClip)
       }
       
       if (!botStrokeEmpty) {
@@ -119,10 +122,11 @@ object CssBorder {
         clip.lineTo(x + width - (if rightStrokeEmpty then 0 else boxSize), y + height - (if rightStrokeEmpty then stroke.botStyle.getLineWidth.toDouble else boxSize))
         clip.closePath()
         
-        g2.setClip(clip)
+        g2.clip(clip)
         g2.setPaint(stroke.botStroke)
         g2.setStroke(stroke.botStyle)
         g2.draw(shape)
+        g2.setClip(outerClip)
       }
 
       if (!leftStrokeEmpty) {
@@ -133,10 +137,11 @@ object CssBorder {
         clip.lineTo(x + (if botStrokeEmpty then stroke.leftStyle.getLineWidth.toDouble else boxSize), y + height - (if botStrokeEmpty then 0 else boxSize))
         clip.closePath()
         
-        g2.setClip(clip)
+        g2.clip(clip)
         g2.setPaint(stroke.leftStroke)
         g2.setStroke(stroke.leftStyle)
         g2.draw(shape)
+        g2.setClip(outerClip)
       }
 
     }
