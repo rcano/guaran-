@@ -4,6 +4,7 @@ package impl
 import language.implicitConversions
 import org.agrona.collections.Long2ObjectHashMap
 import java.util.function.LongFunction
+import scala.collection.mutable.ListBuffer
 
 trait EmitterStation {
 
@@ -36,7 +37,15 @@ private[impl] class EmitterStationImpl extends EmitterStation {
       case null => //do nothing
       case prevData =>
         scribe.debug(s"dispatching event $evt to (${v.value}, $emitter)")
-        val updatedData = prevData.asInstanceOf[EmitterData[A]].emit(evt, emitter, v.value)
+        // as a result of emitting, event iterators might register new listeners, and even to this every emitter's instance, which
+        // would be lost of we simply did
+        // `val updatedData = prevData.asInstanceOf[EmitterData[A]].emit(evt, emitter, v.value)`
+        // that's why we must track if listeners to this instance are attempted to be added, and merge them with the result of emit
+        val trackingContext = TrackingVarContext(emitter, v.value)
+        var updatedData = prevData.asInstanceOf[EmitterData[A]].emit(evt, emitter, v.value)(using trackingContext)
+        if (trackingContext.newListeners.nonEmpty) {
+          trackingContext.newListeners.foreach(it => updatedData = updatedData.addListener(it.asInstanceOf[EventIterator[A]]))
+        }
         emittersData.put(key, updatedData)
         if (!hasListeners(emitter)) {
           scribe.debug(s"triggering on-no-listener callback for (${v.value}, $emitter)")
@@ -64,6 +73,19 @@ private[impl] class EmitterStationImpl extends EmitterStation {
     val res = EmitterStationImpl()
     res.emittersData `putAll` this.emittersData
     res
+  }
+
+  private class TrackingVarContext(trackingEmitter: Emitter[?], trackingInstance: Any)(using delegate: VarContext) extends VarContext {
+    val newListeners = ListBuffer[EventIterator[?]]()
+    override def update[T](v: Var[T], binding: Binding[T])(using instance: ValueOf[v.ForInstance]): Unit = delegate.update(v, binding)
+    override def apply[T](v: ObsVal[T])(using instance: ValueOf[v.ForInstance]): T = delegate(v)
+    override def listen[A](emitter: Emitter[A])(f: EventIterator[A])(implicit v: ValueOf[emitter.ForInstance]): Unit =
+      if (trackingEmitter.uniqueId == emitter.uniqueId && trackingInstance == v.value) newListeners += f
+      delegate.listen(emitter)(f)
+    override def emit[A](emitter: Emitter[A], evt: A)(implicit v: ValueOf[emitter.ForInstance]): Unit = delegate.emit(emitter, evt)
+    override def externalPropertyUpdated[T](v: ObsVal[T], oldValue: Option[T])(using instance: ValueOf[v.ForInstance]): Unit =
+      delegate.externalPropertyUpdated(v, oldValue)
+
   }
 }
 private[impl] object EmitterStationImpl {

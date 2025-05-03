@@ -19,6 +19,7 @@ class CssBorder(scenegraph: Scenegraph) extends javax.swing.border.Border {
   def isBorderOpaque(): Boolean = false
   def paintBorder(awtc: AwtComponent, g: Graphics, x: Int, y: Int, width: Int, height: Int): Unit = {
     val borderSpec = style.CssProperties.Border.forInstance(awtc) pipe (scenegraph.stateReader(_))
+    if (lastComputedInsets.isEmpty) getBorderInsets(awtc)
     CssBorder.paintBorder(borderSpec, lastComputedInsets.get, g.nn, x, y, width, height)
   }
 }

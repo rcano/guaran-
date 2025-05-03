@@ -85,7 +85,9 @@ abstract class AbstractToolkit {
     */
   private def reactingToExtVar[R](k: Keyed[Signal[?]])(f: => R): R = {
     reactingExtVars.add(k.id)
-    val res = try f finally reactingExtVars.remove(k.id)
+    val res =
+      try f
+      finally reactingExtVars.remove(k.id)
     res
   }
   private object reporter extends SignalSwitchboard.Reporter[Signal] {
@@ -97,19 +99,19 @@ abstract class AbstractToolkit {
         case v: Var[_] if v.eagerEvaluation =>
           scribe.debug(s"Keyed(${instancesData.get(s.instanceId).?(_.instance.deref)}, ${seenVars.get(s.keyId)}) eagerly evaluating")
           switchboard.get(s)
-          // v match {
-          //   case ev: ExternalVar[t] => reactingToExtVar(s) {
-              
-          //     val data = instancesData.get(s.instanceId).unn
-          //     val instanceOpt = data.instance
-          //     instanceOpt.deref.toOption.foreach { instance =>
-          //       val evInstance = instance.asInstanceOf[ev.ForInstance]
-          //       if (ev.get(evInstance) != curr) ev.set(evInstance, curr)
-          //     }
-          //   }
+        // v match {
+        //   case ev: ExternalVar[t] => reactingToExtVar(s) {
 
-          //   case _ => switchboard.get(s)
-          // }
+        //     val data = instancesData.get(s.instanceId).unn
+        //     val instanceOpt = data.instance
+        //     instanceOpt.deref.toOption.foreach { instance =>
+        //       val evInstance = instance.asInstanceOf[ev.ForInstance]
+        //       if (ev.get(evInstance) != curr) ev.set(evInstance, curr)
+        //     }
+        //   }
+
+        //   case _ => switchboard.get(s)
+        // }
         // /* We intentionally don't run evaluations on the same tick and context that's reacting to signal invalidation, we do it on the next frame. This prevents some potentially huge
         //  * chain recation calls by distributing as tasks to the eventloop.
         //  * We also read straight from the switchboard because we want it to be computed, not affect our VarContext tracking.
@@ -293,4 +295,22 @@ abstract class AbstractToolkit {
     def hasListeners[A](emitter: Emitter[A])(using v: ValueOf[emitter.ForInstance]): Boolean = emitterStation.hasListeners(emitter)
   }
 
+  /** Configures the logging system to trace all events to show for this one particular node */
+  def logTrace(node: Any, lineFilter: (String => Boolean) | Null = null): TraceControl = {
+    val _lineFilter = lineFilter.nullFold(identity, (_: String).contains(node.toString))
+    val traceHandler = scribe.handler.LogHandler(
+      minimumLevel = Some(scribe.Level.Trace),
+      modifiers = List(scribe.filter.FilterBuilder(include = List(r => _lineFilter(r.logOutput.plainText))))
+    )
+    scribe.Logger("guarana").withHandler(traceHandler).replace()
+    return new TraceControl {
+      def cancel() = {
+        scribe.Logger("guarana").withoutHandler(traceHandler).replace()
+      }
+    }
+  }
+
+  trait TraceControl {
+    def cancel(): Unit
+  }
 }
