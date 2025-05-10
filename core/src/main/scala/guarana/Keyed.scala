@@ -1,12 +1,11 @@
 package guarana
 // package impl
 
-import scala.annotation.compileTimeOnly
 
 opaque type Keyed[+T] = Long
 object Keyed {
   inline def apply[T](keyed: T, instance: Singleton): Keyed[T] = raw(getId(keyed), getId(instance))
-  def raw[T](key: Int, instance: Int): Keyed[T] = ((key.toLong << 32) & 0xFFFFFFFF00000000L) | (instance & 0xFFFFFFFF)
+  def raw[T](key: Int, instance: Int): Keyed[T] = (java.lang.Integer.toUnsignedLong(key) << 32) | java.lang.Integer.toUnsignedLong(instance)
 
   inline def getId(inline a: Any): Int = inline a match {
     case i: Int => i
