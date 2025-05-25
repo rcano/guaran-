@@ -2,7 +2,6 @@ package guarana
 package animation
 
 import scala.concurrent.duration.*
-import scala.util.chaining.*
 
 object Timeline {
 

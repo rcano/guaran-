@@ -2,7 +2,6 @@ package java.lang
 
 import java.{util => ju}
 import java.util.function.Supplier
-import java.util.concurrent.Callable
 
 trait ScopedValue[T] {
   def get(): T

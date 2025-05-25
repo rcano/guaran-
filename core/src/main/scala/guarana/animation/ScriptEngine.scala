@@ -1,7 +1,6 @@
 package guarana
 package animation
 
-import scala.concurrent.duration.DurationLong
 
 private[animation] inline def cfor[T](inline init: T)(inline cond: T => Boolean, inline next: T => T)(action: T => ?): Unit = {
   var i = init

@@ -5,7 +5,6 @@ import org.lwjgl.system._
 import org.lwjgl.vulkan.{
   VK10,
   VkCommandBufferAllocateInfo,
-  VkCommandPoolCreateInfo,
 }
 import allocators.given
 

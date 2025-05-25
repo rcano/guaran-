@@ -3,12 +3,11 @@ package apricot.vk
 import better.files._
 import guarana.unn
 import java.nio.{IntBuffer, LongBuffer}
-import org.lwjgl.system.{CustomBuffer, MemoryStack, Struct, StructBuffer}
+import org.lwjgl.system.{CustomBuffer, MemoryStack}
 import scala.annotation.transparentTrait
 import scala.jdk.CollectionConverters._
-import scala.compiletime.{codeOf, error}
+import scala.compiletime.error
 import scala.util.Try
-import scala.util.chaining._
 
 trait Allocator[S]:
   type NonNullS = S

@@ -94,7 +94,7 @@ class varsApi[VarsDefinitionType] extends MacroAnnotation {
               name,
               tree.symbol.flags,
               tree.symbol.companionClass.flags,
-              parents.map(_.symbol.typeRef),
+              _ => parents.map(_.symbol.typeRef),
               newClassSym => {
                 val newCtr = ctr.changeOwner(newClassSym)
                 println(s"ncs = $newClassSym")

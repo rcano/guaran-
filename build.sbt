@@ -4,7 +4,7 @@ inThisBuild(
   Seq(
     organization := "guarana",
     version := "0.1.0-SNAPSHOT",
-    scalaVersion := "3.6.3",
+    scalaVersion := "3.7.0",
     fork := true,
     libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.19" % "test",
     Compile / packageDoc / publishArtifact := false,
@@ -16,7 +16,7 @@ inThisBuild(
       "-language:implicitConversions",
       "-rewrite",
       "-source",
-      "3.6-migration",
+      "3.7-migration",
       "-explain"
     ),
   ) ++ addCommandAlias("enableDebug", """set javaOptions += "-agentlib:jdwp=transport=dt_socket,server=y,address=5555,suspend=y"""")

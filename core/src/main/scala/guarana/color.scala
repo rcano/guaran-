@@ -1,10 +1,9 @@
 package guarana
 
 import guarana.animation.Interpolator
-import scala.annotation.targetName
 trait ColorDefs {
   type Color
-  given ColorLike: ColorLike[Color]
+  protected given ColorLike: ColorLike[Color] = compiletime.deferred
   given Interpolator[Color] = (min, max, by) => interp(min)(max, by)
 
   /**

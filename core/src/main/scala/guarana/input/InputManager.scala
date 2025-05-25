@@ -1,10 +1,9 @@
 package guarana.input
 
-import java.time.{Clock, Duration as JDuration, Instant}
+import java.time.{Clock, Instant}
 import scala.annotation.targetName
 import scala.annotation.unchecked.uncheckedVariance
 import scala.concurrent.duration.*
-import InputManager.*
 
 trait InputManager[EventType, InputCode] {
   import internal.*

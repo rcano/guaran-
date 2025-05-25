@@ -3,7 +3,7 @@ package util
 
 import guarana.util.*
 import java.awt.BorderLayout
-import javax.swing.{JPanel, Scrollable, SwingConstants}
+import javax.swing.{JPanel, SwingConstants}
 
 enum Scrollable {
   case Horizontal, Vertical

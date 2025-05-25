@@ -4,7 +4,6 @@ package plaf
 
 import java.awt.image.BufferedImage
 import javax.swing.*
-import scala.util.chaining.*
 
 /** General purpose utilities for working with java2d and swing.
   *

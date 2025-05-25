@@ -6,11 +6,10 @@ import apricot.tools.GlfwWindow
 import apricot.tiled.*
 import guarana.AbstractToolkit
 import guarana.animation.*, ScriptDsl.{given, *}
-import guarana.{?, nnn}
+import guarana.nnn
 import guarana.util.cfor
 import java.io.ByteArrayInputStream
-import io.github.humbleui.skija.{Canvas, Image, Matrix33, Paint, Rect as SkRect, Surface}
-import scala.collection.immutable.TreeMap
+import io.github.humbleui.skija.{Canvas, Image, Matrix33, Rect as SkRect, Surface}
 import scala.concurrent.duration.*
 import apricot.graphics.GraphicsStack
 

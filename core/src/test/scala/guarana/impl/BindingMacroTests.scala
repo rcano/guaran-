@@ -2,8 +2,7 @@ package guarana
 package impl
 
 import org.scalatest.funsuite.AnyFunSuite
-import guarana.util.{strongRef, MacroUtils}
-import scala.annotation.compileTimeOnly
+import guarana.util.strongRef
 import scala.runtime.IntRef
 
 class BindingMacroTests extends AnyFunSuite {

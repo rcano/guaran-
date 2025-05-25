@@ -5,13 +5,8 @@ package swing
 
 import language.implicitConversions
 import java.awt.{Component => _, Menu => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, PopupMenu => _, *}
-import java.awt.event.*
 import javax.swing.{Action => _, *}
-import javax.swing.event.*
 import guarana.util.*
-import guarana.swing.util.*
-import scala.jdk.CollectionConverters.*
-import scala.util.chaining.*
 
 opaque type BorderPane <: Pane  = javax.swing.JPanel & Pane
 object BorderPane extends VarsMap {

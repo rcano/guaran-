@@ -7,7 +7,6 @@ import guarana.animation.Timeline
 import guarana.swing.plaf.{upgrade, withAliasing}
 import guarana.util.*
 import java.awt.Graphics
-import java.awt.geom.AffineTransform
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.util.chaining.*
 

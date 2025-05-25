@@ -97,7 +97,6 @@ class FileSystemResourceLocator(root: File, engine: ApricotEngine[? <: AbstractT
   }
 
   object FileSystemWatcher {
-    import scala.jdk.CollectionConverters.*
     val watcher = root.newWatchService
     (Iterator(root) ++ root.listRecursively).filter(_.isDirectory).foreach(f =>
       scribe.debug(s"Monitoring $f")

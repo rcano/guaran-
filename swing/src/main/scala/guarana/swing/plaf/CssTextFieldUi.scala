@@ -3,7 +3,7 @@ package swing
 package plaf
 
 import language.implicitConversions
-import javax.swing.{JComponent, LookAndFeel, UIManager}
+import javax.swing.JComponent
 import javax.swing.plaf.basic.BasicTextFieldUI
 import scala.annotation.static
 import scala.util.chaining.*

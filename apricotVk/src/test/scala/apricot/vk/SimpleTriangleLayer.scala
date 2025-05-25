@@ -4,10 +4,9 @@ package vk
 import apricot.graphics.GraphicsStack
 import apricot.vk.VulkanGraphicsStack
 import guarana.?
-import guarana.util.cfor
 import java.nio.ByteBuffer
 import org.lwjgl.system.MemoryUtil
-import org.lwjgl.vulkan.{KHRSwapchain, VK10, VkClearValue, VkPipelineColorBlendAttachmentState, VkRect2D, VkViewport}
+import org.lwjgl.vulkan.{KHRSwapchain, VK10, VkClearValue, VkPipelineColorBlendAttachmentState, VkRect2D}
 import scala.util.chaining.*
 
 import allocators.given
@@ -129,7 +128,6 @@ class SimpleTriangleLayer(
     }
 
     private def setup(gc: vkStack.VkGraphicsContext): Unit = {
-      import vkStack.Color
       frameBuffers = withStack { stack ?=>
         val size = gc.presenter.swapchainSize
         for (img <- gc.presenter.imageViews)

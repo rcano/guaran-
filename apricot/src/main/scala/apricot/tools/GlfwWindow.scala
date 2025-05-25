@@ -3,9 +3,7 @@ package tools
 
 import guarana.*
 import org.lwjgl.glfw.*
-import org.lwjgl.opengl.*
 import org.lwjgl.system.MemoryUtil.*
-import scala.compiletime.uninitialized
 
 import GLFW.*
 

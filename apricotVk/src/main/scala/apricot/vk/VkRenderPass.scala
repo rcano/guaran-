@@ -1,9 +1,7 @@
 package apricot
 package vk
 
-import java.nio.LongBuffer
-import org.lwjgl.system.MemoryStack
-import org.lwjgl.vulkan.{VK10, VkAttachmentDescription, VkRenderPassCreateInfo, VkSubpassDependency, VkSubpassDescription}
+import org.lwjgl.vulkan.VK10
 
 opaque type VkRenderPass[+vkDevice <: VkLogicalDevice.Any] = Long
 object VkRenderPass:

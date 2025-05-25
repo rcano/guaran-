@@ -18,7 +18,6 @@ package org.agrona.collections
 import java.util.*
 
 import org.agrona.BitUtil.findNextPositivePowerOfTwo
-import org.agrona.collections.CollectionUtil.validateLoadFactor
 import scala.annotation.static
 import scala.compiletime.uninitialized
 

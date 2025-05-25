@@ -1,8 +1,7 @@
 package apricot
 
-import apricot.graphics.GraphicsStack
 import guarana.*
-import guarana.animation.{Script, ScriptEngine}
+import guarana.animation.ScriptEngine
 import resource.DynamicScript
 
 trait Animated[Image] {

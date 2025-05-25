@@ -3,12 +3,6 @@ package swing
 package plaf
 
 import language.implicitConversions
-import java.awt.Rectangle
-import javax.swing.{AbstractButton, JButton, JComponent, UIManager, SwingConstants}
-import javax.swing.plaf.UIResource
-import javax.swing.plaf.metal.MetalTabbedPaneUI
-import scala.annotation.static
-import scala.util.chaining.*
 
 // class CssTabbedPaneUi extends MetalTabbedPaneUI, CssSwingControlUi {
 

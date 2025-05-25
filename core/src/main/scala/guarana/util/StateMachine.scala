@@ -1,7 +1,6 @@
 package guarana
 package util
 
-import scala.jdk.CollectionConverters.*
 
 /**
  * Simple implementation of a state machine. Notice that state keeping is not thread safe (it wouldn't make much sense either). If you

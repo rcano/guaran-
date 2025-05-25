@@ -2,7 +2,6 @@ package guarana
 package web
 
 import org.scalajs.dom
-import scala.annotation.{compileTimeOnly, experimental}
 
 import scalajs.js
 

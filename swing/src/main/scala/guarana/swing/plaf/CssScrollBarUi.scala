@@ -3,7 +3,7 @@ package plaf
 
 import language.implicitConversions
 import java.awt.{Dimension, Rectangle}
-import javax.swing.{AbstractButton, JComponent, JButton, UIManager}
+import javax.swing.{JComponent, JButton}
 import javax.swing.plaf.metal.MetalScrollBarUI
 import scala.annotation.static
 import scala.util.chaining.*

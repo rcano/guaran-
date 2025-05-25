@@ -1,7 +1,6 @@
 package apricot
 package resource
 
-import guarana.*
 import guarana.animation.Script
 
 /** An animation definition.

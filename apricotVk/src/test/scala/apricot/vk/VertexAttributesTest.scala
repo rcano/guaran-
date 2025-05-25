@@ -3,20 +3,16 @@ package vk
 
 import apricot.graphics.GraphicsStack
 import durian.*
-import guarana.{?, using}
+import guarana.?
 import java.lang.foreign.MemorySegment
 import java.nio.ByteBuffer
 import org.lwjgl.system.MemoryUtil
 import org.lwjgl.vulkan.{
   KHRSwapchain,
   VK10,
-  VkAttachmentDescription,
-  VkAttachmentReference,
   VkClearValue,
   VkMappedMemoryRange,
   VkPipelineColorBlendAttachmentState,
-  VkSubpassDependency,
-  VkSubpassDescription,
   VkVertexInputAttributeDescription
 }
 import scala.util.chaining.*

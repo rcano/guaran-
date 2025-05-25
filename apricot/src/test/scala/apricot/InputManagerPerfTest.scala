@@ -1,10 +1,5 @@
 package apricot
 
-import apricot.tools.*
-import guarana.*
-import com.codahale.metrics.MetricRegistry
-import com.codahale.metrics.ConsoleReporter
-import scala.concurrent.duration.*
 
 // @main def InputManagerPerfTest: Unit = {
 //   val tk = new AbstractToolkit {

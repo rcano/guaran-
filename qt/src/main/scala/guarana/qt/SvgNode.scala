@@ -2,9 +2,6 @@
 package guarana
 package qt
         
-import io.qt.core.Qt
-import io.qt.gui.*
-import io.qt.widgets.*
 import util.*
 
 opaque type SvgNode <: Widget  = io.qt.widgets.svg.QSvgWidget & Widget

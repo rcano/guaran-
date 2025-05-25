@@ -686,7 +686,6 @@ object DomEvents {
 }
 
 object DomEventsApi {
-  import DomEvents.*
 
   /** @see [[package.DomEvents.OnClick]] */
   lazy val onClick = ModifierEmitter[HtmlElement, dom.MouseEvent](DomEvents.OnClick)

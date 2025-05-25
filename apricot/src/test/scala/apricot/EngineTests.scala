@@ -4,7 +4,6 @@ import com.codahale.metrics.ConsoleReporter
 import guarana.{unn, AbstractToolkit, Stylist}
 import guarana.animation.ScriptDsl.{given, *}
 import scala.concurrent.duration.*
-import scala.util.chaining.*
 import guarana.animation.TimersDef
 
 val HeadlessToolkit = new AbstractToolkit {

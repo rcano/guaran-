@@ -1,9 +1,7 @@
 package guarana
 package animation
 
-import scala.compiletime.codeOf
 import scala.concurrent.duration._
-import scala.util.chaining._
 
   
 enum StepEvalResult {
@@ -47,7 +45,7 @@ val EndOfScript = Script(_ => StepEvalResult.Done)
 object ScriptDsl {
   // type ScriptMonad[T] = Script
   object opaques:
-    opaque type ScriptMonad[T] = Script
+    opaque type ScriptMonad[+T] = Script
   type ScriptMonad[T] = opaques.ScriptMonad[T]
   private given [T]: Conversion[ScriptMonad[T], Script] = _.asInstanceOf[Script]
   

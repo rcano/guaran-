@@ -1,7 +1,7 @@
 package guarana.swing
 package plaf
 
-import java.awt.{Graphics, Graphics2D, RenderingHints}
+import java.awt.RenderingHints
 
 type Graphics = java.awt.Graphics
 type Graphics2D = java.awt.Graphics2D

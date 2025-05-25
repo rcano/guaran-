@@ -35,7 +35,8 @@ class SignalsTest extends AnyFunSuite {
     def isExternal[T](s: Keyed[Signal[T]]) = false
     def getExternal[T](s: Keyed[Signal[T]]) = ???
     def describe[T](s: Keyed[Signal[T]]): String = s.id.toHexString
-
+    def onProjected[T](s: Keyed[Signal[T]])(action: Keyed[Signal[Any]] => Any): Boolean = false
+    def onProjections[T](s: Keyed[Signal[T]])(action: Seq[Keyed[Signal[Any]]] => Any): Boolean = false
   }
 
   import animation.TransitionType

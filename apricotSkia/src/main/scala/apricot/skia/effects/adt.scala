@@ -5,7 +5,6 @@ import guarana.animation.Interpolator
 import io.github.humbleui.skija
 import scala.collection.immutable.SortedMap
 import scala.concurrent.duration.*
-import scala.util.Random
 import io.github.humbleui.skija.Matrix33
 
 type Radians = Double

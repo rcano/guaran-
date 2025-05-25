@@ -3,11 +3,10 @@ package swing
 package plaf
 
 import language.implicitConversions
-import javax.swing.{AbstractButton, JComponent, UIManager}
+import javax.swing.{AbstractButton, JComponent}
 import javax.swing.plaf.basic.BasicGraphicsUtils
 import javax.swing.plaf.metal.MetalButtonUI
-import scala.annotation.{static, targetName}
-import scala.util.chaining._
+import scala.annotation.static
 
 class CssButtonUi extends MetalButtonUI, CssSwingControlUi {
 

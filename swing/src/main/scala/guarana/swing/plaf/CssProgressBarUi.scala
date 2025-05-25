@@ -3,7 +3,7 @@ package swing
 package plaf
 
 import language.implicitConversions
-import javax.swing.{AbstractButton, JComponent, SwingConstants, UIManager}
+import javax.swing.{JComponent, SwingConstants}
 import javax.swing.plaf.metal.MetalProgressBarUI
 import scala.annotation.static
 import scala.util.chaining.*

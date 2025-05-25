@@ -1,6 +1,6 @@
 package guarana.util
 
-import compiletime.{constValue, erasedValue, summonFrom, error}
+import compiletime.summonFrom
 import scala.util.chaining.*
 
 trait ProductFields[P <: Product] {

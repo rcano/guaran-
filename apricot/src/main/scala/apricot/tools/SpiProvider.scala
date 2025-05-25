@@ -6,7 +6,6 @@ import language.experimental.erasedDefinitions
 import scala.annotation.{compileTimeOnly, experimental}
 import scala.collection.immutable.SortedSet
 import scala.quoted.*
-import scala.util.chaining.*
 import SpiProvider.*
 
 

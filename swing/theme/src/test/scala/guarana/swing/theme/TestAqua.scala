@@ -3,7 +3,6 @@ package swing
 package theme
 
 import scala.util.chaining._
-import Binding.dyn
 
 def println(a: Any) = System.out.unn.println(a)
 

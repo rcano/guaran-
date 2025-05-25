@@ -2,7 +2,6 @@ package apricot
 package loader
 
 import java.lang.reflect.Constructor
-import java.net.URL
 import java.security.SecureClassLoader
 import scala.reflect.ClassTag
 

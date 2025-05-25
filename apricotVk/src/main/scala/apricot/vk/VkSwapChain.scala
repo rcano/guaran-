@@ -1,13 +1,7 @@
 package apricot
 package vk
 
-import java.nio.{ByteBuffer, IntBuffer, LongBuffer}
-import org.lwjgl.system.MemoryStack
-import org.lwjgl.vulkan.{
-  KHRSwapchain,
-  VK10
-}
-import scala.util.chaining._
+import org.lwjgl.vulkan.KHRSwapchain
 
 /* discard this class, a right way to do this would be merging surface and swapchain, since those two go together */
 

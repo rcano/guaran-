@@ -16,7 +16,7 @@ object Color extends ColorDefs {
     if (code.startsWith("#")) argb(0xff << 24 | java.lang.Integer.parseInt(code.substring(1), 16))
     else throw new IllegalArgumentException("Invalid web code, it should start with #")
 
-  given ColorLike: ColorLike[Color] with {
+  override given ColorLike: ColorLike[Color] with {
     def apply(r: Float, g: Float, b: Float, a: Float = 1f) = java.awt.Color(r, g, b, a)
     def rgba(r: Int, g: Int, b: Int, a: Int = 255): Color = java.awt.Color(r, g, b, a)
     def argb(argb: Int): Color = java.awt.Color(argb, true)

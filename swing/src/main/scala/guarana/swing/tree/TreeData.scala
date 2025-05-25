@@ -1,10 +1,9 @@
 package guarana.swing
 package tree
 
-import javax.swing.tree.{DefaultTreeModel, TreeModel, TreeNode => JTreeNode, DefaultMutableTreeNode}
+import javax.swing.tree.{DefaultTreeModel, TreeModel, DefaultMutableTreeNode}
 import scala.collection.IndexedSeq
-import scala.compiletime.{erasedValue, summonAll, summonInline, codeOf}
-import TreeData.*
+import scala.compiletime.{erasedValue, summonInline}
 
 object TreeData {
   def from[T: TreeNode](t: T): TreeModel =

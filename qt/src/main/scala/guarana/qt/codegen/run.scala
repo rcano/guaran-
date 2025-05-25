@@ -1,14 +1,13 @@
 package guarana.qt.codegen
 
 import better.files.*
-import guarana.{nnn, toOption, unn}
+import guarana.{nnn, unn}
 import guarana.codegen.*
 import io.qt.core.*
 import io.qt.gui.*
 import io.qt.widgets.*
 import scala.jdk.CollectionConverters.*
 import scala.util.Try
-import scala.util.chaining._
 
 object run extends Panels, ItemViews, Dialogs {
 

@@ -1,8 +1,6 @@
 package guarana
 package web
 
-import org.scalajs.dom
-import scalajs.js
 
 // trait EncodedVarWriter[From, To](val to: Var[To]) {
 //   protected def encode(f: From): To

@@ -1,9 +1,13 @@
 package guarana
 package util
 
-
 enum Anchor {
+
+  /** Absolute positioning. Makes the anchorPoint of the source Bounds be placed exactly at (x, y) */
   case Pos(x: Double, y: Double, anchorPoint: Anchor & Anchor.Relative)
+
+  /** Relative positioning. Makes the anchorPoint of the source Bounds be placed at the relative point */
+  case PosRel(rel: Anchor & Anchor.Relative, anchorPoint: Anchor & Anchor.Relative)
   case Center extends Anchor, Anchor.Relative
   case TopLeft extends Anchor, Anchor.Relative
   case Top extends Anchor, Anchor.Relative
@@ -18,6 +22,10 @@ enum Anchor {
     case Pos(x, y, anchorPoint) =>
       val (offsetx, offsety) = anchorPoint.pointIn(inner)
       (outer.x + x - offsetx, outer.y + y - offsety)
+    case PosRel(rel, anchor) =>
+      val (offsetx, offsety) = anchor.pointIn(inner)
+      val (targetx, targety) = rel.pointIn(outer)
+      (targetx - offsetx, targety - offsety)
     case Center => (outer.centerX - inner.width / 2, outer.centerY - inner.height / 2)
     case TopLeft => (outer.minX, outer.minY)
     case Top => (outer.centerX - inner.width / 2, outer.minY)
@@ -35,4 +43,3 @@ object Anchor {
 
   private def point[Bounds: BoundsLike] = summon[BoundsLike[Bounds]]()
 }
-

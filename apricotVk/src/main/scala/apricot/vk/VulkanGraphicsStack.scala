@@ -17,13 +17,11 @@ import org.lwjgl.vulkan.{
 }
 
 import allocators.given
-import guarana.impl.RingBuffer
 import scala.collection.mutable.ArrayDeque
 
 class VulkanGraphicsStack(
     val physicalDevice: VkPhysicalDevice
 ) extends GraphicsStack {
-  import VulkanGraphicsStack.*
   type Image = Nothing
   type Color = VkColor
   type GraphicsContext = VkGraphicsContext

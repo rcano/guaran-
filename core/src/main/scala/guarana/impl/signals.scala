@@ -166,18 +166,20 @@ private[impl] class SignalSwitchboardImpl[Signal[+T] <: util.Unique](
     val trn = Transition(delay, duration, initValue, targetValue, curve, defn.interp)
     // println(s"${Console.MAGENTA}Creating transition from $initValue -- to -- $targetValue${Console.RESET}")
 
-    val computedRels = signalRels.get(s.id).unn
+    val computedRels = signalRels.get(s.id)
+    val dependencies = computedRels.nullFold(_.dependencies, EmptyUnmodifiableLongHashSet)
+    val dependents = computedRels.nullFold(_.dependents, EmptyUnmodifiableLongHashSet)
 
     lazy val anim: Timeline.Animation[timers.Timer] = Timeline(IArray(KeyFrame((delay + duration).toNanos, elapsed => {
       val curr = trn.valueAt(elapsed)
       // println(s"interpolating var after $elapsed, $initValue / $curr / $targetValue")
       signalStates.put(s.id, Transitioning(curr, anim.timer))
       propagateSignal(s, skipSelf = true)
-      reporter.signalUpdated(this, s, Option(oldv), curr, computedRels.dependencies, computedRels.dependents)
+      reporter.signalUpdated(this, s, Option(oldv), curr, dependencies, dependents)
     }, () => {
       signalStates.put(s.id, Value(targetValue))
       propagateSignal(s, skipSelf = true)
-      reporter.signalUpdated(this, s, Option(oldv), targetValue, computedRels.dependencies, computedRels.dependents)
+      reporter.signalUpdated(this, s, Option(oldv), targetValue, dependencies, dependents)
     })), Timeline.Cycles.SingleShot, updatesPerSecond, false)(timers)
 
     signalStates.put(s.id, Transitioning(initValue, anim.timer))
@@ -230,8 +232,9 @@ private[impl] class SignalSwitchboardImpl[Signal[+T] <: util.Unique](
     reporter.signalUpdated(this, s, oldValue, signalDescriptor.getExternal(s), EmptyUnmodifiableLongHashSet, EmptyUnmodifiableLongHashSet)
 
   def bind[T](s: Keyed[Signal[T]], transitionDef: TransitionType[T])(compute: SignalSwitchboard[Signal] => T): Unit = {
+    val prevValueOrNull = get(s).orNull
     unbindPrev(s)
-    signalStates.put(s.id, Recompute(get(s).orNull))
+    signalStates.put(s.id, Recompute(prevValueOrNull))
     signalEvaluator.put(s.id, Evaluator.Compute[Signal](compute, transitionDef))
     propagateSignal(s)
   }
@@ -324,7 +327,7 @@ object SignalSwitchboard {
   extension [T](e: Entry[T]) {
     inline def getOrElse[U >: T](inline r: U): U = e match
       case NotFound => r
-      case other: T => other
+      case other: T @unchecked => other
 
     inline def isEmpty: Boolean = e == NotFound
     inline def orNull: T | Null = if e == NotFound then null else e.asInstanceOf[T]
@@ -378,6 +381,8 @@ object SignalSwitchboard {
     def isExternal[T](s: Keyed[Signal[T]]): Boolean
     def getExternal[T](s: Keyed[Signal[T]]): T
     def describe[T](s: Keyed[Signal[T]]): String
+    def onProjected[T](s: Keyed[Signal[T]])(action: Keyed[Signal[Any]] => Any): Boolean
+    def onProjections[T](s: Keyed[Signal[T]])(action: Seq[Keyed[Signal[Any]]] => Any): Boolean
   }
 
   def apply[Signal[+T] <: util.Unique](

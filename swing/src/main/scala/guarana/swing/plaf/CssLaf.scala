@@ -7,7 +7,6 @@ import java.awt.Font
 import javax.swing.{UIManager, UIDefaults, JComponent}
 import javax.swing.plaf.{BorderUIResource, FontUIResource, UIResource}
 import javax.swing.plaf.metal.MetalLookAndFeel
-import javax.swing.plaf.basic.BasicLookAndFeel
 import scala.annotation.unchecked.uncheckedStable
 import scala.jdk.CollectionConverters.*
 import scala.util.chaining.*

@@ -2,7 +2,6 @@ package guarana
 
 import language.unsafeNulls
 import org.scalatest.funsuite.AnyFunSuite
-import Binding.dyn
 
 class VarMacroTest extends AnyFunSuite {
 

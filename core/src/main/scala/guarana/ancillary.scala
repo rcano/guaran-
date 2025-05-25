@@ -2,7 +2,6 @@ package guarana
 
 import language.implicitConversions
 import scala.util.Try
-import util.*
 
 /** Unsafe not null. Casts away nullity without a check */
 extension [T](e: T | Null) inline def unn: T = e.asInstanceOf[T]
@@ -34,7 +33,7 @@ extension [T](f: scala.concurrent.Future[T])
       private[guarana] def set(n: ForInstance, v: Option[Try[T]]): Unit = ()
       def eagerEvaluation = false
 
-      f.onComplete(res => sc.update(summon[VarContext].externalPropertyUpdated(this, Some(None))))(ec)
+      f.onComplete(res => sc.update(summon[VarContext].externalPropertyUpdated(this, Some(None))))(using ec)
     }
 
 extension [T](f: java.util.concurrent.CompletableFuture[T])

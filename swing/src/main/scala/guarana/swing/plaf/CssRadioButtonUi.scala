@@ -2,11 +2,9 @@ package guarana.swing
 package plaf
 
 import language.implicitConversions
-import javax.swing.{AbstractButton, JComponent, UIManager}
-import javax.swing.plaf.basic.BasicGraphicsUtils
+import javax.swing.{AbstractButton, JComponent}
 import javax.swing.plaf.metal.MetalRadioButtonUI
 import scala.annotation.static
-import scala.util.chaining._
 
 class CssRadioButtonUi() extends MetalRadioButtonUI, CssSwingControlUi {
   override def installDefaults(b: AbstractButton): Unit =

@@ -108,8 +108,22 @@ trait Var[T] extends ObsVal[T] {
   // final def :=(n: Null)(using instance: ValueOf[ForInstance], nullEv: Null <:< T): VarContextAction[this.type] = (using ctx) => { ctx(this) = Binding.Const(() => nullEv(null)); this }
   def eagerEvaluation: Boolean
 
+  private val _projections = new collection.mutable.ArrayBuffer[Projection[?]](0)
+  def projections: collection.Seq[Projection[?]] = _projections
+
+  class Projection[U] private[Var](val name: String, val get: T => U, val set: (T, U) => T) extends Var[U] {
+    _projections += this
+    type ForInstance = Var.this.ForInstance
+    override def initialValue(v: Any)(using v.type <:< ForInstance): U = get(Var.this.initialValue(v))
+    override def eagerEvaluation: Boolean = Var.this.eagerEvaluation
+    def projected: Var[T] = Var.this
+  }
+
+  protected def derive[U](name: String, get: T => U, set: (T, U) => T): Var[U] = Projection(name, get, set)
+
   override def toString = s"Var($name)"
 }
+
 object Var extends VarExtensions {
   val doNothingOnFirstAssociation: Any => Unit = _ => ()
 
@@ -122,7 +136,7 @@ object Var extends VarExtensions {
   ) = {
     val ev = eagerEvaluation
     val ofa = onFirstAssociation
-    new Var[T] with util.Unique {
+    new Var[T] {
       def initialValue(v: Any)(using v.type <:< ForInstance): T = initValue
       def eagerEvaluation = ev
       lazy val name = varName
@@ -239,7 +253,7 @@ object ExternalVar {
   ): Aux[N, T] = {
     val ev = eagerEvaluation
     val ofa = onFirstAssociation
-    new ExternalVar[T] with util.Unique {
+    new ExternalVar[T] {
       lazy val name = varName
       type ForInstance <: N & Singleton
       def get(n: ForInstance) = getter(n)
@@ -250,7 +264,7 @@ object ExternalVar {
   }
 }
 
-import collection.mutable.{AbstractBuffer, ArrayBuffer, IndexedBuffer, IndexedSeqOps}
+import collection.mutable.{AbstractBuffer, ArrayBuffer, IndexedBuffer}
 class ObsBuffer[T] extends AbstractBuffer[T], IndexedBuffer[T] {
   import ObsBuffer.Event.*
 

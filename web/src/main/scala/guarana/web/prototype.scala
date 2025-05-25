@@ -3,13 +3,11 @@ package web
 
 import org.scalajs.dom
 
-import scalajs.js
 import Binding.*
 import HtmlPropsApi.*
 import HtmlAttrsApi.*
 import StylesApi.*
 import DomEventsApi.*
-import guarana.util.cfor
 
 @main def apiTest: Unit = {
   // scribe.Logger.apply("guarana.impl.emitters")

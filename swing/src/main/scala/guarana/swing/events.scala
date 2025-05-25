@@ -1,6 +1,5 @@
 package guarana.swing
 
-import javax.swing.SwingUtilities
 
 enum MouseButton(val code: Int) {
   case Primary extends MouseButton(1)

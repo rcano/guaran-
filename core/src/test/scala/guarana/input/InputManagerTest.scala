@@ -35,7 +35,7 @@ class InputManagerTest extends AnyFunSuite {
   }
 
   test("Simple input")(new TestFixture {
-    import im.syntax.{given, *}
+    import im.syntax.given
     addTestCombination(0)
     // other inputs don't trigger it
     im.dispatch((1, true))

@@ -1,6 +1,6 @@
 package guarana.swing
 
-import guarana.{*, given}
+import guarana.*
 import java.awt.BasicStroke
 import javax.swing.SwingConstants
 

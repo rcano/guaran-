@@ -1,7 +1,6 @@
 package guarana.qt.codegen
 
 import guarana.codegen.*
-import io.qt.gui.*
 import io.qt.widgets.*
 
 trait Panels { self: run.type =>

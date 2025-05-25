@@ -3,8 +3,8 @@ package swing
 package plaf
 
 import language.implicitConversions
-import java.awt.{Dimension, Rectangle, Shape}
-import javax.swing.{AbstractButton, JComponent, JButton, UIManager}
+import java.awt.{Dimension, Shape}
+import javax.swing.JComponent
 import javax.swing.plaf.metal.MetalSliderUI
 import scala.annotation.static
 import scala.util.chaining.*

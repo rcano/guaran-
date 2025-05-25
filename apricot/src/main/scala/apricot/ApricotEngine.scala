@@ -9,7 +9,6 @@ import java.util.ServiceLoader
 import scala.annotation.threadUnsafe
 import scala.annotation.unchecked.uncheckedStable
 import scala.concurrent.duration._
-import scala.util.chaining.*
 import apricot.graphics.GraphicsStack
 import apricot.tools.GlfwWindow
 

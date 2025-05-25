@@ -2,7 +2,6 @@ package guarana.qt.codegen
 
 import guarana.*
 import guarana.codegen.*
-import io.qt.gui.*
 import io.qt.widgets.*
 
 trait ItemViews { self: run.type =>

@@ -1,7 +1,6 @@
 package guarana
 
 import scala.annotation.targetName
-import scala.compiletime.erasedValue
 import Binding.dyn
 
 private[guarana] trait VarExtensions {

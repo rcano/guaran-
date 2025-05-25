@@ -3,7 +3,6 @@ package guarana
 package qt
         
 import io.qt.gui.*
-import io.qt.widgets.*
 import util.*
 
 opaque type Window   = io.qt.gui.QWindow

@@ -1,9 +1,6 @@
 package apricot.util
 
-import scala.compiletime.erasedValue
-import scala.collection.StringParsers
 import scala.language.implicitConversions
-import scala.util.Try
 
 object InlinedNumeric {
 

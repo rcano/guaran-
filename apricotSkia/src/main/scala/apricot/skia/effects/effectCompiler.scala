@@ -3,13 +3,8 @@ package skia
 package effects
 
 import apricot.graphics.GraphicsStack
-import com.github.blemale.scaffeine.{Cache, Scaffeine}
 import guarana.*
-import guarana.util.Anchor
 import io.github.humbleui.skija
-import scala.collection.immutable.SortedMap
-import scala.compiletime.uninitialized
-import scala.concurrent.duration._
 import io.github.humbleui.skija.Canvas
 import io.github.humbleui.skija.Surface
 

@@ -4,17 +4,13 @@ package skia
 import apricot.graphics.GraphicsStack
 import apricot.tools.GlfwWindow
 import better.files.{Resource => _, *}
-import com.codahale.metrics.ConsoleReporter
 import guarana.*
-import io.github.humbleui.skija.{Canvas, Font, FontMgr, FontStyle, Paint, Surface, TextLine}
+import io.github.humbleui.skija.{Font, FontMgr, FontStyle, Paint, TextLine}
 import java.util.concurrent.locks.LockSupport
 import org.lwjgl.glfw.GLFW.*
 import scala.annotation.threadUnsafe
-import scala.concurrent.duration.*
 import scala.util.chaining.*
 
-import animation.Script
-import animation.ScriptDsl.{*, given}
 
 @main def SimpleApricotTest: Unit = {
   scribe.Logger.root.withHandler(writer = scribe.file.FileWriter(scribe.file.PathBuilder.static(File("log.txt").path))).replace()

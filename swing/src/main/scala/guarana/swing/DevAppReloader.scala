@@ -5,7 +5,7 @@ import language.implicitConversions
 import java.io.IOException
 import java.net.URLClassLoader
 import java.nio.file.attribute.BasicFileAttributes
-import java.nio.file.{FileVisitResult, FileVisitor, Files, Path, Paths, StandardWatchEventKinds, WatchEvent}
+import java.nio.file.{FileVisitResult, FileVisitor, Files, Path, StandardWatchEventKinds, WatchEvent}
 import javax.swing.SwingUtilities
 import scala.jdk.CollectionConverters.*
 import scala.util.control.NonFatal

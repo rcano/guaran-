@@ -3,9 +3,7 @@ package swing
 
 import language.implicitConversions
 import javax.swing.SwingUtilities
-import scala.concurrent.{Await, Future, Promise}
-import scala.concurrent.duration.{Duration, FiniteDuration}
-import scala.util.Try
+import scala.concurrent.duration.FiniteDuration
 import java.beans.PropertyChangeListener
 import java.beans.PropertyChangeEvent
 import javax.swing.UIManager

@@ -5,7 +5,6 @@ import org.agrona.collections.{Int2ObjectHashMap, IntHashSet, LongHashSet}
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future, Promise}
 import scala.util.Try
-import scala.util.chaining.*
 
 import language.implicitConversions
 import impl.AgronaUtils.*
@@ -33,6 +32,9 @@ abstract class AbstractToolkit {
       }
       s"$instanceDescr: $theVar"
     }
+
+    def onProjected[T](s: Keyed[ObsVal[T]])(action: Keyed[ObsVal[Any]] => Any): Boolean = ???
+    def onProjections[T](s: Keyed[ObsVal[T]])(action: Seq[Keyed[ObsVal[Any]]] => Any): Boolean = ???
   }
   def timerDefs: animation.TimersDef
   private val switchboard = SignalSwitchboard[Signal](reporter, signalDescriptor, false, timerDefs)
@@ -190,6 +192,7 @@ abstract class AbstractToolkit {
               data.emitters.fastForeach(v => emitterStation.remove(Keyed.raw(v, instanceId)))
             )
           )
+          scribe.debug(f"instance $instance recorded with id=0x$instanceId%H")
           // format: on
           data
 
@@ -200,7 +203,7 @@ abstract class AbstractToolkit {
       seenVars.put(v.uniqueId, v)
       if (v.isInstanceOf[ExternalObsVal[?]]) externalVars.add(v.uniqueId)
       if (varForInstanceAdded) {
-        scribe.debug(s"Var(${instance.value}, $v) recorded. Key = ${ObsVal.obs2Keyed(v)}")
+        scribe.debug(s"Var(${instance.value}, $v) recorded. Key = ${ObsVal.obs2Keyed(v).descrString}")
         v.onFirstAssociation(instance.value)
       }
     }

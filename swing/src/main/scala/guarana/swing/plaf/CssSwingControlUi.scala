@@ -9,7 +9,6 @@ import javax.swing.plaf.ComponentUI
 import scala.util.chaining.*
 
 trait CssSwingControlUi extends ComponentUI, CssUi {
-  import CssSwingControlUi.*
 
   /** Helper method providing support for effects.
     * 
