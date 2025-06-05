@@ -23,7 +23,7 @@ trait GraphicsStack {
   object Color extends ColorDefs {
     type Color = GraphicsStack.this.Color
 
-    given ColorLike: ColorLike[Color] = colorLike
+    override given ColorLike: ColorLike[Color] = colorLike
   }
   protected def colorLike: ColorLike[Color]
 

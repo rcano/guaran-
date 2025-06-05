@@ -116,7 +116,7 @@ trait Var[T] extends ObsVal[T] {
     type ForInstance = Var.this.ForInstance
     override def initialValue(v: Any)(using v.type <:< ForInstance): U = get(Var.this.initialValue(v))
     override def eagerEvaluation: Boolean = Var.this.eagerEvaluation
-    def projected: Var[T] = Var.this
+    def projected: Var.Aux[T, ForInstance] = Var.this
   }
 
   protected def derive[U](name: String, get: T => U, set: (T, U) => T): Var[U] = Projection(name, get, set)
