@@ -19,7 +19,9 @@ inThisBuild(
       "3.7-migration",
       "-explain"
     ),
+    bspEnabled := false
   ) ++ addCommandAlias("enableDebug", """set javaOptions += "-agentlib:jdwp=transport=dt_socket,server=y,address=5555,suspend=y"""")
+  
 )
 
 lazy val guaraná = Project(id = "guarana", base = file(".")).aggregate(coreJvm, swing, qt, apricot, apricotVk)
@@ -37,9 +39,10 @@ lazy val core = // select supported platforms
       )
     )
     // configure JVM settings
-    .jvmSettings( /* ... */ )
+    .jvmSettings(bspEnabled := true)
+    .jsSettings()
     // configure Scala-Native settings
-    .nativeSettings( /* ... */ ) // defined in sbt-scala-native
+    .nativeSettings() // defined in sbt-scala-native
 
 lazy val coreJvm = core.jvm
 lazy val coreNative = core.native

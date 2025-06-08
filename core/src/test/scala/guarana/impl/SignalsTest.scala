@@ -27,10 +27,9 @@ class SignalsTest extends AnyFunSuite {
     def defaultValueFor[T](v: Var[T], instance: v.ForInstance): T = v.initialValue(instance)
   }
   given ValueOf[this.type] = ValueOf(this)
-  def newVar[T](v: T)(using DeclaringOwner, SignalSwitchboard) = {
+  def newVar[T](v: T)(using DeclaringOwner) = {
     val res = Var.autoName(v).forInstance(this)
     varsLookup.recordVarUsage(res, _ => (), _ => ())
-    summon[SignalSwitchboard].update(res, this, v)
     res
   }
 
@@ -38,7 +37,6 @@ class SignalsTest extends AnyFunSuite {
 
   extension [T](v: Var[T]) def keyed(using ValueOf[v.ForInstance]) = ObsVal.obs2Keyed(v)
 
-  // scribe.Logger("guarana").withHandler(minimumLevel = Some(scribe.Level.Trace)).replace()
   test("simple signal propagation") {
     implicit val sb = BetterSignalSwitchboardImpl(noopReporter, defaultValueProvider, varsLookup, false, ManualTimers)
     val count = newVar(0)
@@ -161,5 +159,54 @@ class SignalsTest extends AnyFunSuite {
     Thread.sleep(105) // wait two "steps"
     ManualTimers.createdTimers.toSeq.foreach(_.runCurrTime())
     assert(sb(mult, this) == 6)
+  }
+
+  test("simple var projections") {
+    implicit val sb = BetterSignalSwitchboardImpl(noopReporter, defaultValueProvider, varsLookup, false, ManualTimers)
+    case class Vec2(x: Double, y: Double)
+    object VecVar extends Var[Vec2] {
+      def name: String = "VecVar"
+      def initialValue(v: Any)(using v.type <:< ForInstance): Vec2 = Vec2(0, 0)
+      def eagerEvaluation: Boolean = false
+
+      val x = derive("x", _.x, (v, x) => v.copy(x = x))
+      val y = derive("y", _.y, (v, y) => v.copy(y = y))
+    }
+
+    val myVar = VecVar.forInstancePrecise(this)
+    varsLookup.recordVarUsage(myVar, _ => (), _ => ())
+    assert(sb(myVar, this) == Vec2(0, 0))
+    sb(myVar, this) = Vec2(1, 2)
+    assert(sb(myVar, this) == Vec2(1, 2))
+    assert(sb(myVar.x, this) == 1)
+    sb(myVar.x, this) = 5
+    assert(sb(myVar, this) == Vec2(5, 2))
+    assert(sb(myVar.x, this) == 5)
+    sb(myVar.y, this) = 10
+    assert(sb(myVar, this) == Vec2(5, 10))
+    assert(sb(myVar.y, this) == 10)
+  }
+
+   scribe.Logger("guarana").withHandler(minimumLevel = Some(scribe.Level.Trace)).replace()
+   test("var projections with bindings") {
+    implicit val sb = BetterSignalSwitchboardImpl(noopReporter, defaultValueProvider, varsLookup, false, ManualTimers)
+    case class Vec2(x: Double, y: Double)
+    object VecVar extends Var[Vec2] {
+      def name: String = "VecVar"
+      def initialValue(v: Any)(using v.type <:< ForInstance): Vec2 = Vec2(0, 0)
+      def eagerEvaluation: Boolean = false
+
+      val x = derive("x", _.x, (v, x) => v.copy(x = x))
+      val y = derive("y", _.y, (v, y) => v.copy(y = y))
+    }
+    val xOffset = newVar(1)
+
+    val myVar = VecVar.forInstancePrecise(this)
+    varsLookup.recordVarUsage(myVar, _ => (), _ => ())
+    sb(myVar, this) = Vec2(5, 5)
+    println("binding")
+    // when binding a projection, we need to bind the projected var to all the parts
+    sb.bind(myVar.x, this, TransitionType.Instant)(sb => sb(xOffset, this) * 2.0)
+    assert(sb(myVar.x, this) == 2)
   }
 }

@@ -19,7 +19,7 @@ class VarsLookup {
     val data = instancesData.get(s.instanceId).unn
     data.instance.deref match {
       case null => null
-      case instance => (seenVars.get(s.keyId).unn.asInstanceOf[Var[T]], instance)
+      case instance => seenVars.get(s.keyId).unn.asInstanceOf[Var[T]].nullFold(_.asInstanceOf[Var[T]] -> instance, null)
     }
   }
 
@@ -55,6 +55,10 @@ class VarsLookup {
     if (varForInstanceAdded) {
       scribe.debug(s"Var(${instance.value}, $v) recorded. Key = ${ObsVal.obs2Keyed(v).descrString}")
       v.onFirstAssociation(instance.value)
+    }
+    v match {
+      case vv: Var[T] @unchecked => vv.projections.foreach(p => recordVarUsage(p.asInstanceOf[Var[?] { type ForInstance = v.ForInstance }], onVarCleanup, onEmitterCleanup))
+      case _ =>
     }
   }
 

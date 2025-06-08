@@ -73,6 +73,11 @@ object ObsVal {
     inline def asObsValIn[S <: Singleton](s: S): ObsVal.Aux[T, S] = v.asInstanceOf[ObsVal.Aux[T, S]]
   }
 
+  extension [T, Val <: ObsVal[T] & Singleton](inline v: Val) {
+    /** Variation of [[forInstance]] that lets you retain the specific type. Useful for when declaring a custom Var type with projections */
+    inline def forInstancePrecise[S <: Singleton](s: S): Val { type ForInstance = S } = v.asInstanceOf[Val { type ForInstance = S }]
+  }
+
   extension [T](v: ObsVal[T]) {
     def debounce(
         duration: FiniteDuration
@@ -119,7 +124,7 @@ trait Var[T] extends ObsVal[T] {
     def projected: Var.Aux[T, ForInstance] = Var.this
   }
 
-  protected def derive[U](name: String, get: T => U, set: (T, U) => T): Var[U] = Projection(name, get, set)
+  protected def derive[U](name: String, get: T => U, set: (T, U) => T): Var.Aux[U, ForInstance] = Projection(name, get, set)
 
   override def toString = s"Var($name)"
 }
