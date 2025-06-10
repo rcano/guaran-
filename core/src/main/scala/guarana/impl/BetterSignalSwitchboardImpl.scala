@@ -33,7 +33,7 @@ class BetterSignalSwitchboardImpl(
     case BindingResult(value: T, relationships: Relationships, f: SignalSwitchboard => T, transitionDef: TransitionType[T])
     case Transitioning(curr: T, timer: timers.Timer, to: Value[T] | BindingResult[T])
     case External
-    case Projections
+    case Projections(baseValue: T)
     /** This value represents a signal that has been recorded as consequence of a binding, but this switchboard hasn't observed via a setter
       * yet
       */
@@ -49,13 +49,26 @@ class BetterSignalSwitchboardImpl(
       case Value(v) => v
       case BindingResult(value = v) => v
       case Transitioning(curr = v) => v
-      case External => 
-        v match {
-          case pv: ProjVar[u, T, v.ForInstance] @unchecked =>
-            val projectedValue: u = BetterSignalSwitchboardImpl.this.apply(pv.projected, instance)
-            pv.get(projectedValue)
-          case ev: (ExternalVar[T] { type ForInstance = v.ForInstance }) @unchecked => ev.get(instance)
+      case Projections(baseValue) =>
+        v.projections.foldLeft[Entry[T]](baseValue) { case (base, proj: v.Projection[u] @unchecked) =>
+          signals.get(Keyed(proj, instance).id) match {
+            case null => base // if the projection was never observed, it doesn't interact
+            case s: Signal[`u`] @unchecked =>
+              // if it has been observed but it's in Unseen state (maybe got unbound) then it also doesn't interact
+              s.currValue match {
+                case Unseen => base
+                case _ =>
+                  // if even one binding is in an unresolved state, then we are also unknown and we have to be
+                  // fully evaluate with get
+                  s.currValue.knownValue(proj, instance) match {
+                    case NotFound => NotFound
+                    case value => proj.set(base.asInstanceOf[T], value.asInstanceOf[u]).asInstanceOf[Entry[T]]
+                  }
+              }
+          }
         }
+        baseValue
+      case External => v.asInstanceOf[ExternalVar[T] { type ForInstance = v.ForInstance }].get(instance)
       case _ => NotFound
     }
   }
@@ -128,6 +141,17 @@ class BetterSignalSwitchboardImpl(
 
           currGetResult
 
+        case State.Projections(baseValue) =>
+          v.projections.foldLeft(baseValue) { case (baseValue, proj: v.Projection[u] @unchecked) =>
+            signals.get(Keyed(proj, instance).id) match {
+              case null => baseValue // if we know nothing about the projection use baseValue
+              case s: Signal[`u`] @unchecked => s.currValue match {
+                case State.Unseen => baseValue // if the signal was added as unseen, use baseValue
+                case _ => proj.set(baseValue, apply(proj, instance))
+              }
+            }
+          }
+
         case other => other.knownValue(v, instance)
       }
     }
@@ -154,6 +178,9 @@ class BetterSignalSwitchboardImpl(
     }
 
     signals.put(s.id, signal) // make sure the signal is there since unbind can remove undepended signals
+
+    v.projected.?(bindToProjections(_, instance))
+
     propagateSignalInvalidation(s, skipSelf = true, propagateToProjections = true)
     reporter.signalUpdated(this, v, instance, oldValue, value, EmptyUnmodifiableLongHashSet, EmptyUnmodifiableLongHashSet)
 
@@ -164,17 +191,6 @@ class BetterSignalSwitchboardImpl(
 
   private def updateSpecific[T](v: Var[T], instance: v.ForInstance, signal: Signal[T], value: T): Unit = {
     v match {
-      case proj: ProjVar[u, T, v.ForInstance] @unchecked =>
-        val projectedKey = Keyed(proj.projected, instance)
-        val projectedSignal = signals.computeIfAbsent(projectedKey.id, _ => Signal(State.Unseen)).asInstanceOf[Signal[u]]
-        val currProjValue = apply(proj.projected, instance)
-        val newProjValue = proj.set(currProjValue, value)
-        projectedSignal.currValue = State.Value(newProjValue)
-        scribe.debug(s"Projected Var($instance, ${proj.projected}) updated to ${projectedSignal.currValue}")
-        propagateSignalInvalidation(projectedKey, skipSelf = true, propagateToProjections = false)
-        reporter.signalUpdated(this, proj.projected, instance, Some(currProjValue), newProjValue, EmptyUnmodifiableLongHashSet, EmptyUnmodifiableLongHashSet)
-        
-        signal.currValue = State.External
       case _: (ExternalVar[T] { type ForInstance = v.ForInstance }) @unchecked => signal.currValue = State.External
       case _ => signal.currValue = State.Value(value)
     }
@@ -200,26 +216,20 @@ class BetterSignalSwitchboardImpl(
     signal.currValue = State.Recompute(prevValueOpt, signal.currValue.relationshipsOpt.orNull, compute, transitionDef)
     signals.put(s.id, signal)
 
-    // in case this is a projection, there's quite a bit of work to do. The projected variable will have to be
-    // defined as a binding on its projections that have bindings
-    v match {
-      case pv: ProjVar[u, T, v.ForInstance] @unchecked =>
-        val projectedKey = Keyed(pv, instance)
-        unbindPrev(Keyed(pv, instance), unbindProjections = false)
-        val projectedSignal = signals.computeIfAbsent(projectedKey.id, _ => Signal(State.Unseen)).asInstanceOf[Signal[u]]
-        val allProjections = pv.projections
-        projectedSignal.currValue = State.Recompute(
-          prevValue = projectedSignal.currValue.knownValue(pv.projected, instance).entityToOption,
-          prevRelationships = projectedSignal.currValue.relationshipsOpt.orNull,
-          f = ss => ???,
-          transitionDef = TransitionType.Instant
-        )
-        propagateSignalInvalidation(projectedKey, skipSelf = true, false)
-
-      case _ =>
-    }
+    v.projected.?(bindToProjections(_, instance))
 
     propagateSignalInvalidation(s, skipSelf = true, propagateToProjections = true)
+  }
+
+  private def bindToProjections[T](v: Var[T], instance: v.ForInstance): Unit = {
+    val s = Keyed(v, instance)
+    val signal = signals.computeIfAbsent(s.id, _ => Signal(State.Unseen)).asInstanceOf[Signal[T]]
+    val baseValue = signal.currValue.knownValue(v, instance).getOrElse(defaultValueProvider.defaultValueFor(v, instance))
+    unbindPrev(s, unbindProjections = false)
+    signal.currValue = State.Projections(baseValue)
+    signals.put(s.id, signal)
+
+    propagateSignalInvalidation(s, skipSelf = true, propagateToProjections = false)
   }
 
   override def remove(s: Keyed[Var[Any]]): Unit = {

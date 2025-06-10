@@ -37,6 +37,8 @@ class SignalsTest extends AnyFunSuite {
 
   extension [T](v: Var[T]) def keyed(using ValueOf[v.ForInstance]) = ObsVal.obs2Keyed(v)
 
+  //  scribe.Logger("guarana").withHandler(minimumLevel = Some(scribe.Level.Trace)).replace()
+
   test("simple signal propagation") {
     implicit val sb = BetterSignalSwitchboardImpl(noopReporter, defaultValueProvider, varsLookup, false, ManualTimers)
     val count = newVar(0)
@@ -187,7 +189,6 @@ class SignalsTest extends AnyFunSuite {
     assert(sb(myVar.y, this) == 10)
   }
 
-   scribe.Logger("guarana").withHandler(minimumLevel = Some(scribe.Level.Trace)).replace()
    test("var projections with bindings") {
     implicit val sb = BetterSignalSwitchboardImpl(noopReporter, defaultValueProvider, varsLookup, false, ManualTimers)
     case class Vec2(x: Double, y: Double)
@@ -204,9 +205,45 @@ class SignalsTest extends AnyFunSuite {
     val myVar = VecVar.forInstancePrecise(this)
     varsLookup.recordVarUsage(myVar, _ => (), _ => ())
     sb(myVar, this) = Vec2(5, 5)
-    println("binding")
     // when binding a projection, we need to bind the projected var to all the parts
     sb.bind(myVar.x, this, TransitionType.Instant)(sb => sb(xOffset, this) * 2.0)
     assert(sb(myVar.x, this) == 2)
+    assert(sb(myVar, this) == Vec2(2, 5))
+
+    sb(xOffset, this) = 10
+    assert(sb(myVar.x, this) == 20)
+    assert(sb(myVar, this) == Vec2(20, 5))
+  }
+
+  test("projected signal transitions on bindings") {
+    // clone of the basic test but with projected variables now
+    implicit val sb = BetterSignalSwitchboardImpl(noopReporter, defaultValueProvider, varsLookup, false, ManualTimers)
+    case class Vec2(x: Int, y: Int)
+    object VecVar extends Var[Vec2] {
+      def name: String = "VecVar"
+      def initialValue(v: Any)(using v.type <:< ForInstance): Vec2 = Vec2(0, 0)
+      def eagerEvaluation: Boolean = false
+
+      val x = derive("x", _.x, (v, x) => v.copy(x = x))
+      val y = derive("y", _.y, (v, y) => v.copy(y = y))
+    }
+    val myVar = VecVar.forInstancePrecise(this)
+    varsLookup.recordVarUsage(myVar, _ => (), _ => ())
+    sb(myVar, this) = Vec2(0, 2)
+    val count = newVar(4)
+    sb.bind(myVar.x, this, TransitionType.Interp(Duration.Zero, 400.millis, animation.LinearCurve, 0, 60))(ctx => ctx(count, this) * 2)
+
+    assert(sb(myVar.x, this) == 0)
+    ManualTimers.createdTimers.toSeq.foreach(_.runCurrTime())  // this call causes the Timeline to start tracking time
+
+    for (expected <- 1 to 8) {
+      // advance time some
+      Thread.sleep(55)
+      ManualTimers.createdTimers.toSeq.foreach(_.runCurrTime())
+      assert(sb(myVar.x, this) == expected)
+      assert(sb(myVar, this) == Vec2(expected, 2))
+    }
+
+    assert(ManualTimers.createdTimers.isEmpty)
   }
 }
