@@ -241,6 +241,7 @@ lazy val jmh = Project("jmh", base = file("jmh"))
     libraryDependencies ++= Seq(
       "com.github.chrislo27" % "paintbox" % "0.1.1"
     ),
+    // bspEnabled := true,
     resolvers += "jitpack.io" at "https://jitpack.io",
     resolvers += Resolver.mavenLocal
   )

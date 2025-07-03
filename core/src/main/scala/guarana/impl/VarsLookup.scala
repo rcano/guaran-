@@ -35,12 +35,12 @@ class VarsLookup {
         cleaner.register(
           instance,
           () => instancesData.remove(instanceId).?(data =>
-            scribe.debug(f"instance data 0x$instanceId%H removed")
+            Debug.elidable {scribe.debug(f"instance data 0x$instanceId%H removed") }
             data.vars.fastForeach(v => onVarCleanup(Keyed.raw(v, instanceId)))
             data.emitters.fastForeach(v => onEmitterCleanup(Keyed.raw(v, instanceId)))
           )
         )
-        scribe.debug(f"instance $instance recorded with id=0x$instanceId%H")
+        Debug.elidable {scribe.debug(f"instance $instance recorded with id=0x$instanceId%H") }
         data
 
       case data: InstanceData => data
@@ -53,7 +53,7 @@ class VarsLookup {
     seenVars.put(v.uniqueId, v)
     if (v.isInstanceOf[ExternalObsVal[?]]) externalVars.add(v.uniqueId)
     if (varForInstanceAdded) {
-      scribe.debug(s"Var(${instance.value}, $v) recorded. Key = ${ObsVal.obs2Keyed(v).descrString}")
+      Debug.elidable {scribe.debug(s"Var(${instance.value}, $v) recorded. Key = ${ObsVal.obs2Keyed(v).descrString}") }
       v.onFirstAssociation(instance.value)
     }
     v match {

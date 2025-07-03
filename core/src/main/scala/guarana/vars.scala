@@ -116,15 +116,13 @@ trait Var[T] extends ObsVal[T] {
   private val _projections = new collection.mutable.ArrayBuffer[Projection[?]](0)
   def projections: collection.Seq[Projection[?]] = _projections
 
-  class Projection[U] private[Var](val name: String, val get: T => U, val set: (T, U) => T) extends Var[U] {
+  class Projection[U](val name: String, val get: T => U, val set: (T, U) => T) extends Var[U] {
     _projections += this
     type ForInstance = Var.this.ForInstance
     override def initialValue(v: Any)(using v.type <:< ForInstance): U = get(Var.this.initialValue(v))
     override def eagerEvaluation: Boolean = Var.this.eagerEvaluation
     def projected: Var.Aux[T, ForInstance] = Var.this
   }
-
-  protected def derive[U](name: String, get: T => U, set: (T, U) => T): Var.Aux[U, ForInstance] = Projection(name, get, set)
 
   override def toString = s"Var($name)"
 }

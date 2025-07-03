@@ -37,7 +37,7 @@ class SignalsTest extends AnyFunSuite {
 
   extension [T](v: Var[T]) def keyed(using ValueOf[v.ForInstance]) = ObsVal.obs2Keyed(v)
 
-  //  scribe.Logger("guarana").withHandler(minimumLevel = Some(scribe.Level.Trace)).replace()
+   scribe.Logger("guarana").withHandler(minimumLevel = Some(scribe.Level.Trace)).replace()
 
   test("simple signal propagation") {
     implicit val sb = BetterSignalSwitchboardImpl(noopReporter, defaultValueProvider, varsLookup, false, ManualTimers)
@@ -171,8 +171,8 @@ class SignalsTest extends AnyFunSuite {
       def initialValue(v: Any)(using v.type <:< ForInstance): Vec2 = Vec2(0, 0)
       def eagerEvaluation: Boolean = false
 
-      val x = derive("x", _.x, (v, x) => v.copy(x = x))
-      val y = derive("y", _.y, (v, y) => v.copy(y = y))
+      val x = Projection("x", _.x, (v, x) => v.copy(x = x))
+      val y = Projection("y", _.y, (v, y) => v.copy(y = y))
     }
 
     val myVar = VecVar.forInstancePrecise(this)
@@ -184,6 +184,7 @@ class SignalsTest extends AnyFunSuite {
     sb(myVar.x, this) = 5
     assert(sb(myVar, this) == Vec2(5, 2))
     assert(sb(myVar.x, this) == 5)
+    assert(sb(myVar.y, this) == 2)
     sb(myVar.y, this) = 10
     assert(sb(myVar, this) == Vec2(5, 10))
     assert(sb(myVar.y, this) == 10)
@@ -197,8 +198,8 @@ class SignalsTest extends AnyFunSuite {
       def initialValue(v: Any)(using v.type <:< ForInstance): Vec2 = Vec2(0, 0)
       def eagerEvaluation: Boolean = false
 
-      val x = derive("x", _.x, (v, x) => v.copy(x = x))
-      val y = derive("y", _.y, (v, y) => v.copy(y = y))
+      val x = Projection("x", _.x, (v, x) => v.copy(x = x))
+      val y = Projection("y", _.y, (v, y) => v.copy(y = y))
     }
     val xOffset = newVar(1)
 
@@ -224,8 +225,8 @@ class SignalsTest extends AnyFunSuite {
       def initialValue(v: Any)(using v.type <:< ForInstance): Vec2 = Vec2(0, 0)
       def eagerEvaluation: Boolean = false
 
-      val x = derive("x", _.x, (v, x) => v.copy(x = x))
-      val y = derive("y", _.y, (v, y) => v.copy(y = y))
+      val x = Projection("x", _.x, (v, x) => v.copy(x = x))
+      val y = Projection("y", _.y, (v, y) => v.copy(y = y))
     }
     val myVar = VecVar.forInstancePrecise(this)
     varsLookup.recordVarUsage(myVar, _ => (), _ => ())
@@ -245,5 +246,50 @@ class SignalsTest extends AnyFunSuite {
     }
 
     assert(ManualTimers.createdTimers.isEmpty)
+  }
+
+  test("nested projections") {
+    implicit val sb = BetterSignalSwitchboardImpl(noopReporter, defaultValueProvider, varsLookup, false, ManualTimers)
+    case class Bounds(x: Double, y: Double, width: Double, height: Double)
+    object BoundsVar extends Var[Bounds] {
+      def name: String = "VecVar"
+      def initialValue(v: Any)(using v.type <:< ForInstance): Bounds = Bounds(0, 0, 0, 0)
+      def eagerEvaluation: Boolean = false
+
+      object loc extends Projection[(x: Double, y: Double)](
+        "loc",
+        b => (b.x, b.y),
+        (bounds, loc) => bounds.copy(x = loc.x, y = loc.y)
+      ) {
+        val x = Projection("x", _.x, (v, x) => (x = x, y = v.y)).asInstanceOf[Var.Aux[Double, ForInstance]]
+        val y = Projection("y", _.y, (v, y) => (x = v.x, y = y)).asInstanceOf[Var.Aux[Double, ForInstance]]
+      }
+      object dim extends Projection[(width: Double, height: Double)](
+        "dim",
+        b => (b.width, b.height),
+        (bounds, loc) => bounds.copy(width = loc.width, height = loc.height)
+      ) {
+        val width = Projection("x", _.width, (v, w) => (w, v.height)).asInstanceOf[Var.Aux[Double, ForInstance]]
+        val height = Projection("y", _.height, (v, h) => (v.width, h)).asInstanceOf[Var.Aux[Double, ForInstance]]
+      }
+    }
+
+    val myVar = BoundsVar.forInstancePrecise(this)
+    varsLookup.recordVarUsage(myVar, _ => (), _ => ())
+    sb(myVar, this) = Bounds(10, 10, 20, 20)
+    assert(sb(myVar.loc, this).toTuple == (10, 10))
+    assert(sb(myVar.dim, this).toTuple == (20, 20))
+    // val vv: Var.Aux[Double, this.type] = myVar.loc.x
+    assert(sb(myVar.loc.x, this) == 10)
+    assert(sb(myVar.loc.y, this) == 10)
+    assert(sb(myVar.dim.width, this) == 20)
+    assert(sb(myVar.dim.height, this) == 20)
+
+    sb(myVar.loc.x, this) = 15
+    assert(sb(myVar.loc, this).toTuple == (15, 10))
+    assert(sb(myVar.dim, this).toTuple == (20, 20))
+    sb(myVar.dim.height, this) = 10
+    assert(sb(myVar.loc, this).toTuple == (15, 10))
+    assert(sb(myVar.dim, this).toTuple == (20, 10))
   }
 }

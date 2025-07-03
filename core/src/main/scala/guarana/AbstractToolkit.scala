@@ -35,22 +35,22 @@ abstract class AbstractToolkit {
   def update[R](f: this.type ?=> VarContextAction[R]): R = Await.result(updateAsync(f), Duration.Inf)
   def updateAsync[R](f: this.type ?=> VarContextAction[R]): Future[R] = {
     val res = Promise[R]()
-    def impl() = res.complete(Try {
+    def run() = res.complete(Try {
       if (!stackContext.isBound()) {
         val ctx = ContextImpl(switchboard, emitterStation)
-        varcontextLogger.debug(s"no current varcontext, installing $ctx")
+        impl.Debug.elidable { varcontextLogger.debug(s"no current varcontext, installing $ctx") }
         val res = ScopedValue.where(stackContext, ctx).call(() => f(using this)(using stackContext.get().unn))
-        varcontextLogger.debug(s"context $ctx popped")
+        impl.Debug.elidable { varcontextLogger.debug(s"context $ctx popped") }
         res
       } else {
-        varcontextLogger.debug(s"using existing var context ${stackContext.get()}")
+        impl.Debug.elidable { varcontextLogger.debug(s"using existing var context ${stackContext.get()}") }
         f(using this)(using stackContext.get().unn)
       }
     })
 
-    if (isOnToolkitThread()) impl()
+    if (isOnToolkitThread()) run()
     else {
-      runOnToolkitThread(impl)
+      runOnToolkitThread(run)
     }
 
     res.future
@@ -73,9 +73,9 @@ abstract class AbstractToolkit {
 
     def signalRemoved[T](sb: SignalSwitchboard, s: Keyed[Var[T]]): Unit = ()
     def signalInvalidated[T](sb: SignalSwitchboard, v: Var[T], instance: v.ForInstance) = {
-      scribe.debug(s"Keyed($instance, $v) invalidated")
+      impl.Debug.elidable { scribe.debug(s"Keyed($instance, $v) invalidated") }
       if (v.eagerEvaluation) {
-        scribe.debug(s"Keyed($instance, $v) eagerly evaluating")
+        impl.Debug.elidable { scribe.debug(s"Keyed($instance, $v) eagerly evaluating") }
         switchboard.get(v, instance)
         // v match {
         //   case ev: ExternalVar[t] => reactingToExtVar(s) {
@@ -115,25 +115,23 @@ abstract class AbstractToolkit {
         dependencies: LongHashSet,
         dependents: LongHashSet
     ): Unit = {
-      update {
-        val ctx = summon[VarContext].asInstanceOf[ContextImpl]
-        val s = Keyed(v, instance)
-        // FIXME: broken api
-        scribe.debug(s"Keyed($instance, $v) updated")
-        // println(s"signal updated ${signalDescriptor.describe(s)}, reacting ? ${reactingExtVars.contains(s.id)}")
-        v match {
-          case v: ExternalVar[T] { type ForInstance = v.ForInstance } if !reactingExtVars.contains(s.id) =>
-            reactingToExtVar(s) {
-              // println(s"    setting external prop ${signalDescriptor.describe(s)}")
-              v.asInstanceOf[ExternalVar[T] { type ForInstance = instance.type }].set(instance, newValue)
-            }
-          case _ =>
-        }
+      val s = Keyed(v, instance)
+      // FIXME: broken api
+      impl.Debug.elidable { scribe.debug(s"Keyed($instance, $v) updated") }
+      // println(s"signal updated ${signalDescriptor.describe(s)}, reacting ? ${reactingExtVars.contains(s.id)}")
+      v match {
+        case v: ExternalVar[T] { type ForInstance = v.ForInstance } if !reactingExtVars.contains(s.id) =>
+          reactingToExtVar(s) {
+            // println(s"    setting external prop ${signalDescriptor.describe(s)}")
+            v.asInstanceOf[ExternalVar[T] { type ForInstance = instance.type }].set(instance, newValue)
+          }
+        case _ =>
+      }
 
-        if (emitterStation.hasListeners(instance.varUpdates)) {
-          scribe.debug(s"Keyed($instance, $v) has listeners on its changes, emitting VarValueChanged")
-          ctx.emit(instance.varUpdates, VarValueChanged(v, instance, oldValue, newValue))
-        }
+      given ctx: ContextImpl = stackContext.get().unn
+      if (emitterStation.hasListeners(instance.varUpdates)) {
+        impl.Debug.elidable { scribe.debug(s"Keyed($instance, $v) has listeners on its changes, emitting VarValueChanged") }
+        ctx.emit(instance.varUpdates, VarValueChanged(v, instance, oldValue, newValue))
       }
     }
   }
@@ -171,15 +169,15 @@ abstract class AbstractToolkit {
           switchboard.bind(v, instance.value, trOpt.orElse(styleTrn).getOrElse(animation.TransitionType.Instant))(sb =>
             val ctx = stackContext.orElse(null) match {
               case null =>
-                varcontextLogger.debug(s"evaluating binding, no existing context.")
+                impl.Debug.elidable { varcontextLogger.debug(s"evaluating binding, no existing context.") }
                 new ContextImpl(sb, AbstractToolkit.this.emitterStation)
               case parent =>
-                varcontextLogger.debug(s"evaluating binding, existing context = $parent")
+                impl.Debug.elidable { varcontextLogger.debug(s"evaluating binding, existing context = $parent") }
                 new ContextImpl(sb, parent.emitterStation)
             }
-            varcontextLogger.debug(s"evaluating binding, installing context $ctx")
+            impl.Debug.elidable { varcontextLogger.debug(s"evaluating binding, installing context $ctx") }
             val res = ScopedValue.where(stackContext, ctx).call(() => c(stackContext.get().unn))
-            varcontextLogger.debug(s"evaluating binding, context $ctx popped")
+            impl.Debug.elidable { varcontextLogger.debug(s"evaluating binding, context $ctx popped") }
             res
           )
       }
@@ -200,7 +198,7 @@ abstract class AbstractToolkit {
         )
     }
 
-    //Emitter.Context
+    // Emitter.Context
 
     def emit[A](emitter: Emitter[A], evt: A)(using instance: ValueOf[emitter.ForInstance]): Unit = {
       checkActiveContext()

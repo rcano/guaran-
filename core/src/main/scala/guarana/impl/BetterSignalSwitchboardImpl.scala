@@ -92,7 +92,9 @@ class BetterSignalSwitchboardImpl(
         }
         
       case state: Signal[T] @unchecked =>
-        scribe.debug(s"Evaluating Var($instance, $v), signal ${state.currValue}")
+        Debug.elidable {
+          scribe.debug(s"Evaluating Var($instance, $v), signal ${state.currValue}")
+        }
         state.currValue match {
           case State.Recompute(oldv, prevRels, compute, transition) =>
             prevRels.?(_.dependents fastForeach (e => remove(Keyed(e)))) //when recomputing the value, we gotta undo all the dependents
@@ -115,9 +117,11 @@ class BetterSignalSwitchboardImpl(
                 s"Var ${varsLookup.describe(s)} depends on ${varsLookup.describe(Keyed(l))} but it also has it as dependent, this will always lead to stack overflow"
               )
           )
-          scribe.debug(
-            s"recomputed signal ${varsLookup.describe(s)} ${s.descrString} to $targetValue, new relationships: $computedRels"
-          )
+          Debug.elidable {
+            scribe.debug(
+              s"recomputed signal ${varsLookup.describe(s)} ${s.descrString} to $targetValue, new relationships: $computedRels"
+            )
+          }
           tracker.dependencies fastForeach { dep =>
             signals.computeIfAbsent(dep, _ => Signal(State.Unseen)).instantiatedReactToMyChanges.add(s.id)
           }
@@ -194,7 +198,9 @@ class BetterSignalSwitchboardImpl(
       case _: (ExternalVar[T] { type ForInstance = v.ForInstance }) @unchecked => signal.currValue = State.External
       case _ => signal.currValue = State.Value(value)
     }
-    scribe.debug(s"Var($instance, $v) updated to ${signal.currValue}")
+    Debug.elidable {
+      scribe.debug(s"Var($instance, $v) updated to ${signal.currValue}")
+    }
   }
 
   override def externalPropertyChanged[T](v: ExternalVar[T], instance: v.ForInstance, oldValue: Option[T]): Unit = {
@@ -223,11 +229,17 @@ class BetterSignalSwitchboardImpl(
 
   private def bindToProjections[T](v: Var[T], instance: v.ForInstance): Unit = {
     val s = Keyed(v, instance)
+    val baseValue = apply(v, instance)
     val signal = signals.computeIfAbsent(s.id, _ => Signal(State.Unseen)).asInstanceOf[Signal[T]]
-    val baseValue = signal.currValue.knownValue(v, instance).getOrElse(defaultValueProvider.defaultValueFor(v, instance))
     unbindPrev(s, unbindProjections = false)
     signal.currValue = State.Projections(baseValue)
     signals.put(s.id, signal)
+
+    Debug.elidable {
+      scribe.debug(s"Var($instance, $v) bound to its projections")
+    }
+
+    v.projected.?(bindToProjections(_, instance))
 
     propagateSignalInvalidation(s, skipSelf = true, propagateToProjections = false)
   }
@@ -299,9 +311,10 @@ class BetterSignalSwitchboardImpl(
     val currState = signals.get(s.id).unn
 
     val (v, i) = varsLookup.lookup(s).nullFold(identity, return)
-
-    scribe.debug(s"${"  " * depth.getAndIncrement()}propagating invalidation for ${varsLookup
-      .describe(s)} ${s.descrString} ${currState.currValue}")
+    Debug.elidable {
+      scribe.debug(s"${"  " * depth.getAndIncrement()}propagating invalidation for ${varsLookup
+        .describe(s)} ${s.descrString} ${currState.currValue}")
+    }
 
     if (!skipSelf) {
       currState.currValue match {
@@ -323,7 +336,9 @@ class BetterSignalSwitchboardImpl(
 
     // report at the end of the process, so that all of `s` dependencies get reported and invalidated first
     reporter.signalInvalidated(this, v, i.asInstanceOf[v.ForInstance])
-    scribe.debug(s"${"  " * depth.decrementAndGet()}done propagating invalidation for ${varsLookup.describe(s)} ${s.descrString}")
+    Debug.elidable {
+      scribe.debug(s"${"  " * depth.decrementAndGet()}done propagating invalidation for ${varsLookup.describe(s)} ${s.descrString}")
+    }
 
     if (propagateToProjections)
       v.projections.foreach(p => propagateSignalInvalidation(Keyed(p, i.asInstanceOf[p.ForInstance]), false, true))
