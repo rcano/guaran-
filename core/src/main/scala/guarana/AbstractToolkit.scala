@@ -15,7 +15,7 @@ abstract class AbstractToolkit {
   private val varsLookup = impl.VarsLookup()
   private val switchboard = {
     val defaultValueProvider = new SignalSwitchboard.DefaultVarValueProvider {
-      def defaultValueFor[T](v: Var[T], instance: v.ForInstance): T =
+      def defaultValueFor[T](v: ObsVal[T], instance: v.ForInstance): T =
         stylist(getMetrics(), v, instance)(using AbstractToolkit.this) getOrElse v.initialValue(instance)
     }
     SignalSwitchboard(reporter, defaultValueProvider, varsLookup, false, timerDefs)
@@ -71,12 +71,13 @@ abstract class AbstractToolkit {
   }
   private object reporter extends SignalSwitchboard.Reporter {
 
-    def signalRemoved[T](sb: SignalSwitchboard, s: Keyed[Var[T]]): Unit = ()
-    def signalInvalidated[T](sb: SignalSwitchboard, v: Var[T], instance: v.ForInstance) = {
+    def signalRemoved[T](sb: SignalSwitchboard, s: Keyed[ObsVal[T]]): Unit = ()
+    def signalInvalidated[T](sb: SignalSwitchboard, v: ObsVal[T], instance: v.ForInstance) = {
       impl.Debug.elidable { scribe.debug(s"Keyed($instance, $v) invalidated") }
-      if (v.eagerEvaluation) {
-        impl.Debug.elidable { scribe.debug(s"Keyed($instance, $v) eagerly evaluating") }
-        switchboard.get(v, instance)
+      v match {
+        case v: Var.Aux[T, v.ForInstance] @unchecked if v.eagerEvaluation =>
+          impl.Debug.elidable { scribe.debug(s"Keyed($instance, $v) eagerly evaluating") }
+          switchboard.get(v, instance)
         // v match {
         //   case ev: ExternalVar[t] => reactingToExtVar(s) {
 
@@ -96,7 +97,7 @@ abstract class AbstractToolkit {
         //  */
         // val stack = new Exception()
         // runOnToolkitThread(() => try reactingToVar(s) { switchboard.get(s) } catch case any: Throwable => {any.addSuppressed(stack); throw any})
-
+        case _ =>
       }
       // s.keyed match {
       //   case v: Var[_] if v.eagerEvaluation => withContext { ctx =>
@@ -108,7 +109,7 @@ abstract class AbstractToolkit {
 
     def signalUpdated[T](
         sb: SignalSwitchboard,
-        v: Var[T],
+        v: ObsVal[T],
         instance: v.ForInstance,
         oldValue: Option[T],
         newValue: T,
@@ -128,10 +129,15 @@ abstract class AbstractToolkit {
         case _ =>
       }
 
-      given ctx: ContextImpl = stackContext.get().unn
       if (emitterStation.hasListeners(instance.varUpdates)) {
         impl.Debug.elidable { scribe.debug(s"Keyed($instance, $v) has listeners on its changes, emitting VarValueChanged") }
-        ctx.emit(instance.varUpdates, VarValueChanged(v, instance, oldValue, newValue))
+        given ctx: ContextImpl = {
+          if (stackContext.isBound()) stackContext.get().unn
+          else ContextImpl(switchboard, emitterStation)
+        }
+        ScopedValue.where(stackContext, ctx).call { () =>
+          ctx.emit(instance.varUpdates, VarValueChanged(v, instance, oldValue, newValue))
+        }
       }
     }
   }
@@ -156,7 +162,7 @@ abstract class AbstractToolkit {
     def apply[T](v: ObsVal[T])(using instance: ValueOf[v.ForInstance]): T = {
       checkActiveContext()
       recordVarUsage(v)
-      switchboard(v.asInstanceOf[Var.Aux[T, v.ForInstance]], instance.value)
+      switchboard(v, instance.value)
     }
     def update[T](v: Var[T], binding: Binding[T])(using instance: ValueOf[v.ForInstance]): Unit = {
       checkActiveContext()

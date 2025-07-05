@@ -45,12 +45,13 @@ class BetterSignalSwitchboardImpl(
       case _ => None
     }
 
-    def knownValue(v: Var[? >: T], instance: v.ForInstance): Entry[T] = this match {
+    def knownValue(v: ObsVal[? >: T], instance: v.ForInstance): Entry[T] = this match {
       case Value(v) => v
       case BindingResult(value = v) => v
       case Transitioning(curr = v) => v
       case Projections(baseValue) =>
-        v.projections.foldLeft[Entry[T]](baseValue) { case (base, proj: v.Projection[u] @unchecked) =>
+        val vv = v.asInstanceOf[Var.Aux[T, v.ForInstance]]
+        vv.projections.foldLeft[Entry[T]](baseValue) { case (base, proj: vv.Projection[u] @unchecked) =>
           signals.get(Keyed(proj, instance).id) match {
             case null => base // if the projection was never observed, it doesn't interact
             case s: Signal[`u`] @unchecked =>
@@ -82,7 +83,7 @@ class BetterSignalSwitchboardImpl(
   private val signals = new Long2ObjectHashMap[Signal[?]](1024, 0.67f)
   private val reentrancyDetector = new LongHashSet(32);
 
-  override def get[T](v: Var[T], instance: v.ForInstance): Entry[T] = {
+  override def get[T](v: ObsVal[T], instance: v.ForInstance): Entry[T] = {
     val s = Keyed(v, instance)
     signals.get(s.id) match {
       case null =>
@@ -97,67 +98,69 @@ class BetterSignalSwitchboardImpl(
         }
         state.currValue match {
           case State.Recompute(oldv, prevRels, compute, transition) =>
+            val vv = v.asInstanceOf[Var.Aux[T, v.ForInstance]]
             prevRels.?(_.dependents fastForeach (e => remove(Keyed(e)))) //when recomputing the value, we gotta undo all the dependents
 
-          if (reentrancyDetector.contains(s.id))
-            throw new IllegalStateException(s"Detected evaluation loop in ${varsLookup.describe(v, instance)} ${s.descrString}")
-          if (useReentrancyDetection) reentrancyDetector.add(s.id)
+            if (reentrancyDetector.contains(s.id))
+              throw new IllegalStateException(s"Detected evaluation loop in ${varsLookup.describe(v, instance)} ${s.descrString}")
+            if (useReentrancyDetection) reentrancyDetector.add(s.id)
 
-          val tracker = new TrackingContext(this, s)
+            val tracker = new TrackingContext(this, s)
 
-          // before computing the value, we set the signalState to the oldValue in case the compute lambda has a self reference
-          oldv.fold(state.currValue = State.Unseen)(oldv => state.currValue = State.Value(oldv))
-          val targetValue = compute(tracker)
+            // before computing the value, we set the signalState to the oldValue in case the compute lambda has a self reference
+            oldv.fold(state.currValue = State.Unseen)(oldv => state.currValue = State.Value(oldv))
+            val targetValue = compute(tracker)
 
-          // relationships management
-          val computedRels = Relationships(tracker.dependencies, tracker.dependents)
-          tracker.dependents.fastForeach(l =>
-            if (computedRels.dependencies.contains(l))
-              throw new IllegalStateException(
-                s"Var ${varsLookup.describe(s)} depends on ${varsLookup.describe(Keyed(l))} but it also has it as dependent, this will always lead to stack overflow"
-              )
-          )
-          Debug.elidable {
-            scribe.debug(
-              s"recomputed signal ${varsLookup.describe(s)} ${s.descrString} to $targetValue, new relationships: $computedRels"
+            // relationships management
+            val computedRels = Relationships(tracker.dependencies, tracker.dependents)
+            tracker.dependents.fastForeach(l =>
+              if (computedRels.dependencies.contains(l))
+                throw new IllegalStateException(
+                  s"Var ${varsLookup.describe(s)} depends on ${varsLookup.describe(Keyed(l))} but it also has it as dependent, this will always lead to stack overflow"
+                )
             )
-          }
-          tracker.dependencies fastForeach { dep =>
-            signals.computeIfAbsent(dep, _ => Signal(State.Unseen)).instantiatedReactToMyChanges.add(s.id)
-          }
-
-          updateSpecific(v, instance, state, targetValue)
-          state.currValue = State.BindingResult(targetValue, computedRels, compute, transition)
-
-          val currGetResult = transition match
-            case defn: TransitionType.Interp[T] @unchecked => startTransition(s, oldv, state, defn)
-            case _ => targetValue
-
-          if (useReentrancyDetection) reentrancyDetector.remove(s.id)
-
-          if (oldv.exists(_ != currGetResult)) {
-            reporter.signalUpdated(this, v, instance, oldv, currGetResult, computedRels.dependencies, computedRels.dependents)
-
-            v.projections.foreach { case p: v.Projection[u] =>
-              reporter.signalUpdated(this, p, instance, oldv.map(p.get), p.get(currGetResult), EmptyUnmodifiableLongHashSet, EmptyUnmodifiableLongHashSet)
+            Debug.elidable {
+              scribe.debug(
+                s"recomputed signal ${varsLookup.describe(s)} ${s.descrString} to $targetValue, new relationships: $computedRels"
+              )
             }
-          }
+            tracker.dependencies fastForeach { dep =>
+              signals.computeIfAbsent(dep, _ => Signal(State.Unseen)).instantiatedReactToMyChanges.add(s.id)
+            }
 
-          currGetResult
+            updateSpecific(vv, instance, state, targetValue)
+            state.currValue = State.BindingResult(targetValue, computedRels, compute, transition)
 
-        case State.Projections(baseValue) =>
-          v.projections.foldLeft(baseValue) { case (baseValue, proj: v.Projection[u] @unchecked) =>
-            signals.get(Keyed(proj, instance).id) match {
-              case null => baseValue // if we know nothing about the projection use baseValue
-              case s: Signal[`u`] @unchecked => s.currValue match {
-                case State.Unseen => baseValue // if the signal was added as unseen, use baseValue
-                case _ => proj.set(baseValue, apply(proj, instance))
+            val currGetResult = transition match
+              case defn: TransitionType.Interp[T] @unchecked => startTransition(s.asInstanceOf[Keyed[Var[T]]], oldv, state, defn)
+              case _ => targetValue
+
+            if (useReentrancyDetection) reentrancyDetector.remove(s.id)
+
+            if (oldv.exists(_ != currGetResult)) {
+              reporter.signalUpdated(this, v, instance, oldv, currGetResult, computedRels.dependencies, computedRels.dependents)
+
+              vv.projections.foreach { case p: vv.Projection[u] =>
+                reporter.signalUpdated(this, p, instance, oldv.map(p.get), p.get(currGetResult), EmptyUnmodifiableLongHashSet, EmptyUnmodifiableLongHashSet)
               }
             }
-          }
 
-        case other => other.knownValue(v, instance)
-      }
+            currGetResult
+
+          case State.Projections(baseValue) =>
+            val vv = v.asInstanceOf[Var.Aux[T, v.ForInstance]]
+            vv.projections.foldLeft(baseValue) { case (baseValue, proj: vv.Projection[u] @unchecked) =>
+              signals.get(Keyed(proj, instance).id) match {
+                case null => baseValue // if we know nothing about the projection use baseValue
+                case s: Signal[`u`] @unchecked => s.currValue match {
+                  case State.Unseen => baseValue // if the signal was added as unseen, use baseValue
+                  case _ => proj.set(baseValue, apply(proj, instance))
+                }
+              }
+            }
+
+          case other => other.knownValue(v, instance)
+        }
     }
   }
 
@@ -166,9 +169,11 @@ class BetterSignalSwitchboardImpl(
 
     val signal = signals.computeIfAbsent(s.id, _ => Signal(State.Unseen)).asInstanceOf[Signal[T]]
 
-    signal.currValue match {
-      case State.Value(`value`) => return // early exit
-      case _ =>
+    if (!v.isInstanceOf[MutContentVar[?]]) {
+      signal.currValue match {
+        case State.Value(`value`) => return // early exit
+        case _ =>
+      }
     }
 
     unbindPrev(s)
@@ -203,7 +208,7 @@ class BetterSignalSwitchboardImpl(
     }
   }
 
-  override def externalPropertyChanged[T](v: ExternalVar[T], instance: v.ForInstance, oldValue: Option[T]): Unit = {
+  override def externalPropertyChanged[T](v: ExternalObsVal[T], instance: v.ForInstance, oldValue: Option[T]): Unit = {
     // an external change doesn't mean a voluntary (by the user) change on the behavior of the signal (whether compute or set)
     // so we don't unbind its current state and instead just propagate the signal invalidation. It there's no current state it means
     // no actually observable var is depending on this, so we can remain oblivious to its contents.
@@ -244,7 +249,7 @@ class BetterSignalSwitchboardImpl(
     propagateSignalInvalidation(s, skipSelf = true, propagateToProjections = false)
   }
 
-  override def remove(s: Keyed[Var[Any]]): Unit = {
+  override def remove(s: Keyed[ObsVal[Any]]): Unit = {
     unbindPrev(s)
     reporter.signalRemoved(this, s)
   }
@@ -260,12 +265,12 @@ class BetterSignalSwitchboardImpl(
     res
   }
 
-  override def relationships[T](v: Var[T], instance: v.ForInstance): Option[Relationships] = signals.get(Keyed(v, instance).id) match {
+  override def relationships[T](v: ObsVal[T], instance: v.ForInstance): Option[Relationships] = signals.get(Keyed(v, instance).id) match {
     case null => None
     case state: Signal[T] @unchecked => state.currValue.relationshipsOpt
   }
 
-  private def unbindPrev[T](s: Keyed[Var[T]], unbindProjections: Boolean = true): Unit = {
+  private def unbindPrev[T](s: Keyed[ObsVal[T]], unbindProjections: Boolean = true): Unit = {
     def undoRelationships(rels: Relationships): Unit = {
       rels.dependents fastForeach (l => remove(Keyed(l)))
       rels.dependencies fastForeach (dep => signals.get(dep).?(signal =>
@@ -296,14 +301,15 @@ class BetterSignalSwitchboardImpl(
         if (unbindProjections) {
           varsLookup.lookup(s) match {
             case null =>
-            case (v, i) => v.projections.foreach(p => unbindPrev(Keyed(p, i.asInstanceOf[p.ForInstance])))
+            case (v: Var[u], i) => v.projections.foreach(p => unbindPrev(Keyed(p, i.asInstanceOf[p.ForInstance])))
+            case _ => 
           }
         }
     }
   }
 
   private val depth = new java.util.concurrent.atomic.AtomicInteger(0)
-  private def propagateSignalInvalidation[T](s: Keyed[Var[T]], skipSelf: Boolean, propagateToProjections: Boolean): Unit = {
+  private def propagateSignalInvalidation[T](s: Keyed[ObsVal[T]], skipSelf: Boolean, propagateToProjections: Boolean): Unit = {
     // due to how propagating signal works, where the set of dependencies is iterated, it is entirely possible to find during
     // the iteration a signal that was removed, hence why we check here if that's the case by checking the state
     if !signals.containsKey(s.id) then return
@@ -341,7 +347,11 @@ class BetterSignalSwitchboardImpl(
     }
 
     if (propagateToProjections)
-      v.projections.foreach(p => propagateSignalInvalidation(Keyed(p, i.asInstanceOf[p.ForInstance]), false, true))
+      v match {
+        case vv: Var[T] => vv.projections.foreach(p => propagateSignalInvalidation(Keyed(p, i.asInstanceOf[p.ForInstance]), false, true))
+        case _ =>
+      }
+      
   }
 
   private def startTransition[T](s: Keyed[Var[T]], oldv: Option[T], state: Signal[T], defn: TransitionType.Interp[T]): T = {
@@ -368,7 +378,6 @@ class BetterSignalSwitchboardImpl(
         case null => anim.timer.stop() // if the variable was collected, no need to continue the animation
         case (v, i) =>
           // println(s"interpolating var after $elapsed, $initValue / $curr / $targetValue")
-          updateSpecific(v, i.asInstanceOf[v.ForInstance], state, curr)
           // specifically set the state to transitioning because updateSpecific might leave it as External, once
           // the animation is done and we are no longer transitioning we don't need this
           state.currValue = State.Transitioning(curr, anim.timer, targetState.asInstanceOf)
@@ -379,7 +388,7 @@ class BetterSignalSwitchboardImpl(
       varsLookup.lookup(s) match {
         case null =>
         case (v, i) =>
-          updateSpecific(v, i.asInstanceOf[v.ForInstance], state, targetValue)
+          state.currValue = targetState
           propagateSignalInvalidation(s, skipSelf = true, propagateToProjections = true)
           reporter.signalUpdated(this, v, i.asInstanceOf[v.ForInstance], oldv, targetValue, dependencies, dependents)
       }

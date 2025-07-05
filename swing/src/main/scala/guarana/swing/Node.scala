@@ -4,15 +4,23 @@ package guarana
 package swing
 
 import language.implicitConversions
-import java.awt.{Component => _, Menu => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, PopupMenu => _}
+import java.awt.{Component as _, Menu as _, MenuBar as _, MenuItem as _, TextComponent as _, TextField as _, PopupMenu as _}
 import java.awt.event.*
-import javax.swing.Action => _
+import javax.swing.Action as _
 import guarana.util.*
 
 opaque type Node  >: java.awt.Component = java.awt.Component
 object Node extends VarsMap {
   val Background: SwingVar.Aux[Node, java.awt.Color | Null] = SwingVar[Node, java.awt.Color | Null]("background", _.getBackground, _.setBackground(_))
-  val Bounds: SwingVar.Aux[Node, Bounds] = SwingVar[Node, Bounds]("bounds", _.getBounds.nn, _.setBounds(_))
+  object Bounds extends SwingVar[Bounds] {
+    lazy val name = "bounds"
+    type ForInstance <: Node & Singleton
+    def get(n: ForInstance) = n.getBounds()
+    def set(n: ForInstance, v: Bounds) = n.setBounds(v)
+    def eagerEvaluation = true
+    val loc = Projection[(x: Double, y: Double)]("loc", b => (b.getX(), b.getY()), (bounds, loc) => {bounds.setLocation(loc.x.toInt, loc.y.toInt); bounds})
+    val dim = Projection[(width: Double, height: Double)]("dim", b => (b.getWidth(), b.getHeight()), (bounds, dim) => {bounds.setSize(dim.width.toInt, dim.height.toInt); bounds})
+  }
   val ComponentOrientation: SwingVar.Aux[Node, java.awt.ComponentOrientation] = SwingVar[Node, java.awt.ComponentOrientation]("componentOrientation", _.getComponentOrientation.nn, _.setComponentOrientation(_))
   val Cursor: SwingVar.Aux[Node, java.awt.Cursor | Null] = SwingVar[Node, java.awt.Cursor | Null]("cursor", _.getCursor, _.setCursor(_))
   val Enabled: SwingVar.Aux[Node, Boolean] = SwingVar[Node, Boolean]("enabled", _.isEnabled, _.setEnabled(_))
@@ -37,7 +45,7 @@ object Node extends VarsMap {
   object Ops {
     extension (v: Node) {
       def background: Var.Aux[java.awt.Color | Null, v.type] = Node.Background.asInstanceOf[Var.Aux[java.awt.Color | Null, v.type]]
-      def bounds: Var.Aux[Bounds, v.type] = Node.Bounds.asInstanceOf[Var.Aux[Bounds, v.type]]
+      def bounds = Node.Bounds.forInstancePrecise(v)
       def componentOrientation: Var.Aux[java.awt.ComponentOrientation, v.type] = Node.ComponentOrientation.asInstanceOf[Var.Aux[java.awt.ComponentOrientation, v.type]]
       def cursor: Var.Aux[java.awt.Cursor | Null, v.type] = Node.Cursor.asInstanceOf[Var.Aux[java.awt.Cursor | Null, v.type]]
       def enabled: Var.Aux[Boolean, v.type] = Node.Enabled.asInstanceOf[Var.Aux[Boolean, v.type]]

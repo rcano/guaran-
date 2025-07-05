@@ -3,7 +3,7 @@ name := "guarana"
 inThisBuild(
   Seq(
     organization := "guarana",
-    version := "0.1.0-SNAPSHOT",
+    version := "0.2.0-SNAPSHOT",
     scalaVersion := "3.7.1",
     fork := true,
     libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.19" % "test",
@@ -81,6 +81,7 @@ lazy val swing = Project(id = "guarana-swing", base = file("swing"))
   .dependsOn(coreJvm)
   .settings(
     // scalacOptions -= "-Yexplicit-nulls",
+    bspEnabled := true,
     libraryDependencies ++= Seq(
       ("com.github.pathikrit" %% "better-files" % "3.9.2"),
       "com.github.weisj" % "jsvg" % "1.7.0",
@@ -118,6 +119,7 @@ lazy val swing = Project(id = "guarana-swing", base = file("swing"))
 lazy val guaranaTheme = Project(id = "theme", base = file("swing/theme"))
   .dependsOn(swing)
   .settings(
+    bspEnabled := true,
     libraryDependencies ++= Seq(
       "com.jhlabs" % "filters" % "2.0.235-1",
     )
@@ -241,7 +243,7 @@ lazy val jmh = Project("jmh", base = file("jmh"))
     libraryDependencies ++= Seq(
       "com.github.chrislo27" % "paintbox" % "0.1.1"
     ),
-    // bspEnabled := true,
+    bspEnabled := true,
     resolvers += "jitpack.io" at "https://jitpack.io",
     resolvers += Resolver.mavenLocal
   )

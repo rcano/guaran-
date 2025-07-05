@@ -35,7 +35,7 @@ private[impl] class OldSignalSwitchboardImpl(
 
   private type ProjVar[t, u, instance] = Var[t]#Projection[u] { type ForInstance = instance }
 
-  def get[T](v: Var[T], instance: v.ForInstance): Entry[T] = {
+  def get[T](v: ObsVal[T], instance: v.ForInstance): Entry[T] = {
     val s = Keyed(v, instance)
     (signalStates.get(s.id): @unchecked) match {
       case null => NotFound
@@ -102,7 +102,7 @@ private[impl] class OldSignalSwitchboardImpl(
     }
   }
 
-  private def startTransition[T](s: Keyed[Var[T]], oldv: T | Null, targetValue: T, defn: TransitionType.Interp[T]): T = {
+  private def startTransition[T](s: Keyed[ObsVal[T]], oldv: T | Null, targetValue: T, defn: TransitionType.Interp[T]): T = {
     import defn.*
     val min = oldv.nullFold(v => v, baseValue)
     val initValue = min
@@ -145,7 +145,7 @@ private[impl] class OldSignalSwitchboardImpl(
     initValue
   }
 
-  def remove(s: Keyed[Var[Any]]): Unit = {
+  def remove(s: Keyed[ObsVal[Any]]): Unit = {
     signalStates.remove(s.id)
     unbindPrev(s)
     reporter.signalRemoved(this, s)
@@ -189,7 +189,7 @@ private[impl] class OldSignalSwitchboardImpl(
     }
   }
 
-  def externalPropertyChanged[T](v: ExternalVar[T], instance: v.ForInstance, oldValue: Option[T]): Unit =
+  def externalPropertyChanged[T](v: ExternalObsVal[T], instance: v.ForInstance, oldValue: Option[T]): Unit =
     // an external change doesn't mean a voluntary (by the user) change on the behavior of the signal (whether compute or set)
     // so we don't unbind its current state and instead just propagate the signal invalidation, unless there is no current state, in
     // which case it means the external signal was never observed, and we need to setup an initial state so signal propagation works
@@ -208,7 +208,7 @@ private[impl] class OldSignalSwitchboardImpl(
   }
 
   private val depth = new java.util.concurrent.atomic.AtomicInteger(0)
-  private def propagateSignal[T](s: Keyed[Var[T]], skipSelf: Boolean = false): Unit = {
+  private def propagateSignal[T](s: Keyed[ObsVal[T]], skipSelf: Boolean = false): Unit = {
     // due to how propagating signal works, where the set of dependencies is iterated, it is entirely possible to find during
     // the iteration a signal that was removed, hence why we check here if that's the case by checking the state
     if !signalStates.containsKey(s.id) then return
@@ -240,9 +240,9 @@ private[impl] class OldSignalSwitchboardImpl(
     scribe.debug(s"${"  " * depth.decrementAndGet()}done propagating invalidation for ${varsLookup.describe(s)} ${s.descrString}")
   }
 
-  def relationships[T](v: Var[T], instance: v.ForInstance) = signalRels.get(Keyed(v, instance).id).toOption
+  def relationships[T](v: ObsVal[T], instance: v.ForInstance) = signalRels.get(Keyed(v, instance).id).toOption
 
-  private def unbindPrev[T](s: Keyed[Var[T]]): Unit = {
+  private def unbindPrev[T](s: Keyed[ObsVal[T]]): Unit = {
     signalStates.get(s.id).? {
       case Transitioning(_, timer) => timer.asInstanceOf[timers.Timer].stop()
       case _ =>

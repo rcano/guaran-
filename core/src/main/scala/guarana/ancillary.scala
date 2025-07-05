@@ -18,7 +18,7 @@ object Insets {
 /** Emitter for updates to var for this object. The extension method is only available if a Emitter.Context is present, because it is
   * otherwise useless to use it
   */
-extension (a: Singleton) def varUpdates(using VarContext) = ObsVal.VarUpdates.forInstance(a)
+extension (a: Singleton) def varUpdates = ObsVal.VarUpdates.forInstance(a)
 
 /** Support async Futures as vars */
 extension [T](f: scala.concurrent.Future[T])

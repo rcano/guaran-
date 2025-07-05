@@ -14,11 +14,11 @@ trait SignalSwitchboard {
 
   /** Obtains the current value of the signal
     */
-  def apply[T](v: Var[T], instance: v.ForInstance): T = get(v, instance).getOrElse(defaultValueProvider.defaultValueFor(v, instance))
+  def apply[T](v: ObsVal[T], instance: v.ForInstance): T = get(v, instance).getOrElse(defaultValueProvider.defaultValueFor(v, instance))
 
   /** Conditional getter for a signal's value.
     */
-  def get[T](v: Var[T], instance: v.ForInstance): Entry[T]
+  def get[T](v: ObsVal[T], instance: v.ForInstance): Entry[T]
 
   /** Change the value of the signal, propagating changes as needed
     */
@@ -27,7 +27,7 @@ trait SignalSwitchboard {
   /** Notifies the switchboard that an externally tracked value changed. We can't accurately track the old value, that'll depend on the
     * external property system.
     */
-  def externalPropertyChanged[T](v: ExternalVar[T], instance: v.ForInstance, oldValue: Option[T]): Unit
+  def externalPropertyChanged[T](v: ExternalObsVal[T], instance: v.ForInstance, oldValue: Option[T]): Unit
 
   /** Bind a signal to a value computed from other signals. The context passed to the compute function will detect which signals were read
     * and which were written. The former will become dependencies for this signal (meaning that if any of those changes, this signal will be
@@ -45,14 +45,14 @@ trait SignalSwitchboard {
 
   /** Removes the passed signal, removing all internal state as well as dependent signals.
     */
-  def remove(s: Keyed[Var[Any]]): Unit
-  def remove(v: Var[Any], instance: v.ForInstance): Unit = remove(Keyed(v, instance))
+  def remove(s: Keyed[ObsVal[Any]]): Unit
+  def remove(v: ObsVal[Any], instance: v.ForInstance): Unit = remove(Keyed(v, instance))
 
   /** Returns a new SignalSwitchboard which is a copy of this one.
     */
   def snapshot(newReporter: Reporter): SignalSwitchboard
 
-  def relationships[T](v: Var[T], instance: v.ForInstance): Option[Relationships]
+  def relationships[T](v: ObsVal[T], instance: v.ForInstance): Option[Relationships]
 }
 
 object SignalSwitchboard {
@@ -85,21 +85,21 @@ object SignalSwitchboard {
 
   @FunctionalInterface 
   trait DefaultVarValueProvider {
-    def defaultValueFor[T](v: Var[T], instance: v.ForInstance): T
+    def defaultValueFor[T](v: ObsVal[T], instance: v.ForInstance): T
   }
 
   trait Reporter {
-    def signalRemoved[T](sb: SignalSwitchboard, s: Keyed[Var[T]]): Unit
+    def signalRemoved[T](sb: SignalSwitchboard, s: Keyed[ObsVal[T]]): Unit
     def signalUpdated[T](
         sb: SignalSwitchboard,
-        v: Var[T],
+        v: ObsVal[T],
         instance: v.ForInstance,
         oldValue: Option[T],
         newValue: T,
         dependencies: LongHashSet,
         dependents: LongHashSet
     ): Unit
-    def signalInvalidated[T](sb: SignalSwitchboard, v: Var[T], instance: v.ForInstance): Unit
+    def signalInvalidated[T](sb: SignalSwitchboard, v: ObsVal[T], instance: v.ForInstance): Unit
   }
 
   def apply(
@@ -109,15 +109,15 @@ object SignalSwitchboard {
       useReentrancyDetection: Boolean,
       timers: animation.TimersDef
   ): SignalSwitchboard =
-    // new SignalSwitchboardImpl(reporter, defaultValueProvider, varsLookup, useReentrancyDetection, timers)
+    // new OldSignalSwitchboardImpl(reporter, defaultValueProvider, varsLookup, useReentrancyDetection, timers)
     new BetterSignalSwitchboardImpl(reporter, defaultValueProvider, varsLookup, useReentrancyDetection, timers)
 
-  class TrackingContext[T](outerSb: SignalSwitchboard, forSignal: Keyed[Var[T]]) extends SignalSwitchboard {
+  class TrackingContext[T](outerSb: SignalSwitchboard, forSignal: Keyed[ObsVal[T]]) extends SignalSwitchboard {
     val dependencies = new LongHashSet(4)
     val dependents = new LongHashSet(4)
 
     def defaultValueProvider = outerSb.defaultValueProvider
-    def get[T](v: Var[T], instance: v.ForInstance) = {
+    def get[T](v: ObsVal[T], instance: v.ForInstance) = {
       val s = Keyed(v, instance)
       if (forSignal != s) dependencies `add` s.id
       outerSb.get(v, instance)
@@ -132,9 +132,9 @@ object SignalSwitchboard {
       if (forSignal != s) dependents `add` s.id
       outerSb.bind(v, instance, transitionDef)(compute)
     }
-    def externalPropertyChanged[T](v: ExternalVar[T], instance: v.ForInstance, oldValue: Option[T]): Unit = outerSb.externalPropertyChanged(v, instance, oldValue)
-    def relationships[T](v: Var[T], instance: v.ForInstance) = outerSb.relationships(v, instance)
-    def remove(s: Keyed[Var[Any]]): Unit = outerSb.remove(s)
+    def externalPropertyChanged[T](v: ExternalObsVal[T], instance: v.ForInstance, oldValue: Option[T]): Unit = outerSb.externalPropertyChanged(v, instance, oldValue)
+    def relationships[T](v: ObsVal[T], instance: v.ForInstance) = outerSb.relationships(v, instance)
+    def remove(s: Keyed[ObsVal[Any]]): Unit = outerSb.remove(s)
     def snapshot(newReporter: Reporter) = outerSb.snapshot(newReporter)
   }
 
@@ -156,18 +156,18 @@ class CopyOnWriteSignalSwitchboard(
   var copied: SignalSwitchboard | Null = null
   inline def theInstance = if (copied != null) copied.asInstanceOf[SignalSwitchboard] else copy
   private def createCopy() = if (copied == null) copied = copy.snapshot(reporter)
-  def get[T](v: Var[T], instance: v.ForInstance) = theInstance.get(v, instance)
+  def get[T](v: ObsVal[T], instance: v.ForInstance) = theInstance.get(v, instance)
   def update[T](v: Var[T], instance: v.ForInstance, value: T, transitionDef: TransitionType[T]) = {
     createCopy()
     theInstance.update(v, instance, value, transitionDef)
   }
-  def externalPropertyChanged[T](v: ExternalVar[T], instance: v.ForInstance, oldValue: Option[T]): Unit = theInstance.externalPropertyChanged(v, instance, oldValue)
+  def externalPropertyChanged[T](v: ExternalObsVal[T], instance: v.ForInstance, oldValue: Option[T]): Unit = theInstance.externalPropertyChanged(v, instance, oldValue)
   def bind[T](v: Var[T], instance: v.ForInstance, transitionDef: TransitionType[T])(compute: SignalSwitchboard => T) = {
     createCopy()
     theInstance.bind(v, instance, transitionDef)(compute)
   }
-  def relationships[T](v: Var[T], instance: v.ForInstance) = theInstance.relationships(v, instance)
-  def remove(s: Keyed[Var[Any]]): Unit = {
+  def relationships[T](v: ObsVal[T], instance: v.ForInstance) = theInstance.relationships(v, instance)
+  def remove(s: Keyed[ObsVal[Any]]): Unit = {
     createCopy()
     theInstance.remove(s)
   }

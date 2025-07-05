@@ -10,11 +10,11 @@ import guarana.util.DeclaringOwner
 class SignalsTest extends AnyFunSuite {
 
   val noopReporter = new SignalSwitchboard.Reporter {
-    def signalRemoved[T](sb: SignalSwitchboard, s: Keyed[Var[T]]): Unit = ()
-    def signalInvalidated[T](sb: SignalSwitchboard, v: Var[T], instance: v.ForInstance): Unit = ()
+    def signalRemoved[T](sb: SignalSwitchboard, s: Keyed[ObsVal[T]]): Unit = ()
+    def signalInvalidated[T](sb: SignalSwitchboard, v: ObsVal[T], instance: v.ForInstance): Unit = ()
     def signalUpdated[T](
         sb: SignalSwitchboard,
-        v: Var[T],
+        v: ObsVal[T],
         instance: v.ForInstance,
         oldValue: Option[T],
         newValue: T,
@@ -24,7 +24,7 @@ class SignalsTest extends AnyFunSuite {
   }
   val varsLookup = VarsLookup()
   val defaultValueProvider = new SignalSwitchboard.DefaultVarValueProvider {
-    def defaultValueFor[T](v: Var[T], instance: v.ForInstance): T = v.initialValue(instance)
+    def defaultValueFor[T](v: ObsVal[T], instance: v.ForInstance): T = v.initialValue(instance)
   }
   given ValueOf[this.type] = ValueOf(this)
   def newVar[T](v: T)(using DeclaringOwner) = {
@@ -37,7 +37,7 @@ class SignalsTest extends AnyFunSuite {
 
   extension [T](v: Var[T]) def keyed(using ValueOf[v.ForInstance]) = ObsVal.obs2Keyed(v)
 
-   scribe.Logger("guarana").withHandler(minimumLevel = Some(scribe.Level.Trace)).replace()
+  //  scribe.Logger("guarana").withHandler(minimumLevel = Some(scribe.Level.Trace)).replace()
 
   test("simple signal propagation") {
     implicit val sb = BetterSignalSwitchboardImpl(noopReporter, defaultValueProvider, varsLookup, false, ManualTimers)

@@ -4,8 +4,8 @@ package guarana
 package swing
 
 import language.implicitConversions
-import java.awt.{Component => _, Menu => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, PopupMenu => _}
-import javax.swing.Action => _
+import java.awt.{Component as _, Menu as _, MenuBar as _, MenuItem as _, TextComponent as _, TextField as _, PopupMenu as _}
+import javax.swing.Action as _
 import guarana.util.*
 
 opaque type Pane <: Component  = javax.swing.JPanel & Component

@@ -4,6 +4,7 @@ package swing
 import language.implicitConversions
 import guarana.*
 import guarana.util.*
+import scala.annotation.targetName
 
 extension (d: Double | Float | Int) {
   inline def em(using sc: Scenegraph, vc: VarContext) =
@@ -123,7 +124,10 @@ extension (n: Node) {
 type Bounds = java.awt.Rectangle
 def Bounds(x: Double = 0, y: Double = 0, width: Double = 0, height: Double = 0): Bounds =
   java.awt.Rectangle(x.toInt, y.toInt, width.toInt, height.toInt)
-def Bounds(dim: (Double, Double)): Bounds = Bounds(0, 0, dim._1, dim._2)
+@targetName("boundsFromDim")
+def Bounds(dim: (width: Double, height: Double)): Bounds = Bounds(0, 0, dim.width, dim.height)
+@targetName("boundsFromLoc")
+def Bounds(loc: (x: Double, y: Double)): Bounds = Bounds(loc.x, loc.y, 0, 0)
 def Bounds(dim: java.awt.Dimension): Bounds = java.awt.Rectangle(dim)
 def Bounds(rec: java.awt.Rectangle): Bounds = java.awt.Rectangle(rec)
 

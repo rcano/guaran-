@@ -16,6 +16,7 @@ sealed trait Property {
   def tpe: String
   def visibility: Option[String]
   def overrideTpeInStaticPos: Option[String]
+  def projections: Seq[Projection]
   def tpeInStaticPos = (overrideTpeInStaticPos getOrElse tpe) match {
     case "_" => "Any"
     case other => other
@@ -27,7 +28,8 @@ case class SwingProp(
     getter: String,
     setter: String,
     visibility: Option[String] = None,
-    overrideTpeInStaticPos: Option[String] = None
+    overrideTpeInStaticPos: Option[String] = None,
+    projections: Seq[Projection] = Seq.empty
 ) extends Property
 object SwingProp {
   def getter(name: String, tpe: String) = tpe match {
@@ -45,8 +47,20 @@ case class VarProp(
     initValue: String,
     visibility: Option[String] = None,
     overrideTpeInStaticPos: Option[String] = None,
-    eagerEvaluation: Boolean = false
+    eagerEvaluation: Boolean = false,
+    projections: Seq[Projection] = Seq.empty
 ) extends Property
+
+case class Projection(
+  name: String,
+  tpe: String,
+  getter: String,
+  setter: String,
+) extends Property {
+  override def visibility: Option[String] = None
+  override def overrideTpeInStaticPos: Option[String] = None
+  override def projections = Seq.empty //let's not allow nested projections here
+}
 
 case class EmitterDescr(name: String, tpe: String, initializer: Seq[String])
 case class Parameter(name: String, tpe: String, passAs: String, erased: Boolean = false)
@@ -76,7 +90,16 @@ case object Node
       lowerBounds = Seq("java.awt.Component"),
       props = Seq(
         SwingProp("background", "java.awt.Color | Null"),
-        SwingProp("bounds", "Bounds"),
+        SwingProp(
+          name = "bounds",
+          tpe = "Bounds",
+          getter = "n.getBounds()",
+          setter = "n.setBounds(v)",
+          projections = Seq(
+            Projection("loc", "(x: Double, y: Double)", "b => (b.getX(), b.getY())", "(bounds, loc) => {bounds.setLocation(loc.x.toInt, loc.y.toInt); bounds}"),
+            Projection("dim", "(width: Double, height: Double)", "b => (b.getWidth(), b.getHeight())", "(bounds, dim) => {bounds.setSize(dim.width.toInt, dim.height.toInt); bounds}"),
+          )
+        ),
         SwingProp("componentOrientation", "java.awt.ComponentOrientation"),
         SwingProp("cursor", "java.awt.Cursor | Null"),
         SwingProp("enabled", "Boolean"),
@@ -1626,12 +1649,36 @@ def genCode(n: NodeDescr): String = {
 
   val emptyTpeParams = tpeParams.replaceAll(raw"\w|_ [><]: \w+", "Any")
 
-  def propDecl(p: Property): String = p.visibility.map(s => s + " ").getOrElse("") + (p match {
-    case p @ SwingProp(name, tpe, getter, setter, _, _) =>
-      s"""val ${name.capitalize}: SwingVar.Aux[${n.name}$emptyTpeParams, ${p.tpeInStaticPos}] = SwingVar[${n.name}$emptyTpeParams, ${p.tpeInStaticPos}]("$name", $getter, $setter)"""
-    case p @ VarProp(name, tpe, initValue, _, _, eval) =>
-      s"""val ${name.capitalize}: Var[${p.tpeInStaticPos}] = Var[${p.tpeInStaticPos}]("$name", $initValue, $eval)"""
-  })
+  def propDecl(p: Property): String = {
+    p.visibility.map(s => s + " ").getOrElse("") + (p match {
+      case p @ SwingProp(name = name, getter = getter, setter = setter) =>
+        if (p.projections.nonEmpty) {
+          s"""|object ${name.capitalize} extends SwingVar[${p.tpeInStaticPos}] {
+              |    lazy val name = "$name"
+              |    type ForInstance <: ${n.name}$emptyTpeParams & Singleton
+              |    def get(n: ForInstance) = $getter
+              |    def set(n: ForInstance, v: Bounds) = $setter
+              |    def eagerEvaluation = true
+              |    ${p.projections.map(propDecl).mkString("\n    ")}
+              |  }""".stripMargin
+        } else {
+          s"""val ${name.capitalize}: SwingVar.Aux[${n.name}$emptyTpeParams, ${p.tpeInStaticPos}] = SwingVar[${n.name}$emptyTpeParams, ${p.tpeInStaticPos}]("$name", $getter, $setter)"""
+        }
+      case p @ VarProp(name = name, initValue = initValue, eagerEvaluation = eval) =>
+        if (p.projections.nonEmpty) {
+          s"""|object ${name.capitalize} extends Var[${p.tpeInStaticPos}] {
+              |    lazy val name = "$name"
+              |    type ForInstance = this.type
+              |    def eagerEvaluation = $eval
+              |    ${p.projections.map(propDecl).mkString("\n  ")}
+              |  }""".stripMargin
+        } else {
+          s"""val ${name.capitalize}: Var[${p.tpeInStaticPos}] = Var[${p.tpeInStaticPos}]("$name", $initValue, $eval)"""
+        }
+      case p @ Projection(name, tpe, getter, setter) => 
+        s"""val $name = Projection[${p.tpeInStaticPos}]("$name", $getter, $setter)"""
+    })
+  }
 
   val seenVars = collection.mutable.Set.empty[String]
   val allVars: Vector[(NodeDescr, Property)] = Iterator
@@ -1714,7 +1761,10 @@ def genCode(n: NodeDescr): String = {
      |  object Ops {
      |    extension $tpeParams(v: ${n.name}$tpeParams) {
      |      ${nonPrivateSortedProps
-    .map(p => s"def ${p.name}: Var.Aux[${p.tpe}, v.type] = ${n.name}.${p.name.capitalize}.asInstanceOf[Var.Aux[${p.tpe}, v.type]]")
+    .map(p =>
+      if (p.projections.nonEmpty) s"def ${p.name} = ${n.name}.${p.name.capitalize}.forInstancePrecise(v)"
+      else s"def ${p.name}: Var.Aux[${p.tpe}, v.type] = ${n.name}.${p.name.capitalize}.asInstanceOf[Var.Aux[${p.tpe}, v.type]]"
+    )
     .mkString("\n      ")}
 
      |      ${sortedEmitters
@@ -1751,9 +1801,9 @@ def genCode(n: NodeDescr): String = {
     |package swing
 
     |import language.implicitConversions
-    |import java.awt.{Component => _, Menu => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, PopupMenu => _, *}
+    |import java.awt.{Component as _, Menu as _, MenuBar as _, MenuItem as _, TextComponent as _, TextField as _, PopupMenu as _, *}
     |import java.awt.event.*
-    |import javax.swing.{Action => _, *}
+    |import javax.swing.{Action as _, *}
     |import javax.swing.event.*
     |import guarana.util.*
     |import guarana.swing.util.*
@@ -1837,37 +1887,37 @@ def genCode(n: NodeDescr): String = {
     // dest.append("\n}")
   }
 
-  for (node <- toGenerateNodes) {
-    println(s"""|  /////////////////////////////////////////////////////////////////
-                |  // ${node.name} properties
-                |  /////////////////////////////////////////////////////////////////""".stripMargin)
-    val nodeProps =
-      allPropsToNodes.toSeq.filter((_, candidates) => candidates.sizeIs == 1 && candidates.exists(_._2.name == node.name)).sortBy(_._1)
-    val nodeEmitters =
-      allEmittersToNodes.toSeq.filter((_, candidates) => candidates.sizeIs == 1 && candidates.exists(_._2.name == node.name)).sortBy(_._1)
+  // for (node <- toGenerateNodes) {
+  //   println(s"""|  /////////////////////////////////////////////////////////////////
+  //               |  // ${node.name} properties
+  //               |  /////////////////////////////////////////////////////////////////""".stripMargin)
+  //   val nodeProps =
+  //     allPropsToNodes.toSeq.filter((_, candidates) => candidates.sizeIs == 1 && candidates.exists(_._2.name == node.name)).sortBy(_._1)
+  //   val nodeEmitters =
+  //     allEmittersToNodes.toSeq.filter((_, candidates) => candidates.sizeIs == 1 && candidates.exists(_._2.name == node.name)).sortBy(_._1)
 
-    nodeProps.foreach { case (propName, Seq((prop, _))) => println(s"  val $propName = ModifierVar(${node.name}.${propName.capitalize})") }
-    nodeEmitters.foreach { case (propName, Seq((emitterDescr, _))) =>
-      println(s"  val $propName = ModifierEmitter(${node.name}.${emitterDescr.name.capitalize})")
-    }
-  }
+  //   nodeProps.foreach { case (propName, Seq((prop, _))) => println(s"  val $propName = ModifierVar(${node.name}.${propName.capitalize})") }
+  //   nodeEmitters.foreach { case (propName, Seq((emitterDescr, _))) =>
+  //     println(s"  val $propName = ModifierEmitter(${node.name}.${emitterDescr.name.capitalize})")
+  //   }
+  // }
 
 
-  println(s"""|  /////////////////////////////////////////////////////////////////
-              |  // Multi vars
-              |  /////////////////////////////////////////////////////////////////""".stripMargin)
-  val multiProps = allPropsToNodes.filter(_._2.sizeIs > 1).toSeq.sortBy(_._1)
-  multiProps.foreach { (propName, alternatives) =>
-    val bindingType = alternatives.map(_._1.tpe).distinct.mkString(" | ")
-    val vars = alternatives.map((prop, node) => s"${node.name}.${propName.capitalize}").mkString(", ")
-    // println(s"""  val $propName = MultiVar[$bindingType]($vars)""")
+  // println(s"""|  /////////////////////////////////////////////////////////////////
+  //             |  // Multi vars
+  //             |  /////////////////////////////////////////////////////////////////""".stripMargin)
+  // val multiProps = allPropsToNodes.filter(_._2.sizeIs > 1).toSeq.sortBy(_._1)
+  // multiProps.foreach { (propName, alternatives) =>
+  //   val bindingType = alternatives.map(_._1.tpe).distinct.mkString(" | ")
+  //   val vars = alternatives.map((prop, node) => s"${node.name}.${propName.capitalize}").mkString(", ")
+  //   // println(s"""  val $propName = MultiVar[$bindingType]($vars)""")
 
-    val assigners = alternatives.map((prop, node) =>
-      val tpeParams = node.tpeParams.mkString("[", ", ", "]").replace("[]", "").replaceAll("[+-]", "")
-      s"""@targetName("assign${node.name}}") def :=$tpeParams(binding: Binding[${prop.tpe}]) = Modifier[${node.name}$tpeParams](_.$propName := binding)"""
-    )
-    println(s"""|  object $propName {
-                |    ${assigners.mkString("\n    ")}
-                |  }""".stripMargin)
-  }
+  //   val assigners = alternatives.map((prop, node) =>
+  //     val tpeParams = node.tpeParams.mkString("[", ", ", "]").replace("[]", "").replaceAll("[+-]", "")
+  //     s"""@targetName("assign${node.name}}") def :=$tpeParams(binding: Binding[${prop.tpe}]) = Modifier[${node.name}$tpeParams](_.$propName := binding)"""
+  //   )
+  //   println(s"""|  object $propName {
+  //               |    ${assigners.mkString("\n    ")}
+  //               |  }""".stripMargin)
+  // }
 }

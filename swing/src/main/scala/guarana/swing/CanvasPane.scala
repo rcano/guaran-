@@ -4,8 +4,8 @@ package guarana
 package swing
 
 import language.implicitConversions
-import java.awt.{Component => _, Menu => _, MenuBar => _, MenuItem => _, TextComponent => _, TextField => _, PopupMenu => _, *}
-import javax.swing.Action => _
+import java.awt.{Component as _, Menu as _, MenuBar as _, MenuItem as _, TextComponent as _, TextField as _, PopupMenu as _, *}
+import javax.swing.Action as _
 import guarana.util.*
 
 opaque type CanvasPane <: BorderPane  = javax.swing.JPanel & BorderPane
@@ -45,7 +45,7 @@ object CanvasPane extends VarsMap {
   def uninitialized(): CanvasPane = {
     val res = new javax.swing.JPanel() {
       override def paintComponent(g: Graphics) = {
-        super.paintComponent(g)
+        super.paintComponents(g)
         val sc = getClientProperty(Scenegraph).asInstanceOf[Scenegraph]
         val paintFunction = sc.stateReader(PaintFunction.forInstance(this))(using ValueOf(this))
         paintFunction(g.asInstanceOf[Graphics2D])

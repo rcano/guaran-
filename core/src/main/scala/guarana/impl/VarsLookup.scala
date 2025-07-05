@@ -15,15 +15,15 @@ class VarsLookup {
 
   def apply[T](instanceId: Int): InstanceData | Null = instancesData.get(instanceId)
 
-  def lookup[T](s: Keyed[Var[T]]): (v: Var[T], instance: Any) | Null = {
+  def lookup[V <: ObsVal[?]](s: Keyed[V]): (v: V, instance: Any) | Null = {
     val data = instancesData.get(s.instanceId).unn
     data.instance.deref match {
       case null => null
-      case instance => seenVars.get(s.keyId).unn.asInstanceOf[Var[T]].nullFold(_.asInstanceOf[Var[T]] -> instance, null)
+      case instance => seenVars.get(s.keyId).unn.asInstanceOf[V].nullFold(_.asInstanceOf[V] -> instance, null)
     }
   }
 
-  def recordInstance(instance: Any, onVarCleanup: Keyed[Var[Any]] => Unit, onEmitterCleanup: Keyed[Emitter[Any]] => Unit): InstanceData = {
+  def recordInstance(instance: Any, onVarCleanup: Keyed[ObsVal[Any]] => Unit, onEmitterCleanup: Keyed[Emitter[Any]] => Unit): InstanceData = {
     val instanceId = Keyed.getId(instance)
     instancesData.get(instanceId) match
       case null =>
@@ -46,7 +46,7 @@ class VarsLookup {
       case data: InstanceData => data
   }
 
-  def recordVarUsage[T](v: ObsVal[T], onVarCleanup: Keyed[Var[Any]] => Unit, onEmitterCleanup: Keyed[Emitter[Any]] => Unit)(using
+  def recordVarUsage[T](v: ObsVal[T], onVarCleanup: Keyed[ObsVal[Any]] => Unit, onEmitterCleanup: Keyed[Emitter[Any]] => Unit)(using
       instance: ValueOf[v.ForInstance]
   ): Unit = {
     val varForInstanceAdded = recordInstance(instance.value, onVarCleanup, onEmitterCleanup).vars.add(v.uniqueId)
@@ -62,12 +62,12 @@ class VarsLookup {
     }
   }
 
-  def describe[T](s: Keyed[Var[T]]): String = {
+  def describe[T](s: Keyed[ObsVal[T]]): String = {
     val data = instancesData.get(s.instanceId).unn
-    val theVar = seenVars.get(s.keyId).unn.asInstanceOf[Var[T]]
+    val theVar = seenVars.get(s.keyId).unn.asInstanceOf[ObsVal[T]]
     describe(theVar, data.instance.deref.asInstanceOf[theVar.ForInstance])
   }
-  def describe[T](v: Var[T], instance: v.ForInstance): String = {
+  def describe[T](v: ObsVal[T], instance: v.ForInstance): String = {
     val maxWidth = 60
     var instanceDescr = instance.toString.stripPrefix("javax.swing.")
     instanceDescr = instanceDescr match {

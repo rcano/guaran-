@@ -267,6 +267,14 @@ object ExternalVar {
   }
 }
 
+trait MutContentVar[T] extends Var[T] {
+  def mut(f: T => Unit)(using instance: ValueOf[ForInstance]): VarContextAction[this.type] = {
+    val prev = this()
+    f(prev)
+    this := prev
+  }
+}
+
 import collection.mutable.{AbstractBuffer, ArrayBuffer, IndexedBuffer}
 class ObsBuffer[T] extends AbstractBuffer[T], IndexedBuffer[T] {
   import ObsBuffer.Event.*
