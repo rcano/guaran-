@@ -9,7 +9,7 @@ import guarana.{ExternalVar, Keyed, Var}
 import org.agrona.collections.{Long2ObjectHashMap, LongHashSet}
 
 import SignalSwitchboard.*
-import BetterSignalSwitchboardImpl.*
+import java.util.function.LongFunction
 
 class BetterSignalSwitchboardImpl(
     val reporter: Reporter,
@@ -19,7 +19,7 @@ class BetterSignalSwitchboardImpl(
     val timers: animation.TimersDef
 ) extends SignalSwitchboard {
 
-  private class Signal[T](var currValue: State[T]) {
+  private[impl] class Signal[T](var currValue: State[T]) {
     var reactToMyChanges: LongHashSet | Null = null
     def instantiatedReactToMyChanges: LongHashSet = {
       if (reactToMyChanges == null) reactToMyChanges = LongHashSet()
@@ -49,7 +49,11 @@ class BetterSignalSwitchboardImpl(
       case Value(v) => v
       case BindingResult(value = v) => v
       case Transitioning(curr = v) => v
-      case Projections(baseValue) =>
+      case Projections(projectedBaseValue) =>
+        val baseValue = v match {
+          case eo: (ExternalObsVal[T] {  type ForInstance = v.ForInstance }) @unchecked => eo.get(instance)
+          case _ => projectedBaseValue
+        }
         val vv = v.asInstanceOf[Var.Aux[T, v.ForInstance]]
         vv.projections.foldLeft[Entry[T]](baseValue) { case (base, proj: vv.Projection[u] @unchecked) =>
           signals.get(Keyed(proj, instance).id) match {
@@ -75,13 +79,25 @@ class BetterSignalSwitchboardImpl(
   }
 
   private type ProjVar[t, u, instance] = Var[t]#Projection[u] { type ForInstance = instance }
-  extension [T](v: Var[T]) private def projected[U]: Var.Aux[U, v.ForInstance] | Null = v match {
-    case pv: ProjVar[U, T, v.ForInstance] @unchecked => pv.projected
-    case _ => null
+  extension [T](v: ObsVal[T]) {
+    private def projected[U]: Var.Aux[U, v.ForInstance] | Null = v match {
+      case pv: ProjVar[U, T, v.ForInstance] @unchecked => pv.projected
+      case _ => null
+    }
+    @annotation.tailrec
+    private def foreachProjectedParent(f: Var.Aux[?, v.ForInstance] => Unit): Unit = {
+      v match {
+        case pv: ProjVar[?, T, v.ForInstance] @unchecked =>
+          f(pv.projected)
+          pv.projected.foreachProjectedParent(f)
+        case _ =>
+      }
+    }
   }
 
-  private val signals = new Long2ObjectHashMap[Signal[?]](1024, 0.67f)
+  private[impl] val signals = new Long2ObjectHashMap[Signal[?]](1024, 0.67f)
   private val reentrancyDetector = new LongHashSet(32);
+  private val newSignal: LongFunction[Signal[?]] = (_: Long) => Signal(State.Unseen)
 
   override def get[T](v: ObsVal[T], instance: v.ForInstance): Entry[T] = {
     val s = Keyed(v, instance)
@@ -125,7 +141,7 @@ class BetterSignalSwitchboardImpl(
               )
             }
             tracker.dependencies fastForeach { dep =>
-              signals.computeIfAbsent(dep, _ => Signal(State.Unseen)).instantiatedReactToMyChanges.add(s.id)
+              signals.computeIfAbsent(dep, newSignal).instantiatedReactToMyChanges.add(s.id)
             }
 
             updateSpecific(vv, instance, state, targetValue)
@@ -138,16 +154,20 @@ class BetterSignalSwitchboardImpl(
             if (useReentrancyDetection) reentrancyDetector.remove(s.id)
 
             if (oldv.exists(_ != currGetResult)) {
-              reporter.signalUpdated(this, v, instance, oldv, currGetResult, computedRels.dependencies, computedRels.dependents)
+              reportUpdate(v, instance, oldv, currGetResult)
 
               vv.projections.foreach { case p: vv.Projection[u] =>
-                reporter.signalUpdated(this, p, instance, oldv.map(p.get), p.get(currGetResult), EmptyUnmodifiableLongHashSet, EmptyUnmodifiableLongHashSet)
+                reportUpdate(p, instance, oldv.map(p.get), p.get(currGetResult))
               }
             }
 
             currGetResult
 
-          case State.Projections(baseValue) =>
+          case State.Projections(projectedBaseValue) =>
+            val baseValue = v match {
+              case eo: (ExternalObsVal[T] {  type ForInstance = v.ForInstance }) @unchecked => eo.get(instance)
+              case _ => projectedBaseValue
+            }
             val vv = v.asInstanceOf[Var.Aux[T, v.ForInstance]]
             vv.projections.foldLeft(baseValue) { case (baseValue, proj: vv.Projection[u] @unchecked) =>
               signals.get(Keyed(proj, instance).id) match {
@@ -167,7 +187,7 @@ class BetterSignalSwitchboardImpl(
   override def update[T](v: Var[T], instance: v.ForInstance, value: T, transitionDef: TransitionType[T]): Unit = {
     val s = Keyed(v, instance)
 
-    val signal = signals.computeIfAbsent(s.id, _ => Signal(State.Unseen)).asInstanceOf[Signal[T]]
+    val signal = signals.computeIfAbsent(s.id, newSignal).asInstanceOf[Signal[T]]
 
     if (!v.isInstanceOf[MutContentVar[?]]) {
       signal.currValue match {
@@ -191,10 +211,10 @@ class BetterSignalSwitchboardImpl(
     v.projected.?(bindToProjections(_, instance))
 
     propagateSignalInvalidation(s, skipSelf = true, propagateToProjections = true)
-    reporter.signalUpdated(this, v, instance, oldValue, value, EmptyUnmodifiableLongHashSet, EmptyUnmodifiableLongHashSet)
+    reportUpdate(v, instance, oldValue, value)
 
     v.projections.foreach { case p: v.Projection[u] =>
-      reporter.signalUpdated(this, p, instance, oldValue.map(p.get), p.get(value), EmptyUnmodifiableLongHashSet, EmptyUnmodifiableLongHashSet)
+      reportUpdate(p, instance, oldValue.map(p.get), p.get(value))
     }
   }
 
@@ -213,15 +233,16 @@ class BetterSignalSwitchboardImpl(
     // so we don't unbind its current state and instead just propagate the signal invalidation. It there's no current state it means
     // no actually observable var is depending on this, so we can remain oblivious to its contents.
     val s = Keyed(v, instance)
-    signals.get(s.id).?(_ => 
+    signals.get(s.id).?{ signal => 
+      Debug.elidable(scribe.debug(s"${varsLookup.describe(s)} in state ${signal.currValue} was externally changed"))
       propagateSignalInvalidation(s, skipSelf = false, propagateToProjections = true)
-      reporter.signalUpdated(this, v, instance, oldValue, v.get(instance), EmptyUnmodifiableLongHashSet, EmptyUnmodifiableLongHashSet)
-    )
+      reportUpdate(v, instance, oldValue, v.get(instance))
+    }
   }
 
   override def bind[T](v: Var[T], instance: v.ForInstance, transitionDef: TransitionType[T])(compute: SignalSwitchboard => T): Unit = {
     val s = Keyed(v, instance)
-    val signal = signals.computeIfAbsent(s.id, _ => Signal(State.Unseen)).asInstanceOf[Signal[T]]
+    val signal = signals.computeIfAbsent(s.id, newSignal).asInstanceOf[Signal[T]]
     val prevValueOpt = signal.currValue.knownValue(v, instance).entityToOption
     unbindPrev(s)
     signal.currValue = State.Recompute(prevValueOpt, signal.currValue.relationshipsOpt.orNull, compute, transitionDef)
@@ -235,7 +256,7 @@ class BetterSignalSwitchboardImpl(
   private def bindToProjections[T](v: Var[T], instance: v.ForInstance): Unit = {
     val s = Keyed(v, instance)
     val baseValue = apply(v, instance)
-    val signal = signals.computeIfAbsent(s.id, _ => Signal(State.Unseen)).asInstanceOf[Signal[T]]
+    val signal = signals.computeIfAbsent(s.id, newSignal).asInstanceOf[Signal[T]]
     unbindPrev(s, unbindProjections = false)
     signal.currValue = State.Projections(baseValue)
     signals.put(s.id, signal)
@@ -335,23 +356,29 @@ class BetterSignalSwitchboardImpl(
             case s: State.Value[T] @unchecked => 
               currState.currValue = s
           }
-        case State.Unseen =>
+        case _ =>
       }
     }
     currState.reactToMyChanges.?(_.fastForeach(l => propagateSignalInvalidation(Keyed(l), false, true)))
+
+    v.foreachProjectedParent { parent =>
+      val k2 = Keyed(parent, i.asInstanceOf[parent.ForInstance])
+      propagateSignalInvalidation(k2, false, false)
+    }
+
+    if (propagateToProjections) v match {
+      case vv: Var[T] => vv.projections.foreach(p =>
+        val k2 = Keyed(p, i.asInstanceOf[p.ForInstance])
+        propagateSignalInvalidation(k2, false, true)
+      )
+      case _ =>
+    }
 
     // report at the end of the process, so that all of `s` dependencies get reported and invalidated first
     reporter.signalInvalidated(this, v, i.asInstanceOf[v.ForInstance])
     Debug.elidable {
       scribe.debug(s"${"  " * depth.decrementAndGet()}done propagating invalidation for ${varsLookup.describe(s)} ${s.descrString}")
     }
-
-    if (propagateToProjections)
-      v match {
-        case vv: Var[T] => vv.projections.foreach(p => propagateSignalInvalidation(Keyed(p, i.asInstanceOf[p.ForInstance]), false, true))
-        case _ =>
-      }
-      
   }
 
   private def startTransition[T](s: Keyed[Var[T]], oldv: Option[T], state: Signal[T], defn: TransitionType.Interp[T]): T = {
@@ -369,9 +396,6 @@ class BetterSignalSwitchboardImpl(
 
     val trn = Transition(delay, duration, initValue, targetValue, curve, defn.interp)
 
-    val dependencies = state.currValue.relationshipsOpt.fold(EmptyUnmodifiableLongHashSet)(_.dependencies)
-    val dependents = state.currValue.relationshipsOpt.fold(EmptyUnmodifiableLongHashSet)(_.dependents)
-
     lazy val anim: Timeline.Animation[timers.Timer] = Timeline(IArray(KeyFrame((delay + duration).toNanos, elapsed => {
       val curr = trn.valueAt(elapsed)
       varsLookup.lookup(s) match {
@@ -382,7 +406,7 @@ class BetterSignalSwitchboardImpl(
           // the animation is done and we are no longer transitioning we don't need this
           state.currValue = State.Transitioning(curr, anim.timer, targetState.asInstanceOf)
           propagateSignalInvalidation(s, skipSelf = true, propagateToProjections = true)
-          reporter.signalUpdated(this, v, i.asInstanceOf[v.ForInstance], oldv, curr, dependencies, dependents)
+          reportUpdate(v, i.asInstanceOf[v.ForInstance], oldv, curr)
       }
     }, () => {
       varsLookup.lookup(s) match {
@@ -390,13 +414,38 @@ class BetterSignalSwitchboardImpl(
         case (v, i) =>
           state.currValue = targetState
           propagateSignalInvalidation(s, skipSelf = true, propagateToProjections = true)
-          reporter.signalUpdated(this, v, i.asInstanceOf[v.ForInstance], oldv, targetValue, dependencies, dependents)
+          reportUpdate(v, i.asInstanceOf[v.ForInstance], oldv, targetValue)
       }
     })), Timeline.Cycles.SingleShot, updatesPerSecond, false)(timers)
 
     state.currValue = State.Transitioning(initValue, anim.timer, targetState.asInstanceOf)
     anim.start()
     initValue
+  }
+
+  private def reportUpdate[T](v: ObsVal[T], i: v.ForInstance, oldValue: Option[T], newValue: T): Unit = {
+    type Instance = v.ForInstance
+    reporter.signalUpdated(this, v, i, oldValue, newValue)
+    v.foreachProjectedParent { parent =>
+      get(parent, i) match {
+        case NotFound =>
+        case v: Any => reporter.signalUpdated(this, parent, i, None, v)
+      }
+    }
+    def reportDownStream(v: Var.Aux[?, Instance]): Unit = {
+      v.projections.foreach { case p: v.Projection[u] =>
+        get(p, i) match {
+          case NotFound =>
+          case value => 
+            reportUpdate(p, i, None, value)
+            reportDownStream(p)
+        }
+      }
+    }
+    v match {
+      case vv: Var.Aux[?, Instance] @unchecked => reportDownStream(vv)
+      case _ =>
+    }
   }
 }
 

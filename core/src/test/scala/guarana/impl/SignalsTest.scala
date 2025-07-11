@@ -2,7 +2,6 @@ package guarana
 package impl
 
 import language.implicitConversions
-import org.agrona.collections.LongHashSet
 import org.scalatest.funsuite.AnyFunSuite
 import scala.concurrent.duration.*
 import guarana.util.DeclaringOwner
@@ -18,8 +17,6 @@ class SignalsTest extends AnyFunSuite {
         instance: v.ForInstance,
         oldValue: Option[T],
         newValue: T,
-        dependencies: LongHashSet,
-        dependents: LongHashSet
     ): Unit = ()
   }
   val varsLookup = VarsLookup()
@@ -291,5 +288,40 @@ class SignalsTest extends AnyFunSuite {
     sb(myVar.dim.height, this) = 10
     assert(sb(myVar.loc, this).toTuple == (15, 10))
     assert(sb(myVar.dim, this).toTuple == (20, 10))
+  }
+
+  test("ExternalVars with projections retain projections in the face of external updates") {
+    val sb = BetterSignalSwitchboardImpl(noopReporter, defaultValueProvider, varsLookup, false, ManualTimers)
+    object LocationVar extends ExternalVar[(x: Double, y: Double)] {
+      type ForInstance = Array[Double] & Singleton
+      override def get(n: ForInstance): (x : Double, y : Double) = (n(0), n(1))
+      override def set(n: ForInstance, v: (x : Double, y : Double)): Unit = {
+        n(0) = v.x
+        n(1) = v.y
+      }
+      override def name: String = "location"
+      override def eagerEvaluation: Boolean = true
+
+      val x = Projection("x", _.x, (t, x) => (x, t.y))
+      val y = Projection("y", _.y, (t, y) => (t.x, y))
+    }
+
+    val arr = Array[Double](2.0, 3.0)
+    val theLoc = LocationVar.forInstancePrecise(arr)
+    varsLookup.recordVarUsage(theLoc, _ => (), _ => ())
+    assert(sb(theLoc, arr) == (2.0, 3.0))
+    assert(sb(theLoc.x, arr) == 2.0)
+    sb(theLoc.x, arr) = 10.0
+    assert(sb(theLoc.x, arr) == 10.0)
+    assert(sb(theLoc.y, arr) == 3.0) // y didn't change
+    arr(1) = 8.5
+    assert(sb(theLoc.y, arr) == 8.5) // y still reads from underlying
+    arr(0) = 0
+    assert(sb(theLoc.x, arr) == 10.0) // x does not
+
+    // scribe.Logger("guarana").withHandler(minimumLevel = Some(scribe.Level.Trace)).replace()
+    sb.externalPropertyChanged(LocationVar, arr, None)
+    assert(sb(theLoc.x, arr) == 10.0) // x does not ???
+    println(sb.signals.get(Keyed(LocationVar.x, arr).id).unn.currValue)
   }
 }

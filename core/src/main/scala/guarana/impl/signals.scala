@@ -96,8 +96,6 @@ object SignalSwitchboard {
         instance: v.ForInstance,
         oldValue: Option[T],
         newValue: T,
-        dependencies: LongHashSet,
-        dependents: LongHashSet
     ): Unit
     def signalInvalidated[T](sb: SignalSwitchboard, v: ObsVal[T], instance: v.ForInstance): Unit
   }

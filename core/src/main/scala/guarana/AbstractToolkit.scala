@@ -113,8 +113,6 @@ abstract class AbstractToolkit {
         instance: v.ForInstance,
         oldValue: Option[T],
         newValue: T,
-        dependencies: LongHashSet,
-        dependents: LongHashSet
     ): Unit = {
       val s = Keyed(v, instance)
       // FIXME: broken api
@@ -244,7 +242,7 @@ abstract class AbstractToolkit {
 
   /** Configures the logging system to trace all events to show for this one particular node */
   def logTrace(node: Any, lineFilter: (String => Boolean) | Null = null): TraceControl = {
-    val _lineFilter = lineFilter.nullFold(identity, (_: String).contains(node.toString))
+    val _lineFilter = (s: String) => s.contains(node.toString) && lineFilter.nullFold(_(s), true)
     val traceHandler = scribe.handler.LogHandler(
       minimumLevel = Some(scribe.Level.Trace),
       modifiers = List(scribe.filter.FilterBuilder(include = List(r => _lineFilter(r.logOutput.plainText))))

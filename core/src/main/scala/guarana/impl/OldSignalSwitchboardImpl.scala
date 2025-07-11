@@ -90,7 +90,7 @@ private[impl] class OldSignalSwitchboardImpl(
         if (useReentrancyDetection) reentrancyDetector.remove(s.id)
         
         if (result != oldv) {
-          reporter.signalUpdated(this, v, instance, Option(oldv.asInstanceOf[T]), result, computedRels.dependencies, computedRels.dependents)
+          reporter.signalUpdated(this, v, instance, Option(oldv.asInstanceOf[T]), result)
         }
 
         result
@@ -127,7 +127,7 @@ private[impl] class OldSignalSwitchboardImpl(
       varsLookup.lookup(s) match {
         case null =>
         case (v, i) =>
-          reporter.signalUpdated(this, v, i.asInstanceOf[v.ForInstance], Option(oldv.unn), curr, dependencies, dependents)
+          reporter.signalUpdated(this, v, i.asInstanceOf[v.ForInstance], Option(oldv.unn), curr)
       }
     }, () => {
       signalStates.put(s.id, Value(targetValue))
@@ -135,7 +135,7 @@ private[impl] class OldSignalSwitchboardImpl(
       varsLookup.lookup(s) match {
         case null =>
         case (v, i) =>
-          reporter.signalUpdated(this, v, i.asInstanceOf[v.ForInstance], Option(oldv.unn), targetValue, dependencies, dependents)
+          reporter.signalUpdated(this, v, i.asInstanceOf[v.ForInstance], Option(oldv.unn), targetValue)
       }
     })), Timeline.Cycles.SingleShot, updatesPerSecond, false)(timers)
 
@@ -185,7 +185,7 @@ private[impl] class OldSignalSwitchboardImpl(
         case interp: (TransitionType.Interp[T] @unchecked) => startTransition(s, oldValue.orNull, value, interp)
       }
       propagateSignal(s)
-      reporter.signalUpdated(this, v, instance, oldValue, value, EmptyUnmodifiableLongHashSet, EmptyUnmodifiableLongHashSet)
+      reporter.signalUpdated(this, v, instance, oldValue, value)
     }
   }
 
@@ -196,7 +196,7 @@ private[impl] class OldSignalSwitchboardImpl(
     val s = Keyed(v, instance)
     if !signalStates.containsKey(s.id) then signalStates.put(s.id, External)
     propagateSignal(s)
-    reporter.signalUpdated(this, v, instance, oldValue, v.get(instance), EmptyUnmodifiableLongHashSet, EmptyUnmodifiableLongHashSet)
+    reporter.signalUpdated(this, v, instance, oldValue, v.get(instance))
 
   def bind[T](v: Var[T], instance: v.ForInstance, transitionDef: TransitionType[T])(compute: SignalSwitchboard => T): Unit = {
     val s = Keyed(v, instance)
