@@ -233,7 +233,7 @@ object Test {
       // bounds = Rect(1300, 300, 300, 300),
       locationByPlatform = true,
       visible = true,
-      defaultCloseOperation = 3, //exit on close
+      defaultCloseOperation = 3, // exit on close
       root = TabbedPane(
         tabs = tabs,
         tabLayoutPolicy = javax.swing.JTabbedPane.SCROLL_TAB_LAYOUT,
@@ -258,7 +258,7 @@ object Test {
 }
 @main def VirtualImageTest(): Unit = {
   System.setProperty("sun.java2d.trace", "count")
-  System.setProperty("sun.java2d.opengl", "True")
+  // System.setProperty("sun.java2d.opengl", "True")
   val scenegraph = Scenegraph()
 
   lazy val environment = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().nn
@@ -321,17 +321,7 @@ object Test {
 
     val canvas = java.awt.Canvas()
     val canvasNode = Node.wrap(canvas).tap(Node.init)
-    // canvas.setSize(java.awt.Dimension(600, 480))
-    val contentPane = AbsolutePositioningPane(
-      prefSize = (600.0, 480.0)
-    )
     var mousePressed: MouseEvent | Null = null
-    contentPane.mouseEvents := EventIterator.foreach {
-      case e @ MousePressed(_) => mousePressed = e
-      case e @ MouseDragged(_) if mousePressed != null => mousePressed = e
-      case e @ MouseReleased(_) => mousePressed = null
-      case _ =>
-    }
     canvasNode.mouseEvents := EventIterator.foreach {
       case e @ MousePressed(_) => mousePressed = e
       case e @ MouseDragged(_) if mousePressed != null => mousePressed = e
@@ -344,18 +334,20 @@ object Test {
       root = BorderPane(
         center = canvasNode,
       ),
-      visible = true,
-    ).tap(_.pack())
-    frame.size(600, 480)
+      defaultCloseOperation = 3,
+    )
+    frame.pack()
+    frame.size(1024, 768)
+    frame.visible := true
     canvas.createBufferStrategy(2)
 
     val emitters = {
-      val num = 150
-      val w = 1000 / num
+      val num = 300
+      val w = 2000 / num
       Array.tabulate(num)(i => i * w + w / 2)
     }
 
-    new Thread() {
+    val renderThread = new Thread() {
       override def run(): Unit = {
         val timePerFrameNanos = (1000 / 60) * 100000
         val awtTk = java.awt.Toolkit.getDefaultToolkit.nn
@@ -391,15 +383,20 @@ object Test {
               }
             }
 
-            //update and render each particle
+            // update and render each particle
             var i = Particles.fireParticles.tail - 1
             while { i = (i + 1) % Particles.fireParticles.len; i != Particles.fireParticles.head } do {
               val p = Particles.Particle(i)
+              // val beforeModifs = p.hexRepr
               p.framesAlive = (p.framesAlive + 1).toShort
 
               if (p.framesAlive < 60) {
-                p.x = (p.x + scala.util.Random.between(-10, 10)).toShort
-                p.y = (p.y + scala.util.Random.between(-15, 0)).toShort
+                val ix = (p.x + scala.util.Random.between(-10, 10)).toShort
+                val iy = (p.y + scala.util.Random.between(-15, 0)).toShort
+                p.x = ix
+                // val afterX = p.hexRepr
+                p.y = iy
+                // val afterY = p.hexRepr
 
                 // var vi = acceleratedFlakes(p.img) match {
                 //   case null =>
@@ -417,6 +414,15 @@ object Test {
                 //   val g2 = vi.createGraphics().nn
                 //   g2.drawImage(im, 0, 0, null)
                 // }
+
+                // assert(
+                //   validRange.contains(p.img),
+                //   s"""img is fucked NOW? img: ${p.img}, x: ${p.x} ix: $ix, y: ${p.y}, iy: $iy
+                // |now: ${p.hexRepr}
+                // |was: $beforeModifs
+                // |afx: $afterX
+                // |afy: $afterY""".stripMargin
+                // )
                 val vi = possibleFlakes(p.img)
 
                 try bbg.drawImage(vi, p.x, p.y, null)
@@ -445,7 +451,8 @@ object Test {
           println("disposing rendering thread.")
         }
       }
-    }.start()
+    }
+    renderThread.start()
   }
 
 }
@@ -462,18 +469,37 @@ object Particles {
     def apply(i: Int): Instance = i
 
     extension (p: Instance) {
-      def x = (fireParticles.ring(p) & 0xffff).toShort
-      def x_=(x: Short) = fireParticles.ring(p) = (fireParticles.ring(p) & 0xffffffffffff0000L) + x
-      def y = ((fireParticles.ring(p) >> 16) & 0xffff).toShort
+      def x = (fireParticles.ring(p) & 0xffffL).toShort
+      def x_=(x: Short) = fireParticles.ring(p) = (fireParticles.ring(p) & 0xffffffffffff0000L) + java.lang.Short.toUnsignedLong(x)
+
+      def y = ((fireParticles.ring(p) >>> 16) & 0xffffL).toShort
       def y_=(y: Short) = fireParticles.ring(p) = (fireParticles.ring(p) & 0xffffffff0000ffffL) + (java.lang.Short.toUnsignedLong(y) << 16)
-      def img = ((fireParticles.ring(p) >> 32) & 0xff).toShort
+
+      def img = ((fireParticles.ring(p) >>> 32) & 0xffffL).toShort
       def img_=(i: Short) = fireParticles.ring(p) =
         (fireParticles.ring(p) & 0xffff0000ffffffffL) + (java.lang.Short.toUnsignedLong(i) << 32)
-      def framesAlive = ((fireParticles.ring(p) >>> 48) & 0xff).toShort
+
+      def framesAlive = ((fireParticles.ring(p) >>> 48) & 0xffffL).toShort
       def framesAlive_=(f: Short) = fireParticles.ring(p) =
         (fireParticles.ring(p) & 0x0000ffffffffffffL) + (java.lang.Short.toUnsignedLong(f) << 48)
+
       def raw = fireParticles.ring(p)
       def dispose(): Unit = fireParticles.take()
+
+      def binRepr: String = {
+        val data = fireParticles.ring(p)
+        val bitsStr =
+          if (data >= 0) java.lang.Long.toBinaryString(Long.MinValue + data).patch(0, "0", 1)
+          else java.lang.Long.toBinaryString(data)
+        bitsStr.grouped(8).mkString("_")
+      }
+
+      def hexRepr: String = {
+        val data = fireParticles.ring(p)
+        var res = java.lang.Long.toHexString(data)
+        if (res.length() < 16) res = String(Array.fill[Byte](16 - res.length())('0')) + res
+        res.grouped(4).mkString("_")
+      }
     }
   }
 }

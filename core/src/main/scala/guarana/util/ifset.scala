@@ -4,7 +4,7 @@ package guarana.util
 type Opt[A] = A | UnsetParam.type
 
 /** Marks a parameter as unset */
-object UnsetParam
+case object UnsetParam
 inline def ifSet[A, R](v: Opt[A], f: A => R): Option[R] = v match {
   case UnsetParam => None
   case a: A => Some(f(a))

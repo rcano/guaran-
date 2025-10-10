@@ -30,7 +30,7 @@ abstract class AbstractToolkit {
   def getMetrics(): Stylist.Metrics
 
   val varcontextLogger = scribe.Logger("varcontext")
-  private val stackContext = ScopedValue.newInstance[ContextImpl | Null]()
+  private val stackContext = ScopedValue.newInstance[ContextImpl]()
 
   def update[R](f: this.type ?=> VarContextAction[R]): R = Await.result(updateAsync(f), Duration.Inf)
   def updateAsync[R](f: this.type ?=> VarContextAction[R]): Future[R] = {
@@ -171,13 +171,13 @@ abstract class AbstractToolkit {
           switchboard.update(v, instance.value, c(), trOpt.orElse(styleTrn).getOrElse(animation.TransitionType.Instant))
         case Binding.Compute(c, trOpt) =>
           switchboard.bind(v, instance.value, trOpt.orElse(styleTrn).getOrElse(animation.TransitionType.Instant))(sb =>
-            val ctx = stackContext.orElse(null) match {
-              case null =>
-                impl.Debug.elidable { varcontextLogger.debug(s"evaluating binding, no existing context.") }
-                new ContextImpl(sb, AbstractToolkit.this.emitterStation)
-              case parent =>
-                impl.Debug.elidable { varcontextLogger.debug(s"evaluating binding, existing context = $parent") }
-                new ContextImpl(sb, parent.emitterStation)
+            val ctx = if (stackContext.isBound()) {
+              val parent = stackContext.get()
+              impl.Debug.elidable { varcontextLogger.debug(s"evaluating binding, existing context = $parent") }
+              new ContextImpl(sb, parent.emitterStation)
+            } else {
+              impl.Debug.elidable { varcontextLogger.debug(s"evaluating binding, no existing context.") }
+              new ContextImpl(sb, AbstractToolkit.this.emitterStation)
             }
             impl.Debug.elidable { varcontextLogger.debug(s"evaluating binding, installing context $ctx") }
             val res = ScopedValue.where(stackContext, ctx).call(() => c(stackContext.get().unn))
@@ -195,8 +195,7 @@ abstract class AbstractToolkit {
     }
 
     private def checkActiveContext(): Unit = {
-      val tlc = stackContext.orElse(null)
-      if (tlc == null || tlc != this)
+      if (!stackContext.isBound() || stackContext.get() != this)
         throw IllegalStateException(
           s"Scenegraph VarContext $this is no longer active, this means this context was leaked/captured onto a lambda"
         )

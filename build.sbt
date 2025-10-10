@@ -4,7 +4,7 @@ inThisBuild(
   Seq(
     organization := "guarana",
     version := "0.2.0-SNAPSHOT",
-    scalaVersion := "3.7.1",
+    scalaVersion := "3.7.3",
     fork := true,
     libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.19" % "test",
     Compile / packageDoc / publishArtifact := false,
@@ -26,7 +26,7 @@ inThisBuild(
 
 lazy val guaraná = Project(id = "guarana", base = file(".")).aggregate(coreJvm, swing, qt, apricot, apricotVk)
 
-lazy val scribeVersion = "3.16.0"
+lazy val scribeVersion = "3.17.0"
 
 lazy val core = // select supported platforms
   crossProject(JVMPlatform, NativePlatform, JSPlatform)
@@ -34,7 +34,7 @@ lazy val core = // select supported platforms
     .withoutSuffixFor(JVMPlatform)
     .settings(
       libraryDependencies ++= Seq(
-        "com.github.rssh" %% "dotty-cps-async" % "0.9.21",
+        "com.github.rssh" %% "dotty-cps-async" % "0.9.23",
         "com.outr" %%% "scribe" % scribeVersion
       )
     )
@@ -84,13 +84,14 @@ lazy val swing = Project(id = "guarana-swing", base = file("swing"))
     bspEnabled := true,
     libraryDependencies ++= Seq(
       ("com.github.pathikrit" %% "better-files" % "3.9.2"),
-      "com.github.weisj" % "jsvg" % "1.7.0",
-      "com.formdev" % "flatlaf" % "3.5.1" % "provided",
+      "com.github.weisj" % "jsvg" % "2.0.0",
+      "com.formdev" % "flatlaf" % "3.6.1" % "provided",
       "com.jhlabs" % "filters" % "2.0.235-1" % "provided",
       "io.dropwizard.metrics" % "metrics-core" % "4.2.26" % "test",
       "org.scalatest" %% "scalatest-funsuite" % "3.2.19" % "test",
-      "com.typesafe.play" %% "play-json" % "2.10.6" % "test",
-      "com.lihaoyi" %% "pprint" % "0.9.0" % "provided",
+      "com.typesafe.play" %% "play-json" % "2.10.7" % "test",
+      "com.lihaoyi" %% "pprint" % "0.9.3" % "provided",
+      "com.helger" % "ph-css" % "8.0.0",
     ),
     moduleJars := {
       val attributedJars = (Compile / dependencyClasspathAsJars).value.filterNot(_.metadata(moduleID.key).organization == "org.scala-lang")
@@ -122,6 +123,7 @@ lazy val guaranaTheme = Project(id = "theme", base = file("swing/theme"))
     bspEnabled := true,
     libraryDependencies ++= Seq(
       "com.jhlabs" % "filters" % "2.0.235-1",
+      "com.lihaoyi" %% "pprint" % "0.9.3" % "provided",
     )
   )
 
@@ -152,6 +154,7 @@ lazy val lwjglClassifier = "natives-linux"
 
 lazy val apricot = Project(id = "apricot", base = file("apricot"))
   .settings(
+    // bspEnabled := true,
     scalacOptions += "-experimental",
     libraryDependencies ++= Seq(
       "com.github.pathikrit" %% "better-files" % "3.9.2",
@@ -237,9 +240,10 @@ lazy val apricotVk = Project(id = "apricotVk", base = file("apricotVk"))
   .dependsOn(apricot)
 
 lazy val jmh = Project("jmh", base = file("jmh"))
-  .dependsOn(coreJvm)
+  .dependsOn(coreJvm, swing, guaranaTheme)
   .enablePlugins(JmhPlugin)
   .settings(
+    bspEnabled := true,
     libraryDependencies ++= Seq(
       "com.github.chrislo27" % "paintbox" % "0.1.1"
     ),

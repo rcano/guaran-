@@ -43,6 +43,7 @@ class RingBuffer[T: ClassTag](val capacity: Int, val sentinel: T) extends RingLi
 
   val len  = capacity + 1
   val ring = new Array[T](len)
+  println(s"ring buffer store $ring created")
 
   override def size: Int = if (head >= tail) head - tail else len - tail + head
 

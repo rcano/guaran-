@@ -1,8 +1,8 @@
 package guarana
 package swing
 
-import com.github.weisj.jsvg.attributes.ViewBox
 import com.github.weisj.jsvg.parser.SVGLoader
+import com.github.weisj.jsvg.view.ViewBox
 import guarana.animation.Timeline
 import guarana.swing.plaf.{upgrade, withAliasing}
 import guarana.util.*

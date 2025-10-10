@@ -1,11 +1,11 @@
 package guarana
 package swing.util
 
+import com.github.weisj.jsvg.parser.SVGLoader
+import com.github.weisj.jsvg.view.ViewBox
 import guarana.util.*
 import java.awt.Image
 import java.awt.image.BufferedImage
-import com.github.weisj.jsvg.parser.SVGLoader
-import com.github.weisj.jsvg.attributes.ViewBox
 
 object SvgUtils {
 

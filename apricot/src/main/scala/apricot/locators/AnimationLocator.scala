@@ -60,6 +60,6 @@ class AnimationLocator(engine: ApricotEngine[? <: guarana.AbstractToolkit]) exte
 
 class AnimationLocatorProvider extends ResourceLocatorProvider, tools.SpiProvider[ResourceLocatorProvider] {
   @experimental
-  erased def spi = registerSpi
+  erased val spi = registerSpi
   def create(engine: ApricotEngine[? <: guarana.AbstractToolkit]) = AnimationLocator(engine)
 }

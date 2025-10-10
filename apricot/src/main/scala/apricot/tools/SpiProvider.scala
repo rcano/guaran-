@@ -13,11 +13,11 @@ trait SpiProvider[Service] {
   @compileTimeOnly("this method should only be called from the implementation of spi")
   inline def registerSpi: RegisteredSpi = ${SpiProvider.registerMacro}
   @experimental
-  erased def spi: RegisteredSpi
+  erased val spi: RegisteredSpi
 }
 
 object SpiProvider {
-  sealed trait RegisteredSpi
+  trait RegisteredSpi extends scala.compiletime.Erased
 
   def registerMacro(using q: Quotes): Expr[RegisteredSpi] = {
     import q.reflect.*
@@ -53,6 +53,6 @@ object SpiProvider {
 
       case _ => report.errorAndAbort("SPI providers must be top level classes, otherwise they cannot be instantiated.", Position.ofMacroExpansion)
     }
-    '{???}
+    '{new RegisteredSpi {}}
   }
 }
