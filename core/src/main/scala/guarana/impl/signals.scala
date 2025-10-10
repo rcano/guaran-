@@ -141,7 +141,7 @@ object SignalSwitchboard {
     private val durationNs = duration.toNanos
     def valueAt(tNanos: Long): T =
       if (tNanos < delayNs) min
-      else interp.interpolate(min, max, curve(tNanos.toDouble / durationNs))
+      else interp.interpolate(min, max, curve((tNanos - delayNs).toDouble / durationNs))
   }
 }
 

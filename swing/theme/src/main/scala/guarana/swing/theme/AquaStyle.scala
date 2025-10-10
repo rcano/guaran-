@@ -3,9 +3,10 @@ package swing
 package theme
 
 import com.jhlabs.image.*
+import guarana.animation.*
 import java.awt.{BasicStroke, Dimension}
 import javax.swing.*
-import scala.concurrent.duration.DurationInt
+import scala.concurrent.duration.*
 import style.*
 
 class AquaStyle() extends Stylist {
@@ -44,6 +45,8 @@ class AquaStyle() extends Stylist {
   val cellBackgroundOdd = Background(fills = IArray(BackgroundFill(baseBackgroundColorLowlight, NoCorners, NoInsets)))
   val cellBackgroundOddSelected = Background(fills = IArray(BackgroundFill(baseBackgroundColorLowlight.interp(Color.LightBlue, 0.2), NoCorners, NoInsets)))
 
+  val ShouldBeOpaque = Var.autoName(false, eagerEvaluation = true)
+
   var emDependentSettings: Settings | Null = null
 
   /** emSize dependent settings, these are recomputed when the emSize changes */
@@ -65,7 +68,18 @@ class AquaStyle() extends Stylist {
     val textAreaEmptyBorder = Border(IArray(BorderStroke.simple(baseBackgroundColorHighlight, BasicStroke(emSize.toFloat / 2), NoCorners, Insets.all(emSize/2))))
   }
 
-  def getTransition[T](metrics: Stylist.Metrics, property: ObsVal[T], instance: Any) = None
+  def getTransition[T](metrics: Stylist.Metrics, property: ObsVal[T], instance: Any) = {
+    val res: Option[TransitionType[?]] = instance match {
+      case _: JScrollBar =>
+        if (property == CssProperties.Opacity) {
+          Some(TransitionType.Interp(0.second, 250.millis, EaseBothCurve, 0.0, 60))
+        } else {
+          None
+        }
+      case _ => None
+    }
+    res.asInstanceOf[Option[TransitionType[T]]]
+  }
   def apply[T](metrics: Stylist.Metrics, property: ObsVal[T], instance: Any): AbstractToolkit ?=> Option[T] = {
     val emSize = metrics.emSize
     val info = toolkit.stateReader
@@ -141,28 +155,17 @@ class AquaStyle() extends Stylist {
         //in order to use the hovered var
         val c = Component.wrap(jsb)
         if !Component.isInitialized(c) then Component.init(c)(using toolkit.asInstanceOf[Scenegraph])
-        import animation.Timeline, Timeline.*
-        var focusAnimation: Timeline.Animation[Timer] | Null = null
         toolkit.update {
           val opacity = CssProperties.Opacity.forInstance(c)
           val minOpacity = 0.25
           opacity := minOpacity
+          val shouldBeOpaque = ShouldBeOpaque.forInstance(c)
+          shouldBeOpaque := Binding.dyn {
+            c.hovered() || c.mouseDrag().isDefined
+          }
+
           c.varUpdates := EventIterator.foreach {
-            case c.hovered(_, hovered) =>
-              focusAnimation.?(_.timer.stop())
-              if hovered then
-                focusAnimation = Timeline(
-                  IArray(KeyFrame(250.millis, opacity, minOpacity, 1, animation.EaseBothCurve)),
-                  Timeline.Cycles.Iterations(2),
-                  ups = 30
-                )(Scenegraph)
-              else
-                focusAnimation = Timeline(
-                  IArray(KeyFrame(250.millis, opacity, 1, minOpacity, animation.EaseBothCurve)),
-                  Timeline.Cycles.Iterations(2),
-                  ups = 30
-                )(Scenegraph)
-              focusAnimation.unn.timer.start()
+            case shouldBeOpaque(_, shouldBeOpaque) => opacity := (if (shouldBeOpaque) 1.0 else minOpacity)
             case opacity(_, op) => jsb.repaint()
             case _ =>
           }

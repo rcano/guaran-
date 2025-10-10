@@ -9,10 +9,10 @@ def println(a: Any) = System.out.unn.println(a)
 object TestAqua {
   def main(args: Array[String]): Unit = {
     scala.sys.props("sun.java2d.trace") = "count"
-    scala.sys.props("sun.java2d.opengl") = "True"
-    scala.sys.props("sun.java2d.opengl.fbobjec") = "true"
-    scala.sys.props("sun.java2d.uiScale.enabled") = "true"
-    scala.sys.props("sun.java2d.uiScale") = "2"
+    // scala.sys.props("sun.java2d.opengl") = "True"
+    // scala.sys.props("sun.java2d.opengl.fbobjec") = "true"
+    // scala.sys.props("sun.java2d.uiScale.enabled") = "true"
+    // scala.sys.props("sun.java2d.uiScale") = "2"
     val scenegraph = Scenegraph()
     scenegraph.update {
       scenegraph.stylist = AquaStyle()

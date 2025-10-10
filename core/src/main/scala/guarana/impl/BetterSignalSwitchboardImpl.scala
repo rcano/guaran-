@@ -401,7 +401,7 @@ class BetterSignalSwitchboardImpl(
       varsLookup.lookup(s) match {
         case null => anim.timer.stop() // if the variable was collected, no need to continue the animation
         case (v, i) =>
-          // println(s"interpolating var after $elapsed, $initValue / $curr / $targetValue")
+          // println(s"interpolating var after ${elapsed.toDouble / duration.toNanos}, $initValue / $curr / $targetValue")
           // specifically set the state to transitioning because updateSpecific might leave it as External, once
           // the animation is done and we are no longer transitioning we don't need this
           state.currValue = State.Transitioning(curr, anim.timer, targetState.asInstanceOf)
@@ -409,6 +409,7 @@ class BetterSignalSwitchboardImpl(
           reportUpdate(v, i.asInstanceOf[v.ForInstance], oldv, curr)
       }
     }, () => {
+      // println(s"animation stopped, setting value to $targetValue")
       varsLookup.lookup(s) match {
         case null =>
         case (v, i) =>
