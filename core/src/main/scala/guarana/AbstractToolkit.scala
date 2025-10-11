@@ -116,7 +116,7 @@ abstract class AbstractToolkit {
     ): Unit = {
       val s = Keyed(v, instance)
       // FIXME: broken api
-      impl.Debug.elidable { scribe.debug(s"Keyed($instance, $v) updated") }
+      impl.Debug.elidable { scribe.debug(s"Keyed($instance, $v) updated to $newValue") }
       // println(s"signal updated ${signalDescriptor.describe(s)}, reacting ? ${reactingExtVars.contains(s.id)}")
       v match {
         case v: ExternalVar[T] { type ForInstance = v.ForInstance } if !reactingExtVars.contains(s.id) =>

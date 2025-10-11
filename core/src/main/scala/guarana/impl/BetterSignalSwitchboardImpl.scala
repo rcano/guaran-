@@ -153,7 +153,7 @@ class BetterSignalSwitchboardImpl(
 
             if (useReentrancyDetection) reentrancyDetector.remove(s.id)
 
-            if (oldv.exists(_ != currGetResult)) {
+            if (!oldv.exists(_ == currGetResult)) {
               reportUpdate(v, instance, oldv, currGetResult)
 
               vv.projections.foreach { case p: vv.Projection[u] =>
