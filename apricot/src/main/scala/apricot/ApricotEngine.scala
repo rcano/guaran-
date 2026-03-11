@@ -1,16 +1,16 @@
 package apricot
 
-import com.codahale.metrics.{Gauge, MetricRegistry}
+import apricot.graphics.GraphicsStack
+import apricot.tools.GlfwWindow
+import com.codahale.metrics.{Gauge, MetricRegistry, Timer}
 import guarana.*
 import guarana.animation.ScriptEngine
 import guarana.util.cfor
-import java.util.concurrent.locks.LockSupport
 import java.util.ServiceLoader
+import java.util.concurrent.locks.LockSupport
 import scala.annotation.threadUnsafe
 import scala.annotation.unchecked.uncheckedStable
-import scala.concurrent.duration._
-import apricot.graphics.GraphicsStack
-import apricot.tools.GlfwWindow
+import scala.concurrent.duration.*
 
 class ApricotEngine[Tk <: AbstractToolkit](
     val devMode: Boolean,
@@ -53,33 +53,33 @@ class ApricotEngine[Tk <: AbstractToolkit](
   var autoClearWindow = true
   var autoClearColor: Int = 0xffffffff
 
-  val fpsTimer = metrics.timer("fps").unn
-  val updateTimer = metrics.timer("updateTimer").unn
-  val renderTimer = metrics.timer("renderTimer").unn
-  val gpuFlushTimer = metrics.timer("gpuFlushTimer").unn
+  val fpsTimer: Timer = metrics.timer("fps")
+  val updateTimer: Timer = metrics.timer("updateTimer")
+  val renderTimer: Timer = metrics.timer("renderTimer")
+  val gpuFlushTimer: Timer = metrics.timer("gpuFlushTimer")
   private var lastFrameTime: Long = -1
-  val frameTimeGauge = metrics.gauge[Gauge[Long]]("frameTime", (() => () => lastFrameTime): MetricRegistry.MetricSupplier[Gauge[Long]]).unn
+  val frameTimeGauge: Gauge[Long] = metrics.gauge[Gauge[Long]]("frameTime", (() => () => lastFrameTime): MetricRegistry.MetricSupplier[Gauge[Long]])
   private var lastRenderTime: Long = -1
-  val renderTimeGauge =
-    metrics.gauge[Gauge[Long]]("renderTime", (() => () => lastRenderTime): MetricRegistry.MetricSupplier[Gauge[Long]]).unn
+  val renderTimeGauge: Gauge[Long] =
+    metrics.gauge[Gauge[Long]]("renderTime", (() => () => lastRenderTime): MetricRegistry.MetricSupplier[Gauge[Long]])
   private var gpuFlushTime: Long = -1
-  val gpuFlushGauge = metrics.gauge[Gauge[Long]]("gpuFlushTime", (() => () => gpuFlushTime): MetricRegistry.MetricSupplier[Gauge[Long]]).unn
+  val gpuFlushGauge: Gauge[Long] = metrics.gauge[Gauge[Long]]("gpuFlushTime", (() => () => gpuFlushTime): MetricRegistry.MetricSupplier[Gauge[Long]])
   private var lastUpdateTime: Long = -1
-  val updateTimeGauge =
-    metrics.gauge[Gauge[Long]]("updateTime", (() => () => lastUpdateTime): MetricRegistry.MetricSupplier[Gauge[Long]]).unn
+  val updateTimeGauge: Gauge[Long] =
+    metrics.gauge[Gauge[Long]]("updateTime", (() => () => lastUpdateTime): MetricRegistry.MetricSupplier[Gauge[Long]])
 
   val updateables = new collection.mutable.ArrayBuffer[Updateable](128)
   object windows {
     private val windowCounter = java.util.concurrent.atomic.AtomicInteger(0)
     class WindowContext private[windows](val layers: Layers, var gContext: GraphicsStack#GraphicsContext) {
       private[ApricotEngine] val windowIdx = windowCounter.incrementAndGet()
-      private[ApricotEngine] val gpuFlushTimer = metrics.timer(s"gpuFlushTimer-$windowIdx").unn
+      private[ApricotEngine] val gpuFlushTimer: Timer = metrics.timer(s"gpuFlushTimer-$windowIdx")
       private[ApricotEngine] var lastRenderTime: Long = -1
-      val renderTimeGauge =
-        metrics.gauge[Gauge[Long]](s"renderTime-$windowIdx", (() => () => lastRenderTime): MetricRegistry.MetricSupplier[Gauge[Long]]).unn
+      val renderTimeGauge: Gauge[Long] =
+        metrics.gauge[Gauge[Long]](s"renderTime-$windowIdx", (() => () => lastRenderTime): MetricRegistry.MetricSupplier[Gauge[Long]])
       private[ApricotEngine] var gpuFlushTime: Long = -1
-      val gpuFlushGauge =
-        metrics.gauge[Gauge[Long]](s"gpuFlushTime-$windowIdx", (() => () => gpuFlushTime): MetricRegistry.MetricSupplier[Gauge[Long]]).unn
+      val gpuFlushGauge: Gauge[Long] =
+        metrics.gauge[Gauge[Long]](s"gpuFlushTime-$windowIdx", (() => () => gpuFlushTime): MetricRegistry.MetricSupplier[Gauge[Long]])
 
     }
     private[ApricotEngine] val _windows = collection.mutable.LinkedHashMap.empty[GlfwWindow, WindowContext]

@@ -3,7 +3,7 @@ package skia
 
 import apricot.graphics.GraphicsStack
 import apricot.tools.GlfwWindow
-import better.files.{Resource => _, *}
+import better.files.*
 import guarana.*
 import io.github.humbleui.skija.{Font, FontMgr, FontStyle, Paint, TextLine}
 import java.util.concurrent.locks.LockSupport

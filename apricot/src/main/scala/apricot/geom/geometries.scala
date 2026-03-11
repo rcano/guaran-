@@ -3,6 +3,10 @@ package apricot.geom
 import apricot.util.InlinedNumeric
 import apricot.util.InlinedFractional
 
+type Point2d[T <: Int | Long | Float | Double] = (x: T, y: T)
+type Location = Point2d
+type Dimensions[T <: Int | Long | Float | Double] = (width: T, height: T)
+
 trait Shape2d {
 
   def bounds: Rect.Double

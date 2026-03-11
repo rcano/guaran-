@@ -3,8 +3,8 @@ name := "guarana"
 inThisBuild(
   Seq(
     organization := "guarana",
-    version := "0.2.0-SNAPSHOT",
-    scalaVersion := "3.7.3",
+    version := "0.3.0-SNAPSHOT",
+    scalaVersion := "3.8.2",
     fork := true,
     libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.19" % "test",
     Compile / packageDoc / publishArtifact := false,
@@ -19,14 +19,14 @@ inThisBuild(
       "3.7-migration",
       "-explain"
     ),
-    bspEnabled := false
+    bspEnabled := true
   ) ++ addCommandAlias("enableDebug", """set javaOptions += "-agentlib:jdwp=transport=dt_socket,server=y,address=5555,suspend=y"""")
   
 )
 
 lazy val guaraná = Project(id = "guarana", base = file(".")).aggregate(coreJvm, swing, qt, apricot, apricotVk)
 
-lazy val scribeVersion = "3.17.0"
+lazy val scribeVersion = "3.18.0"
 
 lazy val core = // select supported platforms
   crossProject(JVMPlatform, NativePlatform, JSPlatform)
@@ -40,7 +40,8 @@ lazy val core = // select supported platforms
     )
     // configure JVM settings
     .jvmSettings(bspEnabled := true)
-    .jsSettings()
+    .jsSettings(bspEnabled := false)
+    .nativeSettings(bspEnabled := false)
     // configure Scala-Native settings
     .nativeSettings() // defined in sbt-scala-native
 
@@ -85,13 +86,13 @@ lazy val swing = Project(id = "guarana-swing", base = file("swing"))
     libraryDependencies ++= Seq(
       ("com.github.pathikrit" %% "better-files" % "3.9.2"),
       "com.github.weisj" % "jsvg" % "2.0.0",
-      "com.formdev" % "flatlaf" % "3.6.1" % "provided",
+      "com.formdev" % "flatlaf" % "3.7" % "provided",
       "com.jhlabs" % "filters" % "2.0.235-1" % "provided",
       "io.dropwizard.metrics" % "metrics-core" % "4.2.26" % "test",
       "org.scalatest" %% "scalatest-funsuite" % "3.2.19" % "test",
-      "com.typesafe.play" %% "play-json" % "2.10.7" % "test",
+      "com.typesafe.play" %% "play-json" % "2.10.8" % "test",
       "com.lihaoyi" %% "pprint" % "0.9.3" % "provided",
-      "com.helger" % "ph-css" % "8.0.0",
+      "com.helger" % "ph-css" % "8.1.1",
     ),
     moduleJars := {
       val attributedJars = (Compile / dependencyClasspathAsJars).value.filterNot(_.metadata(moduleID.key).organization == "org.scala-lang")
@@ -181,8 +182,9 @@ lazy val apricot = Project(id = "apricot", base = file("apricot"))
 lazy val apricotSkia = Project(id = "apricotSkia", base = file("apricotSkia"))
   .settings(
     scalacOptions += "-experimental",
+    // bspEnabled := true,
     libraryDependencies ++= Seq(
-      "io.github.humbleui.skija" % "skija-linux" % "0.96.0",
+      "io.github.humbleui" % "skija-linux-x64" % "0.143.5",
       "com.github.blemale" %% "scaffeine" % "5.1.2",
     )
   )
@@ -243,11 +245,10 @@ lazy val jmh = Project("jmh", base = file("jmh"))
   .dependsOn(coreJvm, swing, guaranaTheme)
   .enablePlugins(JmhPlugin)
   .settings(
-    bspEnabled := true,
+    // bspEnabled := true,
     libraryDependencies ++= Seq(
       "com.github.chrislo27" % "paintbox" % "0.1.1"
     ),
-    bspEnabled := true,
     resolvers += "jitpack.io" at "https://jitpack.io",
     resolvers += Resolver.mavenLocal
   )

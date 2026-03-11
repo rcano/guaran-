@@ -44,7 +44,6 @@ class SkiaGraphicsStack extends GraphicsStack {
     override def renderLayers(layers: Iterable[Layer], clearFirst: Boolean, color: Int): Unit = {
       if (clearFirst) canvas.clear(color)
       layers.foreach(_.draw(SkiaGraphicsStack.this, this))
-      surface.flush()
     }
   }
 
@@ -55,7 +54,8 @@ class SkiaGraphicsStack extends GraphicsStack {
       org.lwjgl.glfw.GLFW.glfwMakeContextCurrent(window.windowHandle)
       GL.createCapabilities().unn
     }
-    private[SkiaGraphicsStack] lazy val skiaContext = skija.DirectContext.makeGL()
+    scribe.info(s"OpenGL device: ${GL11.glGetString(GL11.GL_RENDERER)}")
+    lazy val skiaContext: skija.DirectContext = skija.DirectContext.makeGL()
     private[SkiaGraphicsStack] var _surface: skija.Surface | Null = null
 
     def surface: skija.Surface = _surface.unn
@@ -64,6 +64,7 @@ class SkiaGraphicsStack extends GraphicsStack {
     override def renderLayers(layers: Iterable[Layer], clearFirst: Boolean, color: Int): Unit = {
       org.lwjgl.glfw.GLFW.glfwMakeContextCurrent(window.windowHandle)
       super.renderLayers(layers, clearFirst, color)
+      skiaContext.flush(_surface)
     }
 
     private[SkiaGraphicsStack] var closed = false
@@ -84,11 +85,11 @@ class SkiaGraphicsStack extends GraphicsStack {
       val renderTarget =
         skija.BackendRenderTarget.makeGL(width, height, /*samples*/ 0, /*stencil*/ 8, fbId, skija.FramebufferFormat.GR_GL_RGBA8)
 
-      _surface = skija.Surface.makeFromBackendRenderTarget(
+      _surface = skija.Surface.wrapBackendRenderTarget(
         skiaContext,
         renderTarget,
         skija.SurfaceOrigin.BOTTOM_LEFT,
-        skija.SurfaceColorFormat.RGBA_8888,
+        skija.ColorType.RGBA_8888,
         skija.ColorSpace.getSRGB()
       )
     }

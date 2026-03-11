@@ -461,6 +461,8 @@ case object FlowPane
       upperBounds = Seq(ChildrenSeqPane),
       props = Seq(
         SwingProp("UI", "javax.swing.plaf.PanelUI"),
+        SwingProp("hgap", "Double", "_.getLayout().asInstanceOf[FlowLayout].getHgap()", "(c, v) => c.getLayout().asInstanceOf[FlowLayout].setHgap(v.round.toInt)"),
+        SwingProp("vgap", "Double", "_.getLayout().asInstanceOf[FlowLayout].getVgap()", "(c, v) => c.getLayout().asInstanceOf[FlowLayout].setVgap(v.round.toInt)"),
       ),
     )
 

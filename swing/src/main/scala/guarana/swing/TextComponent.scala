@@ -4,8 +4,6 @@ package guarana
 package swing
 
 import language.implicitConversions
-import java.awt.{Component as _, Menu as _, MenuBar as _, MenuItem as _, TextComponent as _, TextField as _, PopupMenu as _}
-import javax.swing.Action as _
 import javax.swing.event.*
 
 opaque type TextComponent <: Component  = javax.swing.text.JTextComponent & Component

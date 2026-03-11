@@ -3,14 +3,15 @@ package skia
 package effects
 
 import apricot.graphics.GraphicsStack
+import apricot.geom.Location
 import guarana.*
 import io.github.humbleui.skija
 import io.github.humbleui.skija.Canvas
 import io.github.humbleui.skija.Surface
 
 trait Effect:
-  def location: (Double, Double)
-  def location_=(v: (Double, Double)): Unit
+  def location: Location[Double]
+  def location_=(v: Location[Double]): Unit
   def start(engine: ApricotEngine[? <: AbstractToolkit], layer: Layer): Unit
   def stop(): Unit
 
@@ -39,11 +40,10 @@ object EffectCompiler {
   }
   def compile(emitter: ParticleEmitter, engine: ApricotEngine[? <: AbstractToolkit]): ParticleEmitterRenderer =
     ParticleEmitterRenderer(emitter, engine)
-  def createEffect(p: ParticleLike | ParticleEmitterRenderer): Effect = new Effect {
-    var location: (Double, Double) = (0, 0)
+  def createEffect(effect: ParticleLike | ParticleEmitterRenderer): Effect = new Effect {
+    var location: Location[Double] = (0, 0)
     var engine: ApricotEngine[? <: AbstractToolkit] | Null = null
     var layer: Layer | Null = null
-    var effect: Updateable & Renderable = p
     def start(engine: ApricotEngine[? <: AbstractToolkit], layer: Layer): Unit = {
       stop()
       this.engine = engine
@@ -64,11 +64,11 @@ object EffectCompiler {
 
     object effectUpdateable extends Updateable, Renderable {
 
-      def updateImpl(currentTimeNanos: Long, elapsed: Long): Unit = effect.? { effect => effect.update(currentTimeNanos) }
-      def render(graphicsStack: GraphicsStack, gContext: graphicsStack.GraphicsContext): Unit = effect.? { effect =>
+      def updateImpl(currentTimeNanos: Long, elapsed: Long): Unit = effect.update(currentTimeNanos)
+      def render(graphicsStack: GraphicsStack, gContext: graphicsStack.GraphicsContext): Unit = {
         val canvas = gContext.canvas
         canvas.save()
-        canvas.translate(location._1.toFloat, location._2.toFloat)
+        canvas.translate(location.x.toFloat, location.y.toFloat)
         effect.render(graphicsStack, gContext)
         canvas.restore()
       }
@@ -91,8 +91,8 @@ object EffectCompiler {
     }
 
     var pendingActions = List.empty[Effect => Unit]
-    def location: (Double, Double) = underlying.nullFold(_.location, (0.0, 0.0))
-    def location_=(v: (Double, Double)): Unit = underlying.nullFold(_.location = v, { pendingActions :+= (e => e.location = v) })
+    def location: Location[Double] = underlying.nullFold(_.location, (0.0, 0.0))
+    def location_=(v: Location[Double]): Unit = underlying.nullFold(_.location = v, { pendingActions :+= (e => e.location = v) })
     def stop(): Unit = underlying.?(_.stop())
   }
 
@@ -143,7 +143,7 @@ object EffectCompiler {
 
       val disposeParticle = (handler: ParticleHandler) => {
         handlersPool push handler
-        val prevSize = liveParticles.size
+        // val prevSize = liveParticles.size
         liveParticles -= handler
         // scribe.info(s"died, live particles = ${liveParticles.size}")
         ()
@@ -318,12 +318,12 @@ object EffectCompiler {
     underlying.transformation = null
     underlying.blendMode = null
 
-    val offscreenCanvas = skija.Surface.makeRasterN32Premul(
+    val offscreenCanvas: skija.Surface = skija.Surface.makeRaster(skija.ImageInfo.makeN32Premul(
       (underlying.particle.getWidth + insets.left + insets.right).ceil.toInt,
       (underlying.particle.getHeight + insets.top + insets.bot).ceil.toInt,
-    )
+    ))
 
-    val canvas = offscreenCanvas.getCanvas
+    val canvas: skija.Canvas = offscreenCanvas.getCanvas
     canvas.translate(insets.left.toFloat, insets.top.toFloat)
 
     var skiaGraphicsStack: SkiaGraphicsStack | Null = null

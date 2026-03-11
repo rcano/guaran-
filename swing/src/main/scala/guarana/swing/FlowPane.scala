@@ -4,13 +4,14 @@ package guarana
 package swing
 
 import language.implicitConversions
-import java.awt.{Component as _, Menu as _, MenuBar as _, MenuItem as _, TextComponent as _, TextField as _, PopupMenu as _}
-import javax.swing.Action as _
+import java.awt.{Component as _, PopupMenu as _, *}
 import guarana.util.*
 
 opaque type FlowPane <: ChildrenSeqPane  = javax.swing.JPanel & ChildrenSeqPane
 object FlowPane extends VarsMap {
   val UI: SwingVar.Aux[FlowPane, javax.swing.plaf.PanelUI] = SwingVar[FlowPane, javax.swing.plaf.PanelUI]("UI", _.getUI.nn, _.setUI(_))
+  val Hgap: SwingVar.Aux[FlowPane, Double] = SwingVar[FlowPane, Double]("hgap", _.getLayout().asInstanceOf[FlowLayout].getHgap(), (c, v) => c.getLayout().asInstanceOf[FlowLayout].setHgap(v.round.toInt))
+  val Vgap: SwingVar.Aux[FlowPane, Double] = SwingVar[FlowPane, Double]("vgap", _.getLayout().asInstanceOf[FlowLayout].getVgap(), (c, v) => c.getLayout().asInstanceOf[FlowLayout].setVgap(v.round.toInt))
 
   
 
@@ -18,6 +19,8 @@ object FlowPane extends VarsMap {
   object Ops {
     extension (v: FlowPane) {
       def UI: Var.Aux[javax.swing.plaf.PanelUI, v.type] = FlowPane.UI.asInstanceOf[Var.Aux[javax.swing.plaf.PanelUI, v.type]]
+      def hgap: Var.Aux[Double, v.type] = FlowPane.Hgap.asInstanceOf[Var.Aux[Double, v.type]]
+      def vgap: Var.Aux[Double, v.type] = FlowPane.Vgap.asInstanceOf[Var.Aux[Double, v.type]]
 
       
 
@@ -59,6 +62,7 @@ object FlowPane extends VarsMap {
     focusable: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
+    hgap: Opt[Binding[Double]] = UnsetParam,
     inheritsPopupMenu: Opt[Binding[Boolean]] = UnsetParam,
     inputVerifier: Opt[Binding[javax.swing.InputVerifier | Null]] = UnsetParam,
     maxSize: Opt[Binding[(Double, Double) | Null]] = UnsetParam,
@@ -71,6 +75,7 @@ object FlowPane extends VarsMap {
     toolTipText: Opt[Binding[String | Null]] = UnsetParam,
     transferHandler: Opt[Binding[javax.swing.TransferHandler | Null]] = UnsetParam,
     verifyInputWhenFocusTarget: Opt[Binding[Boolean]] = UnsetParam,
+    vgap: Opt[Binding[Double]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): Scenegraph ?=> VarContextAction[FlowPane] = {
     val res = uninitialized()
@@ -92,6 +97,7 @@ object FlowPane extends VarsMap {
     ifSet(focusable, Node.ops.focusable(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)
+    ifSet(hgap, FlowPane.ops.hgap(res) := _)
     ifSet(inheritsPopupMenu, Component.ops.inheritsPopupMenu(res) := _)
     ifSet(inputVerifier, Component.ops.inputVerifier(res) := _)
     ifSet(maxSize, Node.ops.maxSize(res) := _)
@@ -104,6 +110,7 @@ object FlowPane extends VarsMap {
     ifSet(toolTipText, Component.ops.toolTipText(res) := _)
     ifSet(transferHandler, Component.ops.transferHandler(res) := _)
     ifSet(verifyInputWhenFocusTarget, Component.ops.verifyInputWhenFocusTarget(res) := _)
+    ifSet(vgap, FlowPane.ops.vgap(res) := _)
     ifSet(visible, Node.ops.visible(res) := _)
     res
   }

@@ -2,7 +2,7 @@ package guarana
 package swing
 package plaf
 
-import javax.swing.{JButton, JComponent, ListCellRenderer, UIManager}
+import javax.swing.{JButton, JComponent, UIManager}
 import javax.swing.plaf.basic.{BasicComboBoxUI, BasicComboPopup}
 import scala.annotation.static
 import scala.util.chaining._

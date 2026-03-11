@@ -15,7 +15,7 @@ object BindingMacro {
   // TODO: unit test macros, somehow.
   private class Macros(debug: Boolean)(using val quotes: Quotes) {
     import quotes.reflect.*
-    def println(a: Any): Unit = if (debug) Predef.println(a)
+    inline def println(inline a: Any): Unit = if (debug) Predef.println(a)
     val AnyRefTypeRepr = TypeRepr.of[AnyRef]
     val DerefSym = TypeRepr.of[guarana.util.WeakRef[?]].typeSymbol.declaredMethod("deref").head
     val InstanceofSym = defn.AnyClass.declaredMethod("asInstanceOf").head

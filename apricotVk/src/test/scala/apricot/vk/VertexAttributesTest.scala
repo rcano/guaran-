@@ -126,35 +126,21 @@ class VertexAttributesTest extends Layer("vertex4") {
         }
       }
     }
+    case class VertexData(x: Float, y: Float, z: Float, w: Float, r: Float, g: Float, b: Float, a: Float) extends Struct derives CompactLayout
 
-    type VertexData = Struct {
-      var x: Float
-      var y: Float
-      var z: Float
-      var w: Float
-
-      var r: Float
-      var g: Float
-      var b: Float
-      var a: Float
-    }
     object VertexData {
-      val mirror = Struct.structMirror[VertexData]
-      given mirror.type = mirror
-      val layout = CompactLayouter.compactLayout[VertexData](using mirror)
-      given layout.type = layout
-
-      scribe.info(s"VertexData size: ${summon[Sized[VertexData]].size}, x offset: ${summon[Pointer.FieldOffset["x", VertexData]]}, r offset: ${summon[Pointer.FieldOffset["r", VertexData]]}")
-      def apply(x: Float, y: Float, z: Float, w: Float)(color: vkStack.Color)(using ctx: Allocator): Pointer[VertexData, ctx.type] = {
-        val res = ctx.allocStruct[VertexData]
-        res.x = x
-        res.y = y
-        res.z = z
-        res.w = w
-        res.r = color.red / 255f
-        res.g = color.green / 255f
-        res.b = color.blue / 255f
-        res.a = color.alpha / 255f
+      val layout = summon[StructLayout[VertexData]]
+      scribe.info(s"VertexData size: ${summon[Sized[VertexData]].size}, x offset: ${layout.offset(0)}, r offset: ${layout.offset(4)}")
+      def apply(x: Float, y: Float, z: Float, w: Float)(color: vkStack.Color)(using ctx: Allocator): Pointer[VertexData, ctx.memorySegment.type] = {
+        val res = ctx.allocPtr[VertexData]
+        res.→.x := x
+        res.→.y := y
+        res.→.z := z
+        res.→.w := w
+        res.→.r := color.red / 255f
+        res.→.g := color.green / 255f
+        res.→.b := color.blue / 255f
+        res.→.a := color.alpha / 255f
         res
       }
     }
@@ -197,7 +183,8 @@ class VertexAttributesTest extends Layer("vertex4") {
 
       scribe.info(f"uploading vertex data to $mappedMemoryHandle%H")
       // write directly to the mapped memory
-      durian.using(Allocator.Bump(durian.JfmMemorySegment(MemorySegment.ofAddress(mappedMemoryHandle).reinterpret(vertexDataSize)))) {
+
+      durian.using(Allocator.Bump(MemorySegment.ofAddress(mappedMemoryHandle).reinterpret(vertexDataSize))) { alloc ?=>
         VertexData(-0.7f, -0.7f, 0.0f, 1.0f)(Color.Beige)
         VertexData(-0.7f, 0.7f, 0.0f, 1.0f)(Color.CornflowerBlue)
         VertexData(0.7f, -0.7f, 0.0f, 1.0f)(Color.Crimson)
@@ -226,13 +213,14 @@ class VertexAttributesTest extends Layer("vertex4") {
               .put(
                 0,
                 VkFactory
-                  .vertexAttributeDescriptor(0, 0, VK10.VK_FORMAT_R32G32B32A32_SFLOAT, summon[Pointer.FieldOffset["x", VertexData]])
+                  .vertexAttributeDescriptor(0, 0, VK10.VK_FORMAT_R32G32B32A32_SFLOAT, VertexData.layout.offset(0).asInstanceOf[Long].toInt)
               )
               .put(
                 1,
                 VkFactory
-                  .vertexAttributeDescriptor(1, 0, VK10.VK_FORMAT_R32G32B32A32_SFLOAT, summon[Pointer.FieldOffset["r", VertexData]])
-              )
+                  .vertexAttributeDescriptor(1, 0, VK10.VK_FORMAT_R32G32B32A32_SFLOAT, VertexData.layout.offset(4).asInstanceOf[Long].toInt)
+              ),
+              stackCalloc
           )
         )
         .pStages(

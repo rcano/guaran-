@@ -9,7 +9,8 @@ import guarana.animation.*, ScriptDsl.{given, *}
 import guarana.nnn
 import guarana.util.cfor
 import java.io.ByteArrayInputStream
-import io.github.humbleui.skija.{Canvas, Image, Matrix33, Rect as SkRect, Surface}
+import io.github.humbleui.skija.{Canvas, Image, Matrix33, Surface}
+import io.github.humbleui.types.Rect as SkRect
 import scala.concurrent.duration.*
 import apricot.graphics.GraphicsStack
 
