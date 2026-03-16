@@ -835,6 +835,10 @@ object StyleVars {
     */
   lazy val FontWeight = StyleVar[String]("font-weight", _.fontWeight, _.fontWeight = _)
 
+  /** The gap CSS shorthand property sets the gaps (also called gutters) between rows and columns. This property applies to multi-column, flex, and grid containers.
+    */
+  lazy val Gap = StyleVar[StylableSize]("gap", _.asInstanceOf[js.Dynamic].gap.toString(), (c, v) => c.asInstanceOf[js.Dynamic].gap = v.asInstanceOf[js.Any])
+
   /** The height CSS property specifies the height of the content area of an element. The content area is inside the padding, border, and
     * margin of the element.
     *
@@ -1776,6 +1780,9 @@ object StylesApi {
 
   /** @see [[package.StyleVars.FontWeight]] */
   lazy val fontWeight = ModifierVar[HtmlElement, String](StyleVars.FontWeight)
+
+  /** @see [[package.StyleVars.Gap]] */
+  lazy val gap = ModifierVar[HtmlElement, StylableSize](StyleVars.Gap)
 
   /** @see [[package.StyleVars.Height]] */
   lazy val height = ModifierVar[HtmlElement, StylableSize](StyleVars.Height)

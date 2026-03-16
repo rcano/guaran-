@@ -39,7 +39,14 @@ class CssLaf(val scenegraph: Scenegraph) extends MetalLookAndFeel {
     fontKeys foreach (defaults.put(_, rootFont))
     smallFontKeys foreach (defaults.put(_, smallerFont))
 
+    val emBaseDefaults: Seq[Double => Unit] = Seq(
+      em => defaults.put("ScrollBar.width", (em / 2).toInt)
+    )
+
     scenegraph.update {
+      val currEm = 1.em
+      emBaseDefaults.foreach(_(currEm))
+
       scenegraph.varUpdates := EventIterator.foreach {
         case scenegraph.emSize(oldv, newv) =>
           rootFont = FontUIResource(rootFont.deriveFont(newv.toFloat))
@@ -47,6 +54,8 @@ class CssLaf(val scenegraph: Scenegraph) extends MetalLookAndFeel {
 
           fontKeys foreach (defaults.put(_, rootFont))
           smallFontKeys foreach (defaults.put(_, smallerFont))
+
+          emBaseDefaults.foreach(_(newv))
 
           //this messes up with the current events being handled (like mouse drags) so it's better for
           //user controls to issue this command after they are done altering the em size

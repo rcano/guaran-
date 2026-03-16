@@ -6,10 +6,12 @@ package swing
 import language.implicitConversions
 import java.awt.{Component as _, PopupMenu as _, *}
 import guarana.util.*
+import guarana.swing.util.*
 
 opaque type FlowPane <: ChildrenSeqPane  = javax.swing.JPanel & ChildrenSeqPane
 object FlowPane extends VarsMap {
   val UI: SwingVar.Aux[FlowPane, javax.swing.plaf.PanelUI] = SwingVar[FlowPane, javax.swing.plaf.PanelUI]("UI", _.getUI.nn, _.setUI(_))
+  val FlowAlign: SwingVar.Aux[FlowPane, Int] = SwingVar[FlowPane, Int]("flowAlign", _.getLayout().asInstanceOf[FlowLayout].getAlignment(), (c, v) => c.getLayout().asInstanceOf[FlowLayout].setAlignment(v))
   val Hgap: SwingVar.Aux[FlowPane, Double] = SwingVar[FlowPane, Double]("hgap", _.getLayout().asInstanceOf[FlowLayout].getHgap(), (c, v) => c.getLayout().asInstanceOf[FlowLayout].setHgap(v.round.toInt))
   val Vgap: SwingVar.Aux[FlowPane, Double] = SwingVar[FlowPane, Double]("vgap", _.getLayout().asInstanceOf[FlowLayout].getVgap(), (c, v) => c.getLayout().asInstanceOf[FlowLayout].setVgap(v.round.toInt))
 
@@ -19,6 +21,7 @@ object FlowPane extends VarsMap {
   object Ops {
     extension (v: FlowPane) {
       def UI: Var.Aux[javax.swing.plaf.PanelUI, v.type] = FlowPane.UI.asInstanceOf[Var.Aux[javax.swing.plaf.PanelUI, v.type]]
+      def flowAlign: Var.Aux[Int, v.type] = FlowPane.FlowAlign.asInstanceOf[Var.Aux[Int, v.type]]
       def hgap: Var.Aux[Double, v.type] = FlowPane.Hgap.asInstanceOf[Var.Aux[Double, v.type]]
       def vgap: Var.Aux[Double, v.type] = FlowPane.Vgap.asInstanceOf[Var.Aux[Double, v.type]]
 
@@ -39,7 +42,7 @@ object FlowPane extends VarsMap {
   }
   def uninitialized(): FlowPane = {
     val res = javax.swing.JPanel().asInstanceOf[FlowPane]
-    
+    res.setLayout(util.WrapLayout())
     res
   }
   
@@ -59,6 +62,7 @@ object FlowPane extends VarsMap {
     debugGraphicsOptions: Opt[Binding[Int]] = UnsetParam,
     doubleBuffered: Opt[Binding[Boolean]] = UnsetParam,
     enabled: Opt[Binding[Boolean]] = UnsetParam,
+    flowAlign: Opt[Binding[Int]] = UnsetParam,
     focusable: Opt[Binding[Boolean]] = UnsetParam,
     font: Opt[Binding[java.awt.Font | Null]] = UnsetParam,
     foreground: Opt[Binding[java.awt.Color | Null]] = UnsetParam,
@@ -94,6 +98,7 @@ object FlowPane extends VarsMap {
     ifSet(debugGraphicsOptions, Component.ops.debugGraphicsOptions(res) := _)
     ifSet(doubleBuffered, Component.ops.doubleBuffered(res) := _)
     ifSet(enabled, Node.ops.enabled(res) := _)
+    ifSet(flowAlign, FlowPane.ops.flowAlign(res) := _)
     ifSet(focusable, Node.ops.focusable(res) := _)
     ifSet(font, Node.ops.font(res) := _)
     ifSet(foreground, Node.ops.foreground(res) := _)

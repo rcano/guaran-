@@ -29,7 +29,8 @@ object ScopedValue {
   }
 
   def newInstance[T](): ScopedValue[T] = new Impl()
-  def where[T](key: ScopedValue[T], value: T, parent: Carrier | Null = null): Carrier = new Carrier {
+  def where[T](key: ScopedValue[T], value: T): Carrier = where(key, value, null)
+  def where[T](key: ScopedValue[T], value: T, parent: Carrier | Null): Carrier = new Carrier {
     inline def withStack[R](op: => R) = {
       val i = key.asInstanceOf[Impl[T]]
       i.stack ::= value
