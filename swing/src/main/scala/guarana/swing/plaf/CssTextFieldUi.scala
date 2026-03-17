@@ -2,11 +2,12 @@ package guarana
 package swing
 package plaf
 
-import language.implicitConversions
-import javax.swing.JComponent
 import javax.swing.plaf.basic.BasicTextFieldUI
+import javax.swing.{JComponent, JTextField, SwingConstants}
 import scala.annotation.static
 import scala.util.chaining.*
+
+import language.implicitConversions
 
 class CssTextFieldUi extends BasicTextFieldUI, CssTextComponentCommons {
 
@@ -28,7 +29,8 @@ class CssTextFieldUi extends BasicTextFieldUI, CssTextComponentCommons {
     // when not opaque we must issue this call ourselves because our superclass avoids it...
     if (!getComponent().isOpaque()) paintBackground(g)
     super.paintSafely(g)
-    paintPlaceholder(g)
+    val curr = getComponent().getText()
+    if (curr == null || curr.isEmpty) paintPlaceholder(g)
   }
 
   override protected def paintBackground(g: Graphics): Unit = {
@@ -55,10 +57,23 @@ class CssTextFieldUi extends BasicTextFieldUI, CssTextComponentCommons {
     g2.setPaint(placeholderPaint)
 
     withinRegion(textFieldNode.unwrap) { (x, y, w, h) => 
+      val textAlignment = textFieldNode match {
+        case tf: JTextField => tf.getHorizontalAlignment()
+        case _ => SwingConstants.LEFT
+      }
       val fm = textFieldNode.unwrap.getFontMetrics(textFieldNode.unwrap.getFont).unn
+
+      lazy val textWidth = fm.stringWidth(placeholderText)
+
+      val tx = textAlignment match {
+        case SwingConstants.CENTER => x + w / 2 - textWidth / 2
+        case SwingConstants.RIGHT => x + w - textWidth
+        case _ => x
+      }
+
       val ty = fm.getAscent + (h - fm.getHeight()) / 2f
       javax.swing.plaf.basic.BasicGraphicsUtils
-        .drawStringUnderlineCharAt(textFieldNode.unwrap, g2, placeholderText, -1, x.toFloat, ty)
+        .drawStringUnderlineCharAt(textFieldNode.unwrap, g2, placeholderText, -1, tx.toFloat, ty)
     }
   }
 }
