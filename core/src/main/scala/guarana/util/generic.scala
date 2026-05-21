@@ -68,7 +68,7 @@ object DeclaringOwner {
     val owner = Iterator.unfold(Symbol.spliceOwner)(o => if (o == Symbol.noSymbol) None else Some(o, o.maybeOwner))
       .drop(1)
       .dropWhile(o => o.name.trim.nn.pipe(n => isSynthetic(n) || n == "ev") || o.isLocalDummy)
-      .nextOption.getOrElse(throw new AssertionError("failed to detect declaring val"))
+      .nextOption().getOrElse(throw new AssertionError("failed to detect declaring val"))
 
     '{DeclaringOwner(${Expr(owner.name)}, ${Expr(owner.pos.get.endLine)})}
   }

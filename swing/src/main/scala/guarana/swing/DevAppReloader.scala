@@ -100,6 +100,7 @@ object DevAppReloader {
     reloadApp(classesDirectories, reloadableClassPattern, mainClass, args)
   }
 
+  val crossReloadState = collection.mutable.HashMap[Any, Any]()
   var reloadCounter = 0
   var lastApplication: Class[?] | Null = scala.compiletime.uninitialized
   @volatile var recompiling = false
@@ -112,7 +113,7 @@ object DevAppReloader {
       val classLoadingMxBean = java.lang.management.ManagementFactory.getClassLoadingMXBean().nn
       out.println("currently loaded classes " + classLoadingMxBean.getLoadedClassCount)
       SwingUtilities `invokeLater` new Runnable {
-        def run: Unit = {
+        def run: Unit = try {
           var framePosition: Option[java.awt.Rectangle] = None
 
           //if there was an application, we need to dispose of it first
@@ -186,6 +187,8 @@ object DevAppReloader {
             )
           }
           recompiling = false
+        } catch {
+          case e: Throwable => e.printStackTrace(System.err)
         }
       }
     }

@@ -4,7 +4,7 @@ inThisBuild(
   Seq(
     organization := "guarana",
     version := "0.3.0-SNAPSHOT",
-    scalaVersion := "3.8.2",
+    scalaVersion := "3.8.3",
     fork := true,
     libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.19" % "test",
     Compile / packageDoc / publishArtifact := false,
@@ -14,14 +14,14 @@ inThisBuild(
       "-Wunused:all",
       "-unchecked",
       "-language:implicitConversions",
-      "-rewrite",
-      "-source",
-      "3.7-migration",
-      "-explain"
+      // "-rewrite",
+      // "-source",
+      // "3.7-migration",
+      "-explain",
+      "-opt"
     ),
     bspEnabled := true
   ) ++ addCommandAlias("enableDebug", """set javaOptions += "-agentlib:jdwp=transport=dt_socket,server=y,address=5555,suspend=y"""")
-  
 )
 
 lazy val guaraná = Project(id = "guarana", base = file(".")).aggregate(coreJvm, swing, qt, apricot, apricotVk)
@@ -84,7 +84,7 @@ lazy val swing = Project(id = "guarana-swing", base = file("swing"))
     // scalacOptions -= "-Yexplicit-nulls",
     bspEnabled := true,
     libraryDependencies ++= Seq(
-      ("com.github.pathikrit" %% "better-files" % "3.9.2"),
+      "com.github.pathikrit" %% "better-files" % "3.9.2",
       "com.github.weisj" % "jsvg" % "2.0.0",
       "com.formdev" % "flatlaf" % "3.7" % "provided",
       "com.jhlabs" % "filters" % "2.0.235-1" % "provided",
@@ -148,6 +148,24 @@ lazy val web = Project(id = "guarana-web", base = file("web"))
       _.withModuleKind(ModuleKind.ESModule).withModuleSplitStyle(ModuleSplitStyle.SmallModulesFor(List("guarana.web")))
     },
     scalaJSUseMainModuleInitializer := true
+  )
+
+lazy val jfxVersion = "26.0.1"
+lazy val jfxClassifier = settingKey[String]("jfxClassifier")
+
+lazy val gtk = Project(id = "guarana-gtk", base = file("gtk"))
+  .dependsOn(coreJvm)
+  .settings(
+    {
+      val gtkVersion = "0.15.0"
+      libraryDependencies ++= Seq(
+        "com.github.pathikrit" %% "better-files" % "3.9.2",
+        "org.scalameta" %% "scalameta" % "4.17.0" % "provided,runtime",
+        "io.github.classgraph" % "classgraph" % "4.8.184" % "provided,runtime",
+        "org.java-gi" % "gtk" % gtkVersion,
+      )
+    },
+    javaOptions += "--enable-preview"
   )
 
 lazy val lwjglVersion = "3.3.6"

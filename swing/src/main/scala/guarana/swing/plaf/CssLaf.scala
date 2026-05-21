@@ -91,6 +91,7 @@ class CssLaf(val scenegraph: Scenegraph) extends MetalLookAndFeel {
     defaults.put("TextAreaUI", classOf[CssTextAreaUi].getCanonicalName)
     defaults.put("LabelUI", classOf[CssLabelUi].getCanonicalName)
     defaults.put("ComboBoxUI", classOf[CssComboBoxUi].getCanonicalName)
+    defaults.put("SeparatorUI", classOf[CssSeparatorUi].getCanonicalName)
   }
 
   override def uninitialize(): Unit = {

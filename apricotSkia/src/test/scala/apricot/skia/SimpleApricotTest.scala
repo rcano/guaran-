@@ -46,9 +46,9 @@ import scala.util.chaining.*
       var blue: Int = 120
       def render(graphicsStack: GraphicsStack, gContext: graphicsStack.GraphicsContext) = {
         val canvas = gContext.asInstanceOf[SkiaGraphicsStack#SkiaGraphicsContext].canvas
-        red += scala.util.Random.nextInt(2) * (if scala.util.Random.nextBoolean then 1 else -1) % 256
-        green += scala.util.Random.nextInt(2) * (if scala.util.Random.nextBoolean then 1 else -1) % 256
-        blue += scala.util.Random.nextInt(2) * (if scala.util.Random.nextBoolean then 1 else -1) % 256
+        red += scala.util.Random.nextInt(2) * (if scala.util.Random.nextBoolean() then 1 else -1) % 256
+        green += scala.util.Random.nextInt(2) * (if scala.util.Random.nextBoolean() then 1 else -1) % 256
+        blue += scala.util.Random.nextInt(2) * (if scala.util.Random.nextBoolean() then 1 else -1) % 256
         val color = red << 16 | green << 8 | blue
         canvas.clear(0xff000000 | color)
       }

@@ -17,7 +17,7 @@ trait ValueGenerator[T]:
 object ValueGenerator:
   def apply[T](f: => T): ValueGenerator[T] = () => f
   def constant[T](t: T): ValueGenerator[T] = () => t
-  def roundRobin[T](values: T*): ValueGenerator[T] = (() => Iterator.unfold(0)(i => Some((values(i), (i + 1) % values.length))).next)
+  def roundRobin[T](values: T*): ValueGenerator[T] = (() => Iterator.unfold(0)(i => Some((values(i), (i + 1) % values.length))).next())
   def random[T](values: T*): ValueGenerator[T] = () => values(scala.util.Random.nextInt(values.size))
 
 /** A curve definition is a function that given a value between 0..1, produces an instance T. Note: a curve doesn't have to be an analog

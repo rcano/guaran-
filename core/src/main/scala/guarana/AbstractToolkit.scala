@@ -190,7 +190,7 @@ abstract class AbstractToolkit {
       checkActiveContext()
       recordVarUsage(v)
       if (!reactingExtVars.contains(ObsVal.obs2Keyed(v).id)) {
-        switchboard.externalPropertyChanged(v.asInstanceOf[ExternalVar[T] { type ForInstance = v.ForInstance }], instance.value, oldValue)
+        switchboard.externalPropertyChanged(v.asInstanceOf[ExternalObsVal[T] { type ForInstance = v.ForInstance }], instance.value, oldValue)
       }
     }
 

@@ -12,14 +12,14 @@ trait CssBackgroundSupport extends CssSwingControlUi {
 
       val background = style.CssProperties.Background.forInstance(c)
       if background != style.CssProperties.EmptyBackground then
-        withinRegion(c.nn)((x, y, w, h) => 
+        withinRegion(c)((x, y, w, h) => 
           plaf.RegionPainter.paintRegion(scenegraph.stateReader(background), g.upgrade.withAliasing, x, y, w, h)
         )
       else if c.isOpaque() then
         g.setColor(c.getBackground())
         g.fillRect(0, 0, c.getWidth(), c.getHeight())
 
-      super.paint(g, c)
+      paint(g, c)
     )
   }
 }

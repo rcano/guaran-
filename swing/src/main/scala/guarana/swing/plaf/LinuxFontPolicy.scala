@@ -101,7 +101,7 @@ object LinuxFontPolicy {
   private def readConfFile(file: File): Map[String, Map[String, String]] = {
     def rec(lines: Iterator[String], section: String,
       sectionAcc: Map[String, String],
-      acc: Map[String, Map[String, String]]): Map[String, Map[String, String]] = lines.nextOption match {
+      acc: Map[String, Map[String, String]]): Map[String, Map[String, String]] = lines.nextOption() match {
       case None => if (sectionAcc.isEmpty) acc else acc.updated(section, sectionAcc)
       case Some(line) if line.isEmpty => rec(lines, section, sectionAcc, acc)
       case Some(line) if line(0) == '[' => rec(lines, line.drop(1).dropRight(1), Map.empty, acc.updated(section, sectionAcc))
@@ -112,7 +112,7 @@ object LinuxFontPolicy {
     if (file.isEmpty) Map.empty
     else {
       val it = file.lineIterator()
-      rec(it, it.next.drop(1).dropRight(1), Map.empty, Map.empty)
+      rec(it, it.next().drop(1).dropRight(1), Map.empty, Map.empty)
     }
   }
 }
