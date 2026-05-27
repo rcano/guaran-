@@ -31,7 +31,7 @@ object Main {
 
       for (widgetInfo <- allWidgets) {
         val widgetName = widgetInfo.getSimpleName()
-        val computedInfo = classIndex.getProperties(widgetInfo)
+        val computedInfo = classIndex.getWidgetInfo(widgetInfo)
 
         val parentClass = widgetInfo.getSuperclass()
         val targetFile = sourcesDirectory / s"$widgetName.scala"
@@ -39,12 +39,12 @@ object Main {
         val fqnActualType = widgetInfo.getName().parse[Type].get
 
         val widgetProperties = (
-          if (widgetInfo != widgetClassInfo) computedInfo.properties -- classIndex.getProperties(parentClass).properties
+          if (widgetInfo != widgetClassInfo) computedInfo.properties -- classIndex.getWidgetInfo(parentClass).properties
           else computedInfo.properties
         ).toList.sortBy(_.nameInPascalCase)
 
         val widgetSignals = (
-          if (widgetInfo != widgetClassInfo) computedInfo.signals -- classIndex.getProperties(parentClass).signals
+          if (widgetInfo != widgetClassInfo) computedInfo.signals -- classIndex.getWidgetInfo(parentClass).signals
           else computedInfo.signals
         ).toList.sortBy(_.nameInPascalCase)
         
@@ -58,10 +58,10 @@ object Main {
               object ${Term.Name(widgetName)} {
                 ..${
                   widgetProperties collect {
-                    case pi: GtkPropertyInfo if !isConstructorOnly(pi, widgetInfo) =>
+                    case pi: GtkPropertyInfo =>
                       val propType = toType(pi.tpe)
-                      val res = q"""val ${Pat.Var(Term.Name(pi.nameInCamelCase))}: ExternalVar.Aux[${Type.Name(widgetName)}, ${propType}] =
-                        ExternalVar[${Type.Name(widgetName)}, ${propType}](${pi.name}, _.${Term.Name(s"get${pi.nameInCamelCase}")}(), _.${Term.Name(s"set${pi.nameInCamelCase}")}(_), true)"""
+                      val res = q"""val ${Pat.Var(Term.Name(pi.nameInPascalCase))}: ExternalVar.Aux[${Type.Name(widgetName)}, ${propType}] =
+                        ExternalVar[${Type.Name(widgetName)}, ${propType}](${pi.name}, _.${Term.Name(s"get${pi.nameInPascalCase}")}(), _.${Term.Name(s"set${pi.nameInPascalCase}")}(_), true)"""
                       if (pi.deprecated) res.copy(mods = mod"""@deprecated("", "")""" :: Nil)
                       else res
                   }
@@ -73,7 +73,7 @@ object Main {
                   def unwrap: ${fqnActualType}  = v
 
                   ..${
-                    val exports = widgetSignals collect { case si: GtkSignalInfo => s"unwrap.on${si.nameInCamelCase}".parse[Importer].get }
+                    val exports = widgetSignals collect { case si: GtkSignalInfo => s"unwrap.on${si.nameInPascalCase}".parse[Importer].get }
                     if (exports.isEmpty) Nil else List(Export(exports))
                   }
                 }
@@ -113,9 +113,9 @@ object Main {
     "java.util.Set[org.gnome.gtk.InputHints | Null] | Null" -> t"java.util.Set[org.gnome.gtk.InputHints] | Null",
     "java.util.Set[org.gnome.gtk.PrintCapabilities | Null] | Null" -> t"java.util.Set[org.gnome.gtk.PrintCapabilities] | Null",
     "java.util.Set[org.gnome.gtk.PopoverMenuFlags | Null] | Null" -> t"java.util.Set[org.gnome.gtk.PopoverMenuFlags] | Null",
-    "org.gnome.gtk.SelectionModel | Null" -> t"org.gnome.gtk.SelectionModel[?]",
+    "org.gnome.gtk.SelectionModel | Null" -> t"org.gnome.gtk.SelectionModel[?] | Null",
     "java.util.Set[org.gnome.gdk.GLAPI | Null] | Null" -> t"java.util.Set[org.gnome.gdk.GLAPI] | Null",
-    "org.gnome.gio.ListModel | Null" -> t"org.gnome.gio.ListModel[?]",
+    "org.gnome.gio.ListModel | Null" -> t"org.gnome.gio.ListModel[?] | Null",
   )
 
   def toType(descr: TypeSignature): Type = descr.match {
@@ -124,25 +124,17 @@ object Main {
       t"Array[${toType(arrT.getNestedType())}]"
     case classT: ClassRefTypeSignature =>
       val tparams = classT.getTypeArguments().asScala.map(a => toType(a.getTypeSignature())).toList
-      val tpeName = classT.getFullyQualifiedClassName().parse[Type].get
-      if (tparams.isEmpty) t"$tpeName | Null"
-      else t"$tpeName[..$tparams] | Null"
+      var res = classT.getFullyQualifiedClassName().parse[Type].get
+      res = if (tparams.isEmpty) t"$res" else t"$res[..$tparams]"
+
+      if (descr.getTypeAnnotationInfo() != null && descr.getTypeAnnotationInfo().asScala.exists(a => a.getName == "org.jspecify.annotations.Nullable"))
+        res = t"$res | Null"
+
+      res
     case tvar: TypeVariableSignature => t"_ <: ${toType(tvar.resolve().getClassBound())}"
     case _ => 
       scribe.error(s"Unsupported property type $descr")
       Type.Wildcard(Type.Bounds.empty)
   }.pipe(res => TypeFixes.getOrElse(res.syntax, res))
 
-  def isConstructorOnly(pi: GtkPropertyInfo, widgetInfo: ClassInfo): Boolean = {
-    val getters = (widgetInfo.getDeclaredMethodInfo(s"get${pi.nameInCamelCase}").asScala
-      ++ widgetInfo.getDeclaredMethodInfo(s"is${pi.nameInCamelCase}").asScala)
-      .filter(m => m.getTypeSignatureOrTypeDescriptor().getResultType() == pi.tpe)
-
-    val setters = widgetInfo.getDeclaredMethodInfo(s"set${pi.nameInCamelCase}")
-      .filter(m => m.getParameterInfo()(0).getTypeSignatureOrTypeDescriptor() == pi.tpe)
-
-    if (setters.isEmpty || getters.isEmpty) scribe.info(s"${widgetInfo.getName}#${pi.nameInCamelCase} is constructor only")
-
-    setters.isEmpty || getters.isEmpty
-  }
 }

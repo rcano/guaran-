@@ -2,9 +2,9 @@ package guarana
 package gtk
 opaque type AppChooserButton <: Widget = org.gnome.gtk.AppChooserButton & Widget
 object AppChooserButton {
-  val Modal: ExternalVar.Aux[AppChooserButton, Boolean] = ExternalVar[AppChooserButton, Boolean]("modal", _.getModal(), _.setModal(_), true)
-  val ShowDefaultItem: ExternalVar.Aux[AppChooserButton, Boolean] = ExternalVar[AppChooserButton, Boolean]("show-default-item", _.getShowDefaultItem(), _.setShowDefaultItem(_), true)
-  val ShowDialogItem: ExternalVar.Aux[AppChooserButton, Boolean] = ExternalVar[AppChooserButton, Boolean]("show-dialog-item", _.getShowDialogItem(), _.setShowDialogItem(_), true)
+  @deprecated("", "") val Modal: ExternalVar.Aux[AppChooserButton, Boolean] = ExternalVar[AppChooserButton, Boolean]("modal", _.getModal(), _.setModal(_), true)
+  @deprecated("", "") val ShowDefaultItem: ExternalVar.Aux[AppChooserButton, Boolean] = ExternalVar[AppChooserButton, Boolean]("show-default-item", _.getShowDefaultItem(), _.setShowDefaultItem(_), true)
+  @deprecated("", "") val ShowDialogItem: ExternalVar.Aux[AppChooserButton, Boolean] = ExternalVar[AppChooserButton, Boolean]("show-dialog-item", _.getShowDialogItem(), _.setShowDialogItem(_), true)
   ()
   extension (v: AppChooserButton) {
     def unwrap: org.gnome.gtk.AppChooserButton = v

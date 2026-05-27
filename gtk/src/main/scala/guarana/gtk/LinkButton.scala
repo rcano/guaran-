@@ -2,7 +2,7 @@ package guarana
 package gtk
 opaque type LinkButton <: Button = org.gnome.gtk.LinkButton & Button
 object LinkButton {
-  val Uri: ExternalVar.Aux[LinkButton, java.lang.String | Null] = ExternalVar[LinkButton, java.lang.String | Null]("uri", _.getUri(), _.setUri(_), true)
+  val Uri: ExternalVar.Aux[LinkButton, java.lang.String] = ExternalVar[LinkButton, java.lang.String]("uri", _.getUri(), _.setUri(_), true)
   val Visited: ExternalVar.Aux[LinkButton, Boolean] = ExternalVar[LinkButton, Boolean]("visited", _.getVisited(), _.setVisited(_), true)
   ()
   extension (v: LinkButton) {
