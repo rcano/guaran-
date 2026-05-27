@@ -11,4 +11,11 @@ object Grid {
   extension (v: Grid) {
     def unwrap: org.gnome.gtk.Grid = v
   }
+  def init(v: Grid): Unit = {
+    Widget.init(v)
+  }
+  def uninitialized(): Grid = {
+    val res = new org.gnome.gtk.Grid()
+    res.asInstanceOf[Grid]
+  }
 }

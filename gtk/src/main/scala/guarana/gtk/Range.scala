@@ -13,4 +13,11 @@ object Range {
     def unwrap: org.gnome.gtk.Range = v
     export unwrap.onAdjustBounds, unwrap.onChangeValue, unwrap.onMoveSlider, unwrap.onValueChanged
   }
+  def init(v: Range): Unit = {
+    Widget.init(v)
+  }
+  def uninitialized(): Range = {
+    val res = new org.gnome.gtk.Range()
+    res.asInstanceOf[Range]
+  }
 }

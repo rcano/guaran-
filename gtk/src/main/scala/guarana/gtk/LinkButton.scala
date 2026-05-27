@@ -9,4 +9,11 @@ object LinkButton {
     def unwrap: org.gnome.gtk.LinkButton = v
     export unwrap.onActivateLink
   }
+  def init(v: LinkButton): Unit = {
+    Button.init(v)
+  }
+  def uninitialized(): LinkButton = {
+    val res = new org.gnome.gtk.LinkButton()
+    res.asInstanceOf[LinkButton]
+  }
 }

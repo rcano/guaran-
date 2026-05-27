@@ -16,4 +16,11 @@ object SpinButton {
     def unwrap: org.gnome.gtk.SpinButton = v
     export unwrap.onActivate, unwrap.onChangeValue, unwrap.onInput, unwrap.onOutput, unwrap.onValueChanged, unwrap.onWrapped
   }
+  def init(v: SpinButton): Unit = {
+    Widget.init(v)
+  }
+  def uninitialized(): SpinButton = {
+    val res = new org.gnome.gtk.SpinButton()
+    res.asInstanceOf[SpinButton]
+  }
 }

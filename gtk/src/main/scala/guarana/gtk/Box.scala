@@ -10,4 +10,11 @@ object Box {
   extension (v: Box) {
     def unwrap: org.gnome.gtk.Box = v
   }
+  def init(v: Box): Unit = {
+    Widget.init(v)
+  }
+  def uninitialized(): Box = {
+    val res = new org.gnome.gtk.Box()
+    res.asInstanceOf[Box]
+  }
 }

@@ -7,4 +7,11 @@ object EmojiChooser {
     def unwrap: org.gnome.gtk.EmojiChooser = v
     export unwrap.onEmojiPicked
   }
+  def init(v: EmojiChooser): Unit = {
+    Popover.init(v)
+  }
+  def uninitialized(): EmojiChooser = {
+    val res = new org.gnome.gtk.EmojiChooser()
+    res.asInstanceOf[EmojiChooser]
+  }
 }

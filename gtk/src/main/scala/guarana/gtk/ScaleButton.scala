@@ -10,4 +10,11 @@ object ScaleButton {
     def unwrap: org.gnome.gtk.ScaleButton = v
     export unwrap.onPopdown, unwrap.onPopup, unwrap.onValueChanged
   }
+  def init(v: ScaleButton): Unit = {
+    Widget.init(v)
+  }
+  def uninitialized(): ScaleButton = {
+    val res = new org.gnome.gtk.ScaleButton()
+    res.asInstanceOf[ScaleButton]
+  }
 }

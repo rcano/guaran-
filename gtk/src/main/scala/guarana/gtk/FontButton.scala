@@ -11,4 +11,11 @@ object FontButton {
     def unwrap: org.gnome.gtk.FontButton = v
     export unwrap.onActivate, unwrap.onFontSet
   }
+  def init(v: FontButton): Unit = {
+    Widget.init(v)
+  }
+  def uninitialized(): FontButton = {
+    val res = new org.gnome.gtk.FontButton()
+    res.asInstanceOf[FontButton]
+  }
 }

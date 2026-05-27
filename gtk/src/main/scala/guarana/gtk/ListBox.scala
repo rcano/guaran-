@@ -11,4 +11,11 @@ object ListBox {
     def unwrap: org.gnome.gtk.ListBox = v
     export unwrap.onActivateCursorRow, unwrap.onMoveCursor, unwrap.onRowActivated, unwrap.onRowSelected, unwrap.onSelectAll, unwrap.onSelectedRowsChanged, unwrap.onToggleCursorRow, unwrap.onUnselectAll
   }
+  def init(v: ListBox): Unit = {
+    Widget.init(v)
+  }
+  def uninitialized(): ListBox = {
+    val res = new org.gnome.gtk.ListBox()
+    res.asInstanceOf[ListBox]
+  }
 }

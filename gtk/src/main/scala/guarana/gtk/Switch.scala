@@ -9,4 +9,11 @@ object Switch {
     def unwrap: org.gnome.gtk.Switch = v
     export unwrap.onActivate, unwrap.onStateSet
   }
+  def init(v: Switch): Unit = {
+    Widget.init(v)
+  }
+  def uninitialized(): Switch = {
+    val res = new org.gnome.gtk.Switch()
+    res.asInstanceOf[Switch]
+  }
 }

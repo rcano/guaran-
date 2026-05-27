@@ -9,4 +9,11 @@ object DrawingArea {
     def unwrap: org.gnome.gtk.DrawingArea = v
     export unwrap.onResize
   }
+  def init(v: DrawingArea): Unit = {
+    Widget.init(v)
+  }
+  def uninitialized(): DrawingArea = {
+    val res = new org.gnome.gtk.DrawingArea()
+    res.asInstanceOf[DrawingArea]
+  }
 }

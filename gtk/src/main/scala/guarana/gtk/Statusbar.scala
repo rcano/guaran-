@@ -7,4 +7,11 @@ object Statusbar {
     def unwrap: org.gnome.gtk.Statusbar = v
     export unwrap.onTextPopped, unwrap.onTextPushed
   }
+  def init(v: Statusbar): Unit = {
+    Widget.init(v)
+  }
+  def uninitialized(): Statusbar = {
+    val res = new org.gnome.gtk.Statusbar()
+    res.asInstanceOf[Statusbar]
+  }
 }

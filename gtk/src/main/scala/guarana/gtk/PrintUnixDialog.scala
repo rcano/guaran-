@@ -12,4 +12,11 @@ object PrintUnixDialog {
   extension (v: PrintUnixDialog) {
     def unwrap: org.gnome.gtk.PrintUnixDialog = v
   }
+  def init(v: PrintUnixDialog): Unit = {
+    Dialog.init(v)
+  }
+  def uninitialized(): PrintUnixDialog = {
+    val res = new org.gnome.gtk.PrintUnixDialog()
+    res.asInstanceOf[PrintUnixDialog]
+  }
 }

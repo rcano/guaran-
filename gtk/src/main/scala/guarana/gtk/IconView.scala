@@ -10,7 +10,6 @@ object IconView {
   val ItemWidth: ExternalVar.Aux[IconView, Int] = ExternalVar[IconView, Int]("item-width", _.getItemWidth(), _.setItemWidth(_), true)
   val Margin: ExternalVar.Aux[IconView, Int] = ExternalVar[IconView, Int]("margin", _.getMargin(), _.setMargin(_), true)
   val MarkupColumn: ExternalVar.Aux[IconView, Int] = ExternalVar[IconView, Int]("markup-column", _.getMarkupColumn(), _.setMarkupColumn(_), true)
-  val Model: ExternalVar.Aux[IconView, org.gnome.gtk.TreeModel | Null] = ExternalVar[IconView, org.gnome.gtk.TreeModel | Null]("model", _.getModel(), _.setModel(_), true)
   val PixbufColumn: ExternalVar.Aux[IconView, Int] = ExternalVar[IconView, Int]("pixbuf-column", _.getPixbufColumn(), _.setPixbufColumn(_), true)
   val Reorderable: ExternalVar.Aux[IconView, Boolean] = ExternalVar[IconView, Boolean]("reorderable", _.getReorderable(), _.setReorderable(_), true)
   val RowSpacing: ExternalVar.Aux[IconView, Int] = ExternalVar[IconView, Int]("row-spacing", _.getRowSpacing(), _.setRowSpacing(_), true)
@@ -22,5 +21,12 @@ object IconView {
   extension (v: IconView) {
     def unwrap: org.gnome.gtk.IconView = v
     export unwrap.onActivateCursorItem, unwrap.onItemActivated, unwrap.onMoveCursor, unwrap.onSelectAll, unwrap.onSelectCursorItem, unwrap.onSelectionChanged, unwrap.onToggleCursorItem, unwrap.onUnselectAll
+  }
+  def init(v: IconView): Unit = {
+    Widget.init(v)
+  }
+  def uninitialized(): IconView = {
+    val res = new org.gnome.gtk.IconView()
+    res.asInstanceOf[IconView]
   }
 }

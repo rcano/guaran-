@@ -7,4 +7,11 @@ object ApplicationWindow {
   extension (v: ApplicationWindow) {
     def unwrap: org.gnome.gtk.ApplicationWindow = v
   }
+  def init(v: ApplicationWindow): Unit = {
+    Window.init(v)
+  }
+  def uninitialized(): ApplicationWindow = {
+    val res = new org.gnome.gtk.ApplicationWindow()
+    res.asInstanceOf[ApplicationWindow]
+  }
 }

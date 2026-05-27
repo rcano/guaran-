@@ -9,4 +9,11 @@ object ColorButton {
     def unwrap: org.gnome.gtk.ColorButton = v
     export unwrap.onActivate, unwrap.onColorSet
   }
+  def init(v: ColorButton): Unit = {
+    Widget.init(v)
+  }
+  def uninitialized(): ColorButton = {
+    val res = new org.gnome.gtk.ColorButton()
+    res.asInstanceOf[ColorButton]
+  }
 }

@@ -6,4 +6,8 @@ object ListBase {
   extension (v: ListBase) {
     def unwrap: org.gnome.gtk.ListBase = v
   }
+  def init(v: ListBase): Unit = {
+    Widget.init(v)
+  }
+  ()
 }

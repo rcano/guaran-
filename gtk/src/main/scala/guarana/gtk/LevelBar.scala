@@ -12,4 +12,11 @@ object LevelBar {
     def unwrap: org.gnome.gtk.LevelBar = v
     export unwrap.onOffsetChanged
   }
+  def init(v: LevelBar): Unit = {
+    Widget.init(v)
+  }
+  def uninitialized(): LevelBar = {
+    val res = new org.gnome.gtk.LevelBar()
+    res.asInstanceOf[LevelBar]
+  }
 }

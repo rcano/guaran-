@@ -8,4 +8,11 @@ object Image {
   extension (v: Image) {
     def unwrap: org.gnome.gtk.Image = v
   }
+  def init(v: Image): Unit = {
+    Widget.init(v)
+  }
+  def uninitialized(): Image = {
+    val res = new org.gnome.gtk.Image()
+    res.asInstanceOf[Image]
+  }
 }

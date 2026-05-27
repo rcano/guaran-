@@ -10,4 +10,11 @@ object InfoBar {
     def unwrap: org.gnome.gtk.InfoBar = v
     export unwrap.onClose, unwrap.onResponse
   }
+  def init(v: InfoBar): Unit = {
+    Widget.init(v)
+  }
+  def uninitialized(): InfoBar = {
+    val res = new org.gnome.gtk.InfoBar()
+    res.asInstanceOf[InfoBar]
+  }
 }

@@ -7,4 +7,11 @@ object ActionBar {
   extension (v: ActionBar) {
     def unwrap: org.gnome.gtk.ActionBar = v
   }
+  def init(v: ActionBar): Unit = {
+    Widget.init(v)
+  }
+  def uninitialized(): ActionBar = {
+    val res = new org.gnome.gtk.ActionBar()
+    res.asInstanceOf[ActionBar]
+  }
 }

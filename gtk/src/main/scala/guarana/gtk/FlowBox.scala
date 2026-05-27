@@ -14,4 +14,11 @@ object FlowBox {
     def unwrap: org.gnome.gtk.FlowBox = v
     export unwrap.onActivateCursorChild, unwrap.onChildActivated, unwrap.onMoveCursor, unwrap.onSelectAll, unwrap.onSelectedChildrenChanged, unwrap.onToggleCursorChild, unwrap.onUnselectAll
   }
+  def init(v: FlowBox): Unit = {
+    Widget.init(v)
+  }
+  def uninitialized(): FlowBox = {
+    val res = new org.gnome.gtk.FlowBox()
+    res.asInstanceOf[FlowBox]
+  }
 }

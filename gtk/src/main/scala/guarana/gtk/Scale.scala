@@ -10,4 +10,11 @@ object Scale {
   extension (v: Scale) {
     def unwrap: org.gnome.gtk.Scale = v
   }
+  def init(v: Scale): Unit = {
+    Range.init(v)
+  }
+  def uninitialized(): Scale = {
+    val res = new org.gnome.gtk.Scale()
+    res.asInstanceOf[Scale]
+  }
 }

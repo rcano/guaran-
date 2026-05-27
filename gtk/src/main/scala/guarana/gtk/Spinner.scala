@@ -7,4 +7,11 @@ object Spinner {
   extension (v: Spinner) {
     def unwrap: org.gnome.gtk.Spinner = v
   }
+  def init(v: Spinner): Unit = {
+    Widget.init(v)
+  }
+  def uninitialized(): Spinner = {
+    val res = new org.gnome.gtk.Spinner()
+    res.asInstanceOf[Spinner]
+  }
 }
