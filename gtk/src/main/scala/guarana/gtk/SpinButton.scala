@@ -1,5 +1,6 @@
 package guarana
 package gtk
+import util.*
 opaque type SpinButton <: Widget = org.gnome.gtk.SpinButton & Widget
 object SpinButton {
   val ActivatesDefault: ExternalVar.Aux[SpinButton, Boolean] = ExternalVar[SpinButton, Boolean]("activates-default", _.getActivatesDefault(), _.setActivatesDefault(_), true)
@@ -22,6 +23,23 @@ object SpinButton {
   ()
   extension (v: SpinButton) {
     def unwrap: org.gnome.gtk.SpinButton = v
+    def activatesDefault: Var.Aux[Boolean, v.type] = ActivatesDefault.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def adjustment: Var.Aux[org.gnome.gtk.Adjustment, v.type] = Adjustment.asInstanceOf[Var.Aux[org.gnome.gtk.Adjustment, v.type]]
+    def alignment: Var.Aux[Float, v.type] = Alignment.asInstanceOf[Var.Aux[Float, v.type]]
+    def climbRate: Var.Aux[Double, v.type] = ClimbRate.asInstanceOf[Var.Aux[Double, v.type]]
+    def digits: Var.Aux[Int, v.type] = Digits.asInstanceOf[Var.Aux[Int, v.type]]
+    def editable: Var.Aux[Boolean, v.type] = Editable.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def enableUndo: Var.Aux[Boolean, v.type] = EnableUndo.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def maxWidthChars: Var.Aux[Int, v.type] = MaxWidthChars.asInstanceOf[Var.Aux[Int, v.type]]
+    def numeric: Var.Aux[Boolean, v.type] = Numeric.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def orientation: Var.Aux[org.gnome.gtk.Orientation, v.type] = Orientation.asInstanceOf[Var.Aux[org.gnome.gtk.Orientation, v.type]]
+    def position: Var.Aux[Int, v.type] = Position.asInstanceOf[Var.Aux[Int, v.type]]
+    def snapToTicks: Var.Aux[Boolean, v.type] = SnapToTicks.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def text: Var.Aux[java.lang.String, v.type] = Text.asInstanceOf[Var.Aux[java.lang.String, v.type]]
+    def updatePolicy: Var.Aux[org.gnome.gtk.SpinButtonUpdatePolicy, v.type] = UpdatePolicy.asInstanceOf[Var.Aux[org.gnome.gtk.SpinButtonUpdatePolicy, v.type]]
+    def value: Var.Aux[Double, v.type] = Value.asInstanceOf[Var.Aux[Double, v.type]]
+    def widthChars: Var.Aux[Int, v.type] = WidthChars.asInstanceOf[Var.Aux[Int, v.type]]
+    def wrap: Var.Aux[Boolean, v.type] = Wrap.asInstanceOf[Var.Aux[Boolean, v.type]]
     export unwrap.onActivate, unwrap.onChangeValue, unwrap.onInput, unwrap.onOutput, unwrap.onValueChanged, unwrap.onWrapped
   }
   def init(v: SpinButton): Unit = {
@@ -30,5 +48,27 @@ object SpinButton {
   def uninitialized(): SpinButton = {
     val res = new org.gnome.gtk.SpinButton()
     res.asInstanceOf[SpinButton]
+  }
+  def apply(activatesDefault: Opt[Boolean] = UnsetParam, adjustment: Opt[org.gnome.gtk.Adjustment] = UnsetParam, alignment: Opt[Float] = UnsetParam, climbRate: Opt[Double] = UnsetParam, digits: Opt[Int] = UnsetParam, editable: Opt[Boolean] = UnsetParam, enableUndo: Opt[Boolean] = UnsetParam, maxWidthChars: Opt[Int] = UnsetParam, numeric: Opt[Boolean] = UnsetParam, orientation: Opt[org.gnome.gtk.Orientation] = UnsetParam, position: Opt[Int] = UnsetParam, snapToTicks: Opt[Boolean] = UnsetParam, text: Opt[java.lang.String] = UnsetParam, updatePolicy: Opt[org.gnome.gtk.SpinButtonUpdatePolicy] = UnsetParam, value: Opt[Double] = UnsetParam, widthChars: Opt[Int] = UnsetParam, wrap: Opt[Boolean] = UnsetParam): VarContextAction[SpinButton] = {
+    val res = uninitialized()
+    init(res)
+    ifSet(activatesDefault, res.activatesDefault := _)
+    ifSet(adjustment, res.adjustment := _)
+    ifSet(alignment, res.alignment := _)
+    ifSet(climbRate, res.climbRate := _)
+    ifSet(digits, res.digits := _)
+    ifSet(editable, res.editable := _)
+    ifSet(enableUndo, res.enableUndo := _)
+    ifSet(maxWidthChars, res.maxWidthChars := _)
+    ifSet(numeric, res.numeric := _)
+    ifSet(orientation, res.orientation := _)
+    ifSet(position, res.position := _)
+    ifSet(snapToTicks, res.snapToTicks := _)
+    ifSet(text, res.text := _)
+    ifSet(updatePolicy, res.updatePolicy := _)
+    ifSet(value, res.value := _)
+    ifSet(widthChars, res.widthChars := _)
+    ifSet(wrap, res.wrap := _)
+    res
   }
 }

@@ -7,7 +7,7 @@ type Opt[A] = A | UnsetParam.type
 case object UnsetParam
 inline def ifSet[A, R](v: Opt[A], f: A => R): Option[R] = v match {
   case UnsetParam => None
-  case a: A => Some(f(a))
+  case a => Some(f(a.asInstanceOf[A]))
 }
 
 extension [A](v: Opt[A]) {

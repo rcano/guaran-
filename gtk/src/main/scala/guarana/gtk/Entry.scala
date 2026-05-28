@@ -1,5 +1,6 @@
 package guarana
 package gtk
+import util.*
 opaque type Entry <: Widget = org.gnome.gtk.Entry & Widget
 object Entry {
   val ActivatesDefault: ExternalVar.Aux[Entry, Boolean] = ExternalVar[Entry, Boolean]("activates-default", _.getActivatesDefault(), _.setActivatesDefault(_), true)
@@ -27,6 +28,28 @@ object Entry {
   ()
   extension (v: Entry) {
     def unwrap: org.gnome.gtk.Entry = v
+    def activatesDefault: Var.Aux[Boolean, v.type] = ActivatesDefault.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def alignment: Var.Aux[Float, v.type] = Alignment.asInstanceOf[Var.Aux[Float, v.type]]
+    def buffer: Var.Aux[org.gnome.gtk.EntryBuffer, v.type] = Buffer.asInstanceOf[Var.Aux[org.gnome.gtk.EntryBuffer, v.type]]
+    @deprecated("", "") def completion: Var.Aux[org.gnome.gtk.EntryCompletion | Null, v.type] = Completion.asInstanceOf[Var.Aux[org.gnome.gtk.EntryCompletion | Null, v.type]]
+    def editable: Var.Aux[Boolean, v.type] = Editable.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def enableUndo: Var.Aux[Boolean, v.type] = EnableUndo.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def extraMenu: Var.Aux[org.gnome.gio.MenuModel | Null, v.type] = ExtraMenu.asInstanceOf[Var.Aux[org.gnome.gio.MenuModel | Null, v.type]]
+    def hasFrame: Var.Aux[Boolean, v.type] = HasFrame.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def inputHints: Var.Aux[java.util.Set[org.gnome.gtk.InputHints], v.type] = InputHints.asInstanceOf[Var.Aux[java.util.Set[org.gnome.gtk.InputHints], v.type]]
+    def inputPurpose: Var.Aux[org.gnome.gtk.InputPurpose, v.type] = InputPurpose.asInstanceOf[Var.Aux[org.gnome.gtk.InputPurpose, v.type]]
+    def invisibleChar: Var.Aux[Int, v.type] = InvisibleChar.asInstanceOf[Var.Aux[Int, v.type]]
+    def maxLength: Var.Aux[Int, v.type] = MaxLength.asInstanceOf[Var.Aux[Int, v.type]]
+    def maxWidthChars: Var.Aux[Int, v.type] = MaxWidthChars.asInstanceOf[Var.Aux[Int, v.type]]
+    def overwriteMode: Var.Aux[Boolean, v.type] = OverwriteMode.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def placeholderText: Var.Aux[java.lang.String | Null, v.type] = PlaceholderText.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
+    def position: Var.Aux[Int, v.type] = Position.asInstanceOf[Var.Aux[Int, v.type]]
+    def progressFraction: Var.Aux[Double, v.type] = ProgressFraction.asInstanceOf[Var.Aux[Double, v.type]]
+    def progressPulseStep: Var.Aux[Double, v.type] = ProgressPulseStep.asInstanceOf[Var.Aux[Double, v.type]]
+    def tabs: Var.Aux[org.gnome.pango.TabArray | Null, v.type] = Tabs.asInstanceOf[Var.Aux[org.gnome.pango.TabArray | Null, v.type]]
+    def text: Var.Aux[java.lang.String, v.type] = Text.asInstanceOf[Var.Aux[java.lang.String, v.type]]
+    def visibility: Var.Aux[Boolean, v.type] = Visibility.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def widthChars: Var.Aux[Int, v.type] = WidthChars.asInstanceOf[Var.Aux[Int, v.type]]
     export unwrap.onActivate, unwrap.onIconPress, unwrap.onIconRelease
   }
   def init(v: Entry): Unit = {
@@ -35,5 +58,32 @@ object Entry {
   def uninitialized(): Entry = {
     val res = new org.gnome.gtk.Entry()
     res.asInstanceOf[Entry]
+  }
+  def apply(activatesDefault: Opt[Boolean] = UnsetParam, alignment: Opt[Float] = UnsetParam, buffer: Opt[org.gnome.gtk.EntryBuffer] = UnsetParam, completion: Opt[org.gnome.gtk.EntryCompletion | Null] = UnsetParam, editable: Opt[Boolean] = UnsetParam, enableUndo: Opt[Boolean] = UnsetParam, extraMenu: Opt[org.gnome.gio.MenuModel | Null] = UnsetParam, hasFrame: Opt[Boolean] = UnsetParam, inputHints: Opt[java.util.Set[org.gnome.gtk.InputHints]] = UnsetParam, inputPurpose: Opt[org.gnome.gtk.InputPurpose] = UnsetParam, invisibleChar: Opt[Int] = UnsetParam, maxLength: Opt[Int] = UnsetParam, maxWidthChars: Opt[Int] = UnsetParam, overwriteMode: Opt[Boolean] = UnsetParam, placeholderText: Opt[java.lang.String | Null] = UnsetParam, position: Opt[Int] = UnsetParam, progressFraction: Opt[Double] = UnsetParam, progressPulseStep: Opt[Double] = UnsetParam, tabs: Opt[org.gnome.pango.TabArray | Null] = UnsetParam, text: Opt[java.lang.String] = UnsetParam, visibility: Opt[Boolean] = UnsetParam, widthChars: Opt[Int] = UnsetParam): VarContextAction[Entry] = {
+    val res = uninitialized()
+    init(res)
+    ifSet(activatesDefault, res.activatesDefault := _)
+    ifSet(alignment, res.alignment := _)
+    ifSet(buffer, res.buffer := _)
+    ifSet(completion, res.completion := _)
+    ifSet(editable, res.editable := _)
+    ifSet(enableUndo, res.enableUndo := _)
+    ifSet(extraMenu, res.extraMenu := _)
+    ifSet(hasFrame, res.hasFrame := _)
+    ifSet(inputHints, res.inputHints := _)
+    ifSet(inputPurpose, res.inputPurpose := _)
+    ifSet(invisibleChar, res.invisibleChar := _)
+    ifSet(maxLength, res.maxLength := _)
+    ifSet(maxWidthChars, res.maxWidthChars := _)
+    ifSet(overwriteMode, res.overwriteMode := _)
+    ifSet(placeholderText, res.placeholderText := _)
+    ifSet(position, res.position := _)
+    ifSet(progressFraction, res.progressFraction := _)
+    ifSet(progressPulseStep, res.progressPulseStep := _)
+    ifSet(tabs, res.tabs := _)
+    ifSet(text, res.text := _)
+    ifSet(visibility, res.visibility := _)
+    ifSet(widthChars, res.widthChars := _)
+    res
   }
 }

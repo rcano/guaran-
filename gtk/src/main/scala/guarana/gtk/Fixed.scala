@@ -1,5 +1,6 @@
 package guarana
 package gtk
+import util.*
 opaque type Fixed <: Widget = org.gnome.gtk.Fixed & Widget
 object Fixed {
   ()
@@ -12,5 +13,10 @@ object Fixed {
   def uninitialized(): Fixed = {
     val res = new org.gnome.gtk.Fixed()
     res.asInstanceOf[Fixed]
+  }
+  def apply(): VarContextAction[Fixed] = {
+    val res = uninitialized()
+    init(res)
+    res
   }
 }

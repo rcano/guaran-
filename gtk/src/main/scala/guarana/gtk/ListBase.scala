@@ -1,5 +1,6 @@
 package guarana
 package gtk
+import util.*
 opaque type ListBase <: Widget = org.gnome.gtk.ListBase & Widget
 object ListBase {
   val Hadjustment: ExternalVar.Aux[ListBase, org.gnome.gtk.Adjustment | Null] = ExternalVar[ListBase, org.gnome.gtk.Adjustment | Null]("hadjustment", _.getHadjustment(), _.setHadjustment(_), true)
@@ -10,9 +11,13 @@ object ListBase {
   ()
   extension (v: ListBase) {
     def unwrap: org.gnome.gtk.ListBase = v
+    def hadjustment: Var.Aux[org.gnome.gtk.Adjustment | Null, v.type] = Hadjustment.asInstanceOf[Var.Aux[org.gnome.gtk.Adjustment | Null, v.type]]
+    def hscrollPolicy: Var.Aux[org.gnome.gtk.ScrollablePolicy, v.type] = HscrollPolicy.asInstanceOf[Var.Aux[org.gnome.gtk.ScrollablePolicy, v.type]]
+    def orientation: Var.Aux[org.gnome.gtk.Orientation, v.type] = Orientation.asInstanceOf[Var.Aux[org.gnome.gtk.Orientation, v.type]]
+    def vadjustment: Var.Aux[org.gnome.gtk.Adjustment | Null, v.type] = Vadjustment.asInstanceOf[Var.Aux[org.gnome.gtk.Adjustment | Null, v.type]]
+    def vscrollPolicy: Var.Aux[org.gnome.gtk.ScrollablePolicy, v.type] = VscrollPolicy.asInstanceOf[Var.Aux[org.gnome.gtk.ScrollablePolicy, v.type]]
   }
   def init(v: ListBase): Unit = {
     Widget.init(v)
   }
-  ()
 }

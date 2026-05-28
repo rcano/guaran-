@@ -1,5 +1,6 @@
 package guarana
 package gtk
+import util.*
 opaque type Text <: Widget = org.gnome.gtk.Text & Widget
 object Text {
   val ActivatesDefault: ExternalVar.Aux[Text, Boolean] = ExternalVar[Text, Boolean]("activates-default", _.getActivatesDefault(), _.setActivatesDefault(_), true)
@@ -27,6 +28,28 @@ object Text {
   ()
   extension (v: Text) {
     def unwrap: org.gnome.gtk.Text = v
+    def activatesDefault: Var.Aux[Boolean, v.type] = ActivatesDefault.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def alignment: Var.Aux[Float, v.type] = Alignment.asInstanceOf[Var.Aux[Float, v.type]]
+    def attributes: Var.Aux[org.gnome.pango.AttrList | Null, v.type] = Attributes.asInstanceOf[Var.Aux[org.gnome.pango.AttrList | Null, v.type]]
+    def buffer: Var.Aux[org.gnome.gtk.EntryBuffer, v.type] = Buffer.asInstanceOf[Var.Aux[org.gnome.gtk.EntryBuffer, v.type]]
+    def editable: Var.Aux[Boolean, v.type] = Editable.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def enableEmojiCompletion: Var.Aux[Boolean, v.type] = EnableEmojiCompletion.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def enableUndo: Var.Aux[Boolean, v.type] = EnableUndo.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def extraMenu: Var.Aux[org.gnome.gio.MenuModel | Null, v.type] = ExtraMenu.asInstanceOf[Var.Aux[org.gnome.gio.MenuModel | Null, v.type]]
+    def inputHints: Var.Aux[java.util.Set[org.gnome.gtk.InputHints], v.type] = InputHints.asInstanceOf[Var.Aux[java.util.Set[org.gnome.gtk.InputHints], v.type]]
+    def inputPurpose: Var.Aux[org.gnome.gtk.InputPurpose, v.type] = InputPurpose.asInstanceOf[Var.Aux[org.gnome.gtk.InputPurpose, v.type]]
+    def invisibleChar: Var.Aux[Int, v.type] = InvisibleChar.asInstanceOf[Var.Aux[Int, v.type]]
+    def maxLength: Var.Aux[Int, v.type] = MaxLength.asInstanceOf[Var.Aux[Int, v.type]]
+    def maxWidthChars: Var.Aux[Int, v.type] = MaxWidthChars.asInstanceOf[Var.Aux[Int, v.type]]
+    def overwriteMode: Var.Aux[Boolean, v.type] = OverwriteMode.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def placeholderText: Var.Aux[java.lang.String | Null, v.type] = PlaceholderText.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
+    def position: Var.Aux[Int, v.type] = Position.asInstanceOf[Var.Aux[Int, v.type]]
+    def propagateTextWidth: Var.Aux[Boolean, v.type] = PropagateTextWidth.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def tabs: Var.Aux[org.gnome.pango.TabArray | Null, v.type] = Tabs.asInstanceOf[Var.Aux[org.gnome.pango.TabArray | Null, v.type]]
+    def text: Var.Aux[java.lang.String, v.type] = Text.asInstanceOf[Var.Aux[java.lang.String, v.type]]
+    def truncateMultiline: Var.Aux[Boolean, v.type] = TruncateMultiline.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def visibility: Var.Aux[Boolean, v.type] = Visibility.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def widthChars: Var.Aux[Int, v.type] = WidthChars.asInstanceOf[Var.Aux[Int, v.type]]
     export unwrap.onActivate, unwrap.onBackspace, unwrap.onCopyClipboard, unwrap.onCutClipboard, unwrap.onDeleteFromCursor, unwrap.onInsertAtCursor, unwrap.onInsertEmoji, unwrap.onMoveCursor, unwrap.onPasteClipboard, unwrap.onPreeditChanged, unwrap.onToggleOverwrite
   }
   def init(v: Text): Unit = {
@@ -35,5 +58,32 @@ object Text {
   def uninitialized(): Text = {
     val res = new org.gnome.gtk.Text()
     res.asInstanceOf[Text]
+  }
+  def apply(activatesDefault: Opt[Boolean] = UnsetParam, alignment: Opt[Float] = UnsetParam, attributes: Opt[org.gnome.pango.AttrList | Null] = UnsetParam, buffer: Opt[org.gnome.gtk.EntryBuffer] = UnsetParam, editable: Opt[Boolean] = UnsetParam, enableEmojiCompletion: Opt[Boolean] = UnsetParam, enableUndo: Opt[Boolean] = UnsetParam, extraMenu: Opt[org.gnome.gio.MenuModel | Null] = UnsetParam, inputHints: Opt[java.util.Set[org.gnome.gtk.InputHints]] = UnsetParam, inputPurpose: Opt[org.gnome.gtk.InputPurpose] = UnsetParam, invisibleChar: Opt[Int] = UnsetParam, maxLength: Opt[Int] = UnsetParam, maxWidthChars: Opt[Int] = UnsetParam, overwriteMode: Opt[Boolean] = UnsetParam, placeholderText: Opt[java.lang.String | Null] = UnsetParam, position: Opt[Int] = UnsetParam, propagateTextWidth: Opt[Boolean] = UnsetParam, tabs: Opt[org.gnome.pango.TabArray | Null] = UnsetParam, text: Opt[java.lang.String] = UnsetParam, truncateMultiline: Opt[Boolean] = UnsetParam, visibility: Opt[Boolean] = UnsetParam, widthChars: Opt[Int] = UnsetParam): VarContextAction[Text] = {
+    val res = uninitialized()
+    init(res)
+    ifSet(activatesDefault, res.activatesDefault := _)
+    ifSet(alignment, res.alignment := _)
+    ifSet(attributes, res.attributes := _)
+    ifSet(buffer, res.buffer := _)
+    ifSet(editable, res.editable := _)
+    ifSet(enableEmojiCompletion, res.enableEmojiCompletion := _)
+    ifSet(enableUndo, res.enableUndo := _)
+    ifSet(extraMenu, res.extraMenu := _)
+    ifSet(inputHints, res.inputHints := _)
+    ifSet(inputPurpose, res.inputPurpose := _)
+    ifSet(invisibleChar, res.invisibleChar := _)
+    ifSet(maxLength, res.maxLength := _)
+    ifSet(maxWidthChars, res.maxWidthChars := _)
+    ifSet(overwriteMode, res.overwriteMode := _)
+    ifSet(placeholderText, res.placeholderText := _)
+    ifSet(position, res.position := _)
+    ifSet(propagateTextWidth, res.propagateTextWidth := _)
+    ifSet(tabs, res.tabs := _)
+    ifSet(text, res.text := _)
+    ifSet(truncateMultiline, res.truncateMultiline := _)
+    ifSet(visibility, res.visibility := _)
+    ifSet(widthChars, res.widthChars := _)
+    res
   }
 }

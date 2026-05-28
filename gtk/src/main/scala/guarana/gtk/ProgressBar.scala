@@ -1,5 +1,6 @@
 package guarana
 package gtk
+import util.*
 opaque type ProgressBar <: Widget = org.gnome.gtk.ProgressBar & Widget
 object ProgressBar {
   val Ellipsize: ExternalVar.Aux[ProgressBar, org.gnome.pango.EllipsizeMode] = ExternalVar[ProgressBar, org.gnome.pango.EllipsizeMode]("ellipsize", _.getEllipsize(), _.setEllipsize(_), true)
@@ -12,6 +13,13 @@ object ProgressBar {
   ()
   extension (v: ProgressBar) {
     def unwrap: org.gnome.gtk.ProgressBar = v
+    def ellipsize: Var.Aux[org.gnome.pango.EllipsizeMode, v.type] = Ellipsize.asInstanceOf[Var.Aux[org.gnome.pango.EllipsizeMode, v.type]]
+    def fraction: Var.Aux[Double, v.type] = Fraction.asInstanceOf[Var.Aux[Double, v.type]]
+    def inverted: Var.Aux[Boolean, v.type] = Inverted.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def orientation: Var.Aux[org.gnome.gtk.Orientation, v.type] = Orientation.asInstanceOf[Var.Aux[org.gnome.gtk.Orientation, v.type]]
+    def pulseStep: Var.Aux[Double, v.type] = PulseStep.asInstanceOf[Var.Aux[Double, v.type]]
+    def showText: Var.Aux[Boolean, v.type] = ShowText.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def text: Var.Aux[java.lang.String | Null, v.type] = Text.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
   }
   def init(v: ProgressBar): Unit = {
     Widget.init(v)
@@ -19,5 +27,17 @@ object ProgressBar {
   def uninitialized(): ProgressBar = {
     val res = new org.gnome.gtk.ProgressBar()
     res.asInstanceOf[ProgressBar]
+  }
+  def apply(ellipsize: Opt[org.gnome.pango.EllipsizeMode] = UnsetParam, fraction: Opt[Double] = UnsetParam, inverted: Opt[Boolean] = UnsetParam, orientation: Opt[org.gnome.gtk.Orientation] = UnsetParam, pulseStep: Opt[Double] = UnsetParam, showText: Opt[Boolean] = UnsetParam, text: Opt[java.lang.String | Null] = UnsetParam): VarContextAction[ProgressBar] = {
+    val res = uninitialized()
+    init(res)
+    ifSet(ellipsize, res.ellipsize := _)
+    ifSet(fraction, res.fraction := _)
+    ifSet(inverted, res.inverted := _)
+    ifSet(orientation, res.orientation := _)
+    ifSet(pulseStep, res.pulseStep := _)
+    ifSet(showText, res.showText := _)
+    ifSet(text, res.text := _)
+    res
   }
 }

@@ -29,7 +29,7 @@ object Main {
 
       val classIndex = ClassIndex(scan)
 
-      for (widgetInfo <- allWidgets) {
+      for (widgetInfo <- allWidgets if !widgetInfo.hasAnnotation(classOf[Deprecated])) {
         val widgetName = widgetInfo.getSimpleName()
         val computedInfo = classIndex.getWidgetInfo(widgetInfo)
 
@@ -51,6 +51,9 @@ object Main {
         val srcCode = q"""
           package guarana {
             package gtk {
+              
+              import util.*
+
               ${
                 if (widgetInfo != widgetClassInfo) q"opaque type ${Type.Name(widgetName)} <: ${Type.Name(parentClass.getSimpleName)} = ${fqnActualType} & ${Type.Name(parentClass.getSimpleName)}"
                 else q"opaque type Widget >: org.gnome.gtk.Widget = org.gnome.gtk.Widget"
@@ -73,30 +76,56 @@ object Main {
                   def unwrap: ${fqnActualType}  = v
 
                   ..${
+                    widgetProperties.map(prop =>
+                      val propType = toType(prop.tpe)
+                      val varTpe = t"Var.Aux[$propType, v.type]"
+                      val mods = if (prop.deprecated) List(mod"""@deprecated("", "")""") else Nil
+                      q"""..$mods def ${Term.Name(prop.nameInCamelCase)}: $varTpe = ${Term.Name(prop.nameInPascalCase)}.asInstanceOf[$varTpe]"""
+                    )
+                  }
+
+                  ..${
                     val exports = widgetSignals collect { case si: GtkSignalInfo => s"unwrap.on${si.nameInPascalCase}".parse[Importer].get }
                     if (exports.isEmpty) Nil else List(Export(exports))
                   }
                 }
 
                 def init(v: ${Type.Name(widgetName)}): Unit = {
-                  ${
-                    if (widgetInfo != widgetClassInfo) q"${Term.Name(parentClass.getSimpleName)}.init(v)"
-                    else q"() // no parent class to init"
+                  ..${
+                    if (widgetInfo != widgetClassInfo) List(q"${Term.Name(parentClass.getSimpleName)}.init(v)")
+                    else Nil
                   }
 
                   // whatever initialization logic here
                 }
 
-                ${
+                ..${
                   if (!widgetInfo.isAbstract()) {
-                    q"""
-                    def uninitialized(): ${Type.Name(widgetName)} = {
-                      val res = new ${fqnActualType}()
-                      res.asInstanceOf[${Type.Name(widgetName)}]  
-                    }
-                    """
+                    val uninit = q"""
+                      def uninitialized(): ${Type.Name(widgetName)} = {
+                        val res = new ${fqnActualType}()
+                        res.asInstanceOf[${Type.Name(widgetName)}]  
+                      }
+                      """
+
+                    val (applyParams, paramsSetters) = widgetProperties.flatMap(prop => 
+                      val nme = Term.Name(prop.nameInCamelCase)
+                      List(
+                        Left(param"""$nme: Opt[${toType(prop.tpe)}] = UnsetParam"""),
+                        Right(q"ifSet($nme, res.$nme := _)")
+                      )
+                    ).partitionMap(identity)
+                    val apply = q"""
+                      def apply(..$applyParams): VarContextAction[${Type.Name(widgetName)}] = {
+                        val res = uninitialized()
+                        init(res)
+                        ..$paramsSetters
+                        res  
+                      }
+                      """
+                    List(uninit, apply)
                   } else {
-                    q"()"
+                    Nil
                   }
                 }
               }
@@ -118,23 +147,28 @@ object Main {
     "org.gnome.gio.ListModel | Null" -> t"org.gnome.gio.ListModel[?] | Null",
   )
 
-  def toType(descr: TypeSignature): Type = descr.match {
-    case rawDt: BaseTypeSignature => t"${Type.Name(rawDt.getTypeStr().capitalize)}"
-    case arrT: ArrayTypeSignature =>
-      t"Array[${toType(arrT.getNestedType())}]"
-    case classT: ClassRefTypeSignature =>
-      val tparams = classT.getTypeArguments().asScala.map(a => toType(a.getTypeSignature())).toList
-      var res = classT.getFullyQualifiedClassName().parse[Type].get
-      res = if (tparams.isEmpty) t"$res" else t"$res[..$tparams]"
+  private val typesCache = collection.mutable.HashMap.empty[TypeSignature, Type]
+  def toType(descr: TypeSignature): Type = {
+    typesCache.getOrElseUpdate(descr, {
+      descr.match {
+        case rawDt: BaseTypeSignature => t"${Type.Name(rawDt.getTypeStr().capitalize)}"
+        case arrT: ArrayTypeSignature =>
+          t"Array[${toType(arrT.getNestedType())}]"
+        case classT: ClassRefTypeSignature =>
+          val tparams = classT.getTypeArguments().asScala.map(a => toType(a.getTypeSignature())).toList
+          var res = classT.getFullyQualifiedClassName().parse[Type].get
+          res = if (tparams.isEmpty) t"$res" else t"$res[..$tparams]"
 
-      if (descr.getTypeAnnotationInfo() != null && descr.getTypeAnnotationInfo().asScala.exists(a => a.getName == "org.jspecify.annotations.Nullable"))
-        res = t"$res | Null"
+          if (descr.getTypeAnnotationInfo() != null && descr.getTypeAnnotationInfo().asScala.exists(a => a.getName == "org.jspecify.annotations.Nullable"))
+            res = t"$res | Null"
 
-      res
-    case tvar: TypeVariableSignature => t"_ <: ${toType(tvar.resolve().getClassBound())}"
-    case _ => 
-      scribe.error(s"Unsupported property type $descr")
-      Type.Wildcard(Type.Bounds.empty)
-  }.pipe(res => TypeFixes.getOrElse(res.syntax, res))
+          res
+        case tvar: TypeVariableSignature => t"_ <: ${toType(tvar.resolve().getClassBound())}"
+        case _ => 
+          scribe.error(s"Unsupported property type $descr")
+          Type.Wildcard(Type.Bounds.empty)
+      }.pipe(res => TypeFixes.getOrElse(res.syntax, res))
+    })
+  }
 
 }

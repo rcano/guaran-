@@ -1,5 +1,6 @@
 package guarana
 package gtk
+import util.*
 opaque type StackSidebar <: Widget = org.gnome.gtk.StackSidebar & Widget
 object StackSidebar {
   ()
@@ -12,5 +13,10 @@ object StackSidebar {
   def uninitialized(): StackSidebar = {
     val res = new org.gnome.gtk.StackSidebar()
     res.asInstanceOf[StackSidebar]
+  }
+  def apply(): VarContextAction[StackSidebar] = {
+    val res = uninitialized()
+    init(res)
+    res
   }
 }

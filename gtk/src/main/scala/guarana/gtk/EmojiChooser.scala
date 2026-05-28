@@ -1,5 +1,6 @@
 package guarana
 package gtk
+import util.*
 opaque type EmojiChooser <: Popover = org.gnome.gtk.EmojiChooser & Popover
 object EmojiChooser {
   ()
@@ -13,5 +14,10 @@ object EmojiChooser {
   def uninitialized(): EmojiChooser = {
     val res = new org.gnome.gtk.EmojiChooser()
     res.asInstanceOf[EmojiChooser]
+  }
+  def apply(): VarContextAction[EmojiChooser] = {
+    val res = uninitialized()
+    init(res)
+    res
   }
 }
