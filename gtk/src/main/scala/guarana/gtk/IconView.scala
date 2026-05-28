@@ -1,7 +1,8 @@
 package guarana
 package gtk
+import util.*
 opaque type IconView <: Widget = org.gnome.gtk.IconView & Widget
-object IconView {
+object IconView extends VarsMap {
   @deprecated("", "") val ActivateOnSingleClick: ExternalVar.Aux[IconView, Boolean] = ExternalVar[IconView, Boolean]("activate-on-single-click", _.getActivateOnSingleClick(), _.setActivateOnSingleClick(_), true)
   @deprecated("", "") val ColumnSpacing: ExternalVar.Aux[IconView, Int] = ExternalVar[IconView, Int]("column-spacing", _.getColumnSpacing(), _.setColumnSpacing(_), true)
   @deprecated("", "") val Columns: ExternalVar.Aux[IconView, Int] = ExternalVar[IconView, Int]("columns", _.getColumns(), _.setColumns(_), true)
@@ -25,13 +26,93 @@ object IconView {
   ()
   extension (v: IconView) {
     def unwrap: org.gnome.gtk.IconView = v
+    @deprecated("", "") def activateOnSingleClick: Var.Aux[Boolean, v.type] = ActivateOnSingleClick.asInstanceOf[Var.Aux[Boolean, v.type]]
+    @deprecated("", "") def columnSpacing: Var.Aux[Int, v.type] = ColumnSpacing.asInstanceOf[Var.Aux[Int, v.type]]
+    @deprecated("", "") def columns: Var.Aux[Int, v.type] = Columns.asInstanceOf[Var.Aux[Int, v.type]]
+    def hadjustment: Var.Aux[org.gnome.gtk.Adjustment | Null, v.type] = Hadjustment.asInstanceOf[Var.Aux[org.gnome.gtk.Adjustment | Null, v.type]]
+    def hscrollPolicy: Var.Aux[org.gnome.gtk.ScrollablePolicy, v.type] = HscrollPolicy.asInstanceOf[Var.Aux[org.gnome.gtk.ScrollablePolicy, v.type]]
+    @deprecated("", "") def itemOrientation: Var.Aux[org.gnome.gtk.Orientation, v.type] = ItemOrientation.asInstanceOf[Var.Aux[org.gnome.gtk.Orientation, v.type]]
+    @deprecated("", "") def itemPadding: Var.Aux[Int, v.type] = ItemPadding.asInstanceOf[Var.Aux[Int, v.type]]
+    @deprecated("", "") def itemWidth: Var.Aux[Int, v.type] = ItemWidth.asInstanceOf[Var.Aux[Int, v.type]]
+    @deprecated("", "") def margin: Var.Aux[Int, v.type] = Margin.asInstanceOf[Var.Aux[Int, v.type]]
+    @deprecated("", "") def markupColumn: Var.Aux[Int, v.type] = MarkupColumn.asInstanceOf[Var.Aux[Int, v.type]]
+    @deprecated("", "") def model: Var.Aux[org.gnome.gtk.TreeModel | Null, v.type] = Model.asInstanceOf[Var.Aux[org.gnome.gtk.TreeModel | Null, v.type]]
+    @deprecated("", "") def pixbufColumn: Var.Aux[Int, v.type] = PixbufColumn.asInstanceOf[Var.Aux[Int, v.type]]
+    @deprecated("", "") def reorderable: Var.Aux[Boolean, v.type] = Reorderable.asInstanceOf[Var.Aux[Boolean, v.type]]
+    @deprecated("", "") def rowSpacing: Var.Aux[Int, v.type] = RowSpacing.asInstanceOf[Var.Aux[Int, v.type]]
+    @deprecated("", "") def selectionMode: Var.Aux[org.gnome.gtk.SelectionMode, v.type] = SelectionMode.asInstanceOf[Var.Aux[org.gnome.gtk.SelectionMode, v.type]]
+    @deprecated("", "") def spacing: Var.Aux[Int, v.type] = Spacing.asInstanceOf[Var.Aux[Int, v.type]]
+    @deprecated("", "") def textColumn: Var.Aux[Int, v.type] = TextColumn.asInstanceOf[Var.Aux[Int, v.type]]
+    @deprecated("", "") def tooltipColumn: Var.Aux[Int, v.type] = TooltipColumn.asInstanceOf[Var.Aux[Int, v.type]]
+    def vadjustment: Var.Aux[org.gnome.gtk.Adjustment | Null, v.type] = Vadjustment.asInstanceOf[Var.Aux[org.gnome.gtk.Adjustment | Null, v.type]]
+    def vscrollPolicy: Var.Aux[org.gnome.gtk.ScrollablePolicy, v.type] = VscrollPolicy.asInstanceOf[Var.Aux[org.gnome.gtk.ScrollablePolicy, v.type]]
     export unwrap.onActivateCursorItem, unwrap.onItemActivated, unwrap.onMoveCursor, unwrap.onSelectAll, unwrap.onSelectCursorItem, unwrap.onSelectionChanged, unwrap.onToggleCursorItem, unwrap.onUnselectAll
   }
-  def init(v: IconView): Unit = {
+  def _wrap(v: org.gnome.gtk.IconView): IconView = {
+    v.asInstanceOf
+  }
+  def init(v: IconView): ToolkitAction[Toolkit, Unit] = {
     Widget.init(v)
+    connectVarsListener(v)
   }
   def uninitialized(): IconView = {
     val res = new org.gnome.gtk.IconView()
     res.asInstanceOf[IconView]
+  }
+  def apply(activateOnSingleClick: Opt[Boolean] = UnsetParam, canFocus: Opt[Boolean] = UnsetParam, canTarget: Opt[Boolean] = UnsetParam, childVisible: Opt[Boolean] = UnsetParam, columnSpacing: Opt[Int] = UnsetParam, columns: Opt[Int] = UnsetParam, cursor: Opt[org.gnome.gdk.Cursor | Null] = UnsetParam, direction: Opt[org.gnome.gtk.TextDirection] = UnsetParam, focusChild: Opt[org.gnome.gtk.Widget | Null] = UnsetParam, focusOnClick: Opt[Boolean] = UnsetParam, focusable: Opt[Boolean] = UnsetParam, fontMap: Opt[org.gnome.pango.FontMap | Null] = UnsetParam, fontOptions: Opt[org.freedesktop.cairo.FontOptions | Null] = UnsetParam, hadjustment: Opt[org.gnome.gtk.Adjustment | Null] = UnsetParam, halign: Opt[org.gnome.gtk.Align] = UnsetParam, hasTooltip: Opt[Boolean] = UnsetParam, hexpand: Opt[Boolean] = UnsetParam, hexpandSet: Opt[Boolean] = UnsetParam, hscrollPolicy: Opt[org.gnome.gtk.ScrollablePolicy] = UnsetParam, itemOrientation: Opt[org.gnome.gtk.Orientation] = UnsetParam, itemPadding: Opt[Int] = UnsetParam, itemWidth: Opt[Int] = UnsetParam, layoutManager: Opt[org.gnome.gtk.LayoutManager | Null] = UnsetParam, limitEvents: Opt[Boolean] = UnsetParam, margin: Opt[Int] = UnsetParam, marginBottom: Opt[Int] = UnsetParam, marginEnd: Opt[Int] = UnsetParam, marginStart: Opt[Int] = UnsetParam, marginTop: Opt[Int] = UnsetParam, markupColumn: Opt[Int] = UnsetParam, model: Opt[org.gnome.gtk.TreeModel | Null] = UnsetParam, name: Opt[java.lang.String] = UnsetParam, opacity: Opt[Double] = UnsetParam, overflow: Opt[org.gnome.gtk.Overflow] = UnsetParam, pixbufColumn: Opt[Int] = UnsetParam, receivesDefault: Opt[Boolean] = UnsetParam, reorderable: Opt[Boolean] = UnsetParam, rowSpacing: Opt[Int] = UnsetParam, selectionMode: Opt[org.gnome.gtk.SelectionMode] = UnsetParam, sensitive: Opt[Boolean] = UnsetParam, spacing: Opt[Int] = UnsetParam, textColumn: Opt[Int] = UnsetParam, tooltipColumn: Opt[Int] = UnsetParam, tooltipMarkup: Opt[java.lang.String | Null] = UnsetParam, tooltipText: Opt[java.lang.String | Null] = UnsetParam, vadjustment: Opt[org.gnome.gtk.Adjustment | Null] = UnsetParam, valign: Opt[org.gnome.gtk.Align] = UnsetParam, vexpand: Opt[Boolean] = UnsetParam, vexpandSet: Opt[Boolean] = UnsetParam, visible: Opt[Boolean] = UnsetParam, vscrollPolicy: Opt[org.gnome.gtk.ScrollablePolicy] = UnsetParam): ToolkitAction[Toolkit, IconView] = {
+    val res = uninitialized()
+    init(res)
+    ifSet(activateOnSingleClick, res.activateOnSingleClick := _)
+    ifSet(canFocus, res.canFocus := _)
+    ifSet(canTarget, res.canTarget := _)
+    ifSet(childVisible, res.childVisible := _)
+    ifSet(columnSpacing, res.columnSpacing := _)
+    ifSet(columns, res.columns := _)
+    ifSet(cursor, res.cursor := _)
+    ifSet(direction, res.direction := _)
+    ifSet(focusChild, res.focusChild := _)
+    ifSet(focusOnClick, res.focusOnClick := _)
+    ifSet(focusable, res.focusable := _)
+    ifSet(fontMap, res.fontMap := _)
+    ifSet(fontOptions, res.fontOptions := _)
+    ifSet(hadjustment, res.hadjustment := _)
+    ifSet(halign, res.halign := _)
+    ifSet(hasTooltip, res.hasTooltip := _)
+    ifSet(hexpand, res.hexpand := _)
+    ifSet(hexpandSet, res.hexpandSet := _)
+    ifSet(hscrollPolicy, res.hscrollPolicy := _)
+    ifSet(itemOrientation, res.itemOrientation := _)
+    ifSet(itemPadding, res.itemPadding := _)
+    ifSet(itemWidth, res.itemWidth := _)
+    ifSet(layoutManager, res.layoutManager := _)
+    ifSet(limitEvents, res.limitEvents := _)
+    ifSet(margin, res.margin := _)
+    ifSet(marginBottom, res.marginBottom := _)
+    ifSet(marginEnd, res.marginEnd := _)
+    ifSet(marginStart, res.marginStart := _)
+    ifSet(marginTop, res.marginTop := _)
+    ifSet(markupColumn, res.markupColumn := _)
+    ifSet(model, res.model := _)
+    ifSet(name, res.name := _)
+    ifSet(opacity, res.opacity := _)
+    ifSet(overflow, res.overflow := _)
+    ifSet(pixbufColumn, res.pixbufColumn := _)
+    ifSet(receivesDefault, res.receivesDefault := _)
+    ifSet(reorderable, res.reorderable := _)
+    ifSet(rowSpacing, res.rowSpacing := _)
+    ifSet(selectionMode, res.selectionMode := _)
+    ifSet(sensitive, res.sensitive := _)
+    ifSet(spacing, res.spacing := _)
+    ifSet(textColumn, res.textColumn := _)
+    ifSet(tooltipColumn, res.tooltipColumn := _)
+    ifSet(tooltipMarkup, res.tooltipMarkup := _)
+    ifSet(tooltipText, res.tooltipText := _)
+    ifSet(vadjustment, res.vadjustment := _)
+    ifSet(valign, res.valign := _)
+    ifSet(vexpand, res.vexpand := _)
+    ifSet(vexpandSet, res.vexpandSet := _)
+    ifSet(visible, res.visible := _)
+    ifSet(vscrollPolicy, res.vscrollPolicy := _)
+    res
   }
 }

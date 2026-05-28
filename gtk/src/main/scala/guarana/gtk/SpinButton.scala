@@ -2,7 +2,7 @@ package guarana
 package gtk
 import util.*
 opaque type SpinButton <: Widget = org.gnome.gtk.SpinButton & Widget
-object SpinButton {
+object SpinButton extends VarsMap {
   val ActivatesDefault: ExternalVar.Aux[SpinButton, Boolean] = ExternalVar[SpinButton, Boolean]("activates-default", _.getActivatesDefault(), _.setActivatesDefault(_), true)
   val Adjustment: ExternalVar.Aux[SpinButton, org.gnome.gtk.Adjustment] = ExternalVar[SpinButton, org.gnome.gtk.Adjustment]("adjustment", _.getAdjustment(), _.setAdjustment(_), true)
   val Alignment: ExternalVar.Aux[SpinButton, Float] = ExternalVar[SpinButton, Float]("alignment", _.getAlignment(), _.setAlignment(_), true)
@@ -42,31 +42,66 @@ object SpinButton {
     def wrap: Var.Aux[Boolean, v.type] = Wrap.asInstanceOf[Var.Aux[Boolean, v.type]]
     export unwrap.onActivate, unwrap.onChangeValue, unwrap.onInput, unwrap.onOutput, unwrap.onValueChanged, unwrap.onWrapped
   }
-  def init(v: SpinButton): Unit = {
-    Widget.init(v)
+  def _wrap(v: org.gnome.gtk.SpinButton): SpinButton = {
+    v.asInstanceOf
   }
-  def uninitialized(): SpinButton = {
-    val res = new org.gnome.gtk.SpinButton()
+  def init(v: SpinButton): ToolkitAction[Toolkit, Unit] = {
+    Widget.init(v)
+    connectVarsListener(v)
+  }
+  def uninitialized(arg$0: org.gnome.gtk.Adjustment | Null, arg$1: Double, arg$2: Int): SpinButton = {
+    val res = new org.gnome.gtk.SpinButton(arg$0, arg$1, arg$2)
     res.asInstanceOf[SpinButton]
   }
-  def apply(activatesDefault: Opt[Boolean] = UnsetParam, adjustment: Opt[org.gnome.gtk.Adjustment] = UnsetParam, alignment: Opt[Float] = UnsetParam, climbRate: Opt[Double] = UnsetParam, digits: Opt[Int] = UnsetParam, editable: Opt[Boolean] = UnsetParam, enableUndo: Opt[Boolean] = UnsetParam, maxWidthChars: Opt[Int] = UnsetParam, numeric: Opt[Boolean] = UnsetParam, orientation: Opt[org.gnome.gtk.Orientation] = UnsetParam, position: Opt[Int] = UnsetParam, snapToTicks: Opt[Boolean] = UnsetParam, text: Opt[java.lang.String] = UnsetParam, updatePolicy: Opt[org.gnome.gtk.SpinButtonUpdatePolicy] = UnsetParam, value: Opt[Double] = UnsetParam, widthChars: Opt[Int] = UnsetParam, wrap: Opt[Boolean] = UnsetParam): VarContextAction[SpinButton] = {
-    val res = uninitialized()
+  def apply(arg$0: org.gnome.gtk.Adjustment | Null, arg$1: Double, arg$2: Int, activatesDefault: Opt[Boolean] = UnsetParam, adjustment: Opt[org.gnome.gtk.Adjustment] = UnsetParam, alignment: Opt[Float] = UnsetParam, canFocus: Opt[Boolean] = UnsetParam, canTarget: Opt[Boolean] = UnsetParam, childVisible: Opt[Boolean] = UnsetParam, climbRate: Opt[Double] = UnsetParam, cursor: Opt[org.gnome.gdk.Cursor | Null] = UnsetParam, digits: Opt[Int] = UnsetParam, direction: Opt[org.gnome.gtk.TextDirection] = UnsetParam, editable: Opt[Boolean] = UnsetParam, enableUndo: Opt[Boolean] = UnsetParam, focusChild: Opt[org.gnome.gtk.Widget | Null] = UnsetParam, focusOnClick: Opt[Boolean] = UnsetParam, focusable: Opt[Boolean] = UnsetParam, fontMap: Opt[org.gnome.pango.FontMap | Null] = UnsetParam, fontOptions: Opt[org.freedesktop.cairo.FontOptions | Null] = UnsetParam, halign: Opt[org.gnome.gtk.Align] = UnsetParam, hasTooltip: Opt[Boolean] = UnsetParam, hexpand: Opt[Boolean] = UnsetParam, hexpandSet: Opt[Boolean] = UnsetParam, layoutManager: Opt[org.gnome.gtk.LayoutManager | Null] = UnsetParam, limitEvents: Opt[Boolean] = UnsetParam, marginBottom: Opt[Int] = UnsetParam, marginEnd: Opt[Int] = UnsetParam, marginStart: Opt[Int] = UnsetParam, marginTop: Opt[Int] = UnsetParam, maxWidthChars: Opt[Int] = UnsetParam, name: Opt[java.lang.String] = UnsetParam, numeric: Opt[Boolean] = UnsetParam, opacity: Opt[Double] = UnsetParam, orientation: Opt[org.gnome.gtk.Orientation] = UnsetParam, overflow: Opt[org.gnome.gtk.Overflow] = UnsetParam, position: Opt[Int] = UnsetParam, receivesDefault: Opt[Boolean] = UnsetParam, sensitive: Opt[Boolean] = UnsetParam, snapToTicks: Opt[Boolean] = UnsetParam, text: Opt[java.lang.String] = UnsetParam, tooltipMarkup: Opt[java.lang.String | Null] = UnsetParam, tooltipText: Opt[java.lang.String | Null] = UnsetParam, updatePolicy: Opt[org.gnome.gtk.SpinButtonUpdatePolicy] = UnsetParam, valign: Opt[org.gnome.gtk.Align] = UnsetParam, value: Opt[Double] = UnsetParam, vexpand: Opt[Boolean] = UnsetParam, vexpandSet: Opt[Boolean] = UnsetParam, visible: Opt[Boolean] = UnsetParam, widthChars: Opt[Int] = UnsetParam, wrap: Opt[Boolean] = UnsetParam): ToolkitAction[Toolkit, SpinButton] = {
+    val res = uninitialized(arg$0, arg$1, arg$2)
     init(res)
     ifSet(activatesDefault, res.activatesDefault := _)
     ifSet(adjustment, res.adjustment := _)
     ifSet(alignment, res.alignment := _)
+    ifSet(canFocus, res.canFocus := _)
+    ifSet(canTarget, res.canTarget := _)
+    ifSet(childVisible, res.childVisible := _)
     ifSet(climbRate, res.climbRate := _)
+    ifSet(cursor, res.cursor := _)
     ifSet(digits, res.digits := _)
+    ifSet(direction, res.direction := _)
     ifSet(editable, res.editable := _)
     ifSet(enableUndo, res.enableUndo := _)
+    ifSet(focusChild, res.focusChild := _)
+    ifSet(focusOnClick, res.focusOnClick := _)
+    ifSet(focusable, res.focusable := _)
+    ifSet(fontMap, res.fontMap := _)
+    ifSet(fontOptions, res.fontOptions := _)
+    ifSet(halign, res.halign := _)
+    ifSet(hasTooltip, res.hasTooltip := _)
+    ifSet(hexpand, res.hexpand := _)
+    ifSet(hexpandSet, res.hexpandSet := _)
+    ifSet(layoutManager, res.layoutManager := _)
+    ifSet(limitEvents, res.limitEvents := _)
+    ifSet(marginBottom, res.marginBottom := _)
+    ifSet(marginEnd, res.marginEnd := _)
+    ifSet(marginStart, res.marginStart := _)
+    ifSet(marginTop, res.marginTop := _)
     ifSet(maxWidthChars, res.maxWidthChars := _)
+    ifSet(name, res.name := _)
     ifSet(numeric, res.numeric := _)
+    ifSet(opacity, res.opacity := _)
     ifSet(orientation, res.orientation := _)
+    ifSet(overflow, res.overflow := _)
     ifSet(position, res.position := _)
+    ifSet(receivesDefault, res.receivesDefault := _)
+    ifSet(sensitive, res.sensitive := _)
     ifSet(snapToTicks, res.snapToTicks := _)
     ifSet(text, res.text := _)
+    ifSet(tooltipMarkup, res.tooltipMarkup := _)
+    ifSet(tooltipText, res.tooltipText := _)
     ifSet(updatePolicy, res.updatePolicy := _)
+    ifSet(valign, res.valign := _)
     ifSet(value, res.value := _)
+    ifSet(vexpand, res.vexpand := _)
+    ifSet(vexpandSet, res.vexpandSet := _)
+    ifSet(visible, res.visible := _)
     ifSet(widthChars, res.widthChars := _)
     ifSet(wrap, res.wrap := _)
     res

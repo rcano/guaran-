@@ -2,7 +2,7 @@ package guarana
 package gtk
 import util.*
 opaque type Label <: Widget = org.gnome.gtk.Label & Widget
-object Label {
+object Label extends VarsMap {
   val Attributes: ExternalVar.Aux[Label, org.gnome.pango.AttrList | Null] = ExternalVar[Label, org.gnome.pango.AttrList | Null]("attributes", _.getAttributes(), _.setAttributes(_), true)
   val Ellipsize: ExternalVar.Aux[Label, org.gnome.pango.EllipsizeMode] = ExternalVar[Label, org.gnome.pango.EllipsizeMode]("ellipsize", _.getEllipsize(), _.setEllipsize(_), true)
   val ExtraMenu: ExternalVar.Aux[Label, org.gnome.gio.MenuModel | Null] = ExternalVar[Label, org.gnome.gio.MenuModel | Null]("extra-menu", _.getExtraMenu(), _.setExtraMenu(_), true)
@@ -48,31 +48,66 @@ object Label {
     def yalign: Var.Aux[Float, v.type] = Yalign.asInstanceOf[Var.Aux[Float, v.type]]
     export unwrap.onActivateCurrentLink, unwrap.onActivateLink, unwrap.onCopyClipboard, unwrap.onMoveCursor
   }
-  def init(v: Label): Unit = {
-    Widget.init(v)
+  def _wrap(v: org.gnome.gtk.Label): Label = {
+    v.asInstanceOf
   }
-  def uninitialized(): Label = {
-    val res = new org.gnome.gtk.Label()
+  def init(v: Label): ToolkitAction[Toolkit, Unit] = {
+    Widget.init(v)
+    connectVarsListener(v)
+  }
+  def uninitialized(arg$0: java.lang.String | Null): Label = {
+    val res = new org.gnome.gtk.Label(arg$0)
     res.asInstanceOf[Label]
   }
-  def apply(attributes: Opt[org.gnome.pango.AttrList | Null] = UnsetParam, ellipsize: Opt[org.gnome.pango.EllipsizeMode] = UnsetParam, extraMenu: Opt[org.gnome.gio.MenuModel | Null] = UnsetParam, justify: Opt[org.gnome.gtk.Justification] = UnsetParam, label: Opt[java.lang.String] = UnsetParam, lines: Opt[Int] = UnsetParam, maxWidthChars: Opt[Int] = UnsetParam, mnemonicWidget: Opt[org.gnome.gtk.Widget | Null] = UnsetParam, naturalWrapMode: Opt[org.gnome.gtk.NaturalWrapMode] = UnsetParam, selectable: Opt[Boolean] = UnsetParam, singleLineMode: Opt[Boolean] = UnsetParam, tabs: Opt[org.gnome.pango.TabArray | Null] = UnsetParam, text: Opt[java.lang.String] = UnsetParam, useMarkup: Opt[Boolean] = UnsetParam, useUnderline: Opt[Boolean] = UnsetParam, widthChars: Opt[Int] = UnsetParam, wrap: Opt[Boolean] = UnsetParam, wrapMode: Opt[org.gnome.pango.WrapMode] = UnsetParam, xalign: Opt[Float] = UnsetParam, yalign: Opt[Float] = UnsetParam): VarContextAction[Label] = {
-    val res = uninitialized()
+  def apply(arg$0: java.lang.String | Null, attributes: Opt[org.gnome.pango.AttrList | Null] = UnsetParam, canFocus: Opt[Boolean] = UnsetParam, canTarget: Opt[Boolean] = UnsetParam, childVisible: Opt[Boolean] = UnsetParam, cursor: Opt[org.gnome.gdk.Cursor | Null] = UnsetParam, direction: Opt[org.gnome.gtk.TextDirection] = UnsetParam, ellipsize: Opt[org.gnome.pango.EllipsizeMode] = UnsetParam, extraMenu: Opt[org.gnome.gio.MenuModel | Null] = UnsetParam, focusChild: Opt[org.gnome.gtk.Widget | Null] = UnsetParam, focusOnClick: Opt[Boolean] = UnsetParam, focusable: Opt[Boolean] = UnsetParam, fontMap: Opt[org.gnome.pango.FontMap | Null] = UnsetParam, fontOptions: Opt[org.freedesktop.cairo.FontOptions | Null] = UnsetParam, halign: Opt[org.gnome.gtk.Align] = UnsetParam, hasTooltip: Opt[Boolean] = UnsetParam, hexpand: Opt[Boolean] = UnsetParam, hexpandSet: Opt[Boolean] = UnsetParam, justify: Opt[org.gnome.gtk.Justification] = UnsetParam, label: Opt[java.lang.String] = UnsetParam, layoutManager: Opt[org.gnome.gtk.LayoutManager | Null] = UnsetParam, limitEvents: Opt[Boolean] = UnsetParam, lines: Opt[Int] = UnsetParam, marginBottom: Opt[Int] = UnsetParam, marginEnd: Opt[Int] = UnsetParam, marginStart: Opt[Int] = UnsetParam, marginTop: Opt[Int] = UnsetParam, maxWidthChars: Opt[Int] = UnsetParam, mnemonicWidget: Opt[org.gnome.gtk.Widget | Null] = UnsetParam, name: Opt[java.lang.String] = UnsetParam, naturalWrapMode: Opt[org.gnome.gtk.NaturalWrapMode] = UnsetParam, opacity: Opt[Double] = UnsetParam, overflow: Opt[org.gnome.gtk.Overflow] = UnsetParam, receivesDefault: Opt[Boolean] = UnsetParam, selectable: Opt[Boolean] = UnsetParam, sensitive: Opt[Boolean] = UnsetParam, singleLineMode: Opt[Boolean] = UnsetParam, tabs: Opt[org.gnome.pango.TabArray | Null] = UnsetParam, text: Opt[java.lang.String] = UnsetParam, tooltipMarkup: Opt[java.lang.String | Null] = UnsetParam, tooltipText: Opt[java.lang.String | Null] = UnsetParam, useMarkup: Opt[Boolean] = UnsetParam, useUnderline: Opt[Boolean] = UnsetParam, valign: Opt[org.gnome.gtk.Align] = UnsetParam, vexpand: Opt[Boolean] = UnsetParam, vexpandSet: Opt[Boolean] = UnsetParam, visible: Opt[Boolean] = UnsetParam, widthChars: Opt[Int] = UnsetParam, wrap: Opt[Boolean] = UnsetParam, wrapMode: Opt[org.gnome.pango.WrapMode] = UnsetParam, xalign: Opt[Float] = UnsetParam, yalign: Opt[Float] = UnsetParam): ToolkitAction[Toolkit, Label] = {
+    val res = uninitialized(arg$0)
     init(res)
     ifSet(attributes, res.attributes := _)
+    ifSet(canFocus, res.canFocus := _)
+    ifSet(canTarget, res.canTarget := _)
+    ifSet(childVisible, res.childVisible := _)
+    ifSet(cursor, res.cursor := _)
+    ifSet(direction, res.direction := _)
     ifSet(ellipsize, res.ellipsize := _)
     ifSet(extraMenu, res.extraMenu := _)
+    ifSet(focusChild, res.focusChild := _)
+    ifSet(focusOnClick, res.focusOnClick := _)
+    ifSet(focusable, res.focusable := _)
+    ifSet(fontMap, res.fontMap := _)
+    ifSet(fontOptions, res.fontOptions := _)
+    ifSet(halign, res.halign := _)
+    ifSet(hasTooltip, res.hasTooltip := _)
+    ifSet(hexpand, res.hexpand := _)
+    ifSet(hexpandSet, res.hexpandSet := _)
     ifSet(justify, res.justify := _)
     ifSet(label, res.label := _)
+    ifSet(layoutManager, res.layoutManager := _)
+    ifSet(limitEvents, res.limitEvents := _)
     ifSet(lines, res.lines := _)
+    ifSet(marginBottom, res.marginBottom := _)
+    ifSet(marginEnd, res.marginEnd := _)
+    ifSet(marginStart, res.marginStart := _)
+    ifSet(marginTop, res.marginTop := _)
     ifSet(maxWidthChars, res.maxWidthChars := _)
     ifSet(mnemonicWidget, res.mnemonicWidget := _)
+    ifSet(name, res.name := _)
     ifSet(naturalWrapMode, res.naturalWrapMode := _)
+    ifSet(opacity, res.opacity := _)
+    ifSet(overflow, res.overflow := _)
+    ifSet(receivesDefault, res.receivesDefault := _)
     ifSet(selectable, res.selectable := _)
+    ifSet(sensitive, res.sensitive := _)
     ifSet(singleLineMode, res.singleLineMode := _)
     ifSet(tabs, res.tabs := _)
     ifSet(text, res.text := _)
+    ifSet(tooltipMarkup, res.tooltipMarkup := _)
+    ifSet(tooltipText, res.tooltipText := _)
     ifSet(useMarkup, res.useMarkup := _)
     ifSet(useUnderline, res.useUnderline := _)
+    ifSet(valign, res.valign := _)
+    ifSet(vexpand, res.vexpand := _)
+    ifSet(vexpandSet, res.vexpandSet := _)
+    ifSet(visible, res.visible := _)
     ifSet(widthChars, res.widthChars := _)
     ifSet(wrap, res.wrap := _)
     ifSet(wrapMode, res.wrapMode := _)

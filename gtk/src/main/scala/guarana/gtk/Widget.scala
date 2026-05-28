@@ -2,7 +2,7 @@ package guarana
 package gtk
 import util.*
 opaque type Widget >: org.gnome.gtk.Widget = org.gnome.gtk.Widget
-object Widget {
+object Widget extends VarsMap {
   val CanFocus: ExternalVar.Aux[Widget, Boolean] = ExternalVar[Widget, Boolean]("can-focus", _.getCanFocus(), _.setCanFocus(_), true)
   val CanTarget: ExternalVar.Aux[Widget, Boolean] = ExternalVar[Widget, Boolean]("can-target", _.getCanTarget(), _.setCanTarget(_), true)
   val ChildVisible: ExternalVar.Aux[Widget, Boolean] = ExternalVar[Widget, Boolean]("child-visible", _.getChildVisible(), _.setChildVisible(_), true)
@@ -70,5 +70,8 @@ object Widget {
     def visible: Var.Aux[Boolean, v.type] = Visible.asInstanceOf[Var.Aux[Boolean, v.type]]
     export unwrap.onDestroy, unwrap.onDirectionChanged, unwrap.onHide, unwrap.onKeynavFailed, unwrap.onMap, unwrap.onMnemonicActivate, unwrap.onMoveFocus, unwrap.onNotify, unwrap.onQueryTooltip, unwrap.onRealize, unwrap.onShow, unwrap.onStateFlagsChanged, unwrap.onUnmap, unwrap.onUnrealize
   }
-  def init(v: Widget): Unit = {}
+  def _wrap(v: org.gnome.gtk.Widget): Widget = {
+    v.asInstanceOf
+  }
+  def init(v: Widget): ToolkitAction[Toolkit, Unit] = {}
 }

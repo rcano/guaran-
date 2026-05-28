@@ -2,7 +2,7 @@ package guarana
 package gtk
 import util.*
 opaque type ListBase <: Widget = org.gnome.gtk.ListBase & Widget
-object ListBase {
+object ListBase extends VarsMap {
   val Hadjustment: ExternalVar.Aux[ListBase, org.gnome.gtk.Adjustment | Null] = ExternalVar[ListBase, org.gnome.gtk.Adjustment | Null]("hadjustment", _.getHadjustment(), _.setHadjustment(_), true)
   val HscrollPolicy: ExternalVar.Aux[ListBase, org.gnome.gtk.ScrollablePolicy] = ExternalVar[ListBase, org.gnome.gtk.ScrollablePolicy]("hscroll-policy", _.getHscrollPolicy(), _.setHscrollPolicy(_), true)
   val Orientation: ExternalVar.Aux[ListBase, org.gnome.gtk.Orientation] = ExternalVar[ListBase, org.gnome.gtk.Orientation]("orientation", _.getOrientation(), _.setOrientation(_), true)
@@ -17,7 +17,11 @@ object ListBase {
     def vadjustment: Var.Aux[org.gnome.gtk.Adjustment | Null, v.type] = Vadjustment.asInstanceOf[Var.Aux[org.gnome.gtk.Adjustment | Null, v.type]]
     def vscrollPolicy: Var.Aux[org.gnome.gtk.ScrollablePolicy, v.type] = VscrollPolicy.asInstanceOf[Var.Aux[org.gnome.gtk.ScrollablePolicy, v.type]]
   }
-  def init(v: ListBase): Unit = {
+  def _wrap(v: org.gnome.gtk.ListBase): ListBase = {
+    v.asInstanceOf
+  }
+  def init(v: ListBase): ToolkitAction[Toolkit, Unit] = {
     Widget.init(v)
+    connectVarsListener(v)
   }
 }

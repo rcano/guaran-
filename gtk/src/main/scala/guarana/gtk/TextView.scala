@@ -2,7 +2,7 @@ package guarana
 package gtk
 import util.*
 opaque type TextView <: Widget = org.gnome.gtk.TextView & Widget
-object TextView {
+object TextView extends VarsMap {
   val AcceptsTab: ExternalVar.Aux[TextView, Boolean] = ExternalVar[TextView, Boolean]("accepts-tab", _.getAcceptsTab(), _.setAcceptsTab(_), true)
   val BottomMargin: ExternalVar.Aux[TextView, Int] = ExternalVar[TextView, Int]("bottom-margin", _.getBottomMargin(), _.setBottomMargin(_), true)
   val CursorVisible: ExternalVar.Aux[TextView, Boolean] = ExternalVar[TextView, Boolean]("cursor-visible", _.getCursorVisible(), _.setCursorVisible(_), true)
@@ -52,36 +52,71 @@ object TextView {
     def wrapMode: Var.Aux[org.gnome.gtk.WrapMode, v.type] = WrapMode.asInstanceOf[Var.Aux[org.gnome.gtk.WrapMode, v.type]]
     export unwrap.onBackspace, unwrap.onCopyClipboard, unwrap.onCutClipboard, unwrap.onDeleteFromCursor, unwrap.onExtendSelection, unwrap.onInsertAtCursor, unwrap.onInsertEmoji, unwrap.onMoveCursor, unwrap.onMoveViewport, unwrap.onPasteClipboard, unwrap.onPreeditChanged, unwrap.onSelectAll, unwrap.onSetAnchor, unwrap.onToggleCursorVisible, unwrap.onToggleOverwrite
   }
-  def init(v: TextView): Unit = {
+  def _wrap(v: org.gnome.gtk.TextView): TextView = {
+    v.asInstanceOf
+  }
+  def init(v: TextView): ToolkitAction[Toolkit, Unit] = {
     Widget.init(v)
+    connectVarsListener(v)
   }
   def uninitialized(): TextView = {
     val res = new org.gnome.gtk.TextView()
     res.asInstanceOf[TextView]
   }
-  def apply(acceptsTab: Opt[Boolean] = UnsetParam, bottomMargin: Opt[Int] = UnsetParam, cursorVisible: Opt[Boolean] = UnsetParam, editable: Opt[Boolean] = UnsetParam, extraMenu: Opt[org.gnome.gio.MenuModel | Null] = UnsetParam, hadjustment: Opt[org.gnome.gtk.Adjustment | Null] = UnsetParam, hscrollPolicy: Opt[org.gnome.gtk.ScrollablePolicy] = UnsetParam, indent: Opt[Int] = UnsetParam, inputHints: Opt[java.util.Set[org.gnome.gtk.InputHints]] = UnsetParam, inputPurpose: Opt[org.gnome.gtk.InputPurpose] = UnsetParam, justification: Opt[org.gnome.gtk.Justification] = UnsetParam, leftMargin: Opt[Int] = UnsetParam, monospace: Opt[Boolean] = UnsetParam, overwrite: Opt[Boolean] = UnsetParam, pixelsAboveLines: Opt[Int] = UnsetParam, pixelsBelowLines: Opt[Int] = UnsetParam, pixelsInsideWrap: Opt[Int] = UnsetParam, rightMargin: Opt[Int] = UnsetParam, topMargin: Opt[Int] = UnsetParam, vadjustment: Opt[org.gnome.gtk.Adjustment | Null] = UnsetParam, vscrollPolicy: Opt[org.gnome.gtk.ScrollablePolicy] = UnsetParam, wrapMode: Opt[org.gnome.gtk.WrapMode] = UnsetParam): VarContextAction[TextView] = {
+  def apply(acceptsTab: Opt[Boolean] = UnsetParam, bottomMargin: Opt[Int] = UnsetParam, canFocus: Opt[Boolean] = UnsetParam, canTarget: Opt[Boolean] = UnsetParam, childVisible: Opt[Boolean] = UnsetParam, cursor: Opt[org.gnome.gdk.Cursor | Null] = UnsetParam, cursorVisible: Opt[Boolean] = UnsetParam, direction: Opt[org.gnome.gtk.TextDirection] = UnsetParam, editable: Opt[Boolean] = UnsetParam, extraMenu: Opt[org.gnome.gio.MenuModel | Null] = UnsetParam, focusChild: Opt[org.gnome.gtk.Widget | Null] = UnsetParam, focusOnClick: Opt[Boolean] = UnsetParam, focusable: Opt[Boolean] = UnsetParam, fontMap: Opt[org.gnome.pango.FontMap | Null] = UnsetParam, fontOptions: Opt[org.freedesktop.cairo.FontOptions | Null] = UnsetParam, hadjustment: Opt[org.gnome.gtk.Adjustment | Null] = UnsetParam, halign: Opt[org.gnome.gtk.Align] = UnsetParam, hasTooltip: Opt[Boolean] = UnsetParam, hexpand: Opt[Boolean] = UnsetParam, hexpandSet: Opt[Boolean] = UnsetParam, hscrollPolicy: Opt[org.gnome.gtk.ScrollablePolicy] = UnsetParam, indent: Opt[Int] = UnsetParam, inputHints: Opt[java.util.Set[org.gnome.gtk.InputHints]] = UnsetParam, inputPurpose: Opt[org.gnome.gtk.InputPurpose] = UnsetParam, justification: Opt[org.gnome.gtk.Justification] = UnsetParam, layoutManager: Opt[org.gnome.gtk.LayoutManager | Null] = UnsetParam, leftMargin: Opt[Int] = UnsetParam, limitEvents: Opt[Boolean] = UnsetParam, marginBottom: Opt[Int] = UnsetParam, marginEnd: Opt[Int] = UnsetParam, marginStart: Opt[Int] = UnsetParam, marginTop: Opt[Int] = UnsetParam, monospace: Opt[Boolean] = UnsetParam, name: Opt[java.lang.String] = UnsetParam, opacity: Opt[Double] = UnsetParam, overflow: Opt[org.gnome.gtk.Overflow] = UnsetParam, overwrite: Opt[Boolean] = UnsetParam, pixelsAboveLines: Opt[Int] = UnsetParam, pixelsBelowLines: Opt[Int] = UnsetParam, pixelsInsideWrap: Opt[Int] = UnsetParam, receivesDefault: Opt[Boolean] = UnsetParam, rightMargin: Opt[Int] = UnsetParam, sensitive: Opt[Boolean] = UnsetParam, tooltipMarkup: Opt[java.lang.String | Null] = UnsetParam, tooltipText: Opt[java.lang.String | Null] = UnsetParam, topMargin: Opt[Int] = UnsetParam, vadjustment: Opt[org.gnome.gtk.Adjustment | Null] = UnsetParam, valign: Opt[org.gnome.gtk.Align] = UnsetParam, vexpand: Opt[Boolean] = UnsetParam, vexpandSet: Opt[Boolean] = UnsetParam, visible: Opt[Boolean] = UnsetParam, vscrollPolicy: Opt[org.gnome.gtk.ScrollablePolicy] = UnsetParam, wrapMode: Opt[org.gnome.gtk.WrapMode] = UnsetParam): ToolkitAction[Toolkit, TextView] = {
     val res = uninitialized()
     init(res)
     ifSet(acceptsTab, res.acceptsTab := _)
     ifSet(bottomMargin, res.bottomMargin := _)
+    ifSet(canFocus, res.canFocus := _)
+    ifSet(canTarget, res.canTarget := _)
+    ifSet(childVisible, res.childVisible := _)
+    ifSet(cursor, res.cursor := _)
     ifSet(cursorVisible, res.cursorVisible := _)
+    ifSet(direction, res.direction := _)
     ifSet(editable, res.editable := _)
     ifSet(extraMenu, res.extraMenu := _)
+    ifSet(focusChild, res.focusChild := _)
+    ifSet(focusOnClick, res.focusOnClick := _)
+    ifSet(focusable, res.focusable := _)
+    ifSet(fontMap, res.fontMap := _)
+    ifSet(fontOptions, res.fontOptions := _)
     ifSet(hadjustment, res.hadjustment := _)
+    ifSet(halign, res.halign := _)
+    ifSet(hasTooltip, res.hasTooltip := _)
+    ifSet(hexpand, res.hexpand := _)
+    ifSet(hexpandSet, res.hexpandSet := _)
     ifSet(hscrollPolicy, res.hscrollPolicy := _)
     ifSet(indent, res.indent := _)
     ifSet(inputHints, res.inputHints := _)
     ifSet(inputPurpose, res.inputPurpose := _)
     ifSet(justification, res.justification := _)
+    ifSet(layoutManager, res.layoutManager := _)
     ifSet(leftMargin, res.leftMargin := _)
+    ifSet(limitEvents, res.limitEvents := _)
+    ifSet(marginBottom, res.marginBottom := _)
+    ifSet(marginEnd, res.marginEnd := _)
+    ifSet(marginStart, res.marginStart := _)
+    ifSet(marginTop, res.marginTop := _)
     ifSet(monospace, res.monospace := _)
+    ifSet(name, res.name := _)
+    ifSet(opacity, res.opacity := _)
+    ifSet(overflow, res.overflow := _)
     ifSet(overwrite, res.overwrite := _)
     ifSet(pixelsAboveLines, res.pixelsAboveLines := _)
     ifSet(pixelsBelowLines, res.pixelsBelowLines := _)
     ifSet(pixelsInsideWrap, res.pixelsInsideWrap := _)
+    ifSet(receivesDefault, res.receivesDefault := _)
     ifSet(rightMargin, res.rightMargin := _)
+    ifSet(sensitive, res.sensitive := _)
+    ifSet(tooltipMarkup, res.tooltipMarkup := _)
+    ifSet(tooltipText, res.tooltipText := _)
     ifSet(topMargin, res.topMargin := _)
     ifSet(vadjustment, res.vadjustment := _)
+    ifSet(valign, res.valign := _)
+    ifSet(vexpand, res.vexpand := _)
+    ifSet(vexpandSet, res.vexpandSet := _)
+    ifSet(visible, res.visible := _)
     ifSet(vscrollPolicy, res.vscrollPolicy := _)
     ifSet(wrapMode, res.wrapMode := _)
     res

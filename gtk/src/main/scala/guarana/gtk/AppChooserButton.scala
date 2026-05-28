@@ -1,20 +1,67 @@
 package guarana
 package gtk
+import util.*
 opaque type AppChooserButton <: Widget = org.gnome.gtk.AppChooserButton & Widget
-object AppChooserButton {
+object AppChooserButton extends VarsMap {
   @deprecated("", "") val Modal: ExternalVar.Aux[AppChooserButton, Boolean] = ExternalVar[AppChooserButton, Boolean]("modal", _.getModal(), _.setModal(_), true)
   @deprecated("", "") val ShowDefaultItem: ExternalVar.Aux[AppChooserButton, Boolean] = ExternalVar[AppChooserButton, Boolean]("show-default-item", _.getShowDefaultItem(), _.setShowDefaultItem(_), true)
   @deprecated("", "") val ShowDialogItem: ExternalVar.Aux[AppChooserButton, Boolean] = ExternalVar[AppChooserButton, Boolean]("show-dialog-item", _.getShowDialogItem(), _.setShowDialogItem(_), true)
   ()
   extension (v: AppChooserButton) {
     def unwrap: org.gnome.gtk.AppChooserButton = v
+    @deprecated("", "") def modal: Var.Aux[Boolean, v.type] = Modal.asInstanceOf[Var.Aux[Boolean, v.type]]
+    @deprecated("", "") def showDefaultItem: Var.Aux[Boolean, v.type] = ShowDefaultItem.asInstanceOf[Var.Aux[Boolean, v.type]]
+    @deprecated("", "") def showDialogItem: Var.Aux[Boolean, v.type] = ShowDialogItem.asInstanceOf[Var.Aux[Boolean, v.type]]
     export unwrap.onActivate, unwrap.onChanged, unwrap.onCustomItemActivated
   }
-  def init(v: AppChooserButton): Unit = {
-    Widget.init(v)
+  def _wrap(v: org.gnome.gtk.AppChooserButton): AppChooserButton = {
+    v.asInstanceOf
   }
-  def uninitialized(): AppChooserButton = {
-    val res = new org.gnome.gtk.AppChooserButton()
+  def init(v: AppChooserButton): ToolkitAction[Toolkit, Unit] = {
+    Widget.init(v)
+    connectVarsListener(v)
+  }
+  def uninitialized(arg$0: java.lang.String): AppChooserButton = {
+    val res = new org.gnome.gtk.AppChooserButton(arg$0)
     res.asInstanceOf[AppChooserButton]
+  }
+  def apply(arg$0: java.lang.String, canFocus: Opt[Boolean] = UnsetParam, canTarget: Opt[Boolean] = UnsetParam, childVisible: Opt[Boolean] = UnsetParam, cursor: Opt[org.gnome.gdk.Cursor | Null] = UnsetParam, direction: Opt[org.gnome.gtk.TextDirection] = UnsetParam, focusChild: Opt[org.gnome.gtk.Widget | Null] = UnsetParam, focusOnClick: Opt[Boolean] = UnsetParam, focusable: Opt[Boolean] = UnsetParam, fontMap: Opt[org.gnome.pango.FontMap | Null] = UnsetParam, fontOptions: Opt[org.freedesktop.cairo.FontOptions | Null] = UnsetParam, halign: Opt[org.gnome.gtk.Align] = UnsetParam, hasTooltip: Opt[Boolean] = UnsetParam, hexpand: Opt[Boolean] = UnsetParam, hexpandSet: Opt[Boolean] = UnsetParam, layoutManager: Opt[org.gnome.gtk.LayoutManager | Null] = UnsetParam, limitEvents: Opt[Boolean] = UnsetParam, marginBottom: Opt[Int] = UnsetParam, marginEnd: Opt[Int] = UnsetParam, marginStart: Opt[Int] = UnsetParam, marginTop: Opt[Int] = UnsetParam, modal: Opt[Boolean] = UnsetParam, name: Opt[java.lang.String] = UnsetParam, opacity: Opt[Double] = UnsetParam, overflow: Opt[org.gnome.gtk.Overflow] = UnsetParam, receivesDefault: Opt[Boolean] = UnsetParam, sensitive: Opt[Boolean] = UnsetParam, showDefaultItem: Opt[Boolean] = UnsetParam, showDialogItem: Opt[Boolean] = UnsetParam, tooltipMarkup: Opt[java.lang.String | Null] = UnsetParam, tooltipText: Opt[java.lang.String | Null] = UnsetParam, valign: Opt[org.gnome.gtk.Align] = UnsetParam, vexpand: Opt[Boolean] = UnsetParam, vexpandSet: Opt[Boolean] = UnsetParam, visible: Opt[Boolean] = UnsetParam): ToolkitAction[Toolkit, AppChooserButton] = {
+    val res = uninitialized(arg$0)
+    init(res)
+    ifSet(canFocus, res.canFocus := _)
+    ifSet(canTarget, res.canTarget := _)
+    ifSet(childVisible, res.childVisible := _)
+    ifSet(cursor, res.cursor := _)
+    ifSet(direction, res.direction := _)
+    ifSet(focusChild, res.focusChild := _)
+    ifSet(focusOnClick, res.focusOnClick := _)
+    ifSet(focusable, res.focusable := _)
+    ifSet(fontMap, res.fontMap := _)
+    ifSet(fontOptions, res.fontOptions := _)
+    ifSet(halign, res.halign := _)
+    ifSet(hasTooltip, res.hasTooltip := _)
+    ifSet(hexpand, res.hexpand := _)
+    ifSet(hexpandSet, res.hexpandSet := _)
+    ifSet(layoutManager, res.layoutManager := _)
+    ifSet(limitEvents, res.limitEvents := _)
+    ifSet(marginBottom, res.marginBottom := _)
+    ifSet(marginEnd, res.marginEnd := _)
+    ifSet(marginStart, res.marginStart := _)
+    ifSet(marginTop, res.marginTop := _)
+    ifSet(modal, res.modal := _)
+    ifSet(name, res.name := _)
+    ifSet(opacity, res.opacity := _)
+    ifSet(overflow, res.overflow := _)
+    ifSet(receivesDefault, res.receivesDefault := _)
+    ifSet(sensitive, res.sensitive := _)
+    ifSet(showDefaultItem, res.showDefaultItem := _)
+    ifSet(showDialogItem, res.showDialogItem := _)
+    ifSet(tooltipMarkup, res.tooltipMarkup := _)
+    ifSet(tooltipText, res.tooltipText := _)
+    ifSet(valign, res.valign := _)
+    ifSet(vexpand, res.vexpand := _)
+    ifSet(vexpandSet, res.vexpandSet := _)
+    ifSet(visible, res.visible := _)
+    res
   }
 }

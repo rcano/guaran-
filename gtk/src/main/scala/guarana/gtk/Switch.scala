@@ -2,7 +2,7 @@ package guarana
 package gtk
 import util.*
 opaque type Switch <: Widget = org.gnome.gtk.Switch & Widget
-object Switch {
+object Switch extends VarsMap {
   val ActionName: ExternalVar.Aux[Switch, java.lang.String | Null] = ExternalVar[Switch, java.lang.String | Null]("action-name", _.getActionName(), _.setActionName(_), true)
   val ActionTargetValue: ExternalVar.Aux[Switch, org.gnome.glib.Variant | Null] = ExternalVar[Switch, org.gnome.glib.Variant | Null]("action-target-value", _.getActionTargetValue(), _.setActionTargetValue(_), true)
   val Active: ExternalVar.Aux[Switch, Boolean] = ExternalVar[Switch, Boolean]("active", _.getActive(), _.setActive(_), true)
@@ -16,20 +16,55 @@ object Switch {
     def state: Var.Aux[Boolean, v.type] = State.asInstanceOf[Var.Aux[Boolean, v.type]]
     export unwrap.onActivate, unwrap.onStateSet
   }
-  def init(v: Switch): Unit = {
+  def _wrap(v: org.gnome.gtk.Switch): Switch = {
+    v.asInstanceOf
+  }
+  def init(v: Switch): ToolkitAction[Toolkit, Unit] = {
     Widget.init(v)
+    connectVarsListener(v)
   }
   def uninitialized(): Switch = {
     val res = new org.gnome.gtk.Switch()
     res.asInstanceOf[Switch]
   }
-  def apply(actionName: Opt[java.lang.String | Null] = UnsetParam, actionTargetValue: Opt[org.gnome.glib.Variant | Null] = UnsetParam, active: Opt[Boolean] = UnsetParam, state: Opt[Boolean] = UnsetParam): VarContextAction[Switch] = {
+  def apply(actionName: Opt[java.lang.String | Null] = UnsetParam, actionTargetValue: Opt[org.gnome.glib.Variant | Null] = UnsetParam, active: Opt[Boolean] = UnsetParam, canFocus: Opt[Boolean] = UnsetParam, canTarget: Opt[Boolean] = UnsetParam, childVisible: Opt[Boolean] = UnsetParam, cursor: Opt[org.gnome.gdk.Cursor | Null] = UnsetParam, direction: Opt[org.gnome.gtk.TextDirection] = UnsetParam, focusChild: Opt[org.gnome.gtk.Widget | Null] = UnsetParam, focusOnClick: Opt[Boolean] = UnsetParam, focusable: Opt[Boolean] = UnsetParam, fontMap: Opt[org.gnome.pango.FontMap | Null] = UnsetParam, fontOptions: Opt[org.freedesktop.cairo.FontOptions | Null] = UnsetParam, halign: Opt[org.gnome.gtk.Align] = UnsetParam, hasTooltip: Opt[Boolean] = UnsetParam, hexpand: Opt[Boolean] = UnsetParam, hexpandSet: Opt[Boolean] = UnsetParam, layoutManager: Opt[org.gnome.gtk.LayoutManager | Null] = UnsetParam, limitEvents: Opt[Boolean] = UnsetParam, marginBottom: Opt[Int] = UnsetParam, marginEnd: Opt[Int] = UnsetParam, marginStart: Opt[Int] = UnsetParam, marginTop: Opt[Int] = UnsetParam, name: Opt[java.lang.String] = UnsetParam, opacity: Opt[Double] = UnsetParam, overflow: Opt[org.gnome.gtk.Overflow] = UnsetParam, receivesDefault: Opt[Boolean] = UnsetParam, sensitive: Opt[Boolean] = UnsetParam, state: Opt[Boolean] = UnsetParam, tooltipMarkup: Opt[java.lang.String | Null] = UnsetParam, tooltipText: Opt[java.lang.String | Null] = UnsetParam, valign: Opt[org.gnome.gtk.Align] = UnsetParam, vexpand: Opt[Boolean] = UnsetParam, vexpandSet: Opt[Boolean] = UnsetParam, visible: Opt[Boolean] = UnsetParam): ToolkitAction[Toolkit, Switch] = {
     val res = uninitialized()
     init(res)
     ifSet(actionName, res.actionName := _)
     ifSet(actionTargetValue, res.actionTargetValue := _)
     ifSet(active, res.active := _)
+    ifSet(canFocus, res.canFocus := _)
+    ifSet(canTarget, res.canTarget := _)
+    ifSet(childVisible, res.childVisible := _)
+    ifSet(cursor, res.cursor := _)
+    ifSet(direction, res.direction := _)
+    ifSet(focusChild, res.focusChild := _)
+    ifSet(focusOnClick, res.focusOnClick := _)
+    ifSet(focusable, res.focusable := _)
+    ifSet(fontMap, res.fontMap := _)
+    ifSet(fontOptions, res.fontOptions := _)
+    ifSet(halign, res.halign := _)
+    ifSet(hasTooltip, res.hasTooltip := _)
+    ifSet(hexpand, res.hexpand := _)
+    ifSet(hexpandSet, res.hexpandSet := _)
+    ifSet(layoutManager, res.layoutManager := _)
+    ifSet(limitEvents, res.limitEvents := _)
+    ifSet(marginBottom, res.marginBottom := _)
+    ifSet(marginEnd, res.marginEnd := _)
+    ifSet(marginStart, res.marginStart := _)
+    ifSet(marginTop, res.marginTop := _)
+    ifSet(name, res.name := _)
+    ifSet(opacity, res.opacity := _)
+    ifSet(overflow, res.overflow := _)
+    ifSet(receivesDefault, res.receivesDefault := _)
+    ifSet(sensitive, res.sensitive := _)
     ifSet(state, res.state := _)
+    ifSet(tooltipMarkup, res.tooltipMarkup := _)
+    ifSet(tooltipText, res.tooltipText := _)
+    ifSet(valign, res.valign := _)
+    ifSet(vexpand, res.vexpand := _)
+    ifSet(vexpandSet, res.vexpandSet := _)
+    ifSet(visible, res.visible := _)
     res
   }
 }

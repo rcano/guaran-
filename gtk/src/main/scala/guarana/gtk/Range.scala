@@ -2,7 +2,7 @@ package guarana
 package gtk
 import util.*
 opaque type Range <: Widget = org.gnome.gtk.Range & Widget
-object Range {
+object Range extends VarsMap {
   val Adjustment: ExternalVar.Aux[Range, org.gnome.gtk.Adjustment] = ExternalVar[Range, org.gnome.gtk.Adjustment]("adjustment", _.getAdjustment(), _.setAdjustment(_), true)
   val FillLevel: ExternalVar.Aux[Range, Double] = ExternalVar[Range, Double]("fill-level", _.getFillLevel(), _.setFillLevel(_), true)
   val Flippable: ExternalVar.Aux[Range, Boolean] = ExternalVar[Range, Boolean]("flippable", _.getFlippable(), _.setFlippable(_), true)
@@ -28,26 +28,61 @@ object Range {
     def value: Var.Aux[Double, v.type] = Value.asInstanceOf[Var.Aux[Double, v.type]]
     export unwrap.onAdjustBounds, unwrap.onChangeValue, unwrap.onMoveSlider, unwrap.onValueChanged
   }
-  def init(v: Range): Unit = {
+  def _wrap(v: org.gnome.gtk.Range): Range = {
+    v.asInstanceOf
+  }
+  def init(v: Range): ToolkitAction[Toolkit, Unit] = {
     Widget.init(v)
+    connectVarsListener(v)
   }
   def uninitialized(): Range = {
     val res = new org.gnome.gtk.Range()
     res.asInstanceOf[Range]
   }
-  def apply(adjustment: Opt[org.gnome.gtk.Adjustment] = UnsetParam, fillLevel: Opt[Double] = UnsetParam, flippable: Opt[Boolean] = UnsetParam, inverted: Opt[Boolean] = UnsetParam, orientation: Opt[org.gnome.gtk.Orientation] = UnsetParam, restrictToFillLevel: Opt[Boolean] = UnsetParam, roundDigits: Opt[Int] = UnsetParam, showFillLevel: Opt[Boolean] = UnsetParam, sliderSizeFixed: Opt[Boolean] = UnsetParam, value: Opt[Double] = UnsetParam): VarContextAction[Range] = {
+  def apply(adjustment: Opt[org.gnome.gtk.Adjustment] = UnsetParam, canFocus: Opt[Boolean] = UnsetParam, canTarget: Opt[Boolean] = UnsetParam, childVisible: Opt[Boolean] = UnsetParam, cursor: Opt[org.gnome.gdk.Cursor | Null] = UnsetParam, direction: Opt[org.gnome.gtk.TextDirection] = UnsetParam, fillLevel: Opt[Double] = UnsetParam, flippable: Opt[Boolean] = UnsetParam, focusChild: Opt[org.gnome.gtk.Widget | Null] = UnsetParam, focusOnClick: Opt[Boolean] = UnsetParam, focusable: Opt[Boolean] = UnsetParam, fontMap: Opt[org.gnome.pango.FontMap | Null] = UnsetParam, fontOptions: Opt[org.freedesktop.cairo.FontOptions | Null] = UnsetParam, halign: Opt[org.gnome.gtk.Align] = UnsetParam, hasTooltip: Opt[Boolean] = UnsetParam, hexpand: Opt[Boolean] = UnsetParam, hexpandSet: Opt[Boolean] = UnsetParam, inverted: Opt[Boolean] = UnsetParam, layoutManager: Opt[org.gnome.gtk.LayoutManager | Null] = UnsetParam, limitEvents: Opt[Boolean] = UnsetParam, marginBottom: Opt[Int] = UnsetParam, marginEnd: Opt[Int] = UnsetParam, marginStart: Opt[Int] = UnsetParam, marginTop: Opt[Int] = UnsetParam, name: Opt[java.lang.String] = UnsetParam, opacity: Opt[Double] = UnsetParam, orientation: Opt[org.gnome.gtk.Orientation] = UnsetParam, overflow: Opt[org.gnome.gtk.Overflow] = UnsetParam, receivesDefault: Opt[Boolean] = UnsetParam, restrictToFillLevel: Opt[Boolean] = UnsetParam, roundDigits: Opt[Int] = UnsetParam, sensitive: Opt[Boolean] = UnsetParam, showFillLevel: Opt[Boolean] = UnsetParam, sliderSizeFixed: Opt[Boolean] = UnsetParam, tooltipMarkup: Opt[java.lang.String | Null] = UnsetParam, tooltipText: Opt[java.lang.String | Null] = UnsetParam, valign: Opt[org.gnome.gtk.Align] = UnsetParam, value: Opt[Double] = UnsetParam, vexpand: Opt[Boolean] = UnsetParam, vexpandSet: Opt[Boolean] = UnsetParam, visible: Opt[Boolean] = UnsetParam): ToolkitAction[Toolkit, Range] = {
     val res = uninitialized()
     init(res)
     ifSet(adjustment, res.adjustment := _)
+    ifSet(canFocus, res.canFocus := _)
+    ifSet(canTarget, res.canTarget := _)
+    ifSet(childVisible, res.childVisible := _)
+    ifSet(cursor, res.cursor := _)
+    ifSet(direction, res.direction := _)
     ifSet(fillLevel, res.fillLevel := _)
     ifSet(flippable, res.flippable := _)
+    ifSet(focusChild, res.focusChild := _)
+    ifSet(focusOnClick, res.focusOnClick := _)
+    ifSet(focusable, res.focusable := _)
+    ifSet(fontMap, res.fontMap := _)
+    ifSet(fontOptions, res.fontOptions := _)
+    ifSet(halign, res.halign := _)
+    ifSet(hasTooltip, res.hasTooltip := _)
+    ifSet(hexpand, res.hexpand := _)
+    ifSet(hexpandSet, res.hexpandSet := _)
     ifSet(inverted, res.inverted := _)
+    ifSet(layoutManager, res.layoutManager := _)
+    ifSet(limitEvents, res.limitEvents := _)
+    ifSet(marginBottom, res.marginBottom := _)
+    ifSet(marginEnd, res.marginEnd := _)
+    ifSet(marginStart, res.marginStart := _)
+    ifSet(marginTop, res.marginTop := _)
+    ifSet(name, res.name := _)
+    ifSet(opacity, res.opacity := _)
     ifSet(orientation, res.orientation := _)
+    ifSet(overflow, res.overflow := _)
+    ifSet(receivesDefault, res.receivesDefault := _)
     ifSet(restrictToFillLevel, res.restrictToFillLevel := _)
     ifSet(roundDigits, res.roundDigits := _)
+    ifSet(sensitive, res.sensitive := _)
     ifSet(showFillLevel, res.showFillLevel := _)
     ifSet(sliderSizeFixed, res.sliderSizeFixed := _)
+    ifSet(tooltipMarkup, res.tooltipMarkup := _)
+    ifSet(tooltipText, res.tooltipText := _)
+    ifSet(valign, res.valign := _)
     ifSet(value, res.value := _)
+    ifSet(vexpand, res.vexpand := _)
+    ifSet(vexpandSet, res.vexpandSet := _)
+    ifSet(visible, res.visible := _)
     res
   }
 }
