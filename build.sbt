@@ -165,7 +165,7 @@ lazy val gtk = Project(id = "guarana-gtk", base = file("gtk"))
         "org.java-gi" % "gtk" % gtkVersion,
       )
     },
-    javaOptions += "--enable-preview"
+    javaOptions += "--enable-preview",
   )
 
 lazy val lwjglVersion = "3.3.6"

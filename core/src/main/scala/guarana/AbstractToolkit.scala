@@ -78,6 +78,7 @@ abstract class AbstractToolkit {
         case v: Var.Aux[T, v.ForInstance] @unchecked if v.eagerEvaluation =>
           impl.Debug.elidable { scribe.debug(s"Keyed($instance, $v) eagerly evaluating") }
           switchboard.get(v, instance)
+          impl.Debug.elidable { scribe.debug(s"Keyed($instance, $v) eagerly evaluated") }
         // v match {
         //   case ev: ExternalVar[t] => reactingToExtVar(s) {
 
@@ -189,7 +190,8 @@ abstract class AbstractToolkit {
     def externalPropertyUpdated[T](v: ObsVal[T], oldValue: Option[T])(using instance: ValueOf[v.ForInstance]): Unit = {
       checkActiveContext()
       recordVarUsage(v)
-      if (!reactingExtVars.contains(ObsVal.obs2Keyed(v).id)) {
+      val keyed = ObsVal.obs2Keyed(v)
+      if (!reactingExtVars.contains(keyed.id)) reactingToExtVar(keyed) {
         switchboard.externalPropertyChanged(v.asInstanceOf[ExternalObsVal[T] { type ForInstance = v.ForInstance }], instance.value, oldValue)
       }
     }

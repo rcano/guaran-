@@ -74,6 +74,6 @@ class VarsLookup {
       case s if s.length < maxWidth => s
       case s => s.take(maxWidth - 3) + "..."
     }
-    s"$instanceDescr: $v"
+    s"$instanceDescr, $v"
   }
 }

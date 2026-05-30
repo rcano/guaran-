@@ -20,18 +20,20 @@ trait VarsMap {
       tk: Toolkit
   ): Unit = {
     val notifyCallback = NotifyBridge { param =>
-      val property = param.getName
-      if (!ignoreProperties(property)) {
-        if (debug) scribe.info(s"Trying to update $property")
-        varsMap.get(property) foreach { case sv: ExternalVar[t] =>
-          if (debug) scribe.info("  found gtk var")
-          tk.update(
-            summon[VarContext].externalPropertyUpdated(sv, None)(using
-              ValueOf(instance.asInstanceOf[sv.ForInstance])
+      try {
+        val property = param.getName
+        if (!ignoreProperties(property)) {
+          // if (debug) scribe.info(s"Trying to update $property")
+          varsMap.get(property) foreach { case sv: ExternalVar[t] =>
+            // if (debug) scribe.info("  found gtk var")
+            tk.update(
+              summon[VarContext].externalPropertyUpdated(sv, None)(using
+                ValueOf(instance.asInstanceOf[sv.ForInstance])
+              )
             )
-          )
+          }
         }
-      }
+      } catch case e => e.printStackTrace()
     }
     val conn = instance.connect("notify", notifyCallback, true)
     VarsMap.cleaner.register(instance, () => conn.disconnect()) // hopefully this doesn't cause a sigsev

@@ -27,6 +27,7 @@ package codegen {
     tpe: String,
     getter: String,
     setter: String,
+    externalName: Option[String] = None,
     visibility: Option[String] = None,
     overrideTpeInStaticPos: Option[String] = None,
     eagerEvaluation: Boolean = true,
@@ -84,10 +85,10 @@ package codegen {
     val emptyTpeParams = tpeParams.replaceAll(raw"\w|_ [><]: \w+", "Any")
 
     def propDecl(p: Property): String = p.visibility.map(s => s + " ").getOrElse("") + (p match {
-      case p@ExternalProp(name, tpe, getter, setter, _, _, eagerEval, true) => 
-        s"""val ${name.capitalize}: ExternalObsVal.Aux[${n.name}$emptyTpeParams, ${p.tpeInStaticPos}] = ExternalObsVal[${n.name}$emptyTpeParams, ${p.tpeInStaticPos}]("$name", $getter)"""
-      case p@ExternalProp(name, tpe, getter, setter, _, _, eagerEval, _) => 
-        s"""val ${name.capitalize}: ExternalVar.Aux[${n.name}$emptyTpeParams, ${p.tpeInStaticPos}] = ExternalVar[${n.name}$emptyTpeParams, ${p.tpeInStaticPos}]("$name", $getter, $setter, $eagerEval)"""
+      case p@ExternalProp(name, tpe, getter, setter, externalName, _, _, _, true) => 
+        s"""val ${name.capitalize}: ExternalObsVal.Aux[${n.name}$emptyTpeParams, ${p.tpeInStaticPos}] = ExternalObsVal[${n.name}$emptyTpeParams, ${p.tpeInStaticPos}]("${externalName.getOrElse(name)}", $getter)"""
+      case p@ExternalProp(name, tpe, getter, setter, externalName, _, _, eagerEval, _) => 
+        s"""val ${name.capitalize}: ExternalVar.Aux[${n.name}$emptyTpeParams, ${p.tpeInStaticPos}] = ExternalVar[${n.name}$emptyTpeParams, ${p.tpeInStaticPos}]("${externalName.getOrElse(name)}", $getter, $setter, $eagerEval)"""
       case p@VarProp(name, tpe, initValue, _, _, eval) => 
         s"""val ${name.capitalize}: Var[${p.tpeInStaticPos}] = Var[${p.tpeInStaticPos}]("$name", $initValue, $eval)"""
     })
@@ -135,19 +136,17 @@ package codegen {
       |
       |  ${sortedEmitters.map(e => s"val ${e.name.capitalize} = Emitter[${e.tpe}]()").mkString("\n  ")}
       |
-      |  given ops: Ops.type = Ops
-      |  object Ops {
-      |    extension $tpeParams(v: ${n.name}$tpeParams) {
-      |      ${nonPrivateSortedProps.map(p =>
-                 val varTpe = if p.readOnly then "ObsVal" else "Var"
-                 s"def ${p.name}: $varTpe.Aux[${p.tpe}, v.type] = ${n.name}.${p.name.capitalize}.asInstanceOf[$varTpe.Aux[${p.tpe}, v.type]]"
-               ).mkString("\n      ")}
+      |  extension $tpeParams(v: ${n.name}$tpeParams) {
+      |    def unwrap: ${n.underlying} = v
+      |
+      |    ${nonPrivateSortedProps.map(p =>
+               val varTpe = if p.readOnly then "ObsVal" else "Var"
+               s"def ${p.name}: $varTpe.Aux[${p.tpe}, v.type] = ${n.name}.${p.name.capitalize}.asInstanceOf[$varTpe.Aux[${p.tpe}, v.type]]"
+             ).mkString("\n    ")}
 
-      |      ${sortedEmitters.map(e => s"def ${e.name}: Emitter.Aux[${e.tpe}, v.type] = ${n.name}.${e.name.capitalize}.forInstance(v)").mkString("\n      ")}
+      |    ${sortedEmitters.map(e => s"def ${e.name}: Emitter.Aux[${e.tpe}, v.type] = ${n.name}.${e.name.capitalize}.forInstance(v)").mkString("\n      ")}
 
-      |      ${n.opsExtra.mkString("\n      ")}
-      |      def unwrap: ${n.underlying} = v
-      |    }
+      |    ${n.opsExtra.mkString("\n      ")}
       |  }
       |
       |  def wrap$tpeParams(v: ${n.underlying}): ${n.name}$tpeParams = 

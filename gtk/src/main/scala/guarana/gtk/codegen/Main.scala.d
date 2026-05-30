@@ -132,7 +132,7 @@ object Main {
                   val (applyParams, paramsSetters) = computedInfo.properties.toList.sortBy(_.name).flatMap(prop => 
                     val nme = Term.Name(prop.nameInCamelCase)
                     List(
-                      Left(param"""$nme: Opt[${toType(prop.tpe)}] = UnsetParam"""),
+                      Left(param"""$nme: Opt[Binding[${toType(prop.tpe)}]] = UnsetParam"""),
                       Right(q"ifSet($nme, res.$nme := _)")
                     )
                   ).partitionMap(identity)
