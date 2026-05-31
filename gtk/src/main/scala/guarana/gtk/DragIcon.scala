@@ -1,30 +1,96 @@
+
 package guarana
 package gtk
-import util.*
-opaque type DragIcon <: Widget = org.gnome.gtk.DragIcon & Widget
+
+import guarana.util.*
+
+opaque type DragIcon <: guarana.gtk.Widget  = org.gnome.gtk.DragIcon & guarana.gtk.Widget
 object DragIcon extends VarsMap {
-  val Child: ExternalVar.Aux[DragIcon, org.gnome.gtk.Widget | Null] = ExternalVar[DragIcon, org.gnome.gtk.Widget | Null]("child", _.getChild(), _.setChild(_), true)
-  val Focus: ExternalVar.Aux[DragIcon, org.gnome.gtk.Widget | Null] = ExternalVar[DragIcon, org.gnome.gtk.Widget | Null]("focus", _.getFocus(), _.setFocus(_), true)
-  ()
+  val Child: ExternalVar.Aux[DragIcon, guarana.gtk.Widget | Null] = ExternalVar[DragIcon, guarana.gtk.Widget | Null]("child", _.getChild().?(guarana.gtk.Widget.wrap), (n, v) => n.setChild(v.?(_.unwrap)), true)
+  val Focus: ExternalVar.Aux[DragIcon, guarana.gtk.Widget | Null] = ExternalVar[DragIcon, guarana.gtk.Widget | Null]("focus", _.getFocus().?(guarana.gtk.Widget.wrap), (n, v) => n.setFocus(v.?(_.unwrap)), true)
+
+  
+
   extension (v: DragIcon) {
     def unwrap: org.gnome.gtk.DragIcon = v
-    def child: Var.Aux[org.gnome.gtk.Widget | Null, v.type] = Child.asInstanceOf[Var.Aux[org.gnome.gtk.Widget | Null, v.type]]
-    def focus: Var.Aux[org.gnome.gtk.Widget | Null, v.type] = Focus.asInstanceOf[Var.Aux[org.gnome.gtk.Widget | Null, v.type]]
+
+    def child: Var.Aux[guarana.gtk.Widget | Null, v.type] = guarana.gtk.DragIcon.Child.asInstanceOf[Var.Aux[guarana.gtk.Widget | Null, v.type]]
+    def focus: Var.Aux[guarana.gtk.Widget | Null, v.type] = guarana.gtk.DragIcon.Focus.asInstanceOf[Var.Aux[guarana.gtk.Widget | Null, v.type]]
+
+    
+
+    export unwrap.{
+      onDestroy,
+      onDirectionChanged,
+      onHide,
+      onKeynavFailed,
+      onMap,
+      onMnemonicActivate,
+      onMoveFocus,
+      onNotify,
+      onQueryTooltip,
+      onRealize,
+      onShow,
+      onStateFlagsChanged,
+      onUnmap,
+      onUnrealize
+    }
   }
-  def _wrap(v: org.gnome.gtk.DragIcon): DragIcon = {
-    v.asInstanceOf
-  }
-  def init(v: DragIcon): ToolkitAction[Toolkit, Unit] = {
-    Widget.init(v)
+
+  def wrap(v: org.gnome.gtk.DragIcon): DragIcon = 
+    val res = v.asInstanceOf[DragIcon]
+    
+    res
+
+  def init(v: DragIcon): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+    guarana.gtk.Widget.init(v)
     connectVarsListener(v)
+    
   }
   def uninitialized(): DragIcon = {
     val res = new org.gnome.gtk.DragIcon()
+    
     res.asInstanceOf[DragIcon]
   }
-  def apply(canFocus: Opt[Binding[Boolean]] = UnsetParam, canTarget: Opt[Binding[Boolean]] = UnsetParam, child: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, childVisible: Opt[Binding[Boolean]] = UnsetParam, cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam, direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam, focus: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, focusChild: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, focusOnClick: Opt[Binding[Boolean]] = UnsetParam, focusable: Opt[Binding[Boolean]] = UnsetParam, fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam, fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam, halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, hasTooltip: Opt[Binding[Boolean]] = UnsetParam, hexpand: Opt[Binding[Boolean]] = UnsetParam, hexpandSet: Opt[Binding[Boolean]] = UnsetParam, layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam, limitEvents: Opt[Binding[Boolean]] = UnsetParam, marginBottom: Opt[Binding[Int]] = UnsetParam, marginEnd: Opt[Binding[Int]] = UnsetParam, marginStart: Opt[Binding[Int]] = UnsetParam, marginTop: Opt[Binding[Int]] = UnsetParam, name: Opt[Binding[java.lang.String]] = UnsetParam, opacity: Opt[Binding[Double]] = UnsetParam, overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam, receivesDefault: Opt[Binding[Boolean]] = UnsetParam, sensitive: Opt[Binding[Boolean]] = UnsetParam, tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam, tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam, valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, vexpand: Opt[Binding[Boolean]] = UnsetParam, vexpandSet: Opt[Binding[Boolean]] = UnsetParam, visible: Opt[Binding[Boolean]] = UnsetParam): ToolkitAction[Toolkit, DragIcon] = {
+  
+  def apply(
+    
+    canFocus: Opt[Binding[Boolean]] = UnsetParam,
+    canTarget: Opt[Binding[Boolean]] = UnsetParam,
+    child: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    childVisible: Opt[Binding[Boolean]] = UnsetParam,
+    cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam,
+    direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam,
+    focus: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    focusChild: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    focusOnClick: Opt[Binding[Boolean]] = UnsetParam,
+    focusable: Opt[Binding[Boolean]] = UnsetParam,
+    fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam,
+    fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam,
+    halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    hasTooltip: Opt[Binding[Boolean]] = UnsetParam,
+    hexpand: Opt[Binding[Boolean]] = UnsetParam,
+    hexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam,
+    limitEvents: Opt[Binding[Boolean]] = UnsetParam,
+    marginBottom: Opt[Binding[Int]] = UnsetParam,
+    marginEnd: Opt[Binding[Int]] = UnsetParam,
+    marginStart: Opt[Binding[Int]] = UnsetParam,
+    marginTop: Opt[Binding[Int]] = UnsetParam,
+    name: Opt[Binding[java.lang.String]] = UnsetParam,
+    opacity: Opt[Binding[Double]] = UnsetParam,
+    overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
+    sensitive: Opt[Binding[Boolean]] = UnsetParam,
+    tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    vexpand: Opt[Binding[Boolean]] = UnsetParam,
+    vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    visible: Opt[Binding[Boolean]] = UnsetParam
+  ): Toolkit ?=> VarContextAction[DragIcon] = {
     val res = uninitialized()
-    init(res)
+    guarana.gtk.DragIcon.init(res)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)
     ifSet(child, res.child := _)
@@ -60,4 +126,6 @@ object DragIcon extends VarsMap {
     ifSet(visible, res.visible := _)
     res
   }
+  
 }
+        

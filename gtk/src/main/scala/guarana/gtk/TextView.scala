@@ -1,7 +1,10 @@
+
 package guarana
 package gtk
-import util.*
-opaque type TextView <: Widget = org.gnome.gtk.TextView & Widget
+
+import guarana.util.*
+
+opaque type TextView <: guarana.gtk.Widget  = org.gnome.gtk.TextView & guarana.gtk.Widget
 object TextView extends VarsMap {
   val AcceptsTab: ExternalVar.Aux[TextView, Boolean] = ExternalVar[TextView, Boolean]("accepts-tab", _.getAcceptsTab(), _.setAcceptsTab(_), true)
   val BottomMargin: ExternalVar.Aux[TextView, Int] = ExternalVar[TextView, Int]("bottom-margin", _.getBottomMargin(), _.setBottomMargin(_), true)
@@ -25,47 +28,144 @@ object TextView extends VarsMap {
   val Vadjustment: ExternalVar.Aux[TextView, org.gnome.gtk.Adjustment | Null] = ExternalVar[TextView, org.gnome.gtk.Adjustment | Null]("vadjustment", _.getVadjustment(), _.setVadjustment(_), true)
   val VscrollPolicy: ExternalVar.Aux[TextView, org.gnome.gtk.ScrollablePolicy] = ExternalVar[TextView, org.gnome.gtk.ScrollablePolicy]("vscroll-policy", _.getVscrollPolicy(), _.setVscrollPolicy(_), true)
   val WrapMode: ExternalVar.Aux[TextView, org.gnome.gtk.WrapMode] = ExternalVar[TextView, org.gnome.gtk.WrapMode]("wrap-mode", _.getWrapMode(), _.setWrapMode(_), true)
-  ()
+
+  
+
   extension (v: TextView) {
     def unwrap: org.gnome.gtk.TextView = v
-    def acceptsTab: Var.Aux[Boolean, v.type] = AcceptsTab.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def bottomMargin: Var.Aux[Int, v.type] = BottomMargin.asInstanceOf[Var.Aux[Int, v.type]]
-    def cursorVisible: Var.Aux[Boolean, v.type] = CursorVisible.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def editable: Var.Aux[Boolean, v.type] = Editable.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def extraMenu: Var.Aux[org.gnome.gio.MenuModel | Null, v.type] = ExtraMenu.asInstanceOf[Var.Aux[org.gnome.gio.MenuModel | Null, v.type]]
-    def hadjustment: Var.Aux[org.gnome.gtk.Adjustment | Null, v.type] = Hadjustment.asInstanceOf[Var.Aux[org.gnome.gtk.Adjustment | Null, v.type]]
-    def hscrollPolicy: Var.Aux[org.gnome.gtk.ScrollablePolicy, v.type] = HscrollPolicy.asInstanceOf[Var.Aux[org.gnome.gtk.ScrollablePolicy, v.type]]
-    def indent: Var.Aux[Int, v.type] = Indent.asInstanceOf[Var.Aux[Int, v.type]]
-    def inputHints: Var.Aux[java.util.Set[org.gnome.gtk.InputHints], v.type] = InputHints.asInstanceOf[Var.Aux[java.util.Set[org.gnome.gtk.InputHints], v.type]]
-    def inputPurpose: Var.Aux[org.gnome.gtk.InputPurpose, v.type] = InputPurpose.asInstanceOf[Var.Aux[org.gnome.gtk.InputPurpose, v.type]]
-    def justification: Var.Aux[org.gnome.gtk.Justification, v.type] = Justification.asInstanceOf[Var.Aux[org.gnome.gtk.Justification, v.type]]
-    def leftMargin: Var.Aux[Int, v.type] = LeftMargin.asInstanceOf[Var.Aux[Int, v.type]]
-    def monospace: Var.Aux[Boolean, v.type] = Monospace.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def overwrite: Var.Aux[Boolean, v.type] = Overwrite.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def pixelsAboveLines: Var.Aux[Int, v.type] = PixelsAboveLines.asInstanceOf[Var.Aux[Int, v.type]]
-    def pixelsBelowLines: Var.Aux[Int, v.type] = PixelsBelowLines.asInstanceOf[Var.Aux[Int, v.type]]
-    def pixelsInsideWrap: Var.Aux[Int, v.type] = PixelsInsideWrap.asInstanceOf[Var.Aux[Int, v.type]]
-    def rightMargin: Var.Aux[Int, v.type] = RightMargin.asInstanceOf[Var.Aux[Int, v.type]]
-    def topMargin: Var.Aux[Int, v.type] = TopMargin.asInstanceOf[Var.Aux[Int, v.type]]
-    def vadjustment: Var.Aux[org.gnome.gtk.Adjustment | Null, v.type] = Vadjustment.asInstanceOf[Var.Aux[org.gnome.gtk.Adjustment | Null, v.type]]
-    def vscrollPolicy: Var.Aux[org.gnome.gtk.ScrollablePolicy, v.type] = VscrollPolicy.asInstanceOf[Var.Aux[org.gnome.gtk.ScrollablePolicy, v.type]]
-    def wrapMode: Var.Aux[org.gnome.gtk.WrapMode, v.type] = WrapMode.asInstanceOf[Var.Aux[org.gnome.gtk.WrapMode, v.type]]
-    export unwrap.onBackspace, unwrap.onCopyClipboard, unwrap.onCutClipboard, unwrap.onDeleteFromCursor, unwrap.onExtendSelection, unwrap.onInsertAtCursor, unwrap.onInsertEmoji, unwrap.onMoveCursor, unwrap.onMoveViewport, unwrap.onPasteClipboard, unwrap.onPreeditChanged, unwrap.onSelectAll, unwrap.onSetAnchor, unwrap.onToggleCursorVisible, unwrap.onToggleOverwrite
+
+    def acceptsTab: Var.Aux[Boolean, v.type] = guarana.gtk.TextView.AcceptsTab.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def bottomMargin: Var.Aux[Int, v.type] = guarana.gtk.TextView.BottomMargin.asInstanceOf[Var.Aux[Int, v.type]]
+    def cursorVisible: Var.Aux[Boolean, v.type] = guarana.gtk.TextView.CursorVisible.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def editable: Var.Aux[Boolean, v.type] = guarana.gtk.TextView.Editable.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def extraMenu: Var.Aux[org.gnome.gio.MenuModel | Null, v.type] = guarana.gtk.TextView.ExtraMenu.asInstanceOf[Var.Aux[org.gnome.gio.MenuModel | Null, v.type]]
+    def hadjustment: Var.Aux[org.gnome.gtk.Adjustment | Null, v.type] = guarana.gtk.TextView.Hadjustment.asInstanceOf[Var.Aux[org.gnome.gtk.Adjustment | Null, v.type]]
+    def hscrollPolicy: Var.Aux[org.gnome.gtk.ScrollablePolicy, v.type] = guarana.gtk.TextView.HscrollPolicy.asInstanceOf[Var.Aux[org.gnome.gtk.ScrollablePolicy, v.type]]
+    def indent: Var.Aux[Int, v.type] = guarana.gtk.TextView.Indent.asInstanceOf[Var.Aux[Int, v.type]]
+    def inputHints: Var.Aux[java.util.Set[org.gnome.gtk.InputHints], v.type] = guarana.gtk.TextView.InputHints.asInstanceOf[Var.Aux[java.util.Set[org.gnome.gtk.InputHints], v.type]]
+    def inputPurpose: Var.Aux[org.gnome.gtk.InputPurpose, v.type] = guarana.gtk.TextView.InputPurpose.asInstanceOf[Var.Aux[org.gnome.gtk.InputPurpose, v.type]]
+    def justification: Var.Aux[org.gnome.gtk.Justification, v.type] = guarana.gtk.TextView.Justification.asInstanceOf[Var.Aux[org.gnome.gtk.Justification, v.type]]
+    def leftMargin: Var.Aux[Int, v.type] = guarana.gtk.TextView.LeftMargin.asInstanceOf[Var.Aux[Int, v.type]]
+    def monospace: Var.Aux[Boolean, v.type] = guarana.gtk.TextView.Monospace.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def overwrite: Var.Aux[Boolean, v.type] = guarana.gtk.TextView.Overwrite.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def pixelsAboveLines: Var.Aux[Int, v.type] = guarana.gtk.TextView.PixelsAboveLines.asInstanceOf[Var.Aux[Int, v.type]]
+    def pixelsBelowLines: Var.Aux[Int, v.type] = guarana.gtk.TextView.PixelsBelowLines.asInstanceOf[Var.Aux[Int, v.type]]
+    def pixelsInsideWrap: Var.Aux[Int, v.type] = guarana.gtk.TextView.PixelsInsideWrap.asInstanceOf[Var.Aux[Int, v.type]]
+    def rightMargin: Var.Aux[Int, v.type] = guarana.gtk.TextView.RightMargin.asInstanceOf[Var.Aux[Int, v.type]]
+    def topMargin: Var.Aux[Int, v.type] = guarana.gtk.TextView.TopMargin.asInstanceOf[Var.Aux[Int, v.type]]
+    def vadjustment: Var.Aux[org.gnome.gtk.Adjustment | Null, v.type] = guarana.gtk.TextView.Vadjustment.asInstanceOf[Var.Aux[org.gnome.gtk.Adjustment | Null, v.type]]
+    def vscrollPolicy: Var.Aux[org.gnome.gtk.ScrollablePolicy, v.type] = guarana.gtk.TextView.VscrollPolicy.asInstanceOf[Var.Aux[org.gnome.gtk.ScrollablePolicy, v.type]]
+    def wrapMode: Var.Aux[org.gnome.gtk.WrapMode, v.type] = guarana.gtk.TextView.WrapMode.asInstanceOf[Var.Aux[org.gnome.gtk.WrapMode, v.type]]
+
+    
+
+    export unwrap.{
+      onBackspace,
+      onCopyClipboard,
+      onCutClipboard,
+      onDeleteFromCursor,
+      onDestroy,
+      onDirectionChanged,
+      onExtendSelection,
+      onHide,
+      onInsertAtCursor,
+      onInsertEmoji,
+      onKeynavFailed,
+      onMap,
+      onMnemonicActivate,
+      onMoveCursor,
+      onMoveFocus,
+      onMoveViewport,
+      onNotify,
+      onPasteClipboard,
+      onPreeditChanged,
+      onQueryTooltip,
+      onRealize,
+      onSelectAll,
+      onSetAnchor,
+      onShow,
+      onStateFlagsChanged,
+      onToggleCursorVisible,
+      onToggleOverwrite,
+      onUnmap,
+      onUnrealize
+    }
   }
-  def _wrap(v: org.gnome.gtk.TextView): TextView = {
-    v.asInstanceOf
-  }
-  def init(v: TextView): ToolkitAction[Toolkit, Unit] = {
-    Widget.init(v)
+
+  def wrap(v: org.gnome.gtk.TextView): TextView = 
+    val res = v.asInstanceOf[TextView]
+    
+    res
+
+  def init(v: TextView): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+    guarana.gtk.Widget.init(v)
     connectVarsListener(v)
+    
   }
   def uninitialized(): TextView = {
     val res = new org.gnome.gtk.TextView()
+    
     res.asInstanceOf[TextView]
   }
-  def apply(acceptsTab: Opt[Binding[Boolean]] = UnsetParam, bottomMargin: Opt[Binding[Int]] = UnsetParam, canFocus: Opt[Binding[Boolean]] = UnsetParam, canTarget: Opt[Binding[Boolean]] = UnsetParam, childVisible: Opt[Binding[Boolean]] = UnsetParam, cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam, cursorVisible: Opt[Binding[Boolean]] = UnsetParam, direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam, editable: Opt[Binding[Boolean]] = UnsetParam, extraMenu: Opt[Binding[org.gnome.gio.MenuModel | Null]] = UnsetParam, focusChild: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, focusOnClick: Opt[Binding[Boolean]] = UnsetParam, focusable: Opt[Binding[Boolean]] = UnsetParam, fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam, fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam, hadjustment: Opt[Binding[org.gnome.gtk.Adjustment | Null]] = UnsetParam, halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, hasTooltip: Opt[Binding[Boolean]] = UnsetParam, hexpand: Opt[Binding[Boolean]] = UnsetParam, hexpandSet: Opt[Binding[Boolean]] = UnsetParam, hscrollPolicy: Opt[Binding[org.gnome.gtk.ScrollablePolicy]] = UnsetParam, indent: Opt[Binding[Int]] = UnsetParam, inputHints: Opt[Binding[java.util.Set[org.gnome.gtk.InputHints]]] = UnsetParam, inputPurpose: Opt[Binding[org.gnome.gtk.InputPurpose]] = UnsetParam, justification: Opt[Binding[org.gnome.gtk.Justification]] = UnsetParam, layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam, leftMargin: Opt[Binding[Int]] = UnsetParam, limitEvents: Opt[Binding[Boolean]] = UnsetParam, marginBottom: Opt[Binding[Int]] = UnsetParam, marginEnd: Opt[Binding[Int]] = UnsetParam, marginStart: Opt[Binding[Int]] = UnsetParam, marginTop: Opt[Binding[Int]] = UnsetParam, monospace: Opt[Binding[Boolean]] = UnsetParam, name: Opt[Binding[java.lang.String]] = UnsetParam, opacity: Opt[Binding[Double]] = UnsetParam, overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam, overwrite: Opt[Binding[Boolean]] = UnsetParam, pixelsAboveLines: Opt[Binding[Int]] = UnsetParam, pixelsBelowLines: Opt[Binding[Int]] = UnsetParam, pixelsInsideWrap: Opt[Binding[Int]] = UnsetParam, receivesDefault: Opt[Binding[Boolean]] = UnsetParam, rightMargin: Opt[Binding[Int]] = UnsetParam, sensitive: Opt[Binding[Boolean]] = UnsetParam, tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam, tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam, topMargin: Opt[Binding[Int]] = UnsetParam, vadjustment: Opt[Binding[org.gnome.gtk.Adjustment | Null]] = UnsetParam, valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, vexpand: Opt[Binding[Boolean]] = UnsetParam, vexpandSet: Opt[Binding[Boolean]] = UnsetParam, visible: Opt[Binding[Boolean]] = UnsetParam, vscrollPolicy: Opt[Binding[org.gnome.gtk.ScrollablePolicy]] = UnsetParam, wrapMode: Opt[Binding[org.gnome.gtk.WrapMode]] = UnsetParam): ToolkitAction[Toolkit, TextView] = {
+  
+  def apply(
+    
+    acceptsTab: Opt[Binding[Boolean]] = UnsetParam,
+    bottomMargin: Opt[Binding[Int]] = UnsetParam,
+    canFocus: Opt[Binding[Boolean]] = UnsetParam,
+    canTarget: Opt[Binding[Boolean]] = UnsetParam,
+    childVisible: Opt[Binding[Boolean]] = UnsetParam,
+    cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam,
+    cursorVisible: Opt[Binding[Boolean]] = UnsetParam,
+    direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam,
+    editable: Opt[Binding[Boolean]] = UnsetParam,
+    extraMenu: Opt[Binding[org.gnome.gio.MenuModel | Null]] = UnsetParam,
+    focusChild: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    focusOnClick: Opt[Binding[Boolean]] = UnsetParam,
+    focusable: Opt[Binding[Boolean]] = UnsetParam,
+    fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam,
+    fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam,
+    hadjustment: Opt[Binding[org.gnome.gtk.Adjustment | Null]] = UnsetParam,
+    halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    hasTooltip: Opt[Binding[Boolean]] = UnsetParam,
+    hexpand: Opt[Binding[Boolean]] = UnsetParam,
+    hexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    hscrollPolicy: Opt[Binding[org.gnome.gtk.ScrollablePolicy]] = UnsetParam,
+    indent: Opt[Binding[Int]] = UnsetParam,
+    inputHints: Opt[Binding[java.util.Set[org.gnome.gtk.InputHints]]] = UnsetParam,
+    inputPurpose: Opt[Binding[org.gnome.gtk.InputPurpose]] = UnsetParam,
+    justification: Opt[Binding[org.gnome.gtk.Justification]] = UnsetParam,
+    layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam,
+    leftMargin: Opt[Binding[Int]] = UnsetParam,
+    limitEvents: Opt[Binding[Boolean]] = UnsetParam,
+    marginBottom: Opt[Binding[Int]] = UnsetParam,
+    marginEnd: Opt[Binding[Int]] = UnsetParam,
+    marginStart: Opt[Binding[Int]] = UnsetParam,
+    marginTop: Opt[Binding[Int]] = UnsetParam,
+    monospace: Opt[Binding[Boolean]] = UnsetParam,
+    name: Opt[Binding[java.lang.String]] = UnsetParam,
+    opacity: Opt[Binding[Double]] = UnsetParam,
+    overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    overwrite: Opt[Binding[Boolean]] = UnsetParam,
+    pixelsAboveLines: Opt[Binding[Int]] = UnsetParam,
+    pixelsBelowLines: Opt[Binding[Int]] = UnsetParam,
+    pixelsInsideWrap: Opt[Binding[Int]] = UnsetParam,
+    receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
+    rightMargin: Opt[Binding[Int]] = UnsetParam,
+    sensitive: Opt[Binding[Boolean]] = UnsetParam,
+    tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    topMargin: Opt[Binding[Int]] = UnsetParam,
+    vadjustment: Opt[Binding[org.gnome.gtk.Adjustment | Null]] = UnsetParam,
+    valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    vexpand: Opt[Binding[Boolean]] = UnsetParam,
+    vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    visible: Opt[Binding[Boolean]] = UnsetParam,
+    vscrollPolicy: Opt[Binding[org.gnome.gtk.ScrollablePolicy]] = UnsetParam,
+    wrapMode: Opt[Binding[org.gnome.gtk.WrapMode]] = UnsetParam
+  ): Toolkit ?=> VarContextAction[TextView] = {
     val res = uninitialized()
-    init(res)
+    guarana.gtk.TextView.init(res)
     ifSet(acceptsTab, res.acceptsTab := _)
     ifSet(bottomMargin, res.bottomMargin := _)
     ifSet(canFocus, res.canFocus := _)
@@ -121,4 +221,6 @@ object TextView extends VarsMap {
     ifSet(wrapMode, res.wrapMode := _)
     res
   }
+  
 }
+        

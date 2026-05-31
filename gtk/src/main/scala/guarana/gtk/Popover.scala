@@ -1,39 +1,110 @@
+
 package guarana
 package gtk
-import util.*
-opaque type Popover <: Widget = org.gnome.gtk.Popover & Widget
+
+import guarana.util.*
+
+opaque type Popover <: guarana.gtk.Widget  = org.gnome.gtk.Popover & guarana.gtk.Widget
 object Popover extends VarsMap {
   val Autohide: ExternalVar.Aux[Popover, Boolean] = ExternalVar[Popover, Boolean]("autohide", _.getAutohide(), _.setAutohide(_), true)
   val CascadePopdown: ExternalVar.Aux[Popover, Boolean] = ExternalVar[Popover, Boolean]("cascade-popdown", _.getCascadePopdown(), _.setCascadePopdown(_), true)
-  val Child: ExternalVar.Aux[Popover, org.gnome.gtk.Widget | Null] = ExternalVar[Popover, org.gnome.gtk.Widget | Null]("child", _.getChild(), _.setChild(_), true)
+  val Child: ExternalVar.Aux[Popover, guarana.gtk.Widget | Null] = ExternalVar[Popover, guarana.gtk.Widget | Null]("child", _.getChild().?(guarana.gtk.Widget.wrap), (n, v) => n.setChild(v.?(_.unwrap)), true)
   val HasArrow: ExternalVar.Aux[Popover, Boolean] = ExternalVar[Popover, Boolean]("has-arrow", _.getHasArrow(), _.setHasArrow(_), true)
   val MnemonicsVisible: ExternalVar.Aux[Popover, Boolean] = ExternalVar[Popover, Boolean]("mnemonics-visible", _.getMnemonicsVisible(), _.setMnemonicsVisible(_), true)
   val Position: ExternalVar.Aux[Popover, org.gnome.gtk.PositionType] = ExternalVar[Popover, org.gnome.gtk.PositionType]("position", _.getPosition(), _.setPosition(_), true)
-  ()
+
+  
+
   extension (v: Popover) {
     def unwrap: org.gnome.gtk.Popover = v
-    def autohide: Var.Aux[Boolean, v.type] = Autohide.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def cascadePopdown: Var.Aux[Boolean, v.type] = CascadePopdown.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def child: Var.Aux[org.gnome.gtk.Widget | Null, v.type] = Child.asInstanceOf[Var.Aux[org.gnome.gtk.Widget | Null, v.type]]
-    def hasArrow: Var.Aux[Boolean, v.type] = HasArrow.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def mnemonicsVisible: Var.Aux[Boolean, v.type] = MnemonicsVisible.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def position: Var.Aux[org.gnome.gtk.PositionType, v.type] = Position.asInstanceOf[Var.Aux[org.gnome.gtk.PositionType, v.type]]
-    export unwrap.onActivateDefault, unwrap.onClosed
+
+    def autohide: Var.Aux[Boolean, v.type] = guarana.gtk.Popover.Autohide.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def cascadePopdown: Var.Aux[Boolean, v.type] = guarana.gtk.Popover.CascadePopdown.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def child: Var.Aux[guarana.gtk.Widget | Null, v.type] = guarana.gtk.Popover.Child.asInstanceOf[Var.Aux[guarana.gtk.Widget | Null, v.type]]
+    def hasArrow: Var.Aux[Boolean, v.type] = guarana.gtk.Popover.HasArrow.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def mnemonicsVisible: Var.Aux[Boolean, v.type] = guarana.gtk.Popover.MnemonicsVisible.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def position: Var.Aux[org.gnome.gtk.PositionType, v.type] = guarana.gtk.Popover.Position.asInstanceOf[Var.Aux[org.gnome.gtk.PositionType, v.type]]
+
+    
+
+    export unwrap.{
+      onActivateDefault,
+      onClosed,
+      onDestroy,
+      onDirectionChanged,
+      onHide,
+      onKeynavFailed,
+      onMap,
+      onMnemonicActivate,
+      onMoveFocus,
+      onNotify,
+      onQueryTooltip,
+      onRealize,
+      onShow,
+      onStateFlagsChanged,
+      onUnmap,
+      onUnrealize
+    }
   }
-  def _wrap(v: org.gnome.gtk.Popover): Popover = {
-    v.asInstanceOf
-  }
-  def init(v: Popover): ToolkitAction[Toolkit, Unit] = {
-    Widget.init(v)
+
+  def wrap(v: org.gnome.gtk.Popover): Popover = 
+    val res = v.asInstanceOf[Popover]
+    
+    res
+
+  def init(v: Popover): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+    guarana.gtk.Widget.init(v)
     connectVarsListener(v)
+    
   }
   def uninitialized(): Popover = {
     val res = new org.gnome.gtk.Popover()
+    
     res.asInstanceOf[Popover]
   }
-  def apply(autohide: Opt[Binding[Boolean]] = UnsetParam, canFocus: Opt[Binding[Boolean]] = UnsetParam, canTarget: Opt[Binding[Boolean]] = UnsetParam, cascadePopdown: Opt[Binding[Boolean]] = UnsetParam, child: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, childVisible: Opt[Binding[Boolean]] = UnsetParam, cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam, direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam, focusChild: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, focusOnClick: Opt[Binding[Boolean]] = UnsetParam, focusable: Opt[Binding[Boolean]] = UnsetParam, fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam, fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam, halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, hasArrow: Opt[Binding[Boolean]] = UnsetParam, hasTooltip: Opt[Binding[Boolean]] = UnsetParam, hexpand: Opt[Binding[Boolean]] = UnsetParam, hexpandSet: Opt[Binding[Boolean]] = UnsetParam, layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam, limitEvents: Opt[Binding[Boolean]] = UnsetParam, marginBottom: Opt[Binding[Int]] = UnsetParam, marginEnd: Opt[Binding[Int]] = UnsetParam, marginStart: Opt[Binding[Int]] = UnsetParam, marginTop: Opt[Binding[Int]] = UnsetParam, mnemonicsVisible: Opt[Binding[Boolean]] = UnsetParam, name: Opt[Binding[java.lang.String]] = UnsetParam, opacity: Opt[Binding[Double]] = UnsetParam, overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam, position: Opt[Binding[org.gnome.gtk.PositionType]] = UnsetParam, receivesDefault: Opt[Binding[Boolean]] = UnsetParam, sensitive: Opt[Binding[Boolean]] = UnsetParam, tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam, tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam, valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, vexpand: Opt[Binding[Boolean]] = UnsetParam, vexpandSet: Opt[Binding[Boolean]] = UnsetParam, visible: Opt[Binding[Boolean]] = UnsetParam): ToolkitAction[Toolkit, Popover] = {
+  
+  def apply(
+    
+    autohide: Opt[Binding[Boolean]] = UnsetParam,
+    canFocus: Opt[Binding[Boolean]] = UnsetParam,
+    canTarget: Opt[Binding[Boolean]] = UnsetParam,
+    cascadePopdown: Opt[Binding[Boolean]] = UnsetParam,
+    child: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    childVisible: Opt[Binding[Boolean]] = UnsetParam,
+    cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam,
+    direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam,
+    focusChild: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    focusOnClick: Opt[Binding[Boolean]] = UnsetParam,
+    focusable: Opt[Binding[Boolean]] = UnsetParam,
+    fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam,
+    fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam,
+    halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    hasArrow: Opt[Binding[Boolean]] = UnsetParam,
+    hasTooltip: Opt[Binding[Boolean]] = UnsetParam,
+    hexpand: Opt[Binding[Boolean]] = UnsetParam,
+    hexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam,
+    limitEvents: Opt[Binding[Boolean]] = UnsetParam,
+    marginBottom: Opt[Binding[Int]] = UnsetParam,
+    marginEnd: Opt[Binding[Int]] = UnsetParam,
+    marginStart: Opt[Binding[Int]] = UnsetParam,
+    marginTop: Opt[Binding[Int]] = UnsetParam,
+    mnemonicsVisible: Opt[Binding[Boolean]] = UnsetParam,
+    name: Opt[Binding[java.lang.String]] = UnsetParam,
+    opacity: Opt[Binding[Double]] = UnsetParam,
+    overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    position: Opt[Binding[org.gnome.gtk.PositionType]] = UnsetParam,
+    receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
+    sensitive: Opt[Binding[Boolean]] = UnsetParam,
+    tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    vexpand: Opt[Binding[Boolean]] = UnsetParam,
+    vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    visible: Opt[Binding[Boolean]] = UnsetParam
+  ): Toolkit ?=> VarContextAction[Popover] = {
     val res = uninitialized()
-    init(res)
+    guarana.gtk.Popover.init(res)
     ifSet(autohide, res.autohide := _)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)
@@ -73,4 +144,6 @@ object Popover extends VarsMap {
     ifSet(visible, res.visible := _)
     res
   }
+  
 }
+        

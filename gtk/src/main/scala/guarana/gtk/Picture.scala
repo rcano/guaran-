@@ -1,7 +1,10 @@
+
 package guarana
 package gtk
-import util.*
-opaque type Picture <: Widget = org.gnome.gtk.Picture & Widget
+
+import guarana.util.*
+
+opaque type Picture <: guarana.gtk.Widget  = org.gnome.gtk.Picture & guarana.gtk.Widget
 object Picture extends VarsMap {
   val AlternativeText: ExternalVar.Aux[Picture, java.lang.String | Null] = ExternalVar[Picture, java.lang.String | Null]("alternative-text", _.getAlternativeText(), _.setAlternativeText(_), true)
   val CanShrink: ExternalVar.Aux[Picture, Boolean] = ExternalVar[Picture, Boolean]("can-shrink", _.getCanShrink(), _.setCanShrink(_), true)
@@ -10,31 +13,99 @@ object Picture extends VarsMap {
   val IsolateContents: ExternalVar.Aux[Picture, Boolean] = ExternalVar[Picture, Boolean]("isolate-contents", _.getIsolateContents(), _.setIsolateContents(_), true)
   @deprecated("", "") val KeepAspectRatio: ExternalVar.Aux[Picture, Boolean] = ExternalVar[Picture, Boolean]("keep-aspect-ratio", _.getKeepAspectRatio(), _.setKeepAspectRatio(_), true)
   val Paintable: ExternalVar.Aux[Picture, org.gnome.gdk.Paintable | Null] = ExternalVar[Picture, org.gnome.gdk.Paintable | Null]("paintable", _.getPaintable(), _.setPaintable(_), true)
-  ()
+
+  
+
   extension (v: Picture) {
     def unwrap: org.gnome.gtk.Picture = v
-    def alternativeText: Var.Aux[java.lang.String | Null, v.type] = AlternativeText.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
-    def canShrink: Var.Aux[Boolean, v.type] = CanShrink.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def contentFit: Var.Aux[org.gnome.gtk.ContentFit, v.type] = ContentFit.asInstanceOf[Var.Aux[org.gnome.gtk.ContentFit, v.type]]
-    def file: Var.Aux[org.gnome.gio.File | Null, v.type] = File.asInstanceOf[Var.Aux[org.gnome.gio.File | Null, v.type]]
-    def isolateContents: Var.Aux[Boolean, v.type] = IsolateContents.asInstanceOf[Var.Aux[Boolean, v.type]]
-    @deprecated("", "") def keepAspectRatio: Var.Aux[Boolean, v.type] = KeepAspectRatio.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def paintable: Var.Aux[org.gnome.gdk.Paintable | Null, v.type] = Paintable.asInstanceOf[Var.Aux[org.gnome.gdk.Paintable | Null, v.type]]
+
+    def alternativeText: Var.Aux[java.lang.String | Null, v.type] = guarana.gtk.Picture.AlternativeText.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
+    def canShrink: Var.Aux[Boolean, v.type] = guarana.gtk.Picture.CanShrink.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def contentFit: Var.Aux[org.gnome.gtk.ContentFit, v.type] = guarana.gtk.Picture.ContentFit.asInstanceOf[Var.Aux[org.gnome.gtk.ContentFit, v.type]]
+    def file: Var.Aux[org.gnome.gio.File | Null, v.type] = guarana.gtk.Picture.File.asInstanceOf[Var.Aux[org.gnome.gio.File | Null, v.type]]
+    def isolateContents: Var.Aux[Boolean, v.type] = guarana.gtk.Picture.IsolateContents.asInstanceOf[Var.Aux[Boolean, v.type]]
+    @deprecated("", "") def keepAspectRatio: Var.Aux[Boolean, v.type] = guarana.gtk.Picture.KeepAspectRatio.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def paintable: Var.Aux[org.gnome.gdk.Paintable | Null, v.type] = guarana.gtk.Picture.Paintable.asInstanceOf[Var.Aux[org.gnome.gdk.Paintable | Null, v.type]]
+
+    
+
+    export unwrap.{
+      onDestroy,
+      onDirectionChanged,
+      onHide,
+      onKeynavFailed,
+      onMap,
+      onMnemonicActivate,
+      onMoveFocus,
+      onNotify,
+      onQueryTooltip,
+      onRealize,
+      onShow,
+      onStateFlagsChanged,
+      onUnmap,
+      onUnrealize
+    }
   }
-  def _wrap(v: org.gnome.gtk.Picture): Picture = {
-    v.asInstanceOf
-  }
-  def init(v: Picture): ToolkitAction[Toolkit, Unit] = {
-    Widget.init(v)
+
+  def wrap(v: org.gnome.gtk.Picture): Picture = 
+    val res = v.asInstanceOf[Picture]
+    
+    res
+
+  def init(v: Picture): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+    guarana.gtk.Widget.init(v)
     connectVarsListener(v)
+    
   }
   def uninitialized(): Picture = {
     val res = new org.gnome.gtk.Picture()
+    
     res.asInstanceOf[Picture]
   }
-  def apply(alternativeText: Opt[Binding[java.lang.String | Null]] = UnsetParam, canFocus: Opt[Binding[Boolean]] = UnsetParam, canShrink: Opt[Binding[Boolean]] = UnsetParam, canTarget: Opt[Binding[Boolean]] = UnsetParam, childVisible: Opt[Binding[Boolean]] = UnsetParam, contentFit: Opt[Binding[org.gnome.gtk.ContentFit]] = UnsetParam, cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam, direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam, file: Opt[Binding[org.gnome.gio.File | Null]] = UnsetParam, focusChild: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, focusOnClick: Opt[Binding[Boolean]] = UnsetParam, focusable: Opt[Binding[Boolean]] = UnsetParam, fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam, fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam, halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, hasTooltip: Opt[Binding[Boolean]] = UnsetParam, hexpand: Opt[Binding[Boolean]] = UnsetParam, hexpandSet: Opt[Binding[Boolean]] = UnsetParam, isolateContents: Opt[Binding[Boolean]] = UnsetParam, keepAspectRatio: Opt[Binding[Boolean]] = UnsetParam, layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam, limitEvents: Opt[Binding[Boolean]] = UnsetParam, marginBottom: Opt[Binding[Int]] = UnsetParam, marginEnd: Opt[Binding[Int]] = UnsetParam, marginStart: Opt[Binding[Int]] = UnsetParam, marginTop: Opt[Binding[Int]] = UnsetParam, name: Opt[Binding[java.lang.String]] = UnsetParam, opacity: Opt[Binding[Double]] = UnsetParam, overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam, paintable: Opt[Binding[org.gnome.gdk.Paintable | Null]] = UnsetParam, receivesDefault: Opt[Binding[Boolean]] = UnsetParam, sensitive: Opt[Binding[Boolean]] = UnsetParam, tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam, tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam, valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, vexpand: Opt[Binding[Boolean]] = UnsetParam, vexpandSet: Opt[Binding[Boolean]] = UnsetParam, visible: Opt[Binding[Boolean]] = UnsetParam): ToolkitAction[Toolkit, Picture] = {
+  
+  def apply(
+    
+    alternativeText: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    canFocus: Opt[Binding[Boolean]] = UnsetParam,
+    canShrink: Opt[Binding[Boolean]] = UnsetParam,
+    canTarget: Opt[Binding[Boolean]] = UnsetParam,
+    childVisible: Opt[Binding[Boolean]] = UnsetParam,
+    contentFit: Opt[Binding[org.gnome.gtk.ContentFit]] = UnsetParam,
+    cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam,
+    direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam,
+    file: Opt[Binding[org.gnome.gio.File | Null]] = UnsetParam,
+    focusChild: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    focusOnClick: Opt[Binding[Boolean]] = UnsetParam,
+    focusable: Opt[Binding[Boolean]] = UnsetParam,
+    fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam,
+    fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam,
+    halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    hasTooltip: Opt[Binding[Boolean]] = UnsetParam,
+    hexpand: Opt[Binding[Boolean]] = UnsetParam,
+    hexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    isolateContents: Opt[Binding[Boolean]] = UnsetParam,
+    keepAspectRatio: Opt[Binding[Boolean]] = UnsetParam,
+    layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam,
+    limitEvents: Opt[Binding[Boolean]] = UnsetParam,
+    marginBottom: Opt[Binding[Int]] = UnsetParam,
+    marginEnd: Opt[Binding[Int]] = UnsetParam,
+    marginStart: Opt[Binding[Int]] = UnsetParam,
+    marginTop: Opt[Binding[Int]] = UnsetParam,
+    name: Opt[Binding[java.lang.String]] = UnsetParam,
+    opacity: Opt[Binding[Double]] = UnsetParam,
+    overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    paintable: Opt[Binding[org.gnome.gdk.Paintable | Null]] = UnsetParam,
+    receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
+    sensitive: Opt[Binding[Boolean]] = UnsetParam,
+    tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    vexpand: Opt[Binding[Boolean]] = UnsetParam,
+    vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    visible: Opt[Binding[Boolean]] = UnsetParam
+  ): Toolkit ?=> VarContextAction[Picture] = {
     val res = uninitialized()
-    init(res)
+    guarana.gtk.Picture.init(res)
     ifSet(alternativeText, res.alternativeText := _)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canShrink, res.canShrink := _)
@@ -75,4 +146,6 @@ object Picture extends VarsMap {
     ifSet(visible, res.visible := _)
     res
   }
+  
 }
+        

@@ -1,45 +1,118 @@
+
 package guarana
 package gtk
-import util.*
-opaque type MenuButton <: Widget = org.gnome.gtk.MenuButton & Widget
+
+import guarana.util.*
+
+opaque type MenuButton <: guarana.gtk.Widget  = org.gnome.gtk.MenuButton & guarana.gtk.Widget
 object MenuButton extends VarsMap {
   val Active: ExternalVar.Aux[MenuButton, Boolean] = ExternalVar[MenuButton, Boolean]("active", _.getActive(), _.setActive(_), true)
   val AlwaysShowArrow: ExternalVar.Aux[MenuButton, Boolean] = ExternalVar[MenuButton, Boolean]("always-show-arrow", _.getAlwaysShowArrow(), _.setAlwaysShowArrow(_), true)
   val CanShrink: ExternalVar.Aux[MenuButton, Boolean] = ExternalVar[MenuButton, Boolean]("can-shrink", _.getCanShrink(), _.setCanShrink(_), true)
-  val Child: ExternalVar.Aux[MenuButton, org.gnome.gtk.Widget | Null] = ExternalVar[MenuButton, org.gnome.gtk.Widget | Null]("child", _.getChild(), _.setChild(_), true)
+  val Child: ExternalVar.Aux[MenuButton, guarana.gtk.Widget | Null] = ExternalVar[MenuButton, guarana.gtk.Widget | Null]("child", _.getChild().?(guarana.gtk.Widget.wrap), (n, v) => n.setChild(v.?(_.unwrap)), true)
   val HasFrame: ExternalVar.Aux[MenuButton, Boolean] = ExternalVar[MenuButton, Boolean]("has-frame", _.getHasFrame(), _.setHasFrame(_), true)
   val MenuModel: ExternalVar.Aux[MenuButton, org.gnome.gio.MenuModel | Null] = ExternalVar[MenuButton, org.gnome.gio.MenuModel | Null]("menu-model", _.getMenuModel(), _.setMenuModel(_), true)
   val Popover: ExternalVar.Aux[MenuButton, org.gnome.gtk.Popover | Null] = ExternalVar[MenuButton, org.gnome.gtk.Popover | Null]("popover", _.getPopover(), _.setPopover(_), true)
   val Primary: ExternalVar.Aux[MenuButton, Boolean] = ExternalVar[MenuButton, Boolean]("primary", _.getPrimary(), _.setPrimary(_), true)
   val UseUnderline: ExternalVar.Aux[MenuButton, Boolean] = ExternalVar[MenuButton, Boolean]("use-underline", _.getUseUnderline(), _.setUseUnderline(_), true)
-  ()
+
+  
+
   extension (v: MenuButton) {
     def unwrap: org.gnome.gtk.MenuButton = v
-    def active: Var.Aux[Boolean, v.type] = Active.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def alwaysShowArrow: Var.Aux[Boolean, v.type] = AlwaysShowArrow.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def canShrink: Var.Aux[Boolean, v.type] = CanShrink.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def child: Var.Aux[org.gnome.gtk.Widget | Null, v.type] = Child.asInstanceOf[Var.Aux[org.gnome.gtk.Widget | Null, v.type]]
-    def hasFrame: Var.Aux[Boolean, v.type] = HasFrame.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def menuModel: Var.Aux[org.gnome.gio.MenuModel | Null, v.type] = MenuModel.asInstanceOf[Var.Aux[org.gnome.gio.MenuModel | Null, v.type]]
-    def popover: Var.Aux[org.gnome.gtk.Popover | Null, v.type] = Popover.asInstanceOf[Var.Aux[org.gnome.gtk.Popover | Null, v.type]]
-    def primary: Var.Aux[Boolean, v.type] = Primary.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def useUnderline: Var.Aux[Boolean, v.type] = UseUnderline.asInstanceOf[Var.Aux[Boolean, v.type]]
-    export unwrap.onActivate
+
+    def active: Var.Aux[Boolean, v.type] = guarana.gtk.MenuButton.Active.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def alwaysShowArrow: Var.Aux[Boolean, v.type] = guarana.gtk.MenuButton.AlwaysShowArrow.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def canShrink: Var.Aux[Boolean, v.type] = guarana.gtk.MenuButton.CanShrink.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def child: Var.Aux[guarana.gtk.Widget | Null, v.type] = guarana.gtk.MenuButton.Child.asInstanceOf[Var.Aux[guarana.gtk.Widget | Null, v.type]]
+    def hasFrame: Var.Aux[Boolean, v.type] = guarana.gtk.MenuButton.HasFrame.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def menuModel: Var.Aux[org.gnome.gio.MenuModel | Null, v.type] = guarana.gtk.MenuButton.MenuModel.asInstanceOf[Var.Aux[org.gnome.gio.MenuModel | Null, v.type]]
+    def popover: Var.Aux[org.gnome.gtk.Popover | Null, v.type] = guarana.gtk.MenuButton.Popover.asInstanceOf[Var.Aux[org.gnome.gtk.Popover | Null, v.type]]
+    def primary: Var.Aux[Boolean, v.type] = guarana.gtk.MenuButton.Primary.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def useUnderline: Var.Aux[Boolean, v.type] = guarana.gtk.MenuButton.UseUnderline.asInstanceOf[Var.Aux[Boolean, v.type]]
+
+    
+
+    export unwrap.{
+      onActivate,
+      onDestroy,
+      onDirectionChanged,
+      onHide,
+      onKeynavFailed,
+      onMap,
+      onMnemonicActivate,
+      onMoveFocus,
+      onNotify,
+      onQueryTooltip,
+      onRealize,
+      onShow,
+      onStateFlagsChanged,
+      onUnmap,
+      onUnrealize
+    }
   }
-  def _wrap(v: org.gnome.gtk.MenuButton): MenuButton = {
-    v.asInstanceOf
-  }
-  def init(v: MenuButton): ToolkitAction[Toolkit, Unit] = {
-    Widget.init(v)
+
+  def wrap(v: org.gnome.gtk.MenuButton): MenuButton = 
+    val res = v.asInstanceOf[MenuButton]
+    
+    res
+
+  def init(v: MenuButton): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+    guarana.gtk.Widget.init(v)
     connectVarsListener(v)
+    
   }
   def uninitialized(): MenuButton = {
     val res = new org.gnome.gtk.MenuButton()
+    
     res.asInstanceOf[MenuButton]
   }
-  def apply(active: Opt[Binding[Boolean]] = UnsetParam, alwaysShowArrow: Opt[Binding[Boolean]] = UnsetParam, canFocus: Opt[Binding[Boolean]] = UnsetParam, canShrink: Opt[Binding[Boolean]] = UnsetParam, canTarget: Opt[Binding[Boolean]] = UnsetParam, child: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, childVisible: Opt[Binding[Boolean]] = UnsetParam, cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam, direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam, focusChild: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, focusOnClick: Opt[Binding[Boolean]] = UnsetParam, focusable: Opt[Binding[Boolean]] = UnsetParam, fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam, fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam, halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, hasFrame: Opt[Binding[Boolean]] = UnsetParam, hasTooltip: Opt[Binding[Boolean]] = UnsetParam, hexpand: Opt[Binding[Boolean]] = UnsetParam, hexpandSet: Opt[Binding[Boolean]] = UnsetParam, layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam, limitEvents: Opt[Binding[Boolean]] = UnsetParam, marginBottom: Opt[Binding[Int]] = UnsetParam, marginEnd: Opt[Binding[Int]] = UnsetParam, marginStart: Opt[Binding[Int]] = UnsetParam, marginTop: Opt[Binding[Int]] = UnsetParam, menuModel: Opt[Binding[org.gnome.gio.MenuModel | Null]] = UnsetParam, name: Opt[Binding[java.lang.String]] = UnsetParam, opacity: Opt[Binding[Double]] = UnsetParam, overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam, popover: Opt[Binding[org.gnome.gtk.Popover | Null]] = UnsetParam, primary: Opt[Binding[Boolean]] = UnsetParam, receivesDefault: Opt[Binding[Boolean]] = UnsetParam, sensitive: Opt[Binding[Boolean]] = UnsetParam, tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam, tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam, useUnderline: Opt[Binding[Boolean]] = UnsetParam, valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, vexpand: Opt[Binding[Boolean]] = UnsetParam, vexpandSet: Opt[Binding[Boolean]] = UnsetParam, visible: Opt[Binding[Boolean]] = UnsetParam): ToolkitAction[Toolkit, MenuButton] = {
+  
+  def apply(
+    
+    active: Opt[Binding[Boolean]] = UnsetParam,
+    alwaysShowArrow: Opt[Binding[Boolean]] = UnsetParam,
+    canFocus: Opt[Binding[Boolean]] = UnsetParam,
+    canShrink: Opt[Binding[Boolean]] = UnsetParam,
+    canTarget: Opt[Binding[Boolean]] = UnsetParam,
+    child: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    childVisible: Opt[Binding[Boolean]] = UnsetParam,
+    cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam,
+    direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam,
+    focusChild: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    focusOnClick: Opt[Binding[Boolean]] = UnsetParam,
+    focusable: Opt[Binding[Boolean]] = UnsetParam,
+    fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam,
+    fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam,
+    halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    hasFrame: Opt[Binding[Boolean]] = UnsetParam,
+    hasTooltip: Opt[Binding[Boolean]] = UnsetParam,
+    hexpand: Opt[Binding[Boolean]] = UnsetParam,
+    hexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam,
+    limitEvents: Opt[Binding[Boolean]] = UnsetParam,
+    marginBottom: Opt[Binding[Int]] = UnsetParam,
+    marginEnd: Opt[Binding[Int]] = UnsetParam,
+    marginStart: Opt[Binding[Int]] = UnsetParam,
+    marginTop: Opt[Binding[Int]] = UnsetParam,
+    menuModel: Opt[Binding[org.gnome.gio.MenuModel | Null]] = UnsetParam,
+    name: Opt[Binding[java.lang.String]] = UnsetParam,
+    opacity: Opt[Binding[Double]] = UnsetParam,
+    overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    popover: Opt[Binding[org.gnome.gtk.Popover | Null]] = UnsetParam,
+    primary: Opt[Binding[Boolean]] = UnsetParam,
+    receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
+    sensitive: Opt[Binding[Boolean]] = UnsetParam,
+    tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    useUnderline: Opt[Binding[Boolean]] = UnsetParam,
+    valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    vexpand: Opt[Binding[Boolean]] = UnsetParam,
+    vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    visible: Opt[Binding[Boolean]] = UnsetParam
+  ): Toolkit ?=> VarContextAction[MenuButton] = {
     val res = uninitialized()
-    init(res)
+    guarana.gtk.MenuButton.init(res)
     ifSet(active, res.active := _)
     ifSet(alwaysShowArrow, res.alwaysShowArrow := _)
     ifSet(canFocus, res.canFocus := _)
@@ -82,4 +155,6 @@ object MenuButton extends VarsMap {
     ifSet(visible, res.visible := _)
     res
   }
+  
 }
+        

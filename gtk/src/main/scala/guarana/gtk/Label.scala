@@ -1,7 +1,10 @@
+
 package guarana
 package gtk
-import util.*
-opaque type Label <: Widget = org.gnome.gtk.Label & Widget
+
+import guarana.util.*
+
+opaque type Label <: guarana.gtk.Widget  = org.gnome.gtk.Label & guarana.gtk.Widget
 object Label extends VarsMap {
   val Attributes: ExternalVar.Aux[Label, org.gnome.pango.AttrList | Null] = ExternalVar[Label, org.gnome.pango.AttrList | Null]("attributes", _.getAttributes(), _.setAttributes(_), true)
   val Ellipsize: ExternalVar.Aux[Label, org.gnome.pango.EllipsizeMode] = ExternalVar[Label, org.gnome.pango.EllipsizeMode]("ellipsize", _.getEllipsize(), _.setEllipsize(_), true)
@@ -10,7 +13,7 @@ object Label extends VarsMap {
   val Label: ExternalVar.Aux[Label, java.lang.String] = ExternalVar[Label, java.lang.String]("label", _.getLabel(), _.setLabel(_), true)
   val Lines: ExternalVar.Aux[Label, Int] = ExternalVar[Label, Int]("lines", _.getLines(), _.setLines(_), true)
   val MaxWidthChars: ExternalVar.Aux[Label, Int] = ExternalVar[Label, Int]("max-width-chars", _.getMaxWidthChars(), _.setMaxWidthChars(_), true)
-  val MnemonicWidget: ExternalVar.Aux[Label, org.gnome.gtk.Widget | Null] = ExternalVar[Label, org.gnome.gtk.Widget | Null]("mnemonic-widget", _.getMnemonicWidget(), _.setMnemonicWidget(_), true)
+  val MnemonicWidget: ExternalVar.Aux[Label, guarana.gtk.Widget | Null] = ExternalVar[Label, guarana.gtk.Widget | Null]("mnemonic-widget", _.getMnemonicWidget().?(guarana.gtk.Widget.wrap), (n, v) => n.setMnemonicWidget(v.?(_.unwrap)), true)
   val NaturalWrapMode: ExternalVar.Aux[Label, org.gnome.gtk.NaturalWrapMode] = ExternalVar[Label, org.gnome.gtk.NaturalWrapMode]("natural-wrap-mode", _.getNaturalWrapMode(), _.setNaturalWrapMode(_), true)
   val Selectable: ExternalVar.Aux[Label, Boolean] = ExternalVar[Label, Boolean]("selectable", _.getSelectable(), _.setSelectable(_), true)
   val SingleLineMode: ExternalVar.Aux[Label, Boolean] = ExternalVar[Label, Boolean]("single-line-mode", _.getSingleLineMode(), _.setSingleLineMode(_), true)
@@ -23,45 +26,129 @@ object Label extends VarsMap {
   val WrapMode: ExternalVar.Aux[Label, org.gnome.pango.WrapMode] = ExternalVar[Label, org.gnome.pango.WrapMode]("wrap-mode", _.getWrapMode(), _.setWrapMode(_), true)
   val Xalign: ExternalVar.Aux[Label, Float] = ExternalVar[Label, Float]("xalign", _.getXalign(), _.setXalign(_), true)
   val Yalign: ExternalVar.Aux[Label, Float] = ExternalVar[Label, Float]("yalign", _.getYalign(), _.setYalign(_), true)
-  ()
+
+  
+
   extension (v: Label) {
     def unwrap: org.gnome.gtk.Label = v
-    def attributes: Var.Aux[org.gnome.pango.AttrList | Null, v.type] = Attributes.asInstanceOf[Var.Aux[org.gnome.pango.AttrList | Null, v.type]]
-    def ellipsize: Var.Aux[org.gnome.pango.EllipsizeMode, v.type] = Ellipsize.asInstanceOf[Var.Aux[org.gnome.pango.EllipsizeMode, v.type]]
-    def extraMenu: Var.Aux[org.gnome.gio.MenuModel | Null, v.type] = ExtraMenu.asInstanceOf[Var.Aux[org.gnome.gio.MenuModel | Null, v.type]]
-    def justify: Var.Aux[org.gnome.gtk.Justification, v.type] = Justify.asInstanceOf[Var.Aux[org.gnome.gtk.Justification, v.type]]
-    def label: Var.Aux[java.lang.String, v.type] = Label.asInstanceOf[Var.Aux[java.lang.String, v.type]]
-    def lines: Var.Aux[Int, v.type] = Lines.asInstanceOf[Var.Aux[Int, v.type]]
-    def maxWidthChars: Var.Aux[Int, v.type] = MaxWidthChars.asInstanceOf[Var.Aux[Int, v.type]]
-    def mnemonicWidget: Var.Aux[org.gnome.gtk.Widget | Null, v.type] = MnemonicWidget.asInstanceOf[Var.Aux[org.gnome.gtk.Widget | Null, v.type]]
-    def naturalWrapMode: Var.Aux[org.gnome.gtk.NaturalWrapMode, v.type] = NaturalWrapMode.asInstanceOf[Var.Aux[org.gnome.gtk.NaturalWrapMode, v.type]]
-    def selectable: Var.Aux[Boolean, v.type] = Selectable.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def singleLineMode: Var.Aux[Boolean, v.type] = SingleLineMode.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def tabs: Var.Aux[org.gnome.pango.TabArray | Null, v.type] = Tabs.asInstanceOf[Var.Aux[org.gnome.pango.TabArray | Null, v.type]]
-    def text: Var.Aux[java.lang.String, v.type] = Text.asInstanceOf[Var.Aux[java.lang.String, v.type]]
-    def useMarkup: Var.Aux[Boolean, v.type] = UseMarkup.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def useUnderline: Var.Aux[Boolean, v.type] = UseUnderline.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def widthChars: Var.Aux[Int, v.type] = WidthChars.asInstanceOf[Var.Aux[Int, v.type]]
-    def wrap: Var.Aux[Boolean, v.type] = Wrap.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def wrapMode: Var.Aux[org.gnome.pango.WrapMode, v.type] = WrapMode.asInstanceOf[Var.Aux[org.gnome.pango.WrapMode, v.type]]
-    def xalign: Var.Aux[Float, v.type] = Xalign.asInstanceOf[Var.Aux[Float, v.type]]
-    def yalign: Var.Aux[Float, v.type] = Yalign.asInstanceOf[Var.Aux[Float, v.type]]
-    export unwrap.onActivateCurrentLink, unwrap.onActivateLink, unwrap.onCopyClipboard, unwrap.onMoveCursor
+
+    def attributes: Var.Aux[org.gnome.pango.AttrList | Null, v.type] = guarana.gtk.Label.Attributes.asInstanceOf[Var.Aux[org.gnome.pango.AttrList | Null, v.type]]
+    def ellipsize: Var.Aux[org.gnome.pango.EllipsizeMode, v.type] = guarana.gtk.Label.Ellipsize.asInstanceOf[Var.Aux[org.gnome.pango.EllipsizeMode, v.type]]
+    def extraMenu: Var.Aux[org.gnome.gio.MenuModel | Null, v.type] = guarana.gtk.Label.ExtraMenu.asInstanceOf[Var.Aux[org.gnome.gio.MenuModel | Null, v.type]]
+    def justify: Var.Aux[org.gnome.gtk.Justification, v.type] = guarana.gtk.Label.Justify.asInstanceOf[Var.Aux[org.gnome.gtk.Justification, v.type]]
+    def label: Var.Aux[java.lang.String, v.type] = guarana.gtk.Label.Label.asInstanceOf[Var.Aux[java.lang.String, v.type]]
+    def lines: Var.Aux[Int, v.type] = guarana.gtk.Label.Lines.asInstanceOf[Var.Aux[Int, v.type]]
+    def maxWidthChars: Var.Aux[Int, v.type] = guarana.gtk.Label.MaxWidthChars.asInstanceOf[Var.Aux[Int, v.type]]
+    def mnemonicWidget: Var.Aux[guarana.gtk.Widget | Null, v.type] = guarana.gtk.Label.MnemonicWidget.asInstanceOf[Var.Aux[guarana.gtk.Widget | Null, v.type]]
+    def naturalWrapMode: Var.Aux[org.gnome.gtk.NaturalWrapMode, v.type] = guarana.gtk.Label.NaturalWrapMode.asInstanceOf[Var.Aux[org.gnome.gtk.NaturalWrapMode, v.type]]
+    def selectable: Var.Aux[Boolean, v.type] = guarana.gtk.Label.Selectable.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def singleLineMode: Var.Aux[Boolean, v.type] = guarana.gtk.Label.SingleLineMode.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def tabs: Var.Aux[org.gnome.pango.TabArray | Null, v.type] = guarana.gtk.Label.Tabs.asInstanceOf[Var.Aux[org.gnome.pango.TabArray | Null, v.type]]
+    def text: Var.Aux[java.lang.String, v.type] = guarana.gtk.Label.Text.asInstanceOf[Var.Aux[java.lang.String, v.type]]
+    def useMarkup: Var.Aux[Boolean, v.type] = guarana.gtk.Label.UseMarkup.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def useUnderline: Var.Aux[Boolean, v.type] = guarana.gtk.Label.UseUnderline.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def widthChars: Var.Aux[Int, v.type] = guarana.gtk.Label.WidthChars.asInstanceOf[Var.Aux[Int, v.type]]
+    def wrap: Var.Aux[Boolean, v.type] = guarana.gtk.Label.Wrap.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def wrapMode: Var.Aux[org.gnome.pango.WrapMode, v.type] = guarana.gtk.Label.WrapMode.asInstanceOf[Var.Aux[org.gnome.pango.WrapMode, v.type]]
+    def xalign: Var.Aux[Float, v.type] = guarana.gtk.Label.Xalign.asInstanceOf[Var.Aux[Float, v.type]]
+    def yalign: Var.Aux[Float, v.type] = guarana.gtk.Label.Yalign.asInstanceOf[Var.Aux[Float, v.type]]
+
+    
+
+    export unwrap.{
+      onActivateCurrentLink,
+      onActivateLink,
+      onCopyClipboard,
+      onDestroy,
+      onDirectionChanged,
+      onHide,
+      onKeynavFailed,
+      onMap,
+      onMnemonicActivate,
+      onMoveCursor,
+      onMoveFocus,
+      onNotify,
+      onQueryTooltip,
+      onRealize,
+      onShow,
+      onStateFlagsChanged,
+      onUnmap,
+      onUnrealize
+    }
   }
-  def _wrap(v: org.gnome.gtk.Label): Label = {
-    v.asInstanceOf
-  }
-  def init(v: Label): ToolkitAction[Toolkit, Unit] = {
-    Widget.init(v)
+
+  def wrap(v: org.gnome.gtk.Label): Label = 
+    val res = v.asInstanceOf[Label]
+    
+    res
+
+  def init(v: Label): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+    guarana.gtk.Widget.init(v)
     connectVarsListener(v)
+    
   }
   def uninitialized(arg$0: java.lang.String | Null): Label = {
     val res = new org.gnome.gtk.Label(arg$0)
+    
     res.asInstanceOf[Label]
   }
-  def apply(arg$0: java.lang.String | Null, attributes: Opt[Binding[org.gnome.pango.AttrList | Null]] = UnsetParam, canFocus: Opt[Binding[Boolean]] = UnsetParam, canTarget: Opt[Binding[Boolean]] = UnsetParam, childVisible: Opt[Binding[Boolean]] = UnsetParam, cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam, direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam, ellipsize: Opt[Binding[org.gnome.pango.EllipsizeMode]] = UnsetParam, extraMenu: Opt[Binding[org.gnome.gio.MenuModel | Null]] = UnsetParam, focusChild: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, focusOnClick: Opt[Binding[Boolean]] = UnsetParam, focusable: Opt[Binding[Boolean]] = UnsetParam, fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam, fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam, halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, hasTooltip: Opt[Binding[Boolean]] = UnsetParam, hexpand: Opt[Binding[Boolean]] = UnsetParam, hexpandSet: Opt[Binding[Boolean]] = UnsetParam, justify: Opt[Binding[org.gnome.gtk.Justification]] = UnsetParam, label: Opt[Binding[java.lang.String]] = UnsetParam, layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam, limitEvents: Opt[Binding[Boolean]] = UnsetParam, lines: Opt[Binding[Int]] = UnsetParam, marginBottom: Opt[Binding[Int]] = UnsetParam, marginEnd: Opt[Binding[Int]] = UnsetParam, marginStart: Opt[Binding[Int]] = UnsetParam, marginTop: Opt[Binding[Int]] = UnsetParam, maxWidthChars: Opt[Binding[Int]] = UnsetParam, mnemonicWidget: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, name: Opt[Binding[java.lang.String]] = UnsetParam, naturalWrapMode: Opt[Binding[org.gnome.gtk.NaturalWrapMode]] = UnsetParam, opacity: Opt[Binding[Double]] = UnsetParam, overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam, receivesDefault: Opt[Binding[Boolean]] = UnsetParam, selectable: Opt[Binding[Boolean]] = UnsetParam, sensitive: Opt[Binding[Boolean]] = UnsetParam, singleLineMode: Opt[Binding[Boolean]] = UnsetParam, tabs: Opt[Binding[org.gnome.pango.TabArray | Null]] = UnsetParam, text: Opt[Binding[java.lang.String]] = UnsetParam, tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam, tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam, useMarkup: Opt[Binding[Boolean]] = UnsetParam, useUnderline: Opt[Binding[Boolean]] = UnsetParam, valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, vexpand: Opt[Binding[Boolean]] = UnsetParam, vexpandSet: Opt[Binding[Boolean]] = UnsetParam, visible: Opt[Binding[Boolean]] = UnsetParam, widthChars: Opt[Binding[Int]] = UnsetParam, wrap: Opt[Binding[Boolean]] = UnsetParam, wrapMode: Opt[Binding[org.gnome.pango.WrapMode]] = UnsetParam, xalign: Opt[Binding[Float]] = UnsetParam, yalign: Opt[Binding[Float]] = UnsetParam): ToolkitAction[Toolkit, Label] = {
+  
+  def apply(
+    arg$0: java.lang.String | Null,
+    attributes: Opt[Binding[org.gnome.pango.AttrList | Null]] = UnsetParam,
+    canFocus: Opt[Binding[Boolean]] = UnsetParam,
+    canTarget: Opt[Binding[Boolean]] = UnsetParam,
+    childVisible: Opt[Binding[Boolean]] = UnsetParam,
+    cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam,
+    direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam,
+    ellipsize: Opt[Binding[org.gnome.pango.EllipsizeMode]] = UnsetParam,
+    extraMenu: Opt[Binding[org.gnome.gio.MenuModel | Null]] = UnsetParam,
+    focusChild: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    focusOnClick: Opt[Binding[Boolean]] = UnsetParam,
+    focusable: Opt[Binding[Boolean]] = UnsetParam,
+    fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam,
+    fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam,
+    halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    hasTooltip: Opt[Binding[Boolean]] = UnsetParam,
+    hexpand: Opt[Binding[Boolean]] = UnsetParam,
+    hexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    justify: Opt[Binding[org.gnome.gtk.Justification]] = UnsetParam,
+    label: Opt[Binding[java.lang.String]] = UnsetParam,
+    layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam,
+    limitEvents: Opt[Binding[Boolean]] = UnsetParam,
+    lines: Opt[Binding[Int]] = UnsetParam,
+    marginBottom: Opt[Binding[Int]] = UnsetParam,
+    marginEnd: Opt[Binding[Int]] = UnsetParam,
+    marginStart: Opt[Binding[Int]] = UnsetParam,
+    marginTop: Opt[Binding[Int]] = UnsetParam,
+    maxWidthChars: Opt[Binding[Int]] = UnsetParam,
+    mnemonicWidget: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    name: Opt[Binding[java.lang.String]] = UnsetParam,
+    naturalWrapMode: Opt[Binding[org.gnome.gtk.NaturalWrapMode]] = UnsetParam,
+    opacity: Opt[Binding[Double]] = UnsetParam,
+    overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
+    selectable: Opt[Binding[Boolean]] = UnsetParam,
+    sensitive: Opt[Binding[Boolean]] = UnsetParam,
+    singleLineMode: Opt[Binding[Boolean]] = UnsetParam,
+    tabs: Opt[Binding[org.gnome.pango.TabArray | Null]] = UnsetParam,
+    text: Opt[Binding[java.lang.String]] = UnsetParam,
+    tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    useMarkup: Opt[Binding[Boolean]] = UnsetParam,
+    useUnderline: Opt[Binding[Boolean]] = UnsetParam,
+    valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    vexpand: Opt[Binding[Boolean]] = UnsetParam,
+    vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    visible: Opt[Binding[Boolean]] = UnsetParam,
+    widthChars: Opt[Binding[Int]] = UnsetParam,
+    wrap: Opt[Binding[Boolean]] = UnsetParam,
+    wrapMode: Opt[Binding[org.gnome.pango.WrapMode]] = UnsetParam,
+    xalign: Opt[Binding[Float]] = UnsetParam,
+    yalign: Opt[Binding[Float]] = UnsetParam
+  ): Toolkit ?=> VarContextAction[Label] = {
     val res = uninitialized(arg$0)
-    init(res)
+    guarana.gtk.Label.init(res)
     ifSet(attributes, res.attributes := _)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)
@@ -115,4 +202,6 @@ object Label extends VarsMap {
     ifSet(yalign, res.yalign := _)
     res
   }
+  
 }
+        

@@ -1,14 +1,17 @@
+
 package guarana
 package gtk
-import util.*
-opaque type Widget >: org.gnome.gtk.Widget = org.gnome.gtk.Widget
+
+import guarana.util.*
+
+opaque type Widget   = org.gnome.gtk.Widget
 object Widget extends VarsMap {
   val CanFocus: ExternalVar.Aux[Widget, Boolean] = ExternalVar[Widget, Boolean]("can-focus", _.getCanFocus(), _.setCanFocus(_), true)
   val CanTarget: ExternalVar.Aux[Widget, Boolean] = ExternalVar[Widget, Boolean]("can-target", _.getCanTarget(), _.setCanTarget(_), true)
   val ChildVisible: ExternalVar.Aux[Widget, Boolean] = ExternalVar[Widget, Boolean]("child-visible", _.getChildVisible(), _.setChildVisible(_), true)
   val Cursor: ExternalVar.Aux[Widget, org.gnome.gdk.Cursor | Null] = ExternalVar[Widget, org.gnome.gdk.Cursor | Null]("cursor", _.getCursor(), _.setCursor(_), true)
   val Direction: ExternalVar.Aux[Widget, org.gnome.gtk.TextDirection] = ExternalVar[Widget, org.gnome.gtk.TextDirection]("direction", _.getDirection(), _.setDirection(_), true)
-  val FocusChild: ExternalVar.Aux[Widget, org.gnome.gtk.Widget | Null] = ExternalVar[Widget, org.gnome.gtk.Widget | Null]("focus-child", _.getFocusChild(), _.setFocusChild(_), true)
+  val FocusChild: ExternalVar.Aux[Widget, guarana.gtk.Widget | Null] = ExternalVar[Widget, guarana.gtk.Widget | Null]("focus-child", _.getFocusChild().?(guarana.gtk.Widget.wrap), (n, v) => n.setFocusChild(v.?(_.unwrap)), true)
   val FocusOnClick: ExternalVar.Aux[Widget, Boolean] = ExternalVar[Widget, Boolean]("focus-on-click", _.getFocusOnClick(), _.setFocusOnClick(_), true)
   val Focusable: ExternalVar.Aux[Widget, Boolean] = ExternalVar[Widget, Boolean]("focusable", _.getFocusable(), _.setFocusable(_), true)
   val FontMap: ExternalVar.Aux[Widget, org.gnome.pango.FontMap | Null] = ExternalVar[Widget, org.gnome.pango.FontMap | Null]("font-map", _.getFontMap(), _.setFontMap(_), true)
@@ -34,44 +37,79 @@ object Widget extends VarsMap {
   val Vexpand: ExternalVar.Aux[Widget, Boolean] = ExternalVar[Widget, Boolean]("vexpand", _.getVexpand(), _.setVexpand(_), true)
   val VexpandSet: ExternalVar.Aux[Widget, Boolean] = ExternalVar[Widget, Boolean]("vexpand-set", _.getVexpandSet(), _.setVexpandSet(_), true)
   val Visible: ExternalVar.Aux[Widget, Boolean] = ExternalVar[Widget, Boolean]("visible", _.getVisible(), _.setVisible(_), true)
-  ()
+
+  
+
   extension (v: Widget) {
     def unwrap: org.gnome.gtk.Widget = v
-    def canFocus: Var.Aux[Boolean, v.type] = CanFocus.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def canTarget: Var.Aux[Boolean, v.type] = CanTarget.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def childVisible: Var.Aux[Boolean, v.type] = ChildVisible.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def cursor: Var.Aux[org.gnome.gdk.Cursor | Null, v.type] = Cursor.asInstanceOf[Var.Aux[org.gnome.gdk.Cursor | Null, v.type]]
-    def direction: Var.Aux[org.gnome.gtk.TextDirection, v.type] = Direction.asInstanceOf[Var.Aux[org.gnome.gtk.TextDirection, v.type]]
-    def focusChild: Var.Aux[org.gnome.gtk.Widget | Null, v.type] = FocusChild.asInstanceOf[Var.Aux[org.gnome.gtk.Widget | Null, v.type]]
-    def focusOnClick: Var.Aux[Boolean, v.type] = FocusOnClick.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def focusable: Var.Aux[Boolean, v.type] = Focusable.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def fontMap: Var.Aux[org.gnome.pango.FontMap | Null, v.type] = FontMap.asInstanceOf[Var.Aux[org.gnome.pango.FontMap | Null, v.type]]
-    @deprecated("", "") def fontOptions: Var.Aux[org.freedesktop.cairo.FontOptions | Null, v.type] = FontOptions.asInstanceOf[Var.Aux[org.freedesktop.cairo.FontOptions | Null, v.type]]
-    def halign: Var.Aux[org.gnome.gtk.Align, v.type] = Halign.asInstanceOf[Var.Aux[org.gnome.gtk.Align, v.type]]
-    def hasTooltip: Var.Aux[Boolean, v.type] = HasTooltip.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def hexpand: Var.Aux[Boolean, v.type] = Hexpand.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def hexpandSet: Var.Aux[Boolean, v.type] = HexpandSet.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def layoutManager: Var.Aux[org.gnome.gtk.LayoutManager | Null, v.type] = LayoutManager.asInstanceOf[Var.Aux[org.gnome.gtk.LayoutManager | Null, v.type]]
-    def limitEvents: Var.Aux[Boolean, v.type] = LimitEvents.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def marginBottom: Var.Aux[Int, v.type] = MarginBottom.asInstanceOf[Var.Aux[Int, v.type]]
-    def marginEnd: Var.Aux[Int, v.type] = MarginEnd.asInstanceOf[Var.Aux[Int, v.type]]
-    def marginStart: Var.Aux[Int, v.type] = MarginStart.asInstanceOf[Var.Aux[Int, v.type]]
-    def marginTop: Var.Aux[Int, v.type] = MarginTop.asInstanceOf[Var.Aux[Int, v.type]]
-    def name: Var.Aux[java.lang.String, v.type] = Name.asInstanceOf[Var.Aux[java.lang.String, v.type]]
-    def opacity: Var.Aux[Double, v.type] = Opacity.asInstanceOf[Var.Aux[Double, v.type]]
-    def overflow: Var.Aux[org.gnome.gtk.Overflow, v.type] = Overflow.asInstanceOf[Var.Aux[org.gnome.gtk.Overflow, v.type]]
-    def receivesDefault: Var.Aux[Boolean, v.type] = ReceivesDefault.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def sensitive: Var.Aux[Boolean, v.type] = Sensitive.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def tooltipMarkup: Var.Aux[java.lang.String | Null, v.type] = TooltipMarkup.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
-    def tooltipText: Var.Aux[java.lang.String | Null, v.type] = TooltipText.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
-    def valign: Var.Aux[org.gnome.gtk.Align, v.type] = Valign.asInstanceOf[Var.Aux[org.gnome.gtk.Align, v.type]]
-    def vexpand: Var.Aux[Boolean, v.type] = Vexpand.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def vexpandSet: Var.Aux[Boolean, v.type] = VexpandSet.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def visible: Var.Aux[Boolean, v.type] = Visible.asInstanceOf[Var.Aux[Boolean, v.type]]
-    export unwrap.onDestroy, unwrap.onDirectionChanged, unwrap.onHide, unwrap.onKeynavFailed, unwrap.onMap, unwrap.onMnemonicActivate, unwrap.onMoveFocus, unwrap.onNotify, unwrap.onQueryTooltip, unwrap.onRealize, unwrap.onShow, unwrap.onStateFlagsChanged, unwrap.onUnmap, unwrap.onUnrealize
+
+    def canFocus: Var.Aux[Boolean, v.type] = guarana.gtk.Widget.CanFocus.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def canTarget: Var.Aux[Boolean, v.type] = guarana.gtk.Widget.CanTarget.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def childVisible: Var.Aux[Boolean, v.type] = guarana.gtk.Widget.ChildVisible.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def cursor: Var.Aux[org.gnome.gdk.Cursor | Null, v.type] = guarana.gtk.Widget.Cursor.asInstanceOf[Var.Aux[org.gnome.gdk.Cursor | Null, v.type]]
+    def direction: Var.Aux[org.gnome.gtk.TextDirection, v.type] = guarana.gtk.Widget.Direction.asInstanceOf[Var.Aux[org.gnome.gtk.TextDirection, v.type]]
+    def focusChild: Var.Aux[guarana.gtk.Widget | Null, v.type] = guarana.gtk.Widget.FocusChild.asInstanceOf[Var.Aux[guarana.gtk.Widget | Null, v.type]]
+    def focusOnClick: Var.Aux[Boolean, v.type] = guarana.gtk.Widget.FocusOnClick.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def focusable: Var.Aux[Boolean, v.type] = guarana.gtk.Widget.Focusable.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def fontMap: Var.Aux[org.gnome.pango.FontMap | Null, v.type] = guarana.gtk.Widget.FontMap.asInstanceOf[Var.Aux[org.gnome.pango.FontMap | Null, v.type]]
+    @deprecated("", "") def fontOptions: Var.Aux[org.freedesktop.cairo.FontOptions | Null, v.type] = guarana.gtk.Widget.FontOptions.asInstanceOf[Var.Aux[org.freedesktop.cairo.FontOptions | Null, v.type]]
+    def halign: Var.Aux[org.gnome.gtk.Align, v.type] = guarana.gtk.Widget.Halign.asInstanceOf[Var.Aux[org.gnome.gtk.Align, v.type]]
+    def hasTooltip: Var.Aux[Boolean, v.type] = guarana.gtk.Widget.HasTooltip.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def hexpand: Var.Aux[Boolean, v.type] = guarana.gtk.Widget.Hexpand.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def hexpandSet: Var.Aux[Boolean, v.type] = guarana.gtk.Widget.HexpandSet.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def layoutManager: Var.Aux[org.gnome.gtk.LayoutManager | Null, v.type] = guarana.gtk.Widget.LayoutManager.asInstanceOf[Var.Aux[org.gnome.gtk.LayoutManager | Null, v.type]]
+    def limitEvents: Var.Aux[Boolean, v.type] = guarana.gtk.Widget.LimitEvents.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def marginBottom: Var.Aux[Int, v.type] = guarana.gtk.Widget.MarginBottom.asInstanceOf[Var.Aux[Int, v.type]]
+    def marginEnd: Var.Aux[Int, v.type] = guarana.gtk.Widget.MarginEnd.asInstanceOf[Var.Aux[Int, v.type]]
+    def marginStart: Var.Aux[Int, v.type] = guarana.gtk.Widget.MarginStart.asInstanceOf[Var.Aux[Int, v.type]]
+    def marginTop: Var.Aux[Int, v.type] = guarana.gtk.Widget.MarginTop.asInstanceOf[Var.Aux[Int, v.type]]
+    def name: Var.Aux[java.lang.String, v.type] = guarana.gtk.Widget.Name.asInstanceOf[Var.Aux[java.lang.String, v.type]]
+    def opacity: Var.Aux[Double, v.type] = guarana.gtk.Widget.Opacity.asInstanceOf[Var.Aux[Double, v.type]]
+    def overflow: Var.Aux[org.gnome.gtk.Overflow, v.type] = guarana.gtk.Widget.Overflow.asInstanceOf[Var.Aux[org.gnome.gtk.Overflow, v.type]]
+    def receivesDefault: Var.Aux[Boolean, v.type] = guarana.gtk.Widget.ReceivesDefault.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def sensitive: Var.Aux[Boolean, v.type] = guarana.gtk.Widget.Sensitive.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def tooltipMarkup: Var.Aux[java.lang.String | Null, v.type] = guarana.gtk.Widget.TooltipMarkup.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
+    def tooltipText: Var.Aux[java.lang.String | Null, v.type] = guarana.gtk.Widget.TooltipText.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
+    def valign: Var.Aux[org.gnome.gtk.Align, v.type] = guarana.gtk.Widget.Valign.asInstanceOf[Var.Aux[org.gnome.gtk.Align, v.type]]
+    def vexpand: Var.Aux[Boolean, v.type] = guarana.gtk.Widget.Vexpand.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def vexpandSet: Var.Aux[Boolean, v.type] = guarana.gtk.Widget.VexpandSet.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def visible: Var.Aux[Boolean, v.type] = guarana.gtk.Widget.Visible.asInstanceOf[Var.Aux[Boolean, v.type]]
+
+    def getChildren(): Iterator[org.gnome.gtk.Widget] = Iterator.unfold(v.getFirstChild()) {
+      case null => None
+      case w => Some(w -> w.getNextSibling())
+    }
+    
+
+    export unwrap.{
+      onDestroy,
+      onDirectionChanged,
+      onHide,
+      onKeynavFailed,
+      onMap,
+      onMnemonicActivate,
+      onMoveFocus,
+      onNotify,
+      onQueryTooltip,
+      onRealize,
+      onShow,
+      onStateFlagsChanged,
+      onUnmap,
+      onUnrealize
+    }
   }
-  def _wrap(v: org.gnome.gtk.Widget): Widget = {
-    v.asInstanceOf
+
+  def wrap(v: org.gnome.gtk.Widget): Widget = 
+    val res = v.asInstanceOf[Widget]
+    
+    res
+
+  def init(v: Widget): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+    
+    connectVarsListener(v)
+    
   }
-  def init(v: Widget): ToolkitAction[Toolkit, Unit] = {}
+  
+  
 }
+        

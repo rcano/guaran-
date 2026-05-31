@@ -1,34 +1,102 @@
+
 package guarana
 package gtk
-import util.*
-opaque type HeaderBar <: Widget = org.gnome.gtk.HeaderBar & Widget
+
+import guarana.util.*
+
+opaque type HeaderBar <: guarana.gtk.Widget  = org.gnome.gtk.HeaderBar & guarana.gtk.Widget
 object HeaderBar extends VarsMap {
   val DecorationLayout: ExternalVar.Aux[HeaderBar, java.lang.String | Null] = ExternalVar[HeaderBar, java.lang.String | Null]("decoration-layout", _.getDecorationLayout(), _.setDecorationLayout(_), true)
   val ShowTitleButtons: ExternalVar.Aux[HeaderBar, Boolean] = ExternalVar[HeaderBar, Boolean]("show-title-buttons", _.getShowTitleButtons(), _.setShowTitleButtons(_), true)
-  val TitleWidget: ExternalVar.Aux[HeaderBar, org.gnome.gtk.Widget | Null] = ExternalVar[HeaderBar, org.gnome.gtk.Widget | Null]("title-widget", _.getTitleWidget(), _.setTitleWidget(_), true)
+  val TitleWidget: ExternalVar.Aux[HeaderBar, guarana.gtk.Widget | Null] = ExternalVar[HeaderBar, guarana.gtk.Widget | Null]("title-widget", _.getTitleWidget().?(guarana.gtk.Widget.wrap), (n, v) => n.setTitleWidget(v.?(_.unwrap)), true)
   val UseNativeControls: ExternalVar.Aux[HeaderBar, Boolean] = ExternalVar[HeaderBar, Boolean]("use-native-controls", _.getUseNativeControls(), _.setUseNativeControls(_), true)
-  ()
+
+  
+
   extension (v: HeaderBar) {
     def unwrap: org.gnome.gtk.HeaderBar = v
-    def decorationLayout: Var.Aux[java.lang.String | Null, v.type] = DecorationLayout.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
-    def showTitleButtons: Var.Aux[Boolean, v.type] = ShowTitleButtons.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def titleWidget: Var.Aux[org.gnome.gtk.Widget | Null, v.type] = TitleWidget.asInstanceOf[Var.Aux[org.gnome.gtk.Widget | Null, v.type]]
-    def useNativeControls: Var.Aux[Boolean, v.type] = UseNativeControls.asInstanceOf[Var.Aux[Boolean, v.type]]
+
+    def decorationLayout: Var.Aux[java.lang.String | Null, v.type] = guarana.gtk.HeaderBar.DecorationLayout.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
+    def showTitleButtons: Var.Aux[Boolean, v.type] = guarana.gtk.HeaderBar.ShowTitleButtons.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def titleWidget: Var.Aux[guarana.gtk.Widget | Null, v.type] = guarana.gtk.HeaderBar.TitleWidget.asInstanceOf[Var.Aux[guarana.gtk.Widget | Null, v.type]]
+    def useNativeControls: Var.Aux[Boolean, v.type] = guarana.gtk.HeaderBar.UseNativeControls.asInstanceOf[Var.Aux[Boolean, v.type]]
+
+    
+
+    export unwrap.{
+      onDestroy,
+      onDirectionChanged,
+      onHide,
+      onKeynavFailed,
+      onMap,
+      onMnemonicActivate,
+      onMoveFocus,
+      onNotify,
+      onQueryTooltip,
+      onRealize,
+      onShow,
+      onStateFlagsChanged,
+      onUnmap,
+      onUnrealize
+    }
   }
-  def _wrap(v: org.gnome.gtk.HeaderBar): HeaderBar = {
-    v.asInstanceOf
-  }
-  def init(v: HeaderBar): ToolkitAction[Toolkit, Unit] = {
-    Widget.init(v)
+
+  def wrap(v: org.gnome.gtk.HeaderBar): HeaderBar = 
+    val res = v.asInstanceOf[HeaderBar]
+    
+    res
+
+  def init(v: HeaderBar): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+    guarana.gtk.Widget.init(v)
     connectVarsListener(v)
+    
   }
   def uninitialized(): HeaderBar = {
     val res = new org.gnome.gtk.HeaderBar()
+    
     res.asInstanceOf[HeaderBar]
   }
-  def apply(canFocus: Opt[Binding[Boolean]] = UnsetParam, canTarget: Opt[Binding[Boolean]] = UnsetParam, childVisible: Opt[Binding[Boolean]] = UnsetParam, cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam, decorationLayout: Opt[Binding[java.lang.String | Null]] = UnsetParam, direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam, focusChild: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, focusOnClick: Opt[Binding[Boolean]] = UnsetParam, focusable: Opt[Binding[Boolean]] = UnsetParam, fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam, fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam, halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, hasTooltip: Opt[Binding[Boolean]] = UnsetParam, hexpand: Opt[Binding[Boolean]] = UnsetParam, hexpandSet: Opt[Binding[Boolean]] = UnsetParam, layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam, limitEvents: Opt[Binding[Boolean]] = UnsetParam, marginBottom: Opt[Binding[Int]] = UnsetParam, marginEnd: Opt[Binding[Int]] = UnsetParam, marginStart: Opt[Binding[Int]] = UnsetParam, marginTop: Opt[Binding[Int]] = UnsetParam, name: Opt[Binding[java.lang.String]] = UnsetParam, opacity: Opt[Binding[Double]] = UnsetParam, overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam, receivesDefault: Opt[Binding[Boolean]] = UnsetParam, sensitive: Opt[Binding[Boolean]] = UnsetParam, showTitleButtons: Opt[Binding[Boolean]] = UnsetParam, titleWidget: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam, tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam, useNativeControls: Opt[Binding[Boolean]] = UnsetParam, valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, vexpand: Opt[Binding[Boolean]] = UnsetParam, vexpandSet: Opt[Binding[Boolean]] = UnsetParam, visible: Opt[Binding[Boolean]] = UnsetParam): ToolkitAction[Toolkit, HeaderBar] = {
+  
+  def apply(
+    
+    canFocus: Opt[Binding[Boolean]] = UnsetParam,
+    canTarget: Opt[Binding[Boolean]] = UnsetParam,
+    childVisible: Opt[Binding[Boolean]] = UnsetParam,
+    cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam,
+    decorationLayout: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam,
+    focusChild: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    focusOnClick: Opt[Binding[Boolean]] = UnsetParam,
+    focusable: Opt[Binding[Boolean]] = UnsetParam,
+    fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam,
+    fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam,
+    halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    hasTooltip: Opt[Binding[Boolean]] = UnsetParam,
+    hexpand: Opt[Binding[Boolean]] = UnsetParam,
+    hexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam,
+    limitEvents: Opt[Binding[Boolean]] = UnsetParam,
+    marginBottom: Opt[Binding[Int]] = UnsetParam,
+    marginEnd: Opt[Binding[Int]] = UnsetParam,
+    marginStart: Opt[Binding[Int]] = UnsetParam,
+    marginTop: Opt[Binding[Int]] = UnsetParam,
+    name: Opt[Binding[java.lang.String]] = UnsetParam,
+    opacity: Opt[Binding[Double]] = UnsetParam,
+    overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
+    sensitive: Opt[Binding[Boolean]] = UnsetParam,
+    showTitleButtons: Opt[Binding[Boolean]] = UnsetParam,
+    titleWidget: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    useNativeControls: Opt[Binding[Boolean]] = UnsetParam,
+    valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    vexpand: Opt[Binding[Boolean]] = UnsetParam,
+    vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    visible: Opt[Binding[Boolean]] = UnsetParam
+  ): Toolkit ?=> VarContextAction[HeaderBar] = {
     val res = uninitialized()
-    init(res)
+    guarana.gtk.HeaderBar.init(res)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)
     ifSet(childVisible, res.childVisible := _)
@@ -66,4 +134,6 @@ object HeaderBar extends VarsMap {
     ifSet(visible, res.visible := _)
     res
   }
+  
 }
+        

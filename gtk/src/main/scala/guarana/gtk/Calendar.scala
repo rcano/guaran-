@@ -1,7 +1,10 @@
+
 package guarana
 package gtk
-import util.*
-opaque type Calendar <: Widget = org.gnome.gtk.Calendar & Widget
+
+import guarana.util.*
+
+opaque type Calendar <: guarana.gtk.Widget  = org.gnome.gtk.Calendar & guarana.gtk.Widget
 object Calendar extends VarsMap {
   val Date: ExternalVar.Aux[Calendar, org.gnome.glib.DateTime] = ExternalVar[Calendar, org.gnome.glib.DateTime]("date", _.getDate(), _.setDate(_), true)
   val Day: ExternalVar.Aux[Calendar, Int] = ExternalVar[Calendar, Int]("day", _.getDay(), _.setDay(_), true)
@@ -10,32 +13,104 @@ object Calendar extends VarsMap {
   val ShowHeading: ExternalVar.Aux[Calendar, Boolean] = ExternalVar[Calendar, Boolean]("show-heading", _.getShowHeading(), _.setShowHeading(_), true)
   val ShowWeekNumbers: ExternalVar.Aux[Calendar, Boolean] = ExternalVar[Calendar, Boolean]("show-week-numbers", _.getShowWeekNumbers(), _.setShowWeekNumbers(_), true)
   val Year: ExternalVar.Aux[Calendar, Int] = ExternalVar[Calendar, Int]("year", _.getYear(), _.setYear(_), true)
-  ()
+
+  
+
   extension (v: Calendar) {
     def unwrap: org.gnome.gtk.Calendar = v
-    def date: Var.Aux[org.gnome.glib.DateTime, v.type] = Date.asInstanceOf[Var.Aux[org.gnome.glib.DateTime, v.type]]
-    def day: Var.Aux[Int, v.type] = Day.asInstanceOf[Var.Aux[Int, v.type]]
-    def month: Var.Aux[Int, v.type] = Month.asInstanceOf[Var.Aux[Int, v.type]]
-    def showDayNames: Var.Aux[Boolean, v.type] = ShowDayNames.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def showHeading: Var.Aux[Boolean, v.type] = ShowHeading.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def showWeekNumbers: Var.Aux[Boolean, v.type] = ShowWeekNumbers.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def year: Var.Aux[Int, v.type] = Year.asInstanceOf[Var.Aux[Int, v.type]]
-    export unwrap.onDaySelected, unwrap.onNextMonth, unwrap.onNextYear, unwrap.onPrevMonth, unwrap.onPrevYear
+
+    def date: Var.Aux[org.gnome.glib.DateTime, v.type] = guarana.gtk.Calendar.Date.asInstanceOf[Var.Aux[org.gnome.glib.DateTime, v.type]]
+    def day: Var.Aux[Int, v.type] = guarana.gtk.Calendar.Day.asInstanceOf[Var.Aux[Int, v.type]]
+    def month: Var.Aux[Int, v.type] = guarana.gtk.Calendar.Month.asInstanceOf[Var.Aux[Int, v.type]]
+    def showDayNames: Var.Aux[Boolean, v.type] = guarana.gtk.Calendar.ShowDayNames.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def showHeading: Var.Aux[Boolean, v.type] = guarana.gtk.Calendar.ShowHeading.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def showWeekNumbers: Var.Aux[Boolean, v.type] = guarana.gtk.Calendar.ShowWeekNumbers.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def year: Var.Aux[Int, v.type] = guarana.gtk.Calendar.Year.asInstanceOf[Var.Aux[Int, v.type]]
+
+    
+
+    export unwrap.{
+      onDaySelected,
+      onDestroy,
+      onDirectionChanged,
+      onHide,
+      onKeynavFailed,
+      onMap,
+      onMnemonicActivate,
+      onMoveFocus,
+      onNextMonth,
+      onNextYear,
+      onNotify,
+      onPrevMonth,
+      onPrevYear,
+      onQueryTooltip,
+      onRealize,
+      onShow,
+      onStateFlagsChanged,
+      onUnmap,
+      onUnrealize
+    }
   }
-  def _wrap(v: org.gnome.gtk.Calendar): Calendar = {
-    v.asInstanceOf
-  }
-  def init(v: Calendar): ToolkitAction[Toolkit, Unit] = {
-    Widget.init(v)
+
+  def wrap(v: org.gnome.gtk.Calendar): Calendar = 
+    val res = v.asInstanceOf[Calendar]
+    
+    res
+
+  def init(v: Calendar): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+    guarana.gtk.Widget.init(v)
     connectVarsListener(v)
+    
   }
   def uninitialized(): Calendar = {
     val res = new org.gnome.gtk.Calendar()
+    
     res.asInstanceOf[Calendar]
   }
-  def apply(canFocus: Opt[Binding[Boolean]] = UnsetParam, canTarget: Opt[Binding[Boolean]] = UnsetParam, childVisible: Opt[Binding[Boolean]] = UnsetParam, cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam, date: Opt[Binding[org.gnome.glib.DateTime]] = UnsetParam, day: Opt[Binding[Int]] = UnsetParam, direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam, focusChild: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, focusOnClick: Opt[Binding[Boolean]] = UnsetParam, focusable: Opt[Binding[Boolean]] = UnsetParam, fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam, fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam, halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, hasTooltip: Opt[Binding[Boolean]] = UnsetParam, hexpand: Opt[Binding[Boolean]] = UnsetParam, hexpandSet: Opt[Binding[Boolean]] = UnsetParam, layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam, limitEvents: Opt[Binding[Boolean]] = UnsetParam, marginBottom: Opt[Binding[Int]] = UnsetParam, marginEnd: Opt[Binding[Int]] = UnsetParam, marginStart: Opt[Binding[Int]] = UnsetParam, marginTop: Opt[Binding[Int]] = UnsetParam, month: Opt[Binding[Int]] = UnsetParam, name: Opt[Binding[java.lang.String]] = UnsetParam, opacity: Opt[Binding[Double]] = UnsetParam, overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam, receivesDefault: Opt[Binding[Boolean]] = UnsetParam, sensitive: Opt[Binding[Boolean]] = UnsetParam, showDayNames: Opt[Binding[Boolean]] = UnsetParam, showHeading: Opt[Binding[Boolean]] = UnsetParam, showWeekNumbers: Opt[Binding[Boolean]] = UnsetParam, tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam, tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam, valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, vexpand: Opt[Binding[Boolean]] = UnsetParam, vexpandSet: Opt[Binding[Boolean]] = UnsetParam, visible: Opt[Binding[Boolean]] = UnsetParam, year: Opt[Binding[Int]] = UnsetParam): ToolkitAction[Toolkit, Calendar] = {
+  
+  def apply(
+    
+    canFocus: Opt[Binding[Boolean]] = UnsetParam,
+    canTarget: Opt[Binding[Boolean]] = UnsetParam,
+    childVisible: Opt[Binding[Boolean]] = UnsetParam,
+    cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam,
+    date: Opt[Binding[org.gnome.glib.DateTime]] = UnsetParam,
+    day: Opt[Binding[Int]] = UnsetParam,
+    direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam,
+    focusChild: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    focusOnClick: Opt[Binding[Boolean]] = UnsetParam,
+    focusable: Opt[Binding[Boolean]] = UnsetParam,
+    fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam,
+    fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam,
+    halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    hasTooltip: Opt[Binding[Boolean]] = UnsetParam,
+    hexpand: Opt[Binding[Boolean]] = UnsetParam,
+    hexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam,
+    limitEvents: Opt[Binding[Boolean]] = UnsetParam,
+    marginBottom: Opt[Binding[Int]] = UnsetParam,
+    marginEnd: Opt[Binding[Int]] = UnsetParam,
+    marginStart: Opt[Binding[Int]] = UnsetParam,
+    marginTop: Opt[Binding[Int]] = UnsetParam,
+    month: Opt[Binding[Int]] = UnsetParam,
+    name: Opt[Binding[java.lang.String]] = UnsetParam,
+    opacity: Opt[Binding[Double]] = UnsetParam,
+    overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
+    sensitive: Opt[Binding[Boolean]] = UnsetParam,
+    showDayNames: Opt[Binding[Boolean]] = UnsetParam,
+    showHeading: Opt[Binding[Boolean]] = UnsetParam,
+    showWeekNumbers: Opt[Binding[Boolean]] = UnsetParam,
+    tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    vexpand: Opt[Binding[Boolean]] = UnsetParam,
+    vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    visible: Opt[Binding[Boolean]] = UnsetParam,
+    year: Opt[Binding[Int]] = UnsetParam
+  ): Toolkit ?=> VarContextAction[Calendar] = {
     val res = uninitialized()
-    init(res)
+    guarana.gtk.Calendar.init(res)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)
     ifSet(childVisible, res.childVisible := _)
@@ -76,4 +151,6 @@ object Calendar extends VarsMap {
     ifSet(year, res.year := _)
     res
   }
+  
 }
+        

@@ -1,28 +1,92 @@
+
 package guarana
 package gtk
-import util.*
-opaque type ShortcutsGroup <: Box = org.gnome.gtk.ShortcutsGroup & Box
+
+import guarana.util.*
+
+opaque type ShortcutsGroup <: guarana.gtk.Widget  = org.gnome.gtk.ShortcutsGroup & guarana.gtk.Widget
 object ShortcutsGroup extends VarsMap {
-  ()
+  
+
+  
+
   extension (v: ShortcutsGroup) {
     def unwrap: org.gnome.gtk.ShortcutsGroup = v
+
+    
+
+    
+
+    export unwrap.{
+      onDestroy,
+      onDirectionChanged,
+      onHide,
+      onKeynavFailed,
+      onMap,
+      onMnemonicActivate,
+      onMoveFocus,
+      onNotify,
+      onQueryTooltip,
+      onRealize,
+      onShow,
+      onStateFlagsChanged,
+      onUnmap,
+      onUnrealize
+    }
   }
-  def _wrap(v: org.gnome.gtk.ShortcutsGroup): ShortcutsGroup = {
-    v.asInstanceOf
-  }
-  def init(v: ShortcutsGroup): ToolkitAction[Toolkit, Unit] = {
-    Box.init(v)
+
+  def wrap(v: org.gnome.gtk.ShortcutsGroup): ShortcutsGroup = 
+    val res = v.asInstanceOf[ShortcutsGroup]
+    
+    res
+
+  def init(v: ShortcutsGroup): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+    guarana.gtk.Widget.init(v)
     connectVarsListener(v)
+    
   }
   def uninitialized(): ShortcutsGroup = {
     val res = new org.gnome.gtk.ShortcutsGroup()
+    
     res.asInstanceOf[ShortcutsGroup]
   }
-  def apply(baselineChild: Opt[Binding[Int]] = UnsetParam, baselinePosition: Opt[Binding[org.gnome.gtk.BaselinePosition]] = UnsetParam, canFocus: Opt[Binding[Boolean]] = UnsetParam, canTarget: Opt[Binding[Boolean]] = UnsetParam, childVisible: Opt[Binding[Boolean]] = UnsetParam, cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam, direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam, focusChild: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, focusOnClick: Opt[Binding[Boolean]] = UnsetParam, focusable: Opt[Binding[Boolean]] = UnsetParam, fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam, fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam, halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, hasTooltip: Opt[Binding[Boolean]] = UnsetParam, hexpand: Opt[Binding[Boolean]] = UnsetParam, hexpandSet: Opt[Binding[Boolean]] = UnsetParam, homogeneous: Opt[Binding[Boolean]] = UnsetParam, layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam, limitEvents: Opt[Binding[Boolean]] = UnsetParam, marginBottom: Opt[Binding[Int]] = UnsetParam, marginEnd: Opt[Binding[Int]] = UnsetParam, marginStart: Opt[Binding[Int]] = UnsetParam, marginTop: Opt[Binding[Int]] = UnsetParam, name: Opt[Binding[java.lang.String]] = UnsetParam, opacity: Opt[Binding[Double]] = UnsetParam, orientation: Opt[Binding[org.gnome.gtk.Orientation]] = UnsetParam, overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam, receivesDefault: Opt[Binding[Boolean]] = UnsetParam, sensitive: Opt[Binding[Boolean]] = UnsetParam, spacing: Opt[Binding[Int]] = UnsetParam, tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam, tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam, valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, vexpand: Opt[Binding[Boolean]] = UnsetParam, vexpandSet: Opt[Binding[Boolean]] = UnsetParam, visible: Opt[Binding[Boolean]] = UnsetParam): ToolkitAction[Toolkit, ShortcutsGroup] = {
+  
+  def apply(
+    
+    canFocus: Opt[Binding[Boolean]] = UnsetParam,
+    canTarget: Opt[Binding[Boolean]] = UnsetParam,
+    childVisible: Opt[Binding[Boolean]] = UnsetParam,
+    cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam,
+    direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam,
+    focusChild: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    focusOnClick: Opt[Binding[Boolean]] = UnsetParam,
+    focusable: Opt[Binding[Boolean]] = UnsetParam,
+    fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam,
+    fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam,
+    halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    hasTooltip: Opt[Binding[Boolean]] = UnsetParam,
+    hexpand: Opt[Binding[Boolean]] = UnsetParam,
+    hexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam,
+    limitEvents: Opt[Binding[Boolean]] = UnsetParam,
+    marginBottom: Opt[Binding[Int]] = UnsetParam,
+    marginEnd: Opt[Binding[Int]] = UnsetParam,
+    marginStart: Opt[Binding[Int]] = UnsetParam,
+    marginTop: Opt[Binding[Int]] = UnsetParam,
+    name: Opt[Binding[java.lang.String]] = UnsetParam,
+    opacity: Opt[Binding[Double]] = UnsetParam,
+    overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
+    sensitive: Opt[Binding[Boolean]] = UnsetParam,
+    tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    vexpand: Opt[Binding[Boolean]] = UnsetParam,
+    vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    visible: Opt[Binding[Boolean]] = UnsetParam
+  ): Toolkit ?=> VarContextAction[ShortcutsGroup] = {
     val res = uninitialized()
-    init(res)
-    ifSet(baselineChild, res.baselineChild := _)
-    ifSet(baselinePosition, res.baselinePosition := _)
+    guarana.gtk.ShortcutsGroup.init(res)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)
     ifSet(childVisible, res.childVisible := _)
@@ -37,7 +101,6 @@ object ShortcutsGroup extends VarsMap {
     ifSet(hasTooltip, res.hasTooltip := _)
     ifSet(hexpand, res.hexpand := _)
     ifSet(hexpandSet, res.hexpandSet := _)
-    ifSet(homogeneous, res.homogeneous := _)
     ifSet(layoutManager, res.layoutManager := _)
     ifSet(limitEvents, res.limitEvents := _)
     ifSet(marginBottom, res.marginBottom := _)
@@ -46,11 +109,9 @@ object ShortcutsGroup extends VarsMap {
     ifSet(marginTop, res.marginTop := _)
     ifSet(name, res.name := _)
     ifSet(opacity, res.opacity := _)
-    ifSet(orientation, res.orientation := _)
     ifSet(overflow, res.overflow := _)
     ifSet(receivesDefault, res.receivesDefault := _)
     ifSet(sensitive, res.sensitive := _)
-    ifSet(spacing, res.spacing := _)
     ifSet(tooltipMarkup, res.tooltipMarkup := _)
     ifSet(tooltipText, res.tooltipText := _)
     ifSet(valign, res.valign := _)
@@ -59,4 +120,6 @@ object ShortcutsGroup extends VarsMap {
     ifSet(visible, res.visible := _)
     res
   }
+  
 }
+        

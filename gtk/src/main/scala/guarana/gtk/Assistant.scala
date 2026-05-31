@@ -1,29 +1,122 @@
+
 package guarana
 package gtk
-import util.*
-opaque type Assistant <: Window = org.gnome.gtk.Assistant & Window
+
+import guarana.util.*
+
+opaque type Assistant <: guarana.gtk.Window  = org.gnome.gtk.Assistant & guarana.gtk.Window
 object Assistant extends VarsMap {
   @deprecated("", "") val CurrentPage: ExternalVar.Aux[Assistant, Int] = ExternalVar[Assistant, Int]("current-page", _.getCurrentPage(), _.setCurrentPage(_), true)
-  ()
+
+  
+
   extension (v: Assistant) {
     def unwrap: org.gnome.gtk.Assistant = v
-    @deprecated("", "") def currentPage: Var.Aux[Int, v.type] = CurrentPage.asInstanceOf[Var.Aux[Int, v.type]]
-    export unwrap.onApply, unwrap.onCancel, unwrap.onClose, unwrap.onEscape, unwrap.onPrepare
+
+    @deprecated("", "") def currentPage: Var.Aux[Int, v.type] = guarana.gtk.Assistant.CurrentPage.asInstanceOf[Var.Aux[Int, v.type]]
+
+    
+
+    export unwrap.{
+      onActivateDefault,
+      onActivateFocus,
+      onApply,
+      onCancel,
+      onClose,
+      onCloseRequest,
+      onDestroy,
+      onDirectionChanged,
+      onEnableDebugging,
+      onEscape,
+      onHide,
+      onKeynavFailed,
+      onKeysChanged,
+      onMap,
+      onMnemonicActivate,
+      onMoveFocus,
+      onNotify,
+      onPrepare,
+      onQueryTooltip,
+      onRealize,
+      onShow,
+      onStateFlagsChanged,
+      onUnmap,
+      onUnrealize
+    }
   }
-  def _wrap(v: org.gnome.gtk.Assistant): Assistant = {
-    v.asInstanceOf
-  }
-  def init(v: Assistant): ToolkitAction[Toolkit, Unit] = {
-    Window.init(v)
+
+  def wrap(v: org.gnome.gtk.Assistant): Assistant = 
+    val res = v.asInstanceOf[Assistant]
+    
+    res
+
+  def init(v: Assistant): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+    guarana.gtk.Window.init(v)
     connectVarsListener(v)
+    
   }
   def uninitialized(): Assistant = {
     val res = new org.gnome.gtk.Assistant()
+    
     res.asInstanceOf[Assistant]
   }
-  def apply(application: Opt[Binding[org.gnome.gtk.Application | Null]] = UnsetParam, canFocus: Opt[Binding[Boolean]] = UnsetParam, canTarget: Opt[Binding[Boolean]] = UnsetParam, child: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, childVisible: Opt[Binding[Boolean]] = UnsetParam, currentPage: Opt[Binding[Int]] = UnsetParam, cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam, decorated: Opt[Binding[Boolean]] = UnsetParam, defaultWidget: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, deletable: Opt[Binding[Boolean]] = UnsetParam, destroyWithParent: Opt[Binding[Boolean]] = UnsetParam, direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam, display: Opt[Binding[org.gnome.gdk.Display]] = UnsetParam, focus: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, focusChild: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, focusOnClick: Opt[Binding[Boolean]] = UnsetParam, focusVisible: Opt[Binding[Boolean]] = UnsetParam, focusable: Opt[Binding[Boolean]] = UnsetParam, fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam, fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam, gravity: Opt[Binding[org.gnome.gtk.WindowGravity]] = UnsetParam, halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, handleMenubarAccel: Opt[Binding[Boolean]] = UnsetParam, hasTooltip: Opt[Binding[Boolean]] = UnsetParam, hexpand: Opt[Binding[Boolean]] = UnsetParam, hexpandSet: Opt[Binding[Boolean]] = UnsetParam, hideOnClose: Opt[Binding[Boolean]] = UnsetParam, iconName: Opt[Binding[java.lang.String | Null]] = UnsetParam, layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam, limitEvents: Opt[Binding[Boolean]] = UnsetParam, marginBottom: Opt[Binding[Int]] = UnsetParam, marginEnd: Opt[Binding[Int]] = UnsetParam, marginStart: Opt[Binding[Int]] = UnsetParam, marginTop: Opt[Binding[Int]] = UnsetParam, mnemonicsVisible: Opt[Binding[Boolean]] = UnsetParam, modal: Opt[Binding[Boolean]] = UnsetParam, name: Opt[Binding[java.lang.String]] = UnsetParam, opacity: Opt[Binding[Double]] = UnsetParam, overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam, receivesDefault: Opt[Binding[Boolean]] = UnsetParam, resizable: Opt[Binding[Boolean]] = UnsetParam, sensitive: Opt[Binding[Boolean]] = UnsetParam, title: Opt[Binding[java.lang.String | Null]] = UnsetParam, titlebar: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam, tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam, transientFor: Opt[Binding[org.gnome.gtk.Window | Null]] = UnsetParam, valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, vexpand: Opt[Binding[Boolean]] = UnsetParam, vexpandSet: Opt[Binding[Boolean]] = UnsetParam, visible: Opt[Binding[Boolean]] = UnsetParam): ToolkitAction[Toolkit, Assistant] = {
+  
+  def apply(
+    
+    application: Opt[Binding[org.gnome.gtk.Application | Null]] = UnsetParam,
+    canFocus: Opt[Binding[Boolean]] = UnsetParam,
+    canTarget: Opt[Binding[Boolean]] = UnsetParam,
+    child: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    childVisible: Opt[Binding[Boolean]] = UnsetParam,
+    currentPage: Opt[Binding[Int]] = UnsetParam,
+    cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam,
+    decorated: Opt[Binding[Boolean]] = UnsetParam,
+    defaultWidget: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    deletable: Opt[Binding[Boolean]] = UnsetParam,
+    destroyWithParent: Opt[Binding[Boolean]] = UnsetParam,
+    direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam,
+    display: Opt[Binding[org.gnome.gdk.Display]] = UnsetParam,
+    focus: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    focusChild: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    focusOnClick: Opt[Binding[Boolean]] = UnsetParam,
+    focusVisible: Opt[Binding[Boolean]] = UnsetParam,
+    focusable: Opt[Binding[Boolean]] = UnsetParam,
+    fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam,
+    fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam,
+    gravity: Opt[Binding[org.gnome.gtk.WindowGravity]] = UnsetParam,
+    halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    handleMenubarAccel: Opt[Binding[Boolean]] = UnsetParam,
+    hasTooltip: Opt[Binding[Boolean]] = UnsetParam,
+    hexpand: Opt[Binding[Boolean]] = UnsetParam,
+    hexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    hideOnClose: Opt[Binding[Boolean]] = UnsetParam,
+    iconName: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam,
+    limitEvents: Opt[Binding[Boolean]] = UnsetParam,
+    marginBottom: Opt[Binding[Int]] = UnsetParam,
+    marginEnd: Opt[Binding[Int]] = UnsetParam,
+    marginStart: Opt[Binding[Int]] = UnsetParam,
+    marginTop: Opt[Binding[Int]] = UnsetParam,
+    mnemonicsVisible: Opt[Binding[Boolean]] = UnsetParam,
+    modal: Opt[Binding[Boolean]] = UnsetParam,
+    name: Opt[Binding[java.lang.String]] = UnsetParam,
+    opacity: Opt[Binding[Double]] = UnsetParam,
+    overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
+    resizable: Opt[Binding[Boolean]] = UnsetParam,
+    sensitive: Opt[Binding[Boolean]] = UnsetParam,
+    title: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    titlebar: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    transientFor: Opt[Binding[org.gnome.gtk.Window | Null]] = UnsetParam,
+    valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    vexpand: Opt[Binding[Boolean]] = UnsetParam,
+    vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    visible: Opt[Binding[Boolean]] = UnsetParam
+  ): Toolkit ?=> VarContextAction[Assistant] = {
     val res = uninitialized()
-    init(res)
+    guarana.gtk.Assistant.init(res)
     ifSet(application, res.application := _)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)
@@ -77,4 +170,6 @@ object Assistant extends VarsMap {
     ifSet(visible, res.visible := _)
     res
   }
+  
 }
+        

@@ -1,33 +1,101 @@
+
 package guarana
 package gtk
-import util.*
-opaque type ColorButton <: Widget = org.gnome.gtk.ColorButton & Widget
+
+import guarana.util.*
+
+opaque type ColorButton <: guarana.gtk.Widget  = org.gnome.gtk.ColorButton & guarana.gtk.Widget
 object ColorButton extends VarsMap {
   @deprecated("", "") val Modal: ExternalVar.Aux[ColorButton, Boolean] = ExternalVar[ColorButton, Boolean]("modal", _.getModal(), _.setModal(_), true)
   @deprecated("", "") val Title: ExternalVar.Aux[ColorButton, java.lang.String] = ExternalVar[ColorButton, java.lang.String]("title", _.getTitle(), _.setTitle(_), true)
   @deprecated("", "") val UseAlpha: ExternalVar.Aux[ColorButton, Boolean] = ExternalVar[ColorButton, Boolean]("use-alpha", _.getUseAlpha(), _.setUseAlpha(_), true)
-  ()
+
+  
+
   extension (v: ColorButton) {
     def unwrap: org.gnome.gtk.ColorButton = v
-    @deprecated("", "") def modal: Var.Aux[Boolean, v.type] = Modal.asInstanceOf[Var.Aux[Boolean, v.type]]
-    @deprecated("", "") def title: Var.Aux[java.lang.String, v.type] = Title.asInstanceOf[Var.Aux[java.lang.String, v.type]]
-    @deprecated("", "") def useAlpha: Var.Aux[Boolean, v.type] = UseAlpha.asInstanceOf[Var.Aux[Boolean, v.type]]
-    export unwrap.onActivate, unwrap.onColorSet
+
+    @deprecated("", "") def modal: Var.Aux[Boolean, v.type] = guarana.gtk.ColorButton.Modal.asInstanceOf[Var.Aux[Boolean, v.type]]
+    @deprecated("", "") def title: Var.Aux[java.lang.String, v.type] = guarana.gtk.ColorButton.Title.asInstanceOf[Var.Aux[java.lang.String, v.type]]
+    @deprecated("", "") def useAlpha: Var.Aux[Boolean, v.type] = guarana.gtk.ColorButton.UseAlpha.asInstanceOf[Var.Aux[Boolean, v.type]]
+
+    
+
+    export unwrap.{
+      onActivate,
+      onColorSet,
+      onDestroy,
+      onDirectionChanged,
+      onHide,
+      onKeynavFailed,
+      onMap,
+      onMnemonicActivate,
+      onMoveFocus,
+      onNotify,
+      onQueryTooltip,
+      onRealize,
+      onShow,
+      onStateFlagsChanged,
+      onUnmap,
+      onUnrealize
+    }
   }
-  def _wrap(v: org.gnome.gtk.ColorButton): ColorButton = {
-    v.asInstanceOf
-  }
-  def init(v: ColorButton): ToolkitAction[Toolkit, Unit] = {
-    Widget.init(v)
+
+  def wrap(v: org.gnome.gtk.ColorButton): ColorButton = 
+    val res = v.asInstanceOf[ColorButton]
+    
+    res
+
+  def init(v: ColorButton): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+    guarana.gtk.Widget.init(v)
     connectVarsListener(v)
+    
   }
   def uninitialized(): ColorButton = {
     val res = new org.gnome.gtk.ColorButton()
+    
     res.asInstanceOf[ColorButton]
   }
-  def apply(canFocus: Opt[Binding[Boolean]] = UnsetParam, canTarget: Opt[Binding[Boolean]] = UnsetParam, childVisible: Opt[Binding[Boolean]] = UnsetParam, cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam, direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam, focusChild: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, focusOnClick: Opt[Binding[Boolean]] = UnsetParam, focusable: Opt[Binding[Boolean]] = UnsetParam, fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam, fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam, halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, hasTooltip: Opt[Binding[Boolean]] = UnsetParam, hexpand: Opt[Binding[Boolean]] = UnsetParam, hexpandSet: Opt[Binding[Boolean]] = UnsetParam, layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam, limitEvents: Opt[Binding[Boolean]] = UnsetParam, marginBottom: Opt[Binding[Int]] = UnsetParam, marginEnd: Opt[Binding[Int]] = UnsetParam, marginStart: Opt[Binding[Int]] = UnsetParam, marginTop: Opt[Binding[Int]] = UnsetParam, modal: Opt[Binding[Boolean]] = UnsetParam, name: Opt[Binding[java.lang.String]] = UnsetParam, opacity: Opt[Binding[Double]] = UnsetParam, overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam, receivesDefault: Opt[Binding[Boolean]] = UnsetParam, sensitive: Opt[Binding[Boolean]] = UnsetParam, title: Opt[Binding[java.lang.String]] = UnsetParam, tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam, tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam, useAlpha: Opt[Binding[Boolean]] = UnsetParam, valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, vexpand: Opt[Binding[Boolean]] = UnsetParam, vexpandSet: Opt[Binding[Boolean]] = UnsetParam, visible: Opt[Binding[Boolean]] = UnsetParam): ToolkitAction[Toolkit, ColorButton] = {
+  
+  def apply(
+    
+    canFocus: Opt[Binding[Boolean]] = UnsetParam,
+    canTarget: Opt[Binding[Boolean]] = UnsetParam,
+    childVisible: Opt[Binding[Boolean]] = UnsetParam,
+    cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam,
+    direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam,
+    focusChild: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    focusOnClick: Opt[Binding[Boolean]] = UnsetParam,
+    focusable: Opt[Binding[Boolean]] = UnsetParam,
+    fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam,
+    fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam,
+    halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    hasTooltip: Opt[Binding[Boolean]] = UnsetParam,
+    hexpand: Opt[Binding[Boolean]] = UnsetParam,
+    hexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam,
+    limitEvents: Opt[Binding[Boolean]] = UnsetParam,
+    marginBottom: Opt[Binding[Int]] = UnsetParam,
+    marginEnd: Opt[Binding[Int]] = UnsetParam,
+    marginStart: Opt[Binding[Int]] = UnsetParam,
+    marginTop: Opt[Binding[Int]] = UnsetParam,
+    modal: Opt[Binding[Boolean]] = UnsetParam,
+    name: Opt[Binding[java.lang.String]] = UnsetParam,
+    opacity: Opt[Binding[Double]] = UnsetParam,
+    overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
+    sensitive: Opt[Binding[Boolean]] = UnsetParam,
+    title: Opt[Binding[java.lang.String]] = UnsetParam,
+    tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    useAlpha: Opt[Binding[Boolean]] = UnsetParam,
+    valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    vexpand: Opt[Binding[Boolean]] = UnsetParam,
+    vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    visible: Opt[Binding[Boolean]] = UnsetParam
+  ): Toolkit ?=> VarContextAction[ColorButton] = {
     val res = uninitialized()
-    init(res)
+    guarana.gtk.ColorButton.init(res)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)
     ifSet(childVisible, res.childVisible := _)
@@ -64,4 +132,6 @@ object ColorButton extends VarsMap {
     ifSet(visible, res.visible := _)
     res
   }
+  
 }
+        

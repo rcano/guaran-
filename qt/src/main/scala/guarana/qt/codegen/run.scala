@@ -168,6 +168,7 @@ object run extends Panels, ItemViews, Dialogs {
     val initializedProp = VarProp(s"${targetName}Initialized", "Boolean", "false", Some("private"))
 
     NodeDescr(
+      "guarana.qt",
       targetName,
       actualClass.getName.unn,
       Seq(s"new ${actualClass.getName.unn}()"),

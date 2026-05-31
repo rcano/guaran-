@@ -1,7 +1,10 @@
+
 package guarana
 package gtk
-import util.*
-opaque type DropDown <: Widget = org.gnome.gtk.DropDown & Widget
+
+import guarana.util.*
+
+opaque type DropDown <: guarana.gtk.Widget  = org.gnome.gtk.DropDown & guarana.gtk.Widget
 object DropDown extends VarsMap {
   val EnableSearch: ExternalVar.Aux[DropDown, Boolean] = ExternalVar[DropDown, Boolean]("enable-search", _.getEnableSearch(), _.setEnableSearch(_), true)
   val Expression: ExternalVar.Aux[DropDown, org.gnome.gtk.Expression | Null] = ExternalVar[DropDown, org.gnome.gtk.Expression | Null]("expression", _.getExpression(), _.setExpression(_), true)
@@ -12,34 +15,104 @@ object DropDown extends VarsMap {
   val SearchMatchMode: ExternalVar.Aux[DropDown, org.gnome.gtk.StringFilterMatchMode] = ExternalVar[DropDown, org.gnome.gtk.StringFilterMatchMode]("search-match-mode", _.getSearchMatchMode(), _.setSearchMatchMode(_), true)
   val Selected: ExternalVar.Aux[DropDown, Int] = ExternalVar[DropDown, Int]("selected", _.getSelected(), _.setSelected(_), true)
   val ShowArrow: ExternalVar.Aux[DropDown, Boolean] = ExternalVar[DropDown, Boolean]("show-arrow", _.getShowArrow(), _.setShowArrow(_), true)
-  ()
+
+  
+
   extension (v: DropDown) {
     def unwrap: org.gnome.gtk.DropDown = v
-    def enableSearch: Var.Aux[Boolean, v.type] = EnableSearch.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def expression: Var.Aux[org.gnome.gtk.Expression | Null, v.type] = Expression.asInstanceOf[Var.Aux[org.gnome.gtk.Expression | Null, v.type]]
-    def factory: Var.Aux[org.gnome.gtk.ListItemFactory | Null, v.type] = Factory.asInstanceOf[Var.Aux[org.gnome.gtk.ListItemFactory | Null, v.type]]
-    def headerFactory: Var.Aux[org.gnome.gtk.ListItemFactory | Null, v.type] = HeaderFactory.asInstanceOf[Var.Aux[org.gnome.gtk.ListItemFactory | Null, v.type]]
-    def listFactory: Var.Aux[org.gnome.gtk.ListItemFactory | Null, v.type] = ListFactory.asInstanceOf[Var.Aux[org.gnome.gtk.ListItemFactory | Null, v.type]]
-    def model: Var.Aux[org.gnome.gio.ListModel[?] | Null, v.type] = Model.asInstanceOf[Var.Aux[org.gnome.gio.ListModel[?] | Null, v.type]]
-    def searchMatchMode: Var.Aux[org.gnome.gtk.StringFilterMatchMode, v.type] = SearchMatchMode.asInstanceOf[Var.Aux[org.gnome.gtk.StringFilterMatchMode, v.type]]
-    def selected: Var.Aux[Int, v.type] = Selected.asInstanceOf[Var.Aux[Int, v.type]]
-    def showArrow: Var.Aux[Boolean, v.type] = ShowArrow.asInstanceOf[Var.Aux[Boolean, v.type]]
-    export unwrap.onActivate
+
+    def enableSearch: Var.Aux[Boolean, v.type] = guarana.gtk.DropDown.EnableSearch.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def expression: Var.Aux[org.gnome.gtk.Expression | Null, v.type] = guarana.gtk.DropDown.Expression.asInstanceOf[Var.Aux[org.gnome.gtk.Expression | Null, v.type]]
+    def factory: Var.Aux[org.gnome.gtk.ListItemFactory | Null, v.type] = guarana.gtk.DropDown.Factory.asInstanceOf[Var.Aux[org.gnome.gtk.ListItemFactory | Null, v.type]]
+    def headerFactory: Var.Aux[org.gnome.gtk.ListItemFactory | Null, v.type] = guarana.gtk.DropDown.HeaderFactory.asInstanceOf[Var.Aux[org.gnome.gtk.ListItemFactory | Null, v.type]]
+    def listFactory: Var.Aux[org.gnome.gtk.ListItemFactory | Null, v.type] = guarana.gtk.DropDown.ListFactory.asInstanceOf[Var.Aux[org.gnome.gtk.ListItemFactory | Null, v.type]]
+    def model: Var.Aux[org.gnome.gio.ListModel[?] | Null, v.type] = guarana.gtk.DropDown.Model.asInstanceOf[Var.Aux[org.gnome.gio.ListModel[?] | Null, v.type]]
+    def searchMatchMode: Var.Aux[org.gnome.gtk.StringFilterMatchMode, v.type] = guarana.gtk.DropDown.SearchMatchMode.asInstanceOf[Var.Aux[org.gnome.gtk.StringFilterMatchMode, v.type]]
+    def selected: Var.Aux[Int, v.type] = guarana.gtk.DropDown.Selected.asInstanceOf[Var.Aux[Int, v.type]]
+    def showArrow: Var.Aux[Boolean, v.type] = guarana.gtk.DropDown.ShowArrow.asInstanceOf[Var.Aux[Boolean, v.type]]
+
+    
+
+    export unwrap.{
+      onActivate,
+      onDestroy,
+      onDirectionChanged,
+      onHide,
+      onKeynavFailed,
+      onMap,
+      onMnemonicActivate,
+      onMoveFocus,
+      onNotify,
+      onQueryTooltip,
+      onRealize,
+      onShow,
+      onStateFlagsChanged,
+      onUnmap,
+      onUnrealize
+    }
   }
-  def _wrap(v: org.gnome.gtk.DropDown): DropDown = {
-    v.asInstanceOf
-  }
-  def init(v: DropDown): ToolkitAction[Toolkit, Unit] = {
-    Widget.init(v)
+
+  def wrap(v: org.gnome.gtk.DropDown): DropDown = 
+    val res = v.asInstanceOf[DropDown]
+    
+    res
+
+  def init(v: DropDown): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+    guarana.gtk.Widget.init(v)
     connectVarsListener(v)
+    
   }
   def uninitialized(arg$0: org.gnome.gio.ListModel[?] | Null, arg$1: org.gnome.gtk.Expression | Null): DropDown = {
     val res = new org.gnome.gtk.DropDown(arg$0, arg$1)
+    
     res.asInstanceOf[DropDown]
   }
-  def apply(arg$0: org.gnome.gio.ListModel[?] | Null, arg$1: org.gnome.gtk.Expression | Null, canFocus: Opt[Binding[Boolean]] = UnsetParam, canTarget: Opt[Binding[Boolean]] = UnsetParam, childVisible: Opt[Binding[Boolean]] = UnsetParam, cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam, direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam, enableSearch: Opt[Binding[Boolean]] = UnsetParam, expression: Opt[Binding[org.gnome.gtk.Expression | Null]] = UnsetParam, factory: Opt[Binding[org.gnome.gtk.ListItemFactory | Null]] = UnsetParam, focusChild: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, focusOnClick: Opt[Binding[Boolean]] = UnsetParam, focusable: Opt[Binding[Boolean]] = UnsetParam, fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam, fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam, halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, hasTooltip: Opt[Binding[Boolean]] = UnsetParam, headerFactory: Opt[Binding[org.gnome.gtk.ListItemFactory | Null]] = UnsetParam, hexpand: Opt[Binding[Boolean]] = UnsetParam, hexpandSet: Opt[Binding[Boolean]] = UnsetParam, layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam, limitEvents: Opt[Binding[Boolean]] = UnsetParam, listFactory: Opt[Binding[org.gnome.gtk.ListItemFactory | Null]] = UnsetParam, marginBottom: Opt[Binding[Int]] = UnsetParam, marginEnd: Opt[Binding[Int]] = UnsetParam, marginStart: Opt[Binding[Int]] = UnsetParam, marginTop: Opt[Binding[Int]] = UnsetParam, model: Opt[Binding[org.gnome.gio.ListModel[?] | Null]] = UnsetParam, name: Opt[Binding[java.lang.String]] = UnsetParam, opacity: Opt[Binding[Double]] = UnsetParam, overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam, receivesDefault: Opt[Binding[Boolean]] = UnsetParam, searchMatchMode: Opt[Binding[org.gnome.gtk.StringFilterMatchMode]] = UnsetParam, selected: Opt[Binding[Int]] = UnsetParam, sensitive: Opt[Binding[Boolean]] = UnsetParam, showArrow: Opt[Binding[Boolean]] = UnsetParam, tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam, tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam, valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, vexpand: Opt[Binding[Boolean]] = UnsetParam, vexpandSet: Opt[Binding[Boolean]] = UnsetParam, visible: Opt[Binding[Boolean]] = UnsetParam): ToolkitAction[Toolkit, DropDown] = {
+  
+  def apply(
+    arg$0: org.gnome.gio.ListModel[?] | Null, arg$1: org.gnome.gtk.Expression | Null,
+    canFocus: Opt[Binding[Boolean]] = UnsetParam,
+    canTarget: Opt[Binding[Boolean]] = UnsetParam,
+    childVisible: Opt[Binding[Boolean]] = UnsetParam,
+    cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam,
+    direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam,
+    enableSearch: Opt[Binding[Boolean]] = UnsetParam,
+    expression: Opt[Binding[org.gnome.gtk.Expression | Null]] = UnsetParam,
+    factory: Opt[Binding[org.gnome.gtk.ListItemFactory | Null]] = UnsetParam,
+    focusChild: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    focusOnClick: Opt[Binding[Boolean]] = UnsetParam,
+    focusable: Opt[Binding[Boolean]] = UnsetParam,
+    fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam,
+    fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam,
+    halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    hasTooltip: Opt[Binding[Boolean]] = UnsetParam,
+    headerFactory: Opt[Binding[org.gnome.gtk.ListItemFactory | Null]] = UnsetParam,
+    hexpand: Opt[Binding[Boolean]] = UnsetParam,
+    hexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam,
+    limitEvents: Opt[Binding[Boolean]] = UnsetParam,
+    listFactory: Opt[Binding[org.gnome.gtk.ListItemFactory | Null]] = UnsetParam,
+    marginBottom: Opt[Binding[Int]] = UnsetParam,
+    marginEnd: Opt[Binding[Int]] = UnsetParam,
+    marginStart: Opt[Binding[Int]] = UnsetParam,
+    marginTop: Opt[Binding[Int]] = UnsetParam,
+    model: Opt[Binding[org.gnome.gio.ListModel[?] | Null]] = UnsetParam,
+    name: Opt[Binding[java.lang.String]] = UnsetParam,
+    opacity: Opt[Binding[Double]] = UnsetParam,
+    overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
+    searchMatchMode: Opt[Binding[org.gnome.gtk.StringFilterMatchMode]] = UnsetParam,
+    selected: Opt[Binding[Int]] = UnsetParam,
+    sensitive: Opt[Binding[Boolean]] = UnsetParam,
+    showArrow: Opt[Binding[Boolean]] = UnsetParam,
+    tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    vexpand: Opt[Binding[Boolean]] = UnsetParam,
+    vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    visible: Opt[Binding[Boolean]] = UnsetParam
+  ): Toolkit ?=> VarContextAction[DropDown] = {
     val res = uninitialized(arg$0, arg$1)
-    init(res)
+    guarana.gtk.DropDown.init(res)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)
     ifSet(childVisible, res.childVisible := _)
@@ -82,4 +155,6 @@ object DropDown extends VarsMap {
     ifSet(visible, res.visible := _)
     res
   }
+  
 }
+        

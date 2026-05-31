@@ -1,7 +1,10 @@
+
 package guarana
 package gtk
-import util.*
-opaque type Inscription <: Widget = org.gnome.gtk.Inscription & Widget
+
+import guarana.util.*
+
+opaque type Inscription <: guarana.gtk.Widget  = org.gnome.gtk.Inscription & guarana.gtk.Widget
 object Inscription extends VarsMap {
   val Attributes: ExternalVar.Aux[Inscription, org.gnome.pango.AttrList | Null] = ExternalVar[Inscription, org.gnome.pango.AttrList | Null]("attributes", _.getAttributes(), _.setAttributes(_), true)
   val MinChars: ExternalVar.Aux[Inscription, Int] = ExternalVar[Inscription, Int]("min-chars", _.getMinChars(), _.setMinChars(_), true)
@@ -13,34 +16,105 @@ object Inscription extends VarsMap {
   val WrapMode: ExternalVar.Aux[Inscription, org.gnome.pango.WrapMode] = ExternalVar[Inscription, org.gnome.pango.WrapMode]("wrap-mode", _.getWrapMode(), _.setWrapMode(_), true)
   val Xalign: ExternalVar.Aux[Inscription, Float] = ExternalVar[Inscription, Float]("xalign", _.getXalign(), _.setXalign(_), true)
   val Yalign: ExternalVar.Aux[Inscription, Float] = ExternalVar[Inscription, Float]("yalign", _.getYalign(), _.setYalign(_), true)
-  ()
+
+  
+
   extension (v: Inscription) {
     def unwrap: org.gnome.gtk.Inscription = v
-    def attributes: Var.Aux[org.gnome.pango.AttrList | Null, v.type] = Attributes.asInstanceOf[Var.Aux[org.gnome.pango.AttrList | Null, v.type]]
-    def minChars: Var.Aux[Int, v.type] = MinChars.asInstanceOf[Var.Aux[Int, v.type]]
-    def minLines: Var.Aux[Int, v.type] = MinLines.asInstanceOf[Var.Aux[Int, v.type]]
-    def natChars: Var.Aux[Int, v.type] = NatChars.asInstanceOf[Var.Aux[Int, v.type]]
-    def natLines: Var.Aux[Int, v.type] = NatLines.asInstanceOf[Var.Aux[Int, v.type]]
-    def text: Var.Aux[java.lang.String | Null, v.type] = Text.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
-    def textOverflow: Var.Aux[org.gnome.gtk.InscriptionOverflow, v.type] = TextOverflow.asInstanceOf[Var.Aux[org.gnome.gtk.InscriptionOverflow, v.type]]
-    def wrapMode: Var.Aux[org.gnome.pango.WrapMode, v.type] = WrapMode.asInstanceOf[Var.Aux[org.gnome.pango.WrapMode, v.type]]
-    def xalign: Var.Aux[Float, v.type] = Xalign.asInstanceOf[Var.Aux[Float, v.type]]
-    def yalign: Var.Aux[Float, v.type] = Yalign.asInstanceOf[Var.Aux[Float, v.type]]
+
+    def attributes: Var.Aux[org.gnome.pango.AttrList | Null, v.type] = guarana.gtk.Inscription.Attributes.asInstanceOf[Var.Aux[org.gnome.pango.AttrList | Null, v.type]]
+    def minChars: Var.Aux[Int, v.type] = guarana.gtk.Inscription.MinChars.asInstanceOf[Var.Aux[Int, v.type]]
+    def minLines: Var.Aux[Int, v.type] = guarana.gtk.Inscription.MinLines.asInstanceOf[Var.Aux[Int, v.type]]
+    def natChars: Var.Aux[Int, v.type] = guarana.gtk.Inscription.NatChars.asInstanceOf[Var.Aux[Int, v.type]]
+    def natLines: Var.Aux[Int, v.type] = guarana.gtk.Inscription.NatLines.asInstanceOf[Var.Aux[Int, v.type]]
+    def text: Var.Aux[java.lang.String | Null, v.type] = guarana.gtk.Inscription.Text.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
+    def textOverflow: Var.Aux[org.gnome.gtk.InscriptionOverflow, v.type] = guarana.gtk.Inscription.TextOverflow.asInstanceOf[Var.Aux[org.gnome.gtk.InscriptionOverflow, v.type]]
+    def wrapMode: Var.Aux[org.gnome.pango.WrapMode, v.type] = guarana.gtk.Inscription.WrapMode.asInstanceOf[Var.Aux[org.gnome.pango.WrapMode, v.type]]
+    def xalign: Var.Aux[Float, v.type] = guarana.gtk.Inscription.Xalign.asInstanceOf[Var.Aux[Float, v.type]]
+    def yalign: Var.Aux[Float, v.type] = guarana.gtk.Inscription.Yalign.asInstanceOf[Var.Aux[Float, v.type]]
+
+    
+
+    export unwrap.{
+      onDestroy,
+      onDirectionChanged,
+      onHide,
+      onKeynavFailed,
+      onMap,
+      onMnemonicActivate,
+      onMoveFocus,
+      onNotify,
+      onQueryTooltip,
+      onRealize,
+      onShow,
+      onStateFlagsChanged,
+      onUnmap,
+      onUnrealize
+    }
   }
-  def _wrap(v: org.gnome.gtk.Inscription): Inscription = {
-    v.asInstanceOf
-  }
-  def init(v: Inscription): ToolkitAction[Toolkit, Unit] = {
-    Widget.init(v)
+
+  def wrap(v: org.gnome.gtk.Inscription): Inscription = 
+    val res = v.asInstanceOf[Inscription]
+    
+    res
+
+  def init(v: Inscription): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+    guarana.gtk.Widget.init(v)
     connectVarsListener(v)
+    
   }
   def uninitialized(arg$0: java.lang.String | Null): Inscription = {
     val res = new org.gnome.gtk.Inscription(arg$0)
+    
     res.asInstanceOf[Inscription]
   }
-  def apply(arg$0: java.lang.String | Null, attributes: Opt[Binding[org.gnome.pango.AttrList | Null]] = UnsetParam, canFocus: Opt[Binding[Boolean]] = UnsetParam, canTarget: Opt[Binding[Boolean]] = UnsetParam, childVisible: Opt[Binding[Boolean]] = UnsetParam, cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam, direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam, focusChild: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, focusOnClick: Opt[Binding[Boolean]] = UnsetParam, focusable: Opt[Binding[Boolean]] = UnsetParam, fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam, fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam, halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, hasTooltip: Opt[Binding[Boolean]] = UnsetParam, hexpand: Opt[Binding[Boolean]] = UnsetParam, hexpandSet: Opt[Binding[Boolean]] = UnsetParam, layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam, limitEvents: Opt[Binding[Boolean]] = UnsetParam, marginBottom: Opt[Binding[Int]] = UnsetParam, marginEnd: Opt[Binding[Int]] = UnsetParam, marginStart: Opt[Binding[Int]] = UnsetParam, marginTop: Opt[Binding[Int]] = UnsetParam, minChars: Opt[Binding[Int]] = UnsetParam, minLines: Opt[Binding[Int]] = UnsetParam, name: Opt[Binding[java.lang.String]] = UnsetParam, natChars: Opt[Binding[Int]] = UnsetParam, natLines: Opt[Binding[Int]] = UnsetParam, opacity: Opt[Binding[Double]] = UnsetParam, overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam, receivesDefault: Opt[Binding[Boolean]] = UnsetParam, sensitive: Opt[Binding[Boolean]] = UnsetParam, text: Opt[Binding[java.lang.String | Null]] = UnsetParam, textOverflow: Opt[Binding[org.gnome.gtk.InscriptionOverflow]] = UnsetParam, tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam, tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam, valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, vexpand: Opt[Binding[Boolean]] = UnsetParam, vexpandSet: Opt[Binding[Boolean]] = UnsetParam, visible: Opt[Binding[Boolean]] = UnsetParam, wrapMode: Opt[Binding[org.gnome.pango.WrapMode]] = UnsetParam, xalign: Opt[Binding[Float]] = UnsetParam, yalign: Opt[Binding[Float]] = UnsetParam): ToolkitAction[Toolkit, Inscription] = {
+  
+  def apply(
+    arg$0: java.lang.String | Null,
+    attributes: Opt[Binding[org.gnome.pango.AttrList | Null]] = UnsetParam,
+    canFocus: Opt[Binding[Boolean]] = UnsetParam,
+    canTarget: Opt[Binding[Boolean]] = UnsetParam,
+    childVisible: Opt[Binding[Boolean]] = UnsetParam,
+    cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam,
+    direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam,
+    focusChild: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    focusOnClick: Opt[Binding[Boolean]] = UnsetParam,
+    focusable: Opt[Binding[Boolean]] = UnsetParam,
+    fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam,
+    fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam,
+    halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    hasTooltip: Opt[Binding[Boolean]] = UnsetParam,
+    hexpand: Opt[Binding[Boolean]] = UnsetParam,
+    hexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam,
+    limitEvents: Opt[Binding[Boolean]] = UnsetParam,
+    marginBottom: Opt[Binding[Int]] = UnsetParam,
+    marginEnd: Opt[Binding[Int]] = UnsetParam,
+    marginStart: Opt[Binding[Int]] = UnsetParam,
+    marginTop: Opt[Binding[Int]] = UnsetParam,
+    minChars: Opt[Binding[Int]] = UnsetParam,
+    minLines: Opt[Binding[Int]] = UnsetParam,
+    name: Opt[Binding[java.lang.String]] = UnsetParam,
+    natChars: Opt[Binding[Int]] = UnsetParam,
+    natLines: Opt[Binding[Int]] = UnsetParam,
+    opacity: Opt[Binding[Double]] = UnsetParam,
+    overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
+    sensitive: Opt[Binding[Boolean]] = UnsetParam,
+    text: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    textOverflow: Opt[Binding[org.gnome.gtk.InscriptionOverflow]] = UnsetParam,
+    tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    vexpand: Opt[Binding[Boolean]] = UnsetParam,
+    vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    visible: Opt[Binding[Boolean]] = UnsetParam,
+    wrapMode: Opt[Binding[org.gnome.pango.WrapMode]] = UnsetParam,
+    xalign: Opt[Binding[Float]] = UnsetParam,
+    yalign: Opt[Binding[Float]] = UnsetParam
+  ): Toolkit ?=> VarContextAction[Inscription] = {
     val res = uninitialized(arg$0)
-    init(res)
+    guarana.gtk.Inscription.init(res)
     ifSet(attributes, res.attributes := _)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)
@@ -84,4 +158,6 @@ object Inscription extends VarsMap {
     ifSet(yalign, res.yalign := _)
     res
   }
+  
 }
+        

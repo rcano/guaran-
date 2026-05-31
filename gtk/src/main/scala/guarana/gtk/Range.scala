@@ -1,7 +1,10 @@
+
 package guarana
 package gtk
-import util.*
-opaque type Range <: Widget = org.gnome.gtk.Range & Widget
+
+import guarana.util.*
+
+opaque type Range <: guarana.gtk.Widget  = org.gnome.gtk.Range & guarana.gtk.Widget
 object Range extends VarsMap {
   val Adjustment: ExternalVar.Aux[Range, org.gnome.gtk.Adjustment] = ExternalVar[Range, org.gnome.gtk.Adjustment]("adjustment", _.getAdjustment(), _.setAdjustment(_), true)
   val FillLevel: ExternalVar.Aux[Range, Double] = ExternalVar[Range, Double]("fill-level", _.getFillLevel(), _.setFillLevel(_), true)
@@ -13,35 +16,109 @@ object Range extends VarsMap {
   val ShowFillLevel: ExternalVar.Aux[Range, Boolean] = ExternalVar[Range, Boolean]("show-fill-level", _.getShowFillLevel(), _.setShowFillLevel(_), true)
   val SliderSizeFixed: ExternalVar.Aux[Range, Boolean] = ExternalVar[Range, Boolean]("slider-size-fixed", _.getSliderSizeFixed(), _.setSliderSizeFixed(_), true)
   val Value: ExternalVar.Aux[Range, Double] = ExternalVar[Range, Double]("value", _.getValue(), _.setValue(_), true)
-  ()
+
+  
+
   extension (v: Range) {
     def unwrap: org.gnome.gtk.Range = v
-    def adjustment: Var.Aux[org.gnome.gtk.Adjustment, v.type] = Adjustment.asInstanceOf[Var.Aux[org.gnome.gtk.Adjustment, v.type]]
-    def fillLevel: Var.Aux[Double, v.type] = FillLevel.asInstanceOf[Var.Aux[Double, v.type]]
-    def flippable: Var.Aux[Boolean, v.type] = Flippable.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def inverted: Var.Aux[Boolean, v.type] = Inverted.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def orientation: Var.Aux[org.gnome.gtk.Orientation, v.type] = Orientation.asInstanceOf[Var.Aux[org.gnome.gtk.Orientation, v.type]]
-    def restrictToFillLevel: Var.Aux[Boolean, v.type] = RestrictToFillLevel.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def roundDigits: Var.Aux[Int, v.type] = RoundDigits.asInstanceOf[Var.Aux[Int, v.type]]
-    def showFillLevel: Var.Aux[Boolean, v.type] = ShowFillLevel.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def sliderSizeFixed: Var.Aux[Boolean, v.type] = SliderSizeFixed.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def value: Var.Aux[Double, v.type] = Value.asInstanceOf[Var.Aux[Double, v.type]]
-    export unwrap.onAdjustBounds, unwrap.onChangeValue, unwrap.onMoveSlider, unwrap.onValueChanged
+
+    def adjustment: Var.Aux[org.gnome.gtk.Adjustment, v.type] = guarana.gtk.Range.Adjustment.asInstanceOf[Var.Aux[org.gnome.gtk.Adjustment, v.type]]
+    def fillLevel: Var.Aux[Double, v.type] = guarana.gtk.Range.FillLevel.asInstanceOf[Var.Aux[Double, v.type]]
+    def flippable: Var.Aux[Boolean, v.type] = guarana.gtk.Range.Flippable.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def inverted: Var.Aux[Boolean, v.type] = guarana.gtk.Range.Inverted.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def orientation: Var.Aux[org.gnome.gtk.Orientation, v.type] = guarana.gtk.Range.Orientation.asInstanceOf[Var.Aux[org.gnome.gtk.Orientation, v.type]]
+    def restrictToFillLevel: Var.Aux[Boolean, v.type] = guarana.gtk.Range.RestrictToFillLevel.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def roundDigits: Var.Aux[Int, v.type] = guarana.gtk.Range.RoundDigits.asInstanceOf[Var.Aux[Int, v.type]]
+    def showFillLevel: Var.Aux[Boolean, v.type] = guarana.gtk.Range.ShowFillLevel.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def sliderSizeFixed: Var.Aux[Boolean, v.type] = guarana.gtk.Range.SliderSizeFixed.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def value: Var.Aux[Double, v.type] = guarana.gtk.Range.Value.asInstanceOf[Var.Aux[Double, v.type]]
+
+    
+
+    export unwrap.{
+      onAdjustBounds,
+      onChangeValue,
+      onDestroy,
+      onDirectionChanged,
+      onHide,
+      onKeynavFailed,
+      onMap,
+      onMnemonicActivate,
+      onMoveFocus,
+      onMoveSlider,
+      onNotify,
+      onQueryTooltip,
+      onRealize,
+      onShow,
+      onStateFlagsChanged,
+      onUnmap,
+      onUnrealize,
+      onValueChanged
+    }
   }
-  def _wrap(v: org.gnome.gtk.Range): Range = {
-    v.asInstanceOf
-  }
-  def init(v: Range): ToolkitAction[Toolkit, Unit] = {
-    Widget.init(v)
+
+  def wrap(v: org.gnome.gtk.Range): Range = 
+    val res = v.asInstanceOf[Range]
+    
+    res
+
+  def init(v: Range): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+    guarana.gtk.Widget.init(v)
     connectVarsListener(v)
+    
   }
   def uninitialized(): Range = {
     val res = new org.gnome.gtk.Range()
+    
     res.asInstanceOf[Range]
   }
-  def apply(adjustment: Opt[Binding[org.gnome.gtk.Adjustment]] = UnsetParam, canFocus: Opt[Binding[Boolean]] = UnsetParam, canTarget: Opt[Binding[Boolean]] = UnsetParam, childVisible: Opt[Binding[Boolean]] = UnsetParam, cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam, direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam, fillLevel: Opt[Binding[Double]] = UnsetParam, flippable: Opt[Binding[Boolean]] = UnsetParam, focusChild: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, focusOnClick: Opt[Binding[Boolean]] = UnsetParam, focusable: Opt[Binding[Boolean]] = UnsetParam, fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam, fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam, halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, hasTooltip: Opt[Binding[Boolean]] = UnsetParam, hexpand: Opt[Binding[Boolean]] = UnsetParam, hexpandSet: Opt[Binding[Boolean]] = UnsetParam, inverted: Opt[Binding[Boolean]] = UnsetParam, layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam, limitEvents: Opt[Binding[Boolean]] = UnsetParam, marginBottom: Opt[Binding[Int]] = UnsetParam, marginEnd: Opt[Binding[Int]] = UnsetParam, marginStart: Opt[Binding[Int]] = UnsetParam, marginTop: Opt[Binding[Int]] = UnsetParam, name: Opt[Binding[java.lang.String]] = UnsetParam, opacity: Opt[Binding[Double]] = UnsetParam, orientation: Opt[Binding[org.gnome.gtk.Orientation]] = UnsetParam, overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam, receivesDefault: Opt[Binding[Boolean]] = UnsetParam, restrictToFillLevel: Opt[Binding[Boolean]] = UnsetParam, roundDigits: Opt[Binding[Int]] = UnsetParam, sensitive: Opt[Binding[Boolean]] = UnsetParam, showFillLevel: Opt[Binding[Boolean]] = UnsetParam, sliderSizeFixed: Opt[Binding[Boolean]] = UnsetParam, tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam, tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam, valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, value: Opt[Binding[Double]] = UnsetParam, vexpand: Opt[Binding[Boolean]] = UnsetParam, vexpandSet: Opt[Binding[Boolean]] = UnsetParam, visible: Opt[Binding[Boolean]] = UnsetParam): ToolkitAction[Toolkit, Range] = {
+  
+  def apply(
+    
+    adjustment: Opt[Binding[org.gnome.gtk.Adjustment]] = UnsetParam,
+    canFocus: Opt[Binding[Boolean]] = UnsetParam,
+    canTarget: Opt[Binding[Boolean]] = UnsetParam,
+    childVisible: Opt[Binding[Boolean]] = UnsetParam,
+    cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam,
+    direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam,
+    fillLevel: Opt[Binding[Double]] = UnsetParam,
+    flippable: Opt[Binding[Boolean]] = UnsetParam,
+    focusChild: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    focusOnClick: Opt[Binding[Boolean]] = UnsetParam,
+    focusable: Opt[Binding[Boolean]] = UnsetParam,
+    fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam,
+    fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam,
+    halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    hasTooltip: Opt[Binding[Boolean]] = UnsetParam,
+    hexpand: Opt[Binding[Boolean]] = UnsetParam,
+    hexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    inverted: Opt[Binding[Boolean]] = UnsetParam,
+    layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam,
+    limitEvents: Opt[Binding[Boolean]] = UnsetParam,
+    marginBottom: Opt[Binding[Int]] = UnsetParam,
+    marginEnd: Opt[Binding[Int]] = UnsetParam,
+    marginStart: Opt[Binding[Int]] = UnsetParam,
+    marginTop: Opt[Binding[Int]] = UnsetParam,
+    name: Opt[Binding[java.lang.String]] = UnsetParam,
+    opacity: Opt[Binding[Double]] = UnsetParam,
+    orientation: Opt[Binding[org.gnome.gtk.Orientation]] = UnsetParam,
+    overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
+    restrictToFillLevel: Opt[Binding[Boolean]] = UnsetParam,
+    roundDigits: Opt[Binding[Int]] = UnsetParam,
+    sensitive: Opt[Binding[Boolean]] = UnsetParam,
+    showFillLevel: Opt[Binding[Boolean]] = UnsetParam,
+    sliderSizeFixed: Opt[Binding[Boolean]] = UnsetParam,
+    tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    value: Opt[Binding[Double]] = UnsetParam,
+    vexpand: Opt[Binding[Boolean]] = UnsetParam,
+    vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    visible: Opt[Binding[Boolean]] = UnsetParam
+  ): Toolkit ?=> VarContextAction[Range] = {
     val res = uninitialized()
-    init(res)
+    guarana.gtk.Range.init(res)
     ifSet(adjustment, res.adjustment := _)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)
@@ -85,4 +162,6 @@ object Range extends VarsMap {
     ifSet(visible, res.visible := _)
     res
   }
+  
 }
+        

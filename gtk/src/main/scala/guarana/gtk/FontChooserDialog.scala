@@ -1,34 +1,128 @@
+
 package guarana
 package gtk
-import util.*
-opaque type FontChooserDialog <: Dialog = org.gnome.gtk.FontChooserDialog & Dialog
+
+import guarana.util.*
+
+opaque type FontChooserDialog <: guarana.gtk.Window  = org.gnome.gtk.FontChooserDialog & guarana.gtk.Window
 object FontChooserDialog extends VarsMap {
   @deprecated("", "") val Language: ExternalVar.Aux[FontChooserDialog, java.lang.String] = ExternalVar[FontChooserDialog, java.lang.String]("language", _.getLanguage(), _.setLanguage(_), true)
   @deprecated("", "") val Level: ExternalVar.Aux[FontChooserDialog, java.util.Set[org.gnome.gtk.FontChooserLevel]] = ExternalVar[FontChooserDialog, java.util.Set[org.gnome.gtk.FontChooserLevel]]("level", _.getLevel(), _.setLevel(_), true)
   @deprecated("", "") val PreviewText: ExternalVar.Aux[FontChooserDialog, java.lang.String] = ExternalVar[FontChooserDialog, java.lang.String]("preview-text", _.getPreviewText(), _.setPreviewText(_), true)
   @deprecated("", "") val ShowPreviewEntry: ExternalVar.Aux[FontChooserDialog, Boolean] = ExternalVar[FontChooserDialog, Boolean]("show-preview-entry", _.getShowPreviewEntry(), _.setShowPreviewEntry(_), true)
-  ()
+
+  
+
   extension (v: FontChooserDialog) {
     def unwrap: org.gnome.gtk.FontChooserDialog = v
-    @deprecated("", "") def language: Var.Aux[java.lang.String, v.type] = Language.asInstanceOf[Var.Aux[java.lang.String, v.type]]
-    @deprecated("", "") def level: Var.Aux[java.util.Set[org.gnome.gtk.FontChooserLevel], v.type] = Level.asInstanceOf[Var.Aux[java.util.Set[org.gnome.gtk.FontChooserLevel], v.type]]
-    @deprecated("", "") def previewText: Var.Aux[java.lang.String, v.type] = PreviewText.asInstanceOf[Var.Aux[java.lang.String, v.type]]
-    @deprecated("", "") def showPreviewEntry: Var.Aux[Boolean, v.type] = ShowPreviewEntry.asInstanceOf[Var.Aux[Boolean, v.type]]
+
+    @deprecated("", "") def language: Var.Aux[java.lang.String, v.type] = guarana.gtk.FontChooserDialog.Language.asInstanceOf[Var.Aux[java.lang.String, v.type]]
+    @deprecated("", "") def level: Var.Aux[java.util.Set[org.gnome.gtk.FontChooserLevel], v.type] = guarana.gtk.FontChooserDialog.Level.asInstanceOf[Var.Aux[java.util.Set[org.gnome.gtk.FontChooserLevel], v.type]]
+    @deprecated("", "") def previewText: Var.Aux[java.lang.String, v.type] = guarana.gtk.FontChooserDialog.PreviewText.asInstanceOf[Var.Aux[java.lang.String, v.type]]
+    @deprecated("", "") def showPreviewEntry: Var.Aux[Boolean, v.type] = guarana.gtk.FontChooserDialog.ShowPreviewEntry.asInstanceOf[Var.Aux[Boolean, v.type]]
+
+    
+
+    export unwrap.{
+      onActivateDefault,
+      onActivateFocus,
+      onClose,
+      onCloseRequest,
+      onDestroy,
+      onDirectionChanged,
+      onEnableDebugging,
+      onHide,
+      onKeynavFailed,
+      onKeysChanged,
+      onMap,
+      onMnemonicActivate,
+      onMoveFocus,
+      onNotify,
+      onQueryTooltip,
+      onRealize,
+      onResponse,
+      onShow,
+      onStateFlagsChanged,
+      onUnmap,
+      onUnrealize
+    }
   }
-  def _wrap(v: org.gnome.gtk.FontChooserDialog): FontChooserDialog = {
-    v.asInstanceOf
-  }
-  def init(v: FontChooserDialog): ToolkitAction[Toolkit, Unit] = {
-    Dialog.init(v)
+
+  def wrap(v: org.gnome.gtk.FontChooserDialog): FontChooserDialog = 
+    val res = v.asInstanceOf[FontChooserDialog]
+    
+    res
+
+  def init(v: FontChooserDialog): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+    guarana.gtk.Window.init(v)
     connectVarsListener(v)
+    
   }
   def uninitialized(arg$0: java.lang.String | Null, arg$1: org.gnome.gtk.Window | Null): FontChooserDialog = {
     val res = new org.gnome.gtk.FontChooserDialog(arg$0, arg$1)
+    
     res.asInstanceOf[FontChooserDialog]
   }
-  def apply(arg$0: java.lang.String | Null, arg$1: org.gnome.gtk.Window | Null, application: Opt[Binding[org.gnome.gtk.Application | Null]] = UnsetParam, canFocus: Opt[Binding[Boolean]] = UnsetParam, canTarget: Opt[Binding[Boolean]] = UnsetParam, child: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, childVisible: Opt[Binding[Boolean]] = UnsetParam, cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam, decorated: Opt[Binding[Boolean]] = UnsetParam, defaultWidget: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, deletable: Opt[Binding[Boolean]] = UnsetParam, destroyWithParent: Opt[Binding[Boolean]] = UnsetParam, direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam, display: Opt[Binding[org.gnome.gdk.Display]] = UnsetParam, focus: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, focusChild: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, focusOnClick: Opt[Binding[Boolean]] = UnsetParam, focusVisible: Opt[Binding[Boolean]] = UnsetParam, focusable: Opt[Binding[Boolean]] = UnsetParam, fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam, fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam, gravity: Opt[Binding[org.gnome.gtk.WindowGravity]] = UnsetParam, halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, handleMenubarAccel: Opt[Binding[Boolean]] = UnsetParam, hasTooltip: Opt[Binding[Boolean]] = UnsetParam, hexpand: Opt[Binding[Boolean]] = UnsetParam, hexpandSet: Opt[Binding[Boolean]] = UnsetParam, hideOnClose: Opt[Binding[Boolean]] = UnsetParam, iconName: Opt[Binding[java.lang.String | Null]] = UnsetParam, language: Opt[Binding[java.lang.String]] = UnsetParam, layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam, level: Opt[Binding[java.util.Set[org.gnome.gtk.FontChooserLevel]]] = UnsetParam, limitEvents: Opt[Binding[Boolean]] = UnsetParam, marginBottom: Opt[Binding[Int]] = UnsetParam, marginEnd: Opt[Binding[Int]] = UnsetParam, marginStart: Opt[Binding[Int]] = UnsetParam, marginTop: Opt[Binding[Int]] = UnsetParam, mnemonicsVisible: Opt[Binding[Boolean]] = UnsetParam, modal: Opt[Binding[Boolean]] = UnsetParam, name: Opt[Binding[java.lang.String]] = UnsetParam, opacity: Opt[Binding[Double]] = UnsetParam, overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam, previewText: Opt[Binding[java.lang.String]] = UnsetParam, receivesDefault: Opt[Binding[Boolean]] = UnsetParam, resizable: Opt[Binding[Boolean]] = UnsetParam, sensitive: Opt[Binding[Boolean]] = UnsetParam, showPreviewEntry: Opt[Binding[Boolean]] = UnsetParam, title: Opt[Binding[java.lang.String | Null]] = UnsetParam, titlebar: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam, tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam, transientFor: Opt[Binding[org.gnome.gtk.Window | Null]] = UnsetParam, valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, vexpand: Opt[Binding[Boolean]] = UnsetParam, vexpandSet: Opt[Binding[Boolean]] = UnsetParam, visible: Opt[Binding[Boolean]] = UnsetParam): ToolkitAction[Toolkit, FontChooserDialog] = {
+  
+  def apply(
+    arg$0: java.lang.String | Null, arg$1: org.gnome.gtk.Window | Null,
+    application: Opt[Binding[org.gnome.gtk.Application | Null]] = UnsetParam,
+    canFocus: Opt[Binding[Boolean]] = UnsetParam,
+    canTarget: Opt[Binding[Boolean]] = UnsetParam,
+    child: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    childVisible: Opt[Binding[Boolean]] = UnsetParam,
+    cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam,
+    decorated: Opt[Binding[Boolean]] = UnsetParam,
+    defaultWidget: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    deletable: Opt[Binding[Boolean]] = UnsetParam,
+    destroyWithParent: Opt[Binding[Boolean]] = UnsetParam,
+    direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam,
+    display: Opt[Binding[org.gnome.gdk.Display]] = UnsetParam,
+    focus: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    focusChild: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    focusOnClick: Opt[Binding[Boolean]] = UnsetParam,
+    focusVisible: Opt[Binding[Boolean]] = UnsetParam,
+    focusable: Opt[Binding[Boolean]] = UnsetParam,
+    fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam,
+    fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam,
+    gravity: Opt[Binding[org.gnome.gtk.WindowGravity]] = UnsetParam,
+    halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    handleMenubarAccel: Opt[Binding[Boolean]] = UnsetParam,
+    hasTooltip: Opt[Binding[Boolean]] = UnsetParam,
+    hexpand: Opt[Binding[Boolean]] = UnsetParam,
+    hexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    hideOnClose: Opt[Binding[Boolean]] = UnsetParam,
+    iconName: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    language: Opt[Binding[java.lang.String]] = UnsetParam,
+    layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam,
+    level: Opt[Binding[java.util.Set[org.gnome.gtk.FontChooserLevel]]] = UnsetParam,
+    limitEvents: Opt[Binding[Boolean]] = UnsetParam,
+    marginBottom: Opt[Binding[Int]] = UnsetParam,
+    marginEnd: Opt[Binding[Int]] = UnsetParam,
+    marginStart: Opt[Binding[Int]] = UnsetParam,
+    marginTop: Opt[Binding[Int]] = UnsetParam,
+    mnemonicsVisible: Opt[Binding[Boolean]] = UnsetParam,
+    modal: Opt[Binding[Boolean]] = UnsetParam,
+    name: Opt[Binding[java.lang.String]] = UnsetParam,
+    opacity: Opt[Binding[Double]] = UnsetParam,
+    overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    previewText: Opt[Binding[java.lang.String]] = UnsetParam,
+    receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
+    resizable: Opt[Binding[Boolean]] = UnsetParam,
+    sensitive: Opt[Binding[Boolean]] = UnsetParam,
+    showPreviewEntry: Opt[Binding[Boolean]] = UnsetParam,
+    title: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    titlebar: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    transientFor: Opt[Binding[org.gnome.gtk.Window | Null]] = UnsetParam,
+    valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    vexpand: Opt[Binding[Boolean]] = UnsetParam,
+    vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    visible: Opt[Binding[Boolean]] = UnsetParam
+  ): Toolkit ?=> VarContextAction[FontChooserDialog] = {
     val res = uninitialized(arg$0, arg$1)
-    init(res)
+    guarana.gtk.FontChooserDialog.init(res)
     ifSet(application, res.application := _)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)
@@ -85,4 +179,6 @@ object FontChooserDialog extends VarsMap {
     ifSet(visible, res.visible := _)
     res
   }
+  
 }
+        

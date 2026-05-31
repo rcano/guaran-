@@ -1,7 +1,10 @@
+
 package guarana
 package gtk
-import util.*
-opaque type AboutDialog <: Window = org.gnome.gtk.AboutDialog & Window
+
+import guarana.util.*
+
+opaque type AboutDialog <: guarana.gtk.Window  = org.gnome.gtk.AboutDialog & guarana.gtk.Window
 object AboutDialog extends VarsMap {
   val Comments: ExternalVar.Aux[AboutDialog, java.lang.String | Null] = ExternalVar[AboutDialog, java.lang.String | Null]("comments", _.getComments(), _.setComments(_), true)
   val Copyright: ExternalVar.Aux[AboutDialog, java.lang.String | Null] = ExternalVar[AboutDialog, java.lang.String | Null]("copyright", _.getCopyright(), _.setCopyright(_), true)
@@ -15,37 +18,134 @@ object AboutDialog extends VarsMap {
   val Version: ExternalVar.Aux[AboutDialog, java.lang.String | Null] = ExternalVar[AboutDialog, java.lang.String | Null]("version", _.getVersion(), _.setVersion(_), true)
   val Website: ExternalVar.Aux[AboutDialog, java.lang.String | Null] = ExternalVar[AboutDialog, java.lang.String | Null]("website", _.getWebsite(), _.setWebsite(_), true)
   val WrapLicense: ExternalVar.Aux[AboutDialog, Boolean] = ExternalVar[AboutDialog, Boolean]("wrap-license", _.getWrapLicense(), _.setWrapLicense(_), true)
-  ()
+
+  
+
   extension (v: AboutDialog) {
     def unwrap: org.gnome.gtk.AboutDialog = v
-    def comments: Var.Aux[java.lang.String | Null, v.type] = Comments.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
-    def copyright: Var.Aux[java.lang.String | Null, v.type] = Copyright.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
-    def license: Var.Aux[java.lang.String | Null, v.type] = License.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
-    def licenseType: Var.Aux[org.gnome.gtk.License, v.type] = LicenseType.asInstanceOf[Var.Aux[org.gnome.gtk.License, v.type]]
-    def logo: Var.Aux[org.gnome.gdk.Paintable | Null, v.type] = Logo.asInstanceOf[Var.Aux[org.gnome.gdk.Paintable | Null, v.type]]
-    def logoIconName: Var.Aux[java.lang.String | Null, v.type] = LogoIconName.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
-    def programName: Var.Aux[java.lang.String | Null, v.type] = ProgramName.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
-    def systemInformation: Var.Aux[java.lang.String | Null, v.type] = SystemInformation.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
-    def translatorCredits: Var.Aux[java.lang.String | Null, v.type] = TranslatorCredits.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
-    def version: Var.Aux[java.lang.String | Null, v.type] = Version.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
-    def website: Var.Aux[java.lang.String | Null, v.type] = Website.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
-    def wrapLicense: Var.Aux[Boolean, v.type] = WrapLicense.asInstanceOf[Var.Aux[Boolean, v.type]]
-    export unwrap.onActivateLink
+
+    def comments: Var.Aux[java.lang.String | Null, v.type] = guarana.gtk.AboutDialog.Comments.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
+    def copyright: Var.Aux[java.lang.String | Null, v.type] = guarana.gtk.AboutDialog.Copyright.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
+    def license: Var.Aux[java.lang.String | Null, v.type] = guarana.gtk.AboutDialog.License.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
+    def licenseType: Var.Aux[org.gnome.gtk.License, v.type] = guarana.gtk.AboutDialog.LicenseType.asInstanceOf[Var.Aux[org.gnome.gtk.License, v.type]]
+    def logo: Var.Aux[org.gnome.gdk.Paintable | Null, v.type] = guarana.gtk.AboutDialog.Logo.asInstanceOf[Var.Aux[org.gnome.gdk.Paintable | Null, v.type]]
+    def logoIconName: Var.Aux[java.lang.String | Null, v.type] = guarana.gtk.AboutDialog.LogoIconName.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
+    def programName: Var.Aux[java.lang.String | Null, v.type] = guarana.gtk.AboutDialog.ProgramName.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
+    def systemInformation: Var.Aux[java.lang.String | Null, v.type] = guarana.gtk.AboutDialog.SystemInformation.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
+    def translatorCredits: Var.Aux[java.lang.String | Null, v.type] = guarana.gtk.AboutDialog.TranslatorCredits.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
+    def version: Var.Aux[java.lang.String | Null, v.type] = guarana.gtk.AboutDialog.Version.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
+    def website: Var.Aux[java.lang.String | Null, v.type] = guarana.gtk.AboutDialog.Website.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
+    def wrapLicense: Var.Aux[Boolean, v.type] = guarana.gtk.AboutDialog.WrapLicense.asInstanceOf[Var.Aux[Boolean, v.type]]
+
+    
+
+    export unwrap.{
+      onActivateDefault,
+      onActivateFocus,
+      onActivateLink,
+      onCloseRequest,
+      onDestroy,
+      onDirectionChanged,
+      onEnableDebugging,
+      onHide,
+      onKeynavFailed,
+      onKeysChanged,
+      onMap,
+      onMnemonicActivate,
+      onMoveFocus,
+      onNotify,
+      onQueryTooltip,
+      onRealize,
+      onShow,
+      onStateFlagsChanged,
+      onUnmap,
+      onUnrealize
+    }
   }
-  def _wrap(v: org.gnome.gtk.AboutDialog): AboutDialog = {
-    v.asInstanceOf
-  }
-  def init(v: AboutDialog): ToolkitAction[Toolkit, Unit] = {
-    Window.init(v)
+
+  def wrap(v: org.gnome.gtk.AboutDialog): AboutDialog = 
+    val res = v.asInstanceOf[AboutDialog]
+    
+    res
+
+  def init(v: AboutDialog): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+    guarana.gtk.Window.init(v)
     connectVarsListener(v)
+    
   }
   def uninitialized(): AboutDialog = {
     val res = new org.gnome.gtk.AboutDialog()
+    
     res.asInstanceOf[AboutDialog]
   }
-  def apply(application: Opt[Binding[org.gnome.gtk.Application | Null]] = UnsetParam, canFocus: Opt[Binding[Boolean]] = UnsetParam, canTarget: Opt[Binding[Boolean]] = UnsetParam, child: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, childVisible: Opt[Binding[Boolean]] = UnsetParam, comments: Opt[Binding[java.lang.String | Null]] = UnsetParam, copyright: Opt[Binding[java.lang.String | Null]] = UnsetParam, cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam, decorated: Opt[Binding[Boolean]] = UnsetParam, defaultWidget: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, deletable: Opt[Binding[Boolean]] = UnsetParam, destroyWithParent: Opt[Binding[Boolean]] = UnsetParam, direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam, display: Opt[Binding[org.gnome.gdk.Display]] = UnsetParam, focus: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, focusChild: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, focusOnClick: Opt[Binding[Boolean]] = UnsetParam, focusVisible: Opt[Binding[Boolean]] = UnsetParam, focusable: Opt[Binding[Boolean]] = UnsetParam, fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam, fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam, gravity: Opt[Binding[org.gnome.gtk.WindowGravity]] = UnsetParam, halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, handleMenubarAccel: Opt[Binding[Boolean]] = UnsetParam, hasTooltip: Opt[Binding[Boolean]] = UnsetParam, hexpand: Opt[Binding[Boolean]] = UnsetParam, hexpandSet: Opt[Binding[Boolean]] = UnsetParam, hideOnClose: Opt[Binding[Boolean]] = UnsetParam, iconName: Opt[Binding[java.lang.String | Null]] = UnsetParam, layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam, license: Opt[Binding[java.lang.String | Null]] = UnsetParam, licenseType: Opt[Binding[org.gnome.gtk.License]] = UnsetParam, limitEvents: Opt[Binding[Boolean]] = UnsetParam, logo: Opt[Binding[org.gnome.gdk.Paintable | Null]] = UnsetParam, logoIconName: Opt[Binding[java.lang.String | Null]] = UnsetParam, marginBottom: Opt[Binding[Int]] = UnsetParam, marginEnd: Opt[Binding[Int]] = UnsetParam, marginStart: Opt[Binding[Int]] = UnsetParam, marginTop: Opt[Binding[Int]] = UnsetParam, mnemonicsVisible: Opt[Binding[Boolean]] = UnsetParam, modal: Opt[Binding[Boolean]] = UnsetParam, name: Opt[Binding[java.lang.String]] = UnsetParam, opacity: Opt[Binding[Double]] = UnsetParam, overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam, programName: Opt[Binding[java.lang.String | Null]] = UnsetParam, receivesDefault: Opt[Binding[Boolean]] = UnsetParam, resizable: Opt[Binding[Boolean]] = UnsetParam, sensitive: Opt[Binding[Boolean]] = UnsetParam, systemInformation: Opt[Binding[java.lang.String | Null]] = UnsetParam, title: Opt[Binding[java.lang.String | Null]] = UnsetParam, titlebar: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam, tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam, transientFor: Opt[Binding[org.gnome.gtk.Window | Null]] = UnsetParam, translatorCredits: Opt[Binding[java.lang.String | Null]] = UnsetParam, valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, version: Opt[Binding[java.lang.String | Null]] = UnsetParam, vexpand: Opt[Binding[Boolean]] = UnsetParam, vexpandSet: Opt[Binding[Boolean]] = UnsetParam, visible: Opt[Binding[Boolean]] = UnsetParam, website: Opt[Binding[java.lang.String | Null]] = UnsetParam, wrapLicense: Opt[Binding[Boolean]] = UnsetParam): ToolkitAction[Toolkit, AboutDialog] = {
+  
+  def apply(
+    
+    application: Opt[Binding[org.gnome.gtk.Application | Null]] = UnsetParam,
+    canFocus: Opt[Binding[Boolean]] = UnsetParam,
+    canTarget: Opt[Binding[Boolean]] = UnsetParam,
+    child: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    childVisible: Opt[Binding[Boolean]] = UnsetParam,
+    comments: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    copyright: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam,
+    decorated: Opt[Binding[Boolean]] = UnsetParam,
+    defaultWidget: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    deletable: Opt[Binding[Boolean]] = UnsetParam,
+    destroyWithParent: Opt[Binding[Boolean]] = UnsetParam,
+    direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam,
+    display: Opt[Binding[org.gnome.gdk.Display]] = UnsetParam,
+    focus: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    focusChild: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    focusOnClick: Opt[Binding[Boolean]] = UnsetParam,
+    focusVisible: Opt[Binding[Boolean]] = UnsetParam,
+    focusable: Opt[Binding[Boolean]] = UnsetParam,
+    fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam,
+    fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam,
+    gravity: Opt[Binding[org.gnome.gtk.WindowGravity]] = UnsetParam,
+    halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    handleMenubarAccel: Opt[Binding[Boolean]] = UnsetParam,
+    hasTooltip: Opt[Binding[Boolean]] = UnsetParam,
+    hexpand: Opt[Binding[Boolean]] = UnsetParam,
+    hexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    hideOnClose: Opt[Binding[Boolean]] = UnsetParam,
+    iconName: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam,
+    license: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    licenseType: Opt[Binding[org.gnome.gtk.License]] = UnsetParam,
+    limitEvents: Opt[Binding[Boolean]] = UnsetParam,
+    logo: Opt[Binding[org.gnome.gdk.Paintable | Null]] = UnsetParam,
+    logoIconName: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    marginBottom: Opt[Binding[Int]] = UnsetParam,
+    marginEnd: Opt[Binding[Int]] = UnsetParam,
+    marginStart: Opt[Binding[Int]] = UnsetParam,
+    marginTop: Opt[Binding[Int]] = UnsetParam,
+    mnemonicsVisible: Opt[Binding[Boolean]] = UnsetParam,
+    modal: Opt[Binding[Boolean]] = UnsetParam,
+    name: Opt[Binding[java.lang.String]] = UnsetParam,
+    opacity: Opt[Binding[Double]] = UnsetParam,
+    overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    programName: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
+    resizable: Opt[Binding[Boolean]] = UnsetParam,
+    sensitive: Opt[Binding[Boolean]] = UnsetParam,
+    systemInformation: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    title: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    titlebar: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    transientFor: Opt[Binding[org.gnome.gtk.Window | Null]] = UnsetParam,
+    translatorCredits: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    version: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    vexpand: Opt[Binding[Boolean]] = UnsetParam,
+    vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    visible: Opt[Binding[Boolean]] = UnsetParam,
+    website: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    wrapLicense: Opt[Binding[Boolean]] = UnsetParam
+  ): Toolkit ?=> VarContextAction[AboutDialog] = {
     val res = uninitialized()
-    init(res)
+    guarana.gtk.AboutDialog.init(res)
     ifSet(application, res.application := _)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)
@@ -110,4 +210,6 @@ object AboutDialog extends VarsMap {
     ifSet(wrapLicense, res.wrapLicense := _)
     res
   }
+  
 }
+        

@@ -1,34 +1,102 @@
+
 package guarana
 package gtk
-import util.*
-opaque type PopoverBin <: Widget = org.gnome.gtk.PopoverBin & Widget
+
+import guarana.util.*
+
+opaque type PopoverBin <: guarana.gtk.Widget  = org.gnome.gtk.PopoverBin & guarana.gtk.Widget
 object PopoverBin extends VarsMap {
-  val Child: ExternalVar.Aux[PopoverBin, org.gnome.gtk.Widget | Null] = ExternalVar[PopoverBin, org.gnome.gtk.Widget | Null]("child", _.getChild(), _.setChild(_), true)
+  val Child: ExternalVar.Aux[PopoverBin, guarana.gtk.Widget | Null] = ExternalVar[PopoverBin, guarana.gtk.Widget | Null]("child", _.getChild().?(guarana.gtk.Widget.wrap), (n, v) => n.setChild(v.?(_.unwrap)), true)
   val HandleInput: ExternalVar.Aux[PopoverBin, Boolean] = ExternalVar[PopoverBin, Boolean]("handle-input", _.getHandleInput(), _.setHandleInput(_), true)
   val MenuModel: ExternalVar.Aux[PopoverBin, org.gnome.gio.MenuModel | Null] = ExternalVar[PopoverBin, org.gnome.gio.MenuModel | Null]("menu-model", _.getMenuModel(), _.setMenuModel(_), true)
   val Popover: ExternalVar.Aux[PopoverBin, org.gnome.gtk.Popover | Null] = ExternalVar[PopoverBin, org.gnome.gtk.Popover | Null]("popover", _.getPopover(), _.setPopover(_), true)
-  ()
+
+  
+
   extension (v: PopoverBin) {
     def unwrap: org.gnome.gtk.PopoverBin = v
-    def child: Var.Aux[org.gnome.gtk.Widget | Null, v.type] = Child.asInstanceOf[Var.Aux[org.gnome.gtk.Widget | Null, v.type]]
-    def handleInput: Var.Aux[Boolean, v.type] = HandleInput.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def menuModel: Var.Aux[org.gnome.gio.MenuModel | Null, v.type] = MenuModel.asInstanceOf[Var.Aux[org.gnome.gio.MenuModel | Null, v.type]]
-    def popover: Var.Aux[org.gnome.gtk.Popover | Null, v.type] = Popover.asInstanceOf[Var.Aux[org.gnome.gtk.Popover | Null, v.type]]
+
+    def child: Var.Aux[guarana.gtk.Widget | Null, v.type] = guarana.gtk.PopoverBin.Child.asInstanceOf[Var.Aux[guarana.gtk.Widget | Null, v.type]]
+    def handleInput: Var.Aux[Boolean, v.type] = guarana.gtk.PopoverBin.HandleInput.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def menuModel: Var.Aux[org.gnome.gio.MenuModel | Null, v.type] = guarana.gtk.PopoverBin.MenuModel.asInstanceOf[Var.Aux[org.gnome.gio.MenuModel | Null, v.type]]
+    def popover: Var.Aux[org.gnome.gtk.Popover | Null, v.type] = guarana.gtk.PopoverBin.Popover.asInstanceOf[Var.Aux[org.gnome.gtk.Popover | Null, v.type]]
+
+    
+
+    export unwrap.{
+      onDestroy,
+      onDirectionChanged,
+      onHide,
+      onKeynavFailed,
+      onMap,
+      onMnemonicActivate,
+      onMoveFocus,
+      onNotify,
+      onQueryTooltip,
+      onRealize,
+      onShow,
+      onStateFlagsChanged,
+      onUnmap,
+      onUnrealize
+    }
   }
-  def _wrap(v: org.gnome.gtk.PopoverBin): PopoverBin = {
-    v.asInstanceOf
-  }
-  def init(v: PopoverBin): ToolkitAction[Toolkit, Unit] = {
-    Widget.init(v)
+
+  def wrap(v: org.gnome.gtk.PopoverBin): PopoverBin = 
+    val res = v.asInstanceOf[PopoverBin]
+    
+    res
+
+  def init(v: PopoverBin): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+    guarana.gtk.Widget.init(v)
     connectVarsListener(v)
+    
   }
   def uninitialized(): PopoverBin = {
     val res = new org.gnome.gtk.PopoverBin()
+    
     res.asInstanceOf[PopoverBin]
   }
-  def apply(canFocus: Opt[Binding[Boolean]] = UnsetParam, canTarget: Opt[Binding[Boolean]] = UnsetParam, child: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, childVisible: Opt[Binding[Boolean]] = UnsetParam, cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam, direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam, focusChild: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, focusOnClick: Opt[Binding[Boolean]] = UnsetParam, focusable: Opt[Binding[Boolean]] = UnsetParam, fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam, fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam, halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, handleInput: Opt[Binding[Boolean]] = UnsetParam, hasTooltip: Opt[Binding[Boolean]] = UnsetParam, hexpand: Opt[Binding[Boolean]] = UnsetParam, hexpandSet: Opt[Binding[Boolean]] = UnsetParam, layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam, limitEvents: Opt[Binding[Boolean]] = UnsetParam, marginBottom: Opt[Binding[Int]] = UnsetParam, marginEnd: Opt[Binding[Int]] = UnsetParam, marginStart: Opt[Binding[Int]] = UnsetParam, marginTop: Opt[Binding[Int]] = UnsetParam, menuModel: Opt[Binding[org.gnome.gio.MenuModel | Null]] = UnsetParam, name: Opt[Binding[java.lang.String]] = UnsetParam, opacity: Opt[Binding[Double]] = UnsetParam, overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam, popover: Opt[Binding[org.gnome.gtk.Popover | Null]] = UnsetParam, receivesDefault: Opt[Binding[Boolean]] = UnsetParam, sensitive: Opt[Binding[Boolean]] = UnsetParam, tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam, tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam, valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, vexpand: Opt[Binding[Boolean]] = UnsetParam, vexpandSet: Opt[Binding[Boolean]] = UnsetParam, visible: Opt[Binding[Boolean]] = UnsetParam): ToolkitAction[Toolkit, PopoverBin] = {
+  
+  def apply(
+    
+    canFocus: Opt[Binding[Boolean]] = UnsetParam,
+    canTarget: Opt[Binding[Boolean]] = UnsetParam,
+    child: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    childVisible: Opt[Binding[Boolean]] = UnsetParam,
+    cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam,
+    direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam,
+    focusChild: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    focusOnClick: Opt[Binding[Boolean]] = UnsetParam,
+    focusable: Opt[Binding[Boolean]] = UnsetParam,
+    fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam,
+    fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam,
+    halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    handleInput: Opt[Binding[Boolean]] = UnsetParam,
+    hasTooltip: Opt[Binding[Boolean]] = UnsetParam,
+    hexpand: Opt[Binding[Boolean]] = UnsetParam,
+    hexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam,
+    limitEvents: Opt[Binding[Boolean]] = UnsetParam,
+    marginBottom: Opt[Binding[Int]] = UnsetParam,
+    marginEnd: Opt[Binding[Int]] = UnsetParam,
+    marginStart: Opt[Binding[Int]] = UnsetParam,
+    marginTop: Opt[Binding[Int]] = UnsetParam,
+    menuModel: Opt[Binding[org.gnome.gio.MenuModel | Null]] = UnsetParam,
+    name: Opt[Binding[java.lang.String]] = UnsetParam,
+    opacity: Opt[Binding[Double]] = UnsetParam,
+    overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    popover: Opt[Binding[org.gnome.gtk.Popover | Null]] = UnsetParam,
+    receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
+    sensitive: Opt[Binding[Boolean]] = UnsetParam,
+    tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    vexpand: Opt[Binding[Boolean]] = UnsetParam,
+    vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    visible: Opt[Binding[Boolean]] = UnsetParam
+  ): Toolkit ?=> VarContextAction[PopoverBin] = {
     val res = uninitialized()
-    init(res)
+    guarana.gtk.PopoverBin.init(res)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)
     ifSet(child, res.child := _)
@@ -66,4 +134,6 @@ object PopoverBin extends VarsMap {
     ifSet(visible, res.visible := _)
     res
   }
+  
 }
+        

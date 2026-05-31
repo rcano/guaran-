@@ -3,9 +3,10 @@ package guarana.gtk.codegen
 import better.files.*
 import guarana.codegen.*
 import io.github.classgraph.{ClassGraph, ClassInfo}
+import scala.jdk.CollectionConverters.*
 import scala.meta.*
 
-object run {
+object run extends Windows {
   lazy val classIndex = ClassIndex(
     ClassGraph()
       .enableClassInfo()
@@ -18,9 +19,18 @@ object run {
   private lazy val widgetClassInfo = classIndex.scanResult.getClassInfo("org.gnome.gtk.Widget")
 
   lazy val WidgetNode = genNodeDescr(widgetClassInfo, "Widget", None)
-  lazy val TextNode = genNodeDescr(classIndex.scanResult.getClassInfo("org.gnome.gtk.Text"), "Text", Some(WidgetNode))
+
+  lazy val AllWidgets = WidgetNode :: AllWindows ::: classIndex.scanResult
+    .getSubclasses("org.gnome.gtk.Widget")
+    .iterator()
+    .asScala
+    .filter(!_.isInnerClass())
+    .filterNot(c => AllWindows.exists(_.name == c.getSimpleName()))
+    .map(ci => genNodeDescr(ci, ci.getSimpleName(), Some(WidgetNode)))
+    .toList
 
   def genNodeDescr(ci: ClassInfo, name: String, parent: Option[NodeDescr]): NodeDescr = {
+    println(s"Parsing ${ci.getName()}")
     val widgetInfo = classIndex.getWidgetInfo(ci)
 
     val widgetProperties = (
@@ -28,16 +38,25 @@ object run {
       else widgetInfo.properties
     ).toList.sortBy(_.nameInPascalCase)
 
+    val uninitParams = widgetInfo.constructorParams.map(p => Parameter(p.nameInCamelCase, mapTypeToNodes(p.tpe), ""))
+
     NodeDescr(
+      "guarana.gtk",
       name = name,
       underlying = ci.getName(),
       upperBounds = parent.toSeq,
+      isAbstract = ci.isAbstract(),
+      companionObjectExtends = Some("VarsMap"),
+      uninitExtraParams = uninitParams,
       creator = Seq(s"new ${ci.getName()}(${widgetInfo.constructorParams
-          .map(p =>
+          .map { p =>
             val paramType = mapTypeToNodes(p.tpe)
-            if (paramType.startsWith("guarana.gtk")) s"${p.nameInCamelCase}.unwrap"
-            else p.nameInCamelCase
-          )
+            val isNullable = paramType.endsWith(" | Null")
+            if (paramType.startsWith("guarana.gtk")) {
+              if (isNullable) s"${p.nameInCamelCase}.?(_.unwrap)"
+              else s"${p.nameInCamelCase}.unwrap"
+            } else p.nameInCamelCase
+          }
           .mkString(", ")})"),
       props = widgetProperties.map(p =>
         val varType = mapTypeToNodes(p.tpe)
@@ -47,11 +66,13 @@ object run {
           getter = genGetter(p, varType),
           setter = genSetter(p, varType),
           externalName = Some(p.name),
+          deprecated = p.deprecated
         )
       ),
       opsExtra = Seq(
         s"export unwrap.{${widgetInfo.signals.toList.sortBy(_.name).map(v => s"on${v.nameInPascalCase}").mkString("\n      ", ",\n      ", "\n    ")}}"
-      )
+      ),
+      initExtra = Seq("connectVarsListener(v)")
     )
   }
 
@@ -80,19 +101,20 @@ object run {
   }
 
   def main(args: Array[String]): Unit = {
-    for (node <- Seq(WidgetNode, TextNode)) {
+    for (node <- AllWidgets) {
       val f = File(s"src/main/scala/guarana/gtk/${node.name}.scala")
       f.writeText(
         s"""
         |package guarana
         |package gtk
-        
+
         |import guarana.util.*
 
-        |${genScalaSource(node)}
+        |${genScalaSource(node, toolkitType = Some("Toolkit"))}
         """.stripMargin
       )
       println(s"$f written")
+      // println(genScalaSource(node, toolkitType = Some("Toolkit")))
     }
   }
 }

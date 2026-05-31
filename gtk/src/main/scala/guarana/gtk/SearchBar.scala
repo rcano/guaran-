@@ -1,34 +1,102 @@
+
 package guarana
 package gtk
-import util.*
-opaque type SearchBar <: Widget = org.gnome.gtk.SearchBar & Widget
+
+import guarana.util.*
+
+opaque type SearchBar <: guarana.gtk.Widget  = org.gnome.gtk.SearchBar & guarana.gtk.Widget
 object SearchBar extends VarsMap {
-  val Child: ExternalVar.Aux[SearchBar, org.gnome.gtk.Widget | Null] = ExternalVar[SearchBar, org.gnome.gtk.Widget | Null]("child", _.getChild(), _.setChild(_), true)
-  val KeyCaptureWidget: ExternalVar.Aux[SearchBar, org.gnome.gtk.Widget | Null] = ExternalVar[SearchBar, org.gnome.gtk.Widget | Null]("key-capture-widget", _.getKeyCaptureWidget(), _.setKeyCaptureWidget(_), true)
+  val Child: ExternalVar.Aux[SearchBar, guarana.gtk.Widget | Null] = ExternalVar[SearchBar, guarana.gtk.Widget | Null]("child", _.getChild().?(guarana.gtk.Widget.wrap), (n, v) => n.setChild(v.?(_.unwrap)), true)
+  val KeyCaptureWidget: ExternalVar.Aux[SearchBar, guarana.gtk.Widget | Null] = ExternalVar[SearchBar, guarana.gtk.Widget | Null]("key-capture-widget", _.getKeyCaptureWidget().?(guarana.gtk.Widget.wrap), (n, v) => n.setKeyCaptureWidget(v.?(_.unwrap)), true)
   val SearchMode: ExternalVar.Aux[SearchBar, Boolean] = ExternalVar[SearchBar, Boolean]("search-mode", _.getSearchMode(), _.setSearchMode(_), true)
   val ShowCloseButton: ExternalVar.Aux[SearchBar, Boolean] = ExternalVar[SearchBar, Boolean]("show-close-button", _.getShowCloseButton(), _.setShowCloseButton(_), true)
-  ()
+
+  
+
   extension (v: SearchBar) {
     def unwrap: org.gnome.gtk.SearchBar = v
-    def child: Var.Aux[org.gnome.gtk.Widget | Null, v.type] = Child.asInstanceOf[Var.Aux[org.gnome.gtk.Widget | Null, v.type]]
-    def keyCaptureWidget: Var.Aux[org.gnome.gtk.Widget | Null, v.type] = KeyCaptureWidget.asInstanceOf[Var.Aux[org.gnome.gtk.Widget | Null, v.type]]
-    def searchMode: Var.Aux[Boolean, v.type] = SearchMode.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def showCloseButton: Var.Aux[Boolean, v.type] = ShowCloseButton.asInstanceOf[Var.Aux[Boolean, v.type]]
+
+    def child: Var.Aux[guarana.gtk.Widget | Null, v.type] = guarana.gtk.SearchBar.Child.asInstanceOf[Var.Aux[guarana.gtk.Widget | Null, v.type]]
+    def keyCaptureWidget: Var.Aux[guarana.gtk.Widget | Null, v.type] = guarana.gtk.SearchBar.KeyCaptureWidget.asInstanceOf[Var.Aux[guarana.gtk.Widget | Null, v.type]]
+    def searchMode: Var.Aux[Boolean, v.type] = guarana.gtk.SearchBar.SearchMode.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def showCloseButton: Var.Aux[Boolean, v.type] = guarana.gtk.SearchBar.ShowCloseButton.asInstanceOf[Var.Aux[Boolean, v.type]]
+
+    
+
+    export unwrap.{
+      onDestroy,
+      onDirectionChanged,
+      onHide,
+      onKeynavFailed,
+      onMap,
+      onMnemonicActivate,
+      onMoveFocus,
+      onNotify,
+      onQueryTooltip,
+      onRealize,
+      onShow,
+      onStateFlagsChanged,
+      onUnmap,
+      onUnrealize
+    }
   }
-  def _wrap(v: org.gnome.gtk.SearchBar): SearchBar = {
-    v.asInstanceOf
-  }
-  def init(v: SearchBar): ToolkitAction[Toolkit, Unit] = {
-    Widget.init(v)
+
+  def wrap(v: org.gnome.gtk.SearchBar): SearchBar = 
+    val res = v.asInstanceOf[SearchBar]
+    
+    res
+
+  def init(v: SearchBar): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+    guarana.gtk.Widget.init(v)
     connectVarsListener(v)
+    
   }
   def uninitialized(): SearchBar = {
     val res = new org.gnome.gtk.SearchBar()
+    
     res.asInstanceOf[SearchBar]
   }
-  def apply(canFocus: Opt[Binding[Boolean]] = UnsetParam, canTarget: Opt[Binding[Boolean]] = UnsetParam, child: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, childVisible: Opt[Binding[Boolean]] = UnsetParam, cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam, direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam, focusChild: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, focusOnClick: Opt[Binding[Boolean]] = UnsetParam, focusable: Opt[Binding[Boolean]] = UnsetParam, fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam, fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam, halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, hasTooltip: Opt[Binding[Boolean]] = UnsetParam, hexpand: Opt[Binding[Boolean]] = UnsetParam, hexpandSet: Opt[Binding[Boolean]] = UnsetParam, keyCaptureWidget: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam, limitEvents: Opt[Binding[Boolean]] = UnsetParam, marginBottom: Opt[Binding[Int]] = UnsetParam, marginEnd: Opt[Binding[Int]] = UnsetParam, marginStart: Opt[Binding[Int]] = UnsetParam, marginTop: Opt[Binding[Int]] = UnsetParam, name: Opt[Binding[java.lang.String]] = UnsetParam, opacity: Opt[Binding[Double]] = UnsetParam, overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam, receivesDefault: Opt[Binding[Boolean]] = UnsetParam, searchMode: Opt[Binding[Boolean]] = UnsetParam, sensitive: Opt[Binding[Boolean]] = UnsetParam, showCloseButton: Opt[Binding[Boolean]] = UnsetParam, tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam, tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam, valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, vexpand: Opt[Binding[Boolean]] = UnsetParam, vexpandSet: Opt[Binding[Boolean]] = UnsetParam, visible: Opt[Binding[Boolean]] = UnsetParam): ToolkitAction[Toolkit, SearchBar] = {
+  
+  def apply(
+    
+    canFocus: Opt[Binding[Boolean]] = UnsetParam,
+    canTarget: Opt[Binding[Boolean]] = UnsetParam,
+    child: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    childVisible: Opt[Binding[Boolean]] = UnsetParam,
+    cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam,
+    direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam,
+    focusChild: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    focusOnClick: Opt[Binding[Boolean]] = UnsetParam,
+    focusable: Opt[Binding[Boolean]] = UnsetParam,
+    fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam,
+    fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam,
+    halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    hasTooltip: Opt[Binding[Boolean]] = UnsetParam,
+    hexpand: Opt[Binding[Boolean]] = UnsetParam,
+    hexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    keyCaptureWidget: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam,
+    limitEvents: Opt[Binding[Boolean]] = UnsetParam,
+    marginBottom: Opt[Binding[Int]] = UnsetParam,
+    marginEnd: Opt[Binding[Int]] = UnsetParam,
+    marginStart: Opt[Binding[Int]] = UnsetParam,
+    marginTop: Opt[Binding[Int]] = UnsetParam,
+    name: Opt[Binding[java.lang.String]] = UnsetParam,
+    opacity: Opt[Binding[Double]] = UnsetParam,
+    overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
+    searchMode: Opt[Binding[Boolean]] = UnsetParam,
+    sensitive: Opt[Binding[Boolean]] = UnsetParam,
+    showCloseButton: Opt[Binding[Boolean]] = UnsetParam,
+    tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    vexpand: Opt[Binding[Boolean]] = UnsetParam,
+    vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    visible: Opt[Binding[Boolean]] = UnsetParam
+  ): Toolkit ?=> VarContextAction[SearchBar] = {
     val res = uninitialized()
-    init(res)
+    guarana.gtk.SearchBar.init(res)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)
     ifSet(child, res.child := _)
@@ -66,4 +134,6 @@ object SearchBar extends VarsMap {
     ifSet(visible, res.visible := _)
     res
   }
+  
 }
+        

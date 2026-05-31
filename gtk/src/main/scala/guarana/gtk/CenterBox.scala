@@ -1,38 +1,108 @@
+
 package guarana
 package gtk
-import util.*
-opaque type CenterBox <: Widget = org.gnome.gtk.CenterBox & Widget
+
+import guarana.util.*
+
+opaque type CenterBox <: guarana.gtk.Widget  = org.gnome.gtk.CenterBox & guarana.gtk.Widget
 object CenterBox extends VarsMap {
   val BaselinePosition: ExternalVar.Aux[CenterBox, org.gnome.gtk.BaselinePosition] = ExternalVar[CenterBox, org.gnome.gtk.BaselinePosition]("baseline-position", _.getBaselinePosition(), _.setBaselinePosition(_), true)
-  val CenterWidget: ExternalVar.Aux[CenterBox, org.gnome.gtk.Widget | Null] = ExternalVar[CenterBox, org.gnome.gtk.Widget | Null]("center-widget", _.getCenterWidget(), _.setCenterWidget(_), true)
-  val EndWidget: ExternalVar.Aux[CenterBox, org.gnome.gtk.Widget | Null] = ExternalVar[CenterBox, org.gnome.gtk.Widget | Null]("end-widget", _.getEndWidget(), _.setEndWidget(_), true)
+  val CenterWidget: ExternalVar.Aux[CenterBox, guarana.gtk.Widget | Null] = ExternalVar[CenterBox, guarana.gtk.Widget | Null]("center-widget", _.getCenterWidget().?(guarana.gtk.Widget.wrap), (n, v) => n.setCenterWidget(v.?(_.unwrap)), true)
+  val EndWidget: ExternalVar.Aux[CenterBox, guarana.gtk.Widget | Null] = ExternalVar[CenterBox, guarana.gtk.Widget | Null]("end-widget", _.getEndWidget().?(guarana.gtk.Widget.wrap), (n, v) => n.setEndWidget(v.?(_.unwrap)), true)
   val Orientation: ExternalVar.Aux[CenterBox, org.gnome.gtk.Orientation] = ExternalVar[CenterBox, org.gnome.gtk.Orientation]("orientation", _.getOrientation(), _.setOrientation(_), true)
   val ShrinkCenterLast: ExternalVar.Aux[CenterBox, Boolean] = ExternalVar[CenterBox, Boolean]("shrink-center-last", _.getShrinkCenterLast(), _.setShrinkCenterLast(_), true)
-  val StartWidget: ExternalVar.Aux[CenterBox, org.gnome.gtk.Widget | Null] = ExternalVar[CenterBox, org.gnome.gtk.Widget | Null]("start-widget", _.getStartWidget(), _.setStartWidget(_), true)
-  ()
+  val StartWidget: ExternalVar.Aux[CenterBox, guarana.gtk.Widget | Null] = ExternalVar[CenterBox, guarana.gtk.Widget | Null]("start-widget", _.getStartWidget().?(guarana.gtk.Widget.wrap), (n, v) => n.setStartWidget(v.?(_.unwrap)), true)
+
+  
+
   extension (v: CenterBox) {
     def unwrap: org.gnome.gtk.CenterBox = v
-    def baselinePosition: Var.Aux[org.gnome.gtk.BaselinePosition, v.type] = BaselinePosition.asInstanceOf[Var.Aux[org.gnome.gtk.BaselinePosition, v.type]]
-    def centerWidget: Var.Aux[org.gnome.gtk.Widget | Null, v.type] = CenterWidget.asInstanceOf[Var.Aux[org.gnome.gtk.Widget | Null, v.type]]
-    def endWidget: Var.Aux[org.gnome.gtk.Widget | Null, v.type] = EndWidget.asInstanceOf[Var.Aux[org.gnome.gtk.Widget | Null, v.type]]
-    def orientation: Var.Aux[org.gnome.gtk.Orientation, v.type] = Orientation.asInstanceOf[Var.Aux[org.gnome.gtk.Orientation, v.type]]
-    def shrinkCenterLast: Var.Aux[Boolean, v.type] = ShrinkCenterLast.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def startWidget: Var.Aux[org.gnome.gtk.Widget | Null, v.type] = StartWidget.asInstanceOf[Var.Aux[org.gnome.gtk.Widget | Null, v.type]]
+
+    def baselinePosition: Var.Aux[org.gnome.gtk.BaselinePosition, v.type] = guarana.gtk.CenterBox.BaselinePosition.asInstanceOf[Var.Aux[org.gnome.gtk.BaselinePosition, v.type]]
+    def centerWidget: Var.Aux[guarana.gtk.Widget | Null, v.type] = guarana.gtk.CenterBox.CenterWidget.asInstanceOf[Var.Aux[guarana.gtk.Widget | Null, v.type]]
+    def endWidget: Var.Aux[guarana.gtk.Widget | Null, v.type] = guarana.gtk.CenterBox.EndWidget.asInstanceOf[Var.Aux[guarana.gtk.Widget | Null, v.type]]
+    def orientation: Var.Aux[org.gnome.gtk.Orientation, v.type] = guarana.gtk.CenterBox.Orientation.asInstanceOf[Var.Aux[org.gnome.gtk.Orientation, v.type]]
+    def shrinkCenterLast: Var.Aux[Boolean, v.type] = guarana.gtk.CenterBox.ShrinkCenterLast.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def startWidget: Var.Aux[guarana.gtk.Widget | Null, v.type] = guarana.gtk.CenterBox.StartWidget.asInstanceOf[Var.Aux[guarana.gtk.Widget | Null, v.type]]
+
+    
+
+    export unwrap.{
+      onDestroy,
+      onDirectionChanged,
+      onHide,
+      onKeynavFailed,
+      onMap,
+      onMnemonicActivate,
+      onMoveFocus,
+      onNotify,
+      onQueryTooltip,
+      onRealize,
+      onShow,
+      onStateFlagsChanged,
+      onUnmap,
+      onUnrealize
+    }
   }
-  def _wrap(v: org.gnome.gtk.CenterBox): CenterBox = {
-    v.asInstanceOf
-  }
-  def init(v: CenterBox): ToolkitAction[Toolkit, Unit] = {
-    Widget.init(v)
+
+  def wrap(v: org.gnome.gtk.CenterBox): CenterBox = 
+    val res = v.asInstanceOf[CenterBox]
+    
+    res
+
+  def init(v: CenterBox): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+    guarana.gtk.Widget.init(v)
     connectVarsListener(v)
+    
   }
   def uninitialized(): CenterBox = {
     val res = new org.gnome.gtk.CenterBox()
+    
     res.asInstanceOf[CenterBox]
   }
-  def apply(baselinePosition: Opt[Binding[org.gnome.gtk.BaselinePosition]] = UnsetParam, canFocus: Opt[Binding[Boolean]] = UnsetParam, canTarget: Opt[Binding[Boolean]] = UnsetParam, centerWidget: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, childVisible: Opt[Binding[Boolean]] = UnsetParam, cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam, direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam, endWidget: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, focusChild: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, focusOnClick: Opt[Binding[Boolean]] = UnsetParam, focusable: Opt[Binding[Boolean]] = UnsetParam, fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam, fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam, halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, hasTooltip: Opt[Binding[Boolean]] = UnsetParam, hexpand: Opt[Binding[Boolean]] = UnsetParam, hexpandSet: Opt[Binding[Boolean]] = UnsetParam, layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam, limitEvents: Opt[Binding[Boolean]] = UnsetParam, marginBottom: Opt[Binding[Int]] = UnsetParam, marginEnd: Opt[Binding[Int]] = UnsetParam, marginStart: Opt[Binding[Int]] = UnsetParam, marginTop: Opt[Binding[Int]] = UnsetParam, name: Opt[Binding[java.lang.String]] = UnsetParam, opacity: Opt[Binding[Double]] = UnsetParam, orientation: Opt[Binding[org.gnome.gtk.Orientation]] = UnsetParam, overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam, receivesDefault: Opt[Binding[Boolean]] = UnsetParam, sensitive: Opt[Binding[Boolean]] = UnsetParam, shrinkCenterLast: Opt[Binding[Boolean]] = UnsetParam, startWidget: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam, tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam, valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, vexpand: Opt[Binding[Boolean]] = UnsetParam, vexpandSet: Opt[Binding[Boolean]] = UnsetParam, visible: Opt[Binding[Boolean]] = UnsetParam): ToolkitAction[Toolkit, CenterBox] = {
+  
+  def apply(
+    
+    baselinePosition: Opt[Binding[org.gnome.gtk.BaselinePosition]] = UnsetParam,
+    canFocus: Opt[Binding[Boolean]] = UnsetParam,
+    canTarget: Opt[Binding[Boolean]] = UnsetParam,
+    centerWidget: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    childVisible: Opt[Binding[Boolean]] = UnsetParam,
+    cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam,
+    direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam,
+    endWidget: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    focusChild: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    focusOnClick: Opt[Binding[Boolean]] = UnsetParam,
+    focusable: Opt[Binding[Boolean]] = UnsetParam,
+    fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam,
+    fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam,
+    halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    hasTooltip: Opt[Binding[Boolean]] = UnsetParam,
+    hexpand: Opt[Binding[Boolean]] = UnsetParam,
+    hexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam,
+    limitEvents: Opt[Binding[Boolean]] = UnsetParam,
+    marginBottom: Opt[Binding[Int]] = UnsetParam,
+    marginEnd: Opt[Binding[Int]] = UnsetParam,
+    marginStart: Opt[Binding[Int]] = UnsetParam,
+    marginTop: Opt[Binding[Int]] = UnsetParam,
+    name: Opt[Binding[java.lang.String]] = UnsetParam,
+    opacity: Opt[Binding[Double]] = UnsetParam,
+    orientation: Opt[Binding[org.gnome.gtk.Orientation]] = UnsetParam,
+    overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
+    sensitive: Opt[Binding[Boolean]] = UnsetParam,
+    shrinkCenterLast: Opt[Binding[Boolean]] = UnsetParam,
+    startWidget: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    vexpand: Opt[Binding[Boolean]] = UnsetParam,
+    vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    visible: Opt[Binding[Boolean]] = UnsetParam
+  ): Toolkit ?=> VarContextAction[CenterBox] = {
     val res = uninitialized()
-    init(res)
+    guarana.gtk.CenterBox.init(res)
     ifSet(baselinePosition, res.baselinePosition := _)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)
@@ -72,4 +142,6 @@ object CenterBox extends VarsMap {
     ifSet(visible, res.visible := _)
     res
   }
+  
 }
+        

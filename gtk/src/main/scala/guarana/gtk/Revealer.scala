@@ -1,34 +1,102 @@
+
 package guarana
 package gtk
-import util.*
-opaque type Revealer <: Widget = org.gnome.gtk.Revealer & Widget
+
+import guarana.util.*
+
+opaque type Revealer <: guarana.gtk.Widget  = org.gnome.gtk.Revealer & guarana.gtk.Widget
 object Revealer extends VarsMap {
-  val Child: ExternalVar.Aux[Revealer, org.gnome.gtk.Widget | Null] = ExternalVar[Revealer, org.gnome.gtk.Widget | Null]("child", _.getChild(), _.setChild(_), true)
+  val Child: ExternalVar.Aux[Revealer, guarana.gtk.Widget | Null] = ExternalVar[Revealer, guarana.gtk.Widget | Null]("child", _.getChild().?(guarana.gtk.Widget.wrap), (n, v) => n.setChild(v.?(_.unwrap)), true)
   val RevealChild: ExternalVar.Aux[Revealer, Boolean] = ExternalVar[Revealer, Boolean]("reveal-child", _.getRevealChild(), _.setRevealChild(_), true)
   val TransitionDuration: ExternalVar.Aux[Revealer, Int] = ExternalVar[Revealer, Int]("transition-duration", _.getTransitionDuration(), _.setTransitionDuration(_), true)
   val TransitionType: ExternalVar.Aux[Revealer, org.gnome.gtk.RevealerTransitionType] = ExternalVar[Revealer, org.gnome.gtk.RevealerTransitionType]("transition-type", _.getTransitionType(), _.setTransitionType(_), true)
-  ()
+
+  
+
   extension (v: Revealer) {
     def unwrap: org.gnome.gtk.Revealer = v
-    def child: Var.Aux[org.gnome.gtk.Widget | Null, v.type] = Child.asInstanceOf[Var.Aux[org.gnome.gtk.Widget | Null, v.type]]
-    def revealChild: Var.Aux[Boolean, v.type] = RevealChild.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def transitionDuration: Var.Aux[Int, v.type] = TransitionDuration.asInstanceOf[Var.Aux[Int, v.type]]
-    def transitionType: Var.Aux[org.gnome.gtk.RevealerTransitionType, v.type] = TransitionType.asInstanceOf[Var.Aux[org.gnome.gtk.RevealerTransitionType, v.type]]
+
+    def child: Var.Aux[guarana.gtk.Widget | Null, v.type] = guarana.gtk.Revealer.Child.asInstanceOf[Var.Aux[guarana.gtk.Widget | Null, v.type]]
+    def revealChild: Var.Aux[Boolean, v.type] = guarana.gtk.Revealer.RevealChild.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def transitionDuration: Var.Aux[Int, v.type] = guarana.gtk.Revealer.TransitionDuration.asInstanceOf[Var.Aux[Int, v.type]]
+    def transitionType: Var.Aux[org.gnome.gtk.RevealerTransitionType, v.type] = guarana.gtk.Revealer.TransitionType.asInstanceOf[Var.Aux[org.gnome.gtk.RevealerTransitionType, v.type]]
+
+    
+
+    export unwrap.{
+      onDestroy,
+      onDirectionChanged,
+      onHide,
+      onKeynavFailed,
+      onMap,
+      onMnemonicActivate,
+      onMoveFocus,
+      onNotify,
+      onQueryTooltip,
+      onRealize,
+      onShow,
+      onStateFlagsChanged,
+      onUnmap,
+      onUnrealize
+    }
   }
-  def _wrap(v: org.gnome.gtk.Revealer): Revealer = {
-    v.asInstanceOf
-  }
-  def init(v: Revealer): ToolkitAction[Toolkit, Unit] = {
-    Widget.init(v)
+
+  def wrap(v: org.gnome.gtk.Revealer): Revealer = 
+    val res = v.asInstanceOf[Revealer]
+    
+    res
+
+  def init(v: Revealer): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+    guarana.gtk.Widget.init(v)
     connectVarsListener(v)
+    
   }
   def uninitialized(): Revealer = {
     val res = new org.gnome.gtk.Revealer()
+    
     res.asInstanceOf[Revealer]
   }
-  def apply(canFocus: Opt[Binding[Boolean]] = UnsetParam, canTarget: Opt[Binding[Boolean]] = UnsetParam, child: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, childVisible: Opt[Binding[Boolean]] = UnsetParam, cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam, direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam, focusChild: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, focusOnClick: Opt[Binding[Boolean]] = UnsetParam, focusable: Opt[Binding[Boolean]] = UnsetParam, fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam, fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam, halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, hasTooltip: Opt[Binding[Boolean]] = UnsetParam, hexpand: Opt[Binding[Boolean]] = UnsetParam, hexpandSet: Opt[Binding[Boolean]] = UnsetParam, layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam, limitEvents: Opt[Binding[Boolean]] = UnsetParam, marginBottom: Opt[Binding[Int]] = UnsetParam, marginEnd: Opt[Binding[Int]] = UnsetParam, marginStart: Opt[Binding[Int]] = UnsetParam, marginTop: Opt[Binding[Int]] = UnsetParam, name: Opt[Binding[java.lang.String]] = UnsetParam, opacity: Opt[Binding[Double]] = UnsetParam, overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam, receivesDefault: Opt[Binding[Boolean]] = UnsetParam, revealChild: Opt[Binding[Boolean]] = UnsetParam, sensitive: Opt[Binding[Boolean]] = UnsetParam, tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam, tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam, transitionDuration: Opt[Binding[Int]] = UnsetParam, transitionType: Opt[Binding[org.gnome.gtk.RevealerTransitionType]] = UnsetParam, valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, vexpand: Opt[Binding[Boolean]] = UnsetParam, vexpandSet: Opt[Binding[Boolean]] = UnsetParam, visible: Opt[Binding[Boolean]] = UnsetParam): ToolkitAction[Toolkit, Revealer] = {
+  
+  def apply(
+    
+    canFocus: Opt[Binding[Boolean]] = UnsetParam,
+    canTarget: Opt[Binding[Boolean]] = UnsetParam,
+    child: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    childVisible: Opt[Binding[Boolean]] = UnsetParam,
+    cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam,
+    direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam,
+    focusChild: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    focusOnClick: Opt[Binding[Boolean]] = UnsetParam,
+    focusable: Opt[Binding[Boolean]] = UnsetParam,
+    fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam,
+    fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam,
+    halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    hasTooltip: Opt[Binding[Boolean]] = UnsetParam,
+    hexpand: Opt[Binding[Boolean]] = UnsetParam,
+    hexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam,
+    limitEvents: Opt[Binding[Boolean]] = UnsetParam,
+    marginBottom: Opt[Binding[Int]] = UnsetParam,
+    marginEnd: Opt[Binding[Int]] = UnsetParam,
+    marginStart: Opt[Binding[Int]] = UnsetParam,
+    marginTop: Opt[Binding[Int]] = UnsetParam,
+    name: Opt[Binding[java.lang.String]] = UnsetParam,
+    opacity: Opt[Binding[Double]] = UnsetParam,
+    overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
+    revealChild: Opt[Binding[Boolean]] = UnsetParam,
+    sensitive: Opt[Binding[Boolean]] = UnsetParam,
+    tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    transitionDuration: Opt[Binding[Int]] = UnsetParam,
+    transitionType: Opt[Binding[org.gnome.gtk.RevealerTransitionType]] = UnsetParam,
+    valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    vexpand: Opt[Binding[Boolean]] = UnsetParam,
+    vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    visible: Opt[Binding[Boolean]] = UnsetParam
+  ): Toolkit ?=> VarContextAction[Revealer] = {
     val res = uninitialized()
-    init(res)
+    guarana.gtk.Revealer.init(res)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)
     ifSet(child, res.child := _)
@@ -66,4 +134,6 @@ object Revealer extends VarsMap {
     ifSet(visible, res.visible := _)
     res
   }
+  
 }
+        

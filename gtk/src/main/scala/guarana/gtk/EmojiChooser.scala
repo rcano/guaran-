@@ -1,32 +1,97 @@
+
 package guarana
 package gtk
-import util.*
-opaque type EmojiChooser <: Popover = org.gnome.gtk.EmojiChooser & Popover
+
+import guarana.util.*
+
+opaque type EmojiChooser <: guarana.gtk.Widget  = org.gnome.gtk.EmojiChooser & guarana.gtk.Widget
 object EmojiChooser extends VarsMap {
-  ()
+  
+
+  
+
   extension (v: EmojiChooser) {
     def unwrap: org.gnome.gtk.EmojiChooser = v
-    export unwrap.onEmojiPicked
+
+    
+
+    
+
+    export unwrap.{
+      onActivateDefault,
+      onClosed,
+      onDestroy,
+      onDirectionChanged,
+      onEmojiPicked,
+      onHide,
+      onKeynavFailed,
+      onMap,
+      onMnemonicActivate,
+      onMoveFocus,
+      onNotify,
+      onQueryTooltip,
+      onRealize,
+      onShow,
+      onStateFlagsChanged,
+      onUnmap,
+      onUnrealize
+    }
   }
-  def _wrap(v: org.gnome.gtk.EmojiChooser): EmojiChooser = {
-    v.asInstanceOf
-  }
-  def init(v: EmojiChooser): ToolkitAction[Toolkit, Unit] = {
-    Popover.init(v)
+
+  def wrap(v: org.gnome.gtk.EmojiChooser): EmojiChooser = 
+    val res = v.asInstanceOf[EmojiChooser]
+    
+    res
+
+  def init(v: EmojiChooser): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+    guarana.gtk.Widget.init(v)
     connectVarsListener(v)
+    
   }
   def uninitialized(): EmojiChooser = {
     val res = new org.gnome.gtk.EmojiChooser()
+    
     res.asInstanceOf[EmojiChooser]
   }
-  def apply(autohide: Opt[Binding[Boolean]] = UnsetParam, canFocus: Opt[Binding[Boolean]] = UnsetParam, canTarget: Opt[Binding[Boolean]] = UnsetParam, cascadePopdown: Opt[Binding[Boolean]] = UnsetParam, child: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, childVisible: Opt[Binding[Boolean]] = UnsetParam, cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam, direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam, focusChild: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, focusOnClick: Opt[Binding[Boolean]] = UnsetParam, focusable: Opt[Binding[Boolean]] = UnsetParam, fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam, fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam, halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, hasArrow: Opt[Binding[Boolean]] = UnsetParam, hasTooltip: Opt[Binding[Boolean]] = UnsetParam, hexpand: Opt[Binding[Boolean]] = UnsetParam, hexpandSet: Opt[Binding[Boolean]] = UnsetParam, layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam, limitEvents: Opt[Binding[Boolean]] = UnsetParam, marginBottom: Opt[Binding[Int]] = UnsetParam, marginEnd: Opt[Binding[Int]] = UnsetParam, marginStart: Opt[Binding[Int]] = UnsetParam, marginTop: Opt[Binding[Int]] = UnsetParam, mnemonicsVisible: Opt[Binding[Boolean]] = UnsetParam, name: Opt[Binding[java.lang.String]] = UnsetParam, opacity: Opt[Binding[Double]] = UnsetParam, overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam, position: Opt[Binding[org.gnome.gtk.PositionType]] = UnsetParam, receivesDefault: Opt[Binding[Boolean]] = UnsetParam, sensitive: Opt[Binding[Boolean]] = UnsetParam, tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam, tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam, valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, vexpand: Opt[Binding[Boolean]] = UnsetParam, vexpandSet: Opt[Binding[Boolean]] = UnsetParam, visible: Opt[Binding[Boolean]] = UnsetParam): ToolkitAction[Toolkit, EmojiChooser] = {
+  
+  def apply(
+    
+    canFocus: Opt[Binding[Boolean]] = UnsetParam,
+    canTarget: Opt[Binding[Boolean]] = UnsetParam,
+    childVisible: Opt[Binding[Boolean]] = UnsetParam,
+    cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam,
+    direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam,
+    focusChild: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    focusOnClick: Opt[Binding[Boolean]] = UnsetParam,
+    focusable: Opt[Binding[Boolean]] = UnsetParam,
+    fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam,
+    fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam,
+    halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    hasTooltip: Opt[Binding[Boolean]] = UnsetParam,
+    hexpand: Opt[Binding[Boolean]] = UnsetParam,
+    hexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam,
+    limitEvents: Opt[Binding[Boolean]] = UnsetParam,
+    marginBottom: Opt[Binding[Int]] = UnsetParam,
+    marginEnd: Opt[Binding[Int]] = UnsetParam,
+    marginStart: Opt[Binding[Int]] = UnsetParam,
+    marginTop: Opt[Binding[Int]] = UnsetParam,
+    name: Opt[Binding[java.lang.String]] = UnsetParam,
+    opacity: Opt[Binding[Double]] = UnsetParam,
+    overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
+    sensitive: Opt[Binding[Boolean]] = UnsetParam,
+    tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    vexpand: Opt[Binding[Boolean]] = UnsetParam,
+    vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    visible: Opt[Binding[Boolean]] = UnsetParam
+  ): Toolkit ?=> VarContextAction[EmojiChooser] = {
     val res = uninitialized()
-    init(res)
-    ifSet(autohide, res.autohide := _)
+    guarana.gtk.EmojiChooser.init(res)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)
-    ifSet(cascadePopdown, res.cascadePopdown := _)
-    ifSet(child, res.child := _)
     ifSet(childVisible, res.childVisible := _)
     ifSet(cursor, res.cursor := _)
     ifSet(direction, res.direction := _)
@@ -36,7 +101,6 @@ object EmojiChooser extends VarsMap {
     ifSet(fontMap, res.fontMap := _)
     ifSet(fontOptions, res.fontOptions := _)
     ifSet(halign, res.halign := _)
-    ifSet(hasArrow, res.hasArrow := _)
     ifSet(hasTooltip, res.hasTooltip := _)
     ifSet(hexpand, res.hexpand := _)
     ifSet(hexpandSet, res.hexpandSet := _)
@@ -46,11 +110,9 @@ object EmojiChooser extends VarsMap {
     ifSet(marginEnd, res.marginEnd := _)
     ifSet(marginStart, res.marginStart := _)
     ifSet(marginTop, res.marginTop := _)
-    ifSet(mnemonicsVisible, res.mnemonicsVisible := _)
     ifSet(name, res.name := _)
     ifSet(opacity, res.opacity := _)
     ifSet(overflow, res.overflow := _)
-    ifSet(position, res.position := _)
     ifSet(receivesDefault, res.receivesDefault := _)
     ifSet(sensitive, res.sensitive := _)
     ifSet(tooltipMarkup, res.tooltipMarkup := _)
@@ -61,4 +123,6 @@ object EmojiChooser extends VarsMap {
     ifSet(visible, res.visible := _)
     res
   }
+  
 }
+        

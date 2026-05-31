@@ -1,30 +1,120 @@
+
 package guarana
 package gtk
-import util.*
-opaque type ApplicationWindow <: Window = org.gnome.gtk.ApplicationWindow & Window
+
+import guarana.util.*
+
+opaque type ApplicationWindow <: guarana.gtk.Window  = org.gnome.gtk.ApplicationWindow & guarana.gtk.Window
 object ApplicationWindow extends VarsMap {
   @deprecated("", "") val HelpOverlay: ExternalVar.Aux[ApplicationWindow, org.gnome.gtk.ShortcutsWindow | Null] = ExternalVar[ApplicationWindow, org.gnome.gtk.ShortcutsWindow | Null]("help-overlay", _.getHelpOverlay(), _.setHelpOverlay(_), true)
   val ShowMenubar: ExternalVar.Aux[ApplicationWindow, Boolean] = ExternalVar[ApplicationWindow, Boolean]("show-menubar", _.getShowMenubar(), _.setShowMenubar(_), true)
-  ()
+
+  
+
   extension (v: ApplicationWindow) {
     def unwrap: org.gnome.gtk.ApplicationWindow = v
-    @deprecated("", "") def helpOverlay: Var.Aux[org.gnome.gtk.ShortcutsWindow | Null, v.type] = HelpOverlay.asInstanceOf[Var.Aux[org.gnome.gtk.ShortcutsWindow | Null, v.type]]
-    def showMenubar: Var.Aux[Boolean, v.type] = ShowMenubar.asInstanceOf[Var.Aux[Boolean, v.type]]
+
+    @deprecated("", "") def helpOverlay: Var.Aux[org.gnome.gtk.ShortcutsWindow | Null, v.type] = guarana.gtk.ApplicationWindow.HelpOverlay.asInstanceOf[Var.Aux[org.gnome.gtk.ShortcutsWindow | Null, v.type]]
+    def showMenubar: Var.Aux[Boolean, v.type] = guarana.gtk.ApplicationWindow.ShowMenubar.asInstanceOf[Var.Aux[Boolean, v.type]]
+
+    
+
+    export unwrap.{
+      onActivateDefault,
+      onActivateFocus,
+      onCloseRequest,
+      onDestroy,
+      onDirectionChanged,
+      onEnableDebugging,
+      onHide,
+      onKeynavFailed,
+      onKeysChanged,
+      onMap,
+      onMnemonicActivate,
+      onMoveFocus,
+      onNotify,
+      onQueryTooltip,
+      onRealize,
+      onShow,
+      onStateFlagsChanged,
+      onUnmap,
+      onUnrealize
+    }
   }
-  def _wrap(v: org.gnome.gtk.ApplicationWindow): ApplicationWindow = {
-    v.asInstanceOf
-  }
-  def init(v: ApplicationWindow): ToolkitAction[Toolkit, Unit] = {
-    Window.init(v)
+
+  def wrap(v: org.gnome.gtk.ApplicationWindow): ApplicationWindow = 
+    val res = v.asInstanceOf[ApplicationWindow]
+    
+    res
+
+  def init(v: ApplicationWindow): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+    guarana.gtk.Window.init(v)
     connectVarsListener(v)
+    
   }
   def uninitialized(arg$0: org.gnome.gtk.Application): ApplicationWindow = {
     val res = new org.gnome.gtk.ApplicationWindow(arg$0)
+    
     res.asInstanceOf[ApplicationWindow]
   }
-  def apply(arg$0: org.gnome.gtk.Application, application: Opt[Binding[org.gnome.gtk.Application | Null]] = UnsetParam, canFocus: Opt[Binding[Boolean]] = UnsetParam, canTarget: Opt[Binding[Boolean]] = UnsetParam, child: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, childVisible: Opt[Binding[Boolean]] = UnsetParam, cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam, decorated: Opt[Binding[Boolean]] = UnsetParam, defaultWidget: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, deletable: Opt[Binding[Boolean]] = UnsetParam, destroyWithParent: Opt[Binding[Boolean]] = UnsetParam, direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam, display: Opt[Binding[org.gnome.gdk.Display]] = UnsetParam, focus: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, focusChild: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, focusOnClick: Opt[Binding[Boolean]] = UnsetParam, focusVisible: Opt[Binding[Boolean]] = UnsetParam, focusable: Opt[Binding[Boolean]] = UnsetParam, fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam, fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam, gravity: Opt[Binding[org.gnome.gtk.WindowGravity]] = UnsetParam, halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, handleMenubarAccel: Opt[Binding[Boolean]] = UnsetParam, hasTooltip: Opt[Binding[Boolean]] = UnsetParam, helpOverlay: Opt[Binding[org.gnome.gtk.ShortcutsWindow | Null]] = UnsetParam, hexpand: Opt[Binding[Boolean]] = UnsetParam, hexpandSet: Opt[Binding[Boolean]] = UnsetParam, hideOnClose: Opt[Binding[Boolean]] = UnsetParam, iconName: Opt[Binding[java.lang.String | Null]] = UnsetParam, layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam, limitEvents: Opt[Binding[Boolean]] = UnsetParam, marginBottom: Opt[Binding[Int]] = UnsetParam, marginEnd: Opt[Binding[Int]] = UnsetParam, marginStart: Opt[Binding[Int]] = UnsetParam, marginTop: Opt[Binding[Int]] = UnsetParam, mnemonicsVisible: Opt[Binding[Boolean]] = UnsetParam, modal: Opt[Binding[Boolean]] = UnsetParam, name: Opt[Binding[java.lang.String]] = UnsetParam, opacity: Opt[Binding[Double]] = UnsetParam, overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam, receivesDefault: Opt[Binding[Boolean]] = UnsetParam, resizable: Opt[Binding[Boolean]] = UnsetParam, sensitive: Opt[Binding[Boolean]] = UnsetParam, showMenubar: Opt[Binding[Boolean]] = UnsetParam, title: Opt[Binding[java.lang.String | Null]] = UnsetParam, titlebar: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam, tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam, transientFor: Opt[Binding[org.gnome.gtk.Window | Null]] = UnsetParam, valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, vexpand: Opt[Binding[Boolean]] = UnsetParam, vexpandSet: Opt[Binding[Boolean]] = UnsetParam, visible: Opt[Binding[Boolean]] = UnsetParam): ToolkitAction[Toolkit, ApplicationWindow] = {
+  
+  def apply(
+    arg$0: org.gnome.gtk.Application,
+    application: Opt[Binding[org.gnome.gtk.Application | Null]] = UnsetParam,
+    canFocus: Opt[Binding[Boolean]] = UnsetParam,
+    canTarget: Opt[Binding[Boolean]] = UnsetParam,
+    child: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    childVisible: Opt[Binding[Boolean]] = UnsetParam,
+    cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam,
+    decorated: Opt[Binding[Boolean]] = UnsetParam,
+    defaultWidget: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    deletable: Opt[Binding[Boolean]] = UnsetParam,
+    destroyWithParent: Opt[Binding[Boolean]] = UnsetParam,
+    direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam,
+    display: Opt[Binding[org.gnome.gdk.Display]] = UnsetParam,
+    focus: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    focusChild: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    focusOnClick: Opt[Binding[Boolean]] = UnsetParam,
+    focusVisible: Opt[Binding[Boolean]] = UnsetParam,
+    focusable: Opt[Binding[Boolean]] = UnsetParam,
+    fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam,
+    fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam,
+    gravity: Opt[Binding[org.gnome.gtk.WindowGravity]] = UnsetParam,
+    halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    handleMenubarAccel: Opt[Binding[Boolean]] = UnsetParam,
+    hasTooltip: Opt[Binding[Boolean]] = UnsetParam,
+    helpOverlay: Opt[Binding[org.gnome.gtk.ShortcutsWindow | Null]] = UnsetParam,
+    hexpand: Opt[Binding[Boolean]] = UnsetParam,
+    hexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    hideOnClose: Opt[Binding[Boolean]] = UnsetParam,
+    iconName: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam,
+    limitEvents: Opt[Binding[Boolean]] = UnsetParam,
+    marginBottom: Opt[Binding[Int]] = UnsetParam,
+    marginEnd: Opt[Binding[Int]] = UnsetParam,
+    marginStart: Opt[Binding[Int]] = UnsetParam,
+    marginTop: Opt[Binding[Int]] = UnsetParam,
+    mnemonicsVisible: Opt[Binding[Boolean]] = UnsetParam,
+    modal: Opt[Binding[Boolean]] = UnsetParam,
+    name: Opt[Binding[java.lang.String]] = UnsetParam,
+    opacity: Opt[Binding[Double]] = UnsetParam,
+    overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
+    resizable: Opt[Binding[Boolean]] = UnsetParam,
+    sensitive: Opt[Binding[Boolean]] = UnsetParam,
+    showMenubar: Opt[Binding[Boolean]] = UnsetParam,
+    title: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    titlebar: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    transientFor: Opt[Binding[org.gnome.gtk.Window | Null]] = UnsetParam,
+    valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    vexpand: Opt[Binding[Boolean]] = UnsetParam,
+    vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    visible: Opt[Binding[Boolean]] = UnsetParam
+  ): Toolkit ?=> VarContextAction[ApplicationWindow] = {
     val res = uninitialized(arg$0)
-    init(res)
+    guarana.gtk.ApplicationWindow.init(res)
     ifSet(application, res.application := _)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)
@@ -79,4 +169,6 @@ object ApplicationWindow extends VarsMap {
     ifSet(visible, res.visible := _)
     res
   }
+  
 }
+        

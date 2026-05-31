@@ -1,7 +1,10 @@
+
 package guarana
 package gtk
-import util.*
-opaque type PrintUnixDialog <: Dialog = org.gnome.gtk.PrintUnixDialog & Dialog
+
+import guarana.util.*
+
+opaque type PrintUnixDialog <: guarana.gtk.Window  = org.gnome.gtk.PrintUnixDialog & guarana.gtk.Window
 object PrintUnixDialog extends VarsMap {
   val CurrentPage: ExternalVar.Aux[PrintUnixDialog, Int] = ExternalVar[PrintUnixDialog, Int]("current-page", _.getCurrentPage(), _.setCurrentPage(_), true)
   val EmbedPageSetup: ExternalVar.Aux[PrintUnixDialog, Boolean] = ExternalVar[PrintUnixDialog, Boolean]("embed-page-setup", _.getEmbedPageSetup(), _.setEmbedPageSetup(_), true)
@@ -9,30 +12,123 @@ object PrintUnixDialog extends VarsMap {
   val ManualCapabilities: ExternalVar.Aux[PrintUnixDialog, java.util.Set[org.gnome.gtk.PrintCapabilities]] = ExternalVar[PrintUnixDialog, java.util.Set[org.gnome.gtk.PrintCapabilities]]("manual-capabilities", _.getManualCapabilities(), _.setManualCapabilities(_), true)
   val PageSetup: ExternalVar.Aux[PrintUnixDialog, org.gnome.gtk.PageSetup] = ExternalVar[PrintUnixDialog, org.gnome.gtk.PageSetup]("page-setup", _.getPageSetup(), _.setPageSetup(_), true)
   val SupportSelection: ExternalVar.Aux[PrintUnixDialog, Boolean] = ExternalVar[PrintUnixDialog, Boolean]("support-selection", _.getSupportSelection(), _.setSupportSelection(_), true)
-  ()
+
+  
+
   extension (v: PrintUnixDialog) {
     def unwrap: org.gnome.gtk.PrintUnixDialog = v
-    def currentPage: Var.Aux[Int, v.type] = CurrentPage.asInstanceOf[Var.Aux[Int, v.type]]
-    def embedPageSetup: Var.Aux[Boolean, v.type] = EmbedPageSetup.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def hasSelection: Var.Aux[Boolean, v.type] = HasSelection.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def manualCapabilities: Var.Aux[java.util.Set[org.gnome.gtk.PrintCapabilities], v.type] = ManualCapabilities.asInstanceOf[Var.Aux[java.util.Set[org.gnome.gtk.PrintCapabilities], v.type]]
-    def pageSetup: Var.Aux[org.gnome.gtk.PageSetup, v.type] = PageSetup.asInstanceOf[Var.Aux[org.gnome.gtk.PageSetup, v.type]]
-    def supportSelection: Var.Aux[Boolean, v.type] = SupportSelection.asInstanceOf[Var.Aux[Boolean, v.type]]
+
+    def currentPage: Var.Aux[Int, v.type] = guarana.gtk.PrintUnixDialog.CurrentPage.asInstanceOf[Var.Aux[Int, v.type]]
+    def embedPageSetup: Var.Aux[Boolean, v.type] = guarana.gtk.PrintUnixDialog.EmbedPageSetup.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def hasSelection: Var.Aux[Boolean, v.type] = guarana.gtk.PrintUnixDialog.HasSelection.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def manualCapabilities: Var.Aux[java.util.Set[org.gnome.gtk.PrintCapabilities], v.type] = guarana.gtk.PrintUnixDialog.ManualCapabilities.asInstanceOf[Var.Aux[java.util.Set[org.gnome.gtk.PrintCapabilities], v.type]]
+    def pageSetup: Var.Aux[org.gnome.gtk.PageSetup, v.type] = guarana.gtk.PrintUnixDialog.PageSetup.asInstanceOf[Var.Aux[org.gnome.gtk.PageSetup, v.type]]
+    def supportSelection: Var.Aux[Boolean, v.type] = guarana.gtk.PrintUnixDialog.SupportSelection.asInstanceOf[Var.Aux[Boolean, v.type]]
+
+    
+
+    export unwrap.{
+      onActivateDefault,
+      onActivateFocus,
+      onClose,
+      onCloseRequest,
+      onDestroy,
+      onDirectionChanged,
+      onEnableDebugging,
+      onHide,
+      onKeynavFailed,
+      onKeysChanged,
+      onMap,
+      onMnemonicActivate,
+      onMoveFocus,
+      onNotify,
+      onQueryTooltip,
+      onRealize,
+      onResponse,
+      onShow,
+      onStateFlagsChanged,
+      onUnmap,
+      onUnrealize
+    }
   }
-  def _wrap(v: org.gnome.gtk.PrintUnixDialog): PrintUnixDialog = {
-    v.asInstanceOf
-  }
-  def init(v: PrintUnixDialog): ToolkitAction[Toolkit, Unit] = {
-    Dialog.init(v)
+
+  def wrap(v: org.gnome.gtk.PrintUnixDialog): PrintUnixDialog = 
+    val res = v.asInstanceOf[PrintUnixDialog]
+    
+    res
+
+  def init(v: PrintUnixDialog): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+    guarana.gtk.Window.init(v)
     connectVarsListener(v)
+    
   }
   def uninitialized(arg$0: java.lang.String | Null, arg$1: org.gnome.gtk.Window | Null): PrintUnixDialog = {
     val res = new org.gnome.gtk.PrintUnixDialog(arg$0, arg$1)
+    
     res.asInstanceOf[PrintUnixDialog]
   }
-  def apply(arg$0: java.lang.String | Null, arg$1: org.gnome.gtk.Window | Null, application: Opt[Binding[org.gnome.gtk.Application | Null]] = UnsetParam, canFocus: Opt[Binding[Boolean]] = UnsetParam, canTarget: Opt[Binding[Boolean]] = UnsetParam, child: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, childVisible: Opt[Binding[Boolean]] = UnsetParam, currentPage: Opt[Binding[Int]] = UnsetParam, cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam, decorated: Opt[Binding[Boolean]] = UnsetParam, defaultWidget: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, deletable: Opt[Binding[Boolean]] = UnsetParam, destroyWithParent: Opt[Binding[Boolean]] = UnsetParam, direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam, display: Opt[Binding[org.gnome.gdk.Display]] = UnsetParam, embedPageSetup: Opt[Binding[Boolean]] = UnsetParam, focus: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, focusChild: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, focusOnClick: Opt[Binding[Boolean]] = UnsetParam, focusVisible: Opt[Binding[Boolean]] = UnsetParam, focusable: Opt[Binding[Boolean]] = UnsetParam, fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam, fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam, gravity: Opt[Binding[org.gnome.gtk.WindowGravity]] = UnsetParam, halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, handleMenubarAccel: Opt[Binding[Boolean]] = UnsetParam, hasSelection: Opt[Binding[Boolean]] = UnsetParam, hasTooltip: Opt[Binding[Boolean]] = UnsetParam, hexpand: Opt[Binding[Boolean]] = UnsetParam, hexpandSet: Opt[Binding[Boolean]] = UnsetParam, hideOnClose: Opt[Binding[Boolean]] = UnsetParam, iconName: Opt[Binding[java.lang.String | Null]] = UnsetParam, layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam, limitEvents: Opt[Binding[Boolean]] = UnsetParam, manualCapabilities: Opt[Binding[java.util.Set[org.gnome.gtk.PrintCapabilities]]] = UnsetParam, marginBottom: Opt[Binding[Int]] = UnsetParam, marginEnd: Opt[Binding[Int]] = UnsetParam, marginStart: Opt[Binding[Int]] = UnsetParam, marginTop: Opt[Binding[Int]] = UnsetParam, mnemonicsVisible: Opt[Binding[Boolean]] = UnsetParam, modal: Opt[Binding[Boolean]] = UnsetParam, name: Opt[Binding[java.lang.String]] = UnsetParam, opacity: Opt[Binding[Double]] = UnsetParam, overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam, pageSetup: Opt[Binding[org.gnome.gtk.PageSetup]] = UnsetParam, receivesDefault: Opt[Binding[Boolean]] = UnsetParam, resizable: Opt[Binding[Boolean]] = UnsetParam, sensitive: Opt[Binding[Boolean]] = UnsetParam, supportSelection: Opt[Binding[Boolean]] = UnsetParam, title: Opt[Binding[java.lang.String | Null]] = UnsetParam, titlebar: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam, tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam, transientFor: Opt[Binding[org.gnome.gtk.Window | Null]] = UnsetParam, valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, vexpand: Opt[Binding[Boolean]] = UnsetParam, vexpandSet: Opt[Binding[Boolean]] = UnsetParam, visible: Opt[Binding[Boolean]] = UnsetParam): ToolkitAction[Toolkit, PrintUnixDialog] = {
+  
+  def apply(
+    arg$0: java.lang.String | Null, arg$1: org.gnome.gtk.Window | Null,
+    application: Opt[Binding[org.gnome.gtk.Application | Null]] = UnsetParam,
+    canFocus: Opt[Binding[Boolean]] = UnsetParam,
+    canTarget: Opt[Binding[Boolean]] = UnsetParam,
+    child: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    childVisible: Opt[Binding[Boolean]] = UnsetParam,
+    currentPage: Opt[Binding[Int]] = UnsetParam,
+    cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam,
+    decorated: Opt[Binding[Boolean]] = UnsetParam,
+    defaultWidget: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    deletable: Opt[Binding[Boolean]] = UnsetParam,
+    destroyWithParent: Opt[Binding[Boolean]] = UnsetParam,
+    direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam,
+    display: Opt[Binding[org.gnome.gdk.Display]] = UnsetParam,
+    embedPageSetup: Opt[Binding[Boolean]] = UnsetParam,
+    focus: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    focusChild: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    focusOnClick: Opt[Binding[Boolean]] = UnsetParam,
+    focusVisible: Opt[Binding[Boolean]] = UnsetParam,
+    focusable: Opt[Binding[Boolean]] = UnsetParam,
+    fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam,
+    fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam,
+    gravity: Opt[Binding[org.gnome.gtk.WindowGravity]] = UnsetParam,
+    halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    handleMenubarAccel: Opt[Binding[Boolean]] = UnsetParam,
+    hasSelection: Opt[Binding[Boolean]] = UnsetParam,
+    hasTooltip: Opt[Binding[Boolean]] = UnsetParam,
+    hexpand: Opt[Binding[Boolean]] = UnsetParam,
+    hexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    hideOnClose: Opt[Binding[Boolean]] = UnsetParam,
+    iconName: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam,
+    limitEvents: Opt[Binding[Boolean]] = UnsetParam,
+    manualCapabilities: Opt[Binding[java.util.Set[org.gnome.gtk.PrintCapabilities]]] = UnsetParam,
+    marginBottom: Opt[Binding[Int]] = UnsetParam,
+    marginEnd: Opt[Binding[Int]] = UnsetParam,
+    marginStart: Opt[Binding[Int]] = UnsetParam,
+    marginTop: Opt[Binding[Int]] = UnsetParam,
+    mnemonicsVisible: Opt[Binding[Boolean]] = UnsetParam,
+    modal: Opt[Binding[Boolean]] = UnsetParam,
+    name: Opt[Binding[java.lang.String]] = UnsetParam,
+    opacity: Opt[Binding[Double]] = UnsetParam,
+    overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    pageSetup: Opt[Binding[org.gnome.gtk.PageSetup]] = UnsetParam,
+    receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
+    resizable: Opt[Binding[Boolean]] = UnsetParam,
+    sensitive: Opt[Binding[Boolean]] = UnsetParam,
+    supportSelection: Opt[Binding[Boolean]] = UnsetParam,
+    title: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    titlebar: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    transientFor: Opt[Binding[org.gnome.gtk.Window | Null]] = UnsetParam,
+    valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    vexpand: Opt[Binding[Boolean]] = UnsetParam,
+    vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    visible: Opt[Binding[Boolean]] = UnsetParam
+  ): Toolkit ?=> VarContextAction[PrintUnixDialog] = {
     val res = uninitialized(arg$0, arg$1)
-    init(res)
+    guarana.gtk.PrintUnixDialog.init(res)
     ifSet(application, res.application := _)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)
@@ -91,4 +187,6 @@ object PrintUnixDialog extends VarsMap {
     ifSet(visible, res.visible := _)
     res
   }
+  
 }
+        

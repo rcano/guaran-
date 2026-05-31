@@ -1,35 +1,114 @@
+
 package guarana
 package gtk
-import util.*
-opaque type FileChooserWidget <: Widget = org.gnome.gtk.FileChooserWidget & Widget
+
+import guarana.util.*
+
+opaque type FileChooserWidget <: guarana.gtk.Widget  = org.gnome.gtk.FileChooserWidget & guarana.gtk.Widget
 object FileChooserWidget extends VarsMap {
   @deprecated("", "") val Action: ExternalVar.Aux[FileChooserWidget, org.gnome.gtk.FileChooserAction] = ExternalVar[FileChooserWidget, org.gnome.gtk.FileChooserAction]("action", _.getAction(), _.setAction(_), true)
   @deprecated("", "") val CreateFolders: ExternalVar.Aux[FileChooserWidget, Boolean] = ExternalVar[FileChooserWidget, Boolean]("create-folders", _.getCreateFolders(), _.setCreateFolders(_), true)
   @deprecated("", "") val CurrentFolder: ExternalVar.Aux[FileChooserWidget, org.gnome.gio.File | Null] = ExternalVar[FileChooserWidget, org.gnome.gio.File | Null]("current-folder", _.getCurrentFolder(), _.setCurrentFolder(_), true)
   @deprecated("", "") val SelectMultiple: ExternalVar.Aux[FileChooserWidget, Boolean] = ExternalVar[FileChooserWidget, Boolean]("select-multiple", _.getSelectMultiple(), _.setSelectMultiple(_), true)
-  ()
+
+  
+
   extension (v: FileChooserWidget) {
     def unwrap: org.gnome.gtk.FileChooserWidget = v
-    @deprecated("", "") def action: Var.Aux[org.gnome.gtk.FileChooserAction, v.type] = Action.asInstanceOf[Var.Aux[org.gnome.gtk.FileChooserAction, v.type]]
-    @deprecated("", "") def createFolders: Var.Aux[Boolean, v.type] = CreateFolders.asInstanceOf[Var.Aux[Boolean, v.type]]
-    @deprecated("", "") def currentFolder: Var.Aux[org.gnome.gio.File | Null, v.type] = CurrentFolder.asInstanceOf[Var.Aux[org.gnome.gio.File | Null, v.type]]
-    @deprecated("", "") def selectMultiple: Var.Aux[Boolean, v.type] = SelectMultiple.asInstanceOf[Var.Aux[Boolean, v.type]]
-    export unwrap.onDesktopFolder, unwrap.onDownFolder, unwrap.onHomeFolder, unwrap.onLocationPopup, unwrap.onLocationPopupOnPaste, unwrap.onLocationTogglePopup, unwrap.onPlacesShortcut, unwrap.onQuickBookmark, unwrap.onRecentShortcut, unwrap.onSearchShortcut, unwrap.onShowHidden, unwrap.onUpFolder
+
+    @deprecated("", "") def action: Var.Aux[org.gnome.gtk.FileChooserAction, v.type] = guarana.gtk.FileChooserWidget.Action.asInstanceOf[Var.Aux[org.gnome.gtk.FileChooserAction, v.type]]
+    @deprecated("", "") def createFolders: Var.Aux[Boolean, v.type] = guarana.gtk.FileChooserWidget.CreateFolders.asInstanceOf[Var.Aux[Boolean, v.type]]
+    @deprecated("", "") def currentFolder: Var.Aux[org.gnome.gio.File | Null, v.type] = guarana.gtk.FileChooserWidget.CurrentFolder.asInstanceOf[Var.Aux[org.gnome.gio.File | Null, v.type]]
+    @deprecated("", "") def selectMultiple: Var.Aux[Boolean, v.type] = guarana.gtk.FileChooserWidget.SelectMultiple.asInstanceOf[Var.Aux[Boolean, v.type]]
+
+    
+
+    export unwrap.{
+      onDesktopFolder,
+      onDestroy,
+      onDirectionChanged,
+      onDownFolder,
+      onHide,
+      onHomeFolder,
+      onKeynavFailed,
+      onLocationPopup,
+      onLocationPopupOnPaste,
+      onLocationTogglePopup,
+      onMap,
+      onMnemonicActivate,
+      onMoveFocus,
+      onNotify,
+      onPlacesShortcut,
+      onQueryTooltip,
+      onQuickBookmark,
+      onRealize,
+      onRecentShortcut,
+      onSearchShortcut,
+      onShow,
+      onShowHidden,
+      onStateFlagsChanged,
+      onUnmap,
+      onUnrealize,
+      onUpFolder
+    }
   }
-  def _wrap(v: org.gnome.gtk.FileChooserWidget): FileChooserWidget = {
-    v.asInstanceOf
-  }
-  def init(v: FileChooserWidget): ToolkitAction[Toolkit, Unit] = {
-    Widget.init(v)
+
+  def wrap(v: org.gnome.gtk.FileChooserWidget): FileChooserWidget = 
+    val res = v.asInstanceOf[FileChooserWidget]
+    
+    res
+
+  def init(v: FileChooserWidget): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+    guarana.gtk.Widget.init(v)
     connectVarsListener(v)
+    
   }
   def uninitialized(arg$0: org.gnome.gtk.FileChooserAction): FileChooserWidget = {
     val res = new org.gnome.gtk.FileChooserWidget(arg$0)
+    
     res.asInstanceOf[FileChooserWidget]
   }
-  def apply(arg$0: org.gnome.gtk.FileChooserAction, action: Opt[Binding[org.gnome.gtk.FileChooserAction]] = UnsetParam, canFocus: Opt[Binding[Boolean]] = UnsetParam, canTarget: Opt[Binding[Boolean]] = UnsetParam, childVisible: Opt[Binding[Boolean]] = UnsetParam, createFolders: Opt[Binding[Boolean]] = UnsetParam, currentFolder: Opt[Binding[org.gnome.gio.File | Null]] = UnsetParam, cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam, direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam, focusChild: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, focusOnClick: Opt[Binding[Boolean]] = UnsetParam, focusable: Opt[Binding[Boolean]] = UnsetParam, fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam, fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam, halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, hasTooltip: Opt[Binding[Boolean]] = UnsetParam, hexpand: Opt[Binding[Boolean]] = UnsetParam, hexpandSet: Opt[Binding[Boolean]] = UnsetParam, layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam, limitEvents: Opt[Binding[Boolean]] = UnsetParam, marginBottom: Opt[Binding[Int]] = UnsetParam, marginEnd: Opt[Binding[Int]] = UnsetParam, marginStart: Opt[Binding[Int]] = UnsetParam, marginTop: Opt[Binding[Int]] = UnsetParam, name: Opt[Binding[java.lang.String]] = UnsetParam, opacity: Opt[Binding[Double]] = UnsetParam, overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam, receivesDefault: Opt[Binding[Boolean]] = UnsetParam, selectMultiple: Opt[Binding[Boolean]] = UnsetParam, sensitive: Opt[Binding[Boolean]] = UnsetParam, tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam, tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam, valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, vexpand: Opt[Binding[Boolean]] = UnsetParam, vexpandSet: Opt[Binding[Boolean]] = UnsetParam, visible: Opt[Binding[Boolean]] = UnsetParam): ToolkitAction[Toolkit, FileChooserWidget] = {
+  
+  def apply(
+    arg$0: org.gnome.gtk.FileChooserAction,
+    action: Opt[Binding[org.gnome.gtk.FileChooserAction]] = UnsetParam,
+    canFocus: Opt[Binding[Boolean]] = UnsetParam,
+    canTarget: Opt[Binding[Boolean]] = UnsetParam,
+    childVisible: Opt[Binding[Boolean]] = UnsetParam,
+    createFolders: Opt[Binding[Boolean]] = UnsetParam,
+    currentFolder: Opt[Binding[org.gnome.gio.File | Null]] = UnsetParam,
+    cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam,
+    direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam,
+    focusChild: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    focusOnClick: Opt[Binding[Boolean]] = UnsetParam,
+    focusable: Opt[Binding[Boolean]] = UnsetParam,
+    fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam,
+    fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam,
+    halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    hasTooltip: Opt[Binding[Boolean]] = UnsetParam,
+    hexpand: Opt[Binding[Boolean]] = UnsetParam,
+    hexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam,
+    limitEvents: Opt[Binding[Boolean]] = UnsetParam,
+    marginBottom: Opt[Binding[Int]] = UnsetParam,
+    marginEnd: Opt[Binding[Int]] = UnsetParam,
+    marginStart: Opt[Binding[Int]] = UnsetParam,
+    marginTop: Opt[Binding[Int]] = UnsetParam,
+    name: Opt[Binding[java.lang.String]] = UnsetParam,
+    opacity: Opt[Binding[Double]] = UnsetParam,
+    overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
+    selectMultiple: Opt[Binding[Boolean]] = UnsetParam,
+    sensitive: Opt[Binding[Boolean]] = UnsetParam,
+    tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    vexpand: Opt[Binding[Boolean]] = UnsetParam,
+    vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    visible: Opt[Binding[Boolean]] = UnsetParam
+  ): Toolkit ?=> VarContextAction[FileChooserWidget] = {
     val res = uninitialized(arg$0)
-    init(res)
+    guarana.gtk.FileChooserWidget.init(res)
     ifSet(action, res.action := _)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)
@@ -67,4 +146,6 @@ object FileChooserWidget extends VarsMap {
     ifSet(visible, res.visible := _)
     res
   }
+  
 }
+        

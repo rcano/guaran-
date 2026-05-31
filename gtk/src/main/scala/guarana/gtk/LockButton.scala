@@ -1,34 +1,97 @@
+
 package guarana
 package gtk
-import util.*
-opaque type LockButton <: Button = org.gnome.gtk.LockButton & Button
+
+import guarana.util.*
+
+opaque type LockButton <: guarana.gtk.Widget  = org.gnome.gtk.LockButton & guarana.gtk.Widget
 object LockButton extends VarsMap {
   @deprecated("", "") val Permission: ExternalVar.Aux[LockButton, org.gnome.gio.Permission | Null] = ExternalVar[LockButton, org.gnome.gio.Permission | Null]("permission", _.getPermission(), _.setPermission(_), true)
-  ()
+
+  
+
   extension (v: LockButton) {
     def unwrap: org.gnome.gtk.LockButton = v
-    @deprecated("", "") def permission: Var.Aux[org.gnome.gio.Permission | Null, v.type] = Permission.asInstanceOf[Var.Aux[org.gnome.gio.Permission | Null, v.type]]
+
+    @deprecated("", "") def permission: Var.Aux[org.gnome.gio.Permission | Null, v.type] = guarana.gtk.LockButton.Permission.asInstanceOf[Var.Aux[org.gnome.gio.Permission | Null, v.type]]
+
+    
+
+    export unwrap.{
+      onActivate,
+      onClicked,
+      onDestroy,
+      onDirectionChanged,
+      onHide,
+      onKeynavFailed,
+      onMap,
+      onMnemonicActivate,
+      onMoveFocus,
+      onNotify,
+      onQueryTooltip,
+      onRealize,
+      onShow,
+      onStateFlagsChanged,
+      onUnmap,
+      onUnrealize
+    }
   }
-  def _wrap(v: org.gnome.gtk.LockButton): LockButton = {
-    v.asInstanceOf
-  }
-  def init(v: LockButton): ToolkitAction[Toolkit, Unit] = {
-    Button.init(v)
+
+  def wrap(v: org.gnome.gtk.LockButton): LockButton = 
+    val res = v.asInstanceOf[LockButton]
+    
+    res
+
+  def init(v: LockButton): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+    guarana.gtk.Widget.init(v)
     connectVarsListener(v)
+    
   }
   def uninitialized(arg$0: org.gnome.gio.Permission | Null): LockButton = {
     val res = new org.gnome.gtk.LockButton(arg$0)
+    
     res.asInstanceOf[LockButton]
   }
-  def apply(arg$0: org.gnome.gio.Permission | Null, actionName: Opt[Binding[java.lang.String | Null]] = UnsetParam, actionTargetValue: Opt[Binding[org.gnome.glib.Variant | Null]] = UnsetParam, canFocus: Opt[Binding[Boolean]] = UnsetParam, canShrink: Opt[Binding[Boolean]] = UnsetParam, canTarget: Opt[Binding[Boolean]] = UnsetParam, child: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, childVisible: Opt[Binding[Boolean]] = UnsetParam, cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam, direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam, focusChild: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, focusOnClick: Opt[Binding[Boolean]] = UnsetParam, focusable: Opt[Binding[Boolean]] = UnsetParam, fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam, fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam, halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, hasFrame: Opt[Binding[Boolean]] = UnsetParam, hasTooltip: Opt[Binding[Boolean]] = UnsetParam, hexpand: Opt[Binding[Boolean]] = UnsetParam, hexpandSet: Opt[Binding[Boolean]] = UnsetParam, layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam, limitEvents: Opt[Binding[Boolean]] = UnsetParam, marginBottom: Opt[Binding[Int]] = UnsetParam, marginEnd: Opt[Binding[Int]] = UnsetParam, marginStart: Opt[Binding[Int]] = UnsetParam, marginTop: Opt[Binding[Int]] = UnsetParam, name: Opt[Binding[java.lang.String]] = UnsetParam, opacity: Opt[Binding[Double]] = UnsetParam, overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam, permission: Opt[Binding[org.gnome.gio.Permission | Null]] = UnsetParam, receivesDefault: Opt[Binding[Boolean]] = UnsetParam, sensitive: Opt[Binding[Boolean]] = UnsetParam, tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam, tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam, useUnderline: Opt[Binding[Boolean]] = UnsetParam, valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, vexpand: Opt[Binding[Boolean]] = UnsetParam, vexpandSet: Opt[Binding[Boolean]] = UnsetParam, visible: Opt[Binding[Boolean]] = UnsetParam): ToolkitAction[Toolkit, LockButton] = {
+  
+  def apply(
+    arg$0: org.gnome.gio.Permission | Null,
+    canFocus: Opt[Binding[Boolean]] = UnsetParam,
+    canTarget: Opt[Binding[Boolean]] = UnsetParam,
+    childVisible: Opt[Binding[Boolean]] = UnsetParam,
+    cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam,
+    direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam,
+    focusChild: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    focusOnClick: Opt[Binding[Boolean]] = UnsetParam,
+    focusable: Opt[Binding[Boolean]] = UnsetParam,
+    fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam,
+    fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam,
+    halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    hasTooltip: Opt[Binding[Boolean]] = UnsetParam,
+    hexpand: Opt[Binding[Boolean]] = UnsetParam,
+    hexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam,
+    limitEvents: Opt[Binding[Boolean]] = UnsetParam,
+    marginBottom: Opt[Binding[Int]] = UnsetParam,
+    marginEnd: Opt[Binding[Int]] = UnsetParam,
+    marginStart: Opt[Binding[Int]] = UnsetParam,
+    marginTop: Opt[Binding[Int]] = UnsetParam,
+    name: Opt[Binding[java.lang.String]] = UnsetParam,
+    opacity: Opt[Binding[Double]] = UnsetParam,
+    overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    permission: Opt[Binding[org.gnome.gio.Permission | Null]] = UnsetParam,
+    receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
+    sensitive: Opt[Binding[Boolean]] = UnsetParam,
+    tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    vexpand: Opt[Binding[Boolean]] = UnsetParam,
+    vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    visible: Opt[Binding[Boolean]] = UnsetParam
+  ): Toolkit ?=> VarContextAction[LockButton] = {
     val res = uninitialized(arg$0)
-    init(res)
-    ifSet(actionName, res.actionName := _)
-    ifSet(actionTargetValue, res.actionTargetValue := _)
+    guarana.gtk.LockButton.init(res)
     ifSet(canFocus, res.canFocus := _)
-    ifSet(canShrink, res.canShrink := _)
     ifSet(canTarget, res.canTarget := _)
-    ifSet(child, res.child := _)
     ifSet(childVisible, res.childVisible := _)
     ifSet(cursor, res.cursor := _)
     ifSet(direction, res.direction := _)
@@ -38,7 +101,6 @@ object LockButton extends VarsMap {
     ifSet(fontMap, res.fontMap := _)
     ifSet(fontOptions, res.fontOptions := _)
     ifSet(halign, res.halign := _)
-    ifSet(hasFrame, res.hasFrame := _)
     ifSet(hasTooltip, res.hasTooltip := _)
     ifSet(hexpand, res.hexpand := _)
     ifSet(hexpandSet, res.hexpandSet := _)
@@ -56,11 +118,12 @@ object LockButton extends VarsMap {
     ifSet(sensitive, res.sensitive := _)
     ifSet(tooltipMarkup, res.tooltipMarkup := _)
     ifSet(tooltipText, res.tooltipText := _)
-    ifSet(useUnderline, res.useUnderline := _)
     ifSet(valign, res.valign := _)
     ifSet(vexpand, res.vexpand := _)
     ifSet(vexpandSet, res.vexpandSet := _)
     ifSet(visible, res.visible := _)
     res
   }
+  
 }
+        

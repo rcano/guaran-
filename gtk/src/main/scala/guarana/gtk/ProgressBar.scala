@@ -1,7 +1,10 @@
+
 package guarana
 package gtk
-import util.*
-opaque type ProgressBar <: Widget = org.gnome.gtk.ProgressBar & Widget
+
+import guarana.util.*
+
+opaque type ProgressBar <: guarana.gtk.Widget  = org.gnome.gtk.ProgressBar & guarana.gtk.Widget
 object ProgressBar extends VarsMap {
   val Ellipsize: ExternalVar.Aux[ProgressBar, org.gnome.pango.EllipsizeMode] = ExternalVar[ProgressBar, org.gnome.pango.EllipsizeMode]("ellipsize", _.getEllipsize(), _.setEllipsize(_), true)
   val Fraction: ExternalVar.Aux[ProgressBar, Double] = ExternalVar[ProgressBar, Double]("fraction", _.getFraction(), _.setFraction(_), true)
@@ -10,31 +13,99 @@ object ProgressBar extends VarsMap {
   val PulseStep: ExternalVar.Aux[ProgressBar, Double] = ExternalVar[ProgressBar, Double]("pulse-step", _.getPulseStep(), _.setPulseStep(_), true)
   val ShowText: ExternalVar.Aux[ProgressBar, Boolean] = ExternalVar[ProgressBar, Boolean]("show-text", _.getShowText(), _.setShowText(_), true)
   val Text: ExternalVar.Aux[ProgressBar, java.lang.String | Null] = ExternalVar[ProgressBar, java.lang.String | Null]("text", _.getText(), _.setText(_), true)
-  ()
+
+  
+
   extension (v: ProgressBar) {
     def unwrap: org.gnome.gtk.ProgressBar = v
-    def ellipsize: Var.Aux[org.gnome.pango.EllipsizeMode, v.type] = Ellipsize.asInstanceOf[Var.Aux[org.gnome.pango.EllipsizeMode, v.type]]
-    def fraction: Var.Aux[Double, v.type] = Fraction.asInstanceOf[Var.Aux[Double, v.type]]
-    def inverted: Var.Aux[Boolean, v.type] = Inverted.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def orientation: Var.Aux[org.gnome.gtk.Orientation, v.type] = Orientation.asInstanceOf[Var.Aux[org.gnome.gtk.Orientation, v.type]]
-    def pulseStep: Var.Aux[Double, v.type] = PulseStep.asInstanceOf[Var.Aux[Double, v.type]]
-    def showText: Var.Aux[Boolean, v.type] = ShowText.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def text: Var.Aux[java.lang.String | Null, v.type] = Text.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
+
+    def ellipsize: Var.Aux[org.gnome.pango.EllipsizeMode, v.type] = guarana.gtk.ProgressBar.Ellipsize.asInstanceOf[Var.Aux[org.gnome.pango.EllipsizeMode, v.type]]
+    def fraction: Var.Aux[Double, v.type] = guarana.gtk.ProgressBar.Fraction.asInstanceOf[Var.Aux[Double, v.type]]
+    def inverted: Var.Aux[Boolean, v.type] = guarana.gtk.ProgressBar.Inverted.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def orientation: Var.Aux[org.gnome.gtk.Orientation, v.type] = guarana.gtk.ProgressBar.Orientation.asInstanceOf[Var.Aux[org.gnome.gtk.Orientation, v.type]]
+    def pulseStep: Var.Aux[Double, v.type] = guarana.gtk.ProgressBar.PulseStep.asInstanceOf[Var.Aux[Double, v.type]]
+    def showText: Var.Aux[Boolean, v.type] = guarana.gtk.ProgressBar.ShowText.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def text: Var.Aux[java.lang.String | Null, v.type] = guarana.gtk.ProgressBar.Text.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]
+
+    
+
+    export unwrap.{
+      onDestroy,
+      onDirectionChanged,
+      onHide,
+      onKeynavFailed,
+      onMap,
+      onMnemonicActivate,
+      onMoveFocus,
+      onNotify,
+      onQueryTooltip,
+      onRealize,
+      onShow,
+      onStateFlagsChanged,
+      onUnmap,
+      onUnrealize
+    }
   }
-  def _wrap(v: org.gnome.gtk.ProgressBar): ProgressBar = {
-    v.asInstanceOf
-  }
-  def init(v: ProgressBar): ToolkitAction[Toolkit, Unit] = {
-    Widget.init(v)
+
+  def wrap(v: org.gnome.gtk.ProgressBar): ProgressBar = 
+    val res = v.asInstanceOf[ProgressBar]
+    
+    res
+
+  def init(v: ProgressBar): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+    guarana.gtk.Widget.init(v)
     connectVarsListener(v)
+    
   }
   def uninitialized(): ProgressBar = {
     val res = new org.gnome.gtk.ProgressBar()
+    
     res.asInstanceOf[ProgressBar]
   }
-  def apply(canFocus: Opt[Binding[Boolean]] = UnsetParam, canTarget: Opt[Binding[Boolean]] = UnsetParam, childVisible: Opt[Binding[Boolean]] = UnsetParam, cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam, direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam, ellipsize: Opt[Binding[org.gnome.pango.EllipsizeMode]] = UnsetParam, focusChild: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, focusOnClick: Opt[Binding[Boolean]] = UnsetParam, focusable: Opt[Binding[Boolean]] = UnsetParam, fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam, fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam, fraction: Opt[Binding[Double]] = UnsetParam, halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, hasTooltip: Opt[Binding[Boolean]] = UnsetParam, hexpand: Opt[Binding[Boolean]] = UnsetParam, hexpandSet: Opt[Binding[Boolean]] = UnsetParam, inverted: Opt[Binding[Boolean]] = UnsetParam, layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam, limitEvents: Opt[Binding[Boolean]] = UnsetParam, marginBottom: Opt[Binding[Int]] = UnsetParam, marginEnd: Opt[Binding[Int]] = UnsetParam, marginStart: Opt[Binding[Int]] = UnsetParam, marginTop: Opt[Binding[Int]] = UnsetParam, name: Opt[Binding[java.lang.String]] = UnsetParam, opacity: Opt[Binding[Double]] = UnsetParam, orientation: Opt[Binding[org.gnome.gtk.Orientation]] = UnsetParam, overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam, pulseStep: Opt[Binding[Double]] = UnsetParam, receivesDefault: Opt[Binding[Boolean]] = UnsetParam, sensitive: Opt[Binding[Boolean]] = UnsetParam, showText: Opt[Binding[Boolean]] = UnsetParam, text: Opt[Binding[java.lang.String | Null]] = UnsetParam, tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam, tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam, valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, vexpand: Opt[Binding[Boolean]] = UnsetParam, vexpandSet: Opt[Binding[Boolean]] = UnsetParam, visible: Opt[Binding[Boolean]] = UnsetParam): ToolkitAction[Toolkit, ProgressBar] = {
+  
+  def apply(
+    
+    canFocus: Opt[Binding[Boolean]] = UnsetParam,
+    canTarget: Opt[Binding[Boolean]] = UnsetParam,
+    childVisible: Opt[Binding[Boolean]] = UnsetParam,
+    cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam,
+    direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam,
+    ellipsize: Opt[Binding[org.gnome.pango.EllipsizeMode]] = UnsetParam,
+    focusChild: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    focusOnClick: Opt[Binding[Boolean]] = UnsetParam,
+    focusable: Opt[Binding[Boolean]] = UnsetParam,
+    fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam,
+    fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam,
+    fraction: Opt[Binding[Double]] = UnsetParam,
+    halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    hasTooltip: Opt[Binding[Boolean]] = UnsetParam,
+    hexpand: Opt[Binding[Boolean]] = UnsetParam,
+    hexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    inverted: Opt[Binding[Boolean]] = UnsetParam,
+    layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam,
+    limitEvents: Opt[Binding[Boolean]] = UnsetParam,
+    marginBottom: Opt[Binding[Int]] = UnsetParam,
+    marginEnd: Opt[Binding[Int]] = UnsetParam,
+    marginStart: Opt[Binding[Int]] = UnsetParam,
+    marginTop: Opt[Binding[Int]] = UnsetParam,
+    name: Opt[Binding[java.lang.String]] = UnsetParam,
+    opacity: Opt[Binding[Double]] = UnsetParam,
+    orientation: Opt[Binding[org.gnome.gtk.Orientation]] = UnsetParam,
+    overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    pulseStep: Opt[Binding[Double]] = UnsetParam,
+    receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
+    sensitive: Opt[Binding[Boolean]] = UnsetParam,
+    showText: Opt[Binding[Boolean]] = UnsetParam,
+    text: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    vexpand: Opt[Binding[Boolean]] = UnsetParam,
+    vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    visible: Opt[Binding[Boolean]] = UnsetParam
+  ): Toolkit ?=> VarContextAction[ProgressBar] = {
     val res = uninitialized()
-    init(res)
+    guarana.gtk.ProgressBar.init(res)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)
     ifSet(childVisible, res.childVisible := _)
@@ -75,4 +146,6 @@ object ProgressBar extends VarsMap {
     ifSet(visible, res.visible := _)
     res
   }
+  
 }
+        

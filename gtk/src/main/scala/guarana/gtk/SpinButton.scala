@@ -1,7 +1,10 @@
+
 package guarana
 package gtk
-import util.*
-opaque type SpinButton <: Widget = org.gnome.gtk.SpinButton & Widget
+
+import guarana.util.*
+
+opaque type SpinButton <: guarana.gtk.Widget  = org.gnome.gtk.SpinButton & guarana.gtk.Widget
 object SpinButton extends VarsMap {
   val ActivatesDefault: ExternalVar.Aux[SpinButton, Boolean] = ExternalVar[SpinButton, Boolean]("activates-default", _.getActivatesDefault(), _.setActivatesDefault(_), true)
   val Adjustment: ExternalVar.Aux[SpinButton, org.gnome.gtk.Adjustment] = ExternalVar[SpinButton, org.gnome.gtk.Adjustment]("adjustment", _.getAdjustment(), _.setAdjustment(_), true)
@@ -20,42 +23,125 @@ object SpinButton extends VarsMap {
   val Value: ExternalVar.Aux[SpinButton, Double] = ExternalVar[SpinButton, Double]("value", _.getValue(), _.setValue(_), true)
   val WidthChars: ExternalVar.Aux[SpinButton, Int] = ExternalVar[SpinButton, Int]("width-chars", _.getWidthChars(), _.setWidthChars(_), true)
   val Wrap: ExternalVar.Aux[SpinButton, Boolean] = ExternalVar[SpinButton, Boolean]("wrap", _.getWrap(), _.setWrap(_), true)
-  ()
+
+  
+
   extension (v: SpinButton) {
     def unwrap: org.gnome.gtk.SpinButton = v
-    def activatesDefault: Var.Aux[Boolean, v.type] = ActivatesDefault.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def adjustment: Var.Aux[org.gnome.gtk.Adjustment, v.type] = Adjustment.asInstanceOf[Var.Aux[org.gnome.gtk.Adjustment, v.type]]
-    def alignment: Var.Aux[Float, v.type] = Alignment.asInstanceOf[Var.Aux[Float, v.type]]
-    def climbRate: Var.Aux[Double, v.type] = ClimbRate.asInstanceOf[Var.Aux[Double, v.type]]
-    def digits: Var.Aux[Int, v.type] = Digits.asInstanceOf[Var.Aux[Int, v.type]]
-    def editable: Var.Aux[Boolean, v.type] = Editable.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def enableUndo: Var.Aux[Boolean, v.type] = EnableUndo.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def maxWidthChars: Var.Aux[Int, v.type] = MaxWidthChars.asInstanceOf[Var.Aux[Int, v.type]]
-    def numeric: Var.Aux[Boolean, v.type] = Numeric.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def orientation: Var.Aux[org.gnome.gtk.Orientation, v.type] = Orientation.asInstanceOf[Var.Aux[org.gnome.gtk.Orientation, v.type]]
-    def position: Var.Aux[Int, v.type] = Position.asInstanceOf[Var.Aux[Int, v.type]]
-    def snapToTicks: Var.Aux[Boolean, v.type] = SnapToTicks.asInstanceOf[Var.Aux[Boolean, v.type]]
-    def text: Var.Aux[java.lang.String, v.type] = Text.asInstanceOf[Var.Aux[java.lang.String, v.type]]
-    def updatePolicy: Var.Aux[org.gnome.gtk.SpinButtonUpdatePolicy, v.type] = UpdatePolicy.asInstanceOf[Var.Aux[org.gnome.gtk.SpinButtonUpdatePolicy, v.type]]
-    def value: Var.Aux[Double, v.type] = Value.asInstanceOf[Var.Aux[Double, v.type]]
-    def widthChars: Var.Aux[Int, v.type] = WidthChars.asInstanceOf[Var.Aux[Int, v.type]]
-    def wrap: Var.Aux[Boolean, v.type] = Wrap.asInstanceOf[Var.Aux[Boolean, v.type]]
-    export unwrap.onActivate, unwrap.onChangeValue, unwrap.onInput, unwrap.onOutput, unwrap.onValueChanged, unwrap.onWrapped
+
+    def activatesDefault: Var.Aux[Boolean, v.type] = guarana.gtk.SpinButton.ActivatesDefault.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def adjustment: Var.Aux[org.gnome.gtk.Adjustment, v.type] = guarana.gtk.SpinButton.Adjustment.asInstanceOf[Var.Aux[org.gnome.gtk.Adjustment, v.type]]
+    def alignment: Var.Aux[Float, v.type] = guarana.gtk.SpinButton.Alignment.asInstanceOf[Var.Aux[Float, v.type]]
+    def climbRate: Var.Aux[Double, v.type] = guarana.gtk.SpinButton.ClimbRate.asInstanceOf[Var.Aux[Double, v.type]]
+    def digits: Var.Aux[Int, v.type] = guarana.gtk.SpinButton.Digits.asInstanceOf[Var.Aux[Int, v.type]]
+    def editable: Var.Aux[Boolean, v.type] = guarana.gtk.SpinButton.Editable.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def enableUndo: Var.Aux[Boolean, v.type] = guarana.gtk.SpinButton.EnableUndo.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def maxWidthChars: Var.Aux[Int, v.type] = guarana.gtk.SpinButton.MaxWidthChars.asInstanceOf[Var.Aux[Int, v.type]]
+    def numeric: Var.Aux[Boolean, v.type] = guarana.gtk.SpinButton.Numeric.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def orientation: Var.Aux[org.gnome.gtk.Orientation, v.type] = guarana.gtk.SpinButton.Orientation.asInstanceOf[Var.Aux[org.gnome.gtk.Orientation, v.type]]
+    def position: Var.Aux[Int, v.type] = guarana.gtk.SpinButton.Position.asInstanceOf[Var.Aux[Int, v.type]]
+    def snapToTicks: Var.Aux[Boolean, v.type] = guarana.gtk.SpinButton.SnapToTicks.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def text: Var.Aux[java.lang.String, v.type] = guarana.gtk.SpinButton.Text.asInstanceOf[Var.Aux[java.lang.String, v.type]]
+    def updatePolicy: Var.Aux[org.gnome.gtk.SpinButtonUpdatePolicy, v.type] = guarana.gtk.SpinButton.UpdatePolicy.asInstanceOf[Var.Aux[org.gnome.gtk.SpinButtonUpdatePolicy, v.type]]
+    def value: Var.Aux[Double, v.type] = guarana.gtk.SpinButton.Value.asInstanceOf[Var.Aux[Double, v.type]]
+    def widthChars: Var.Aux[Int, v.type] = guarana.gtk.SpinButton.WidthChars.asInstanceOf[Var.Aux[Int, v.type]]
+    def wrap: Var.Aux[Boolean, v.type] = guarana.gtk.SpinButton.Wrap.asInstanceOf[Var.Aux[Boolean, v.type]]
+
+    
+
+    export unwrap.{
+      onActivate,
+      onChangeValue,
+      onDestroy,
+      onDirectionChanged,
+      onHide,
+      onInput,
+      onKeynavFailed,
+      onMap,
+      onMnemonicActivate,
+      onMoveFocus,
+      onNotify,
+      onOutput,
+      onQueryTooltip,
+      onRealize,
+      onShow,
+      onStateFlagsChanged,
+      onUnmap,
+      onUnrealize,
+      onValueChanged,
+      onWrapped
+    }
   }
-  def _wrap(v: org.gnome.gtk.SpinButton): SpinButton = {
-    v.asInstanceOf
-  }
-  def init(v: SpinButton): ToolkitAction[Toolkit, Unit] = {
-    Widget.init(v)
+
+  def wrap(v: org.gnome.gtk.SpinButton): SpinButton = 
+    val res = v.asInstanceOf[SpinButton]
+    
+    res
+
+  def init(v: SpinButton): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+    guarana.gtk.Widget.init(v)
     connectVarsListener(v)
+    
   }
   def uninitialized(arg$0: org.gnome.gtk.Adjustment | Null, arg$1: Double, arg$2: Int): SpinButton = {
     val res = new org.gnome.gtk.SpinButton(arg$0, arg$1, arg$2)
+    
     res.asInstanceOf[SpinButton]
   }
-  def apply(arg$0: org.gnome.gtk.Adjustment | Null, arg$1: Double, arg$2: Int, activatesDefault: Opt[Binding[Boolean]] = UnsetParam, adjustment: Opt[Binding[org.gnome.gtk.Adjustment]] = UnsetParam, alignment: Opt[Binding[Float]] = UnsetParam, canFocus: Opt[Binding[Boolean]] = UnsetParam, canTarget: Opt[Binding[Boolean]] = UnsetParam, childVisible: Opt[Binding[Boolean]] = UnsetParam, climbRate: Opt[Binding[Double]] = UnsetParam, cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam, digits: Opt[Binding[Int]] = UnsetParam, direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam, editable: Opt[Binding[Boolean]] = UnsetParam, enableUndo: Opt[Binding[Boolean]] = UnsetParam, focusChild: Opt[Binding[org.gnome.gtk.Widget | Null]] = UnsetParam, focusOnClick: Opt[Binding[Boolean]] = UnsetParam, focusable: Opt[Binding[Boolean]] = UnsetParam, fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam, fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam, halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, hasTooltip: Opt[Binding[Boolean]] = UnsetParam, hexpand: Opt[Binding[Boolean]] = UnsetParam, hexpandSet: Opt[Binding[Boolean]] = UnsetParam, layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam, limitEvents: Opt[Binding[Boolean]] = UnsetParam, marginBottom: Opt[Binding[Int]] = UnsetParam, marginEnd: Opt[Binding[Int]] = UnsetParam, marginStart: Opt[Binding[Int]] = UnsetParam, marginTop: Opt[Binding[Int]] = UnsetParam, maxWidthChars: Opt[Binding[Int]] = UnsetParam, name: Opt[Binding[java.lang.String]] = UnsetParam, numeric: Opt[Binding[Boolean]] = UnsetParam, opacity: Opt[Binding[Double]] = UnsetParam, orientation: Opt[Binding[org.gnome.gtk.Orientation]] = UnsetParam, overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam, position: Opt[Binding[Int]] = UnsetParam, receivesDefault: Opt[Binding[Boolean]] = UnsetParam, sensitive: Opt[Binding[Boolean]] = UnsetParam, snapToTicks: Opt[Binding[Boolean]] = UnsetParam, text: Opt[Binding[java.lang.String]] = UnsetParam, tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam, tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam, updatePolicy: Opt[Binding[org.gnome.gtk.SpinButtonUpdatePolicy]] = UnsetParam, valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam, value: Opt[Binding[Double]] = UnsetParam, vexpand: Opt[Binding[Boolean]] = UnsetParam, vexpandSet: Opt[Binding[Boolean]] = UnsetParam, visible: Opt[Binding[Boolean]] = UnsetParam, widthChars: Opt[Binding[Int]] = UnsetParam, wrap: Opt[Binding[Boolean]] = UnsetParam): ToolkitAction[Toolkit, SpinButton] = {
+  
+  def apply(
+    arg$0: org.gnome.gtk.Adjustment | Null, arg$1: Double, arg$2: Int,
+    activatesDefault: Opt[Binding[Boolean]] = UnsetParam,
+    adjustment: Opt[Binding[org.gnome.gtk.Adjustment]] = UnsetParam,
+    alignment: Opt[Binding[Float]] = UnsetParam,
+    canFocus: Opt[Binding[Boolean]] = UnsetParam,
+    canTarget: Opt[Binding[Boolean]] = UnsetParam,
+    childVisible: Opt[Binding[Boolean]] = UnsetParam,
+    climbRate: Opt[Binding[Double]] = UnsetParam,
+    cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam,
+    digits: Opt[Binding[Int]] = UnsetParam,
+    direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam,
+    editable: Opt[Binding[Boolean]] = UnsetParam,
+    enableUndo: Opt[Binding[Boolean]] = UnsetParam,
+    focusChild: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
+    focusOnClick: Opt[Binding[Boolean]] = UnsetParam,
+    focusable: Opt[Binding[Boolean]] = UnsetParam,
+    fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam,
+    fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam,
+    halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    hasTooltip: Opt[Binding[Boolean]] = UnsetParam,
+    hexpand: Opt[Binding[Boolean]] = UnsetParam,
+    hexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam,
+    limitEvents: Opt[Binding[Boolean]] = UnsetParam,
+    marginBottom: Opt[Binding[Int]] = UnsetParam,
+    marginEnd: Opt[Binding[Int]] = UnsetParam,
+    marginStart: Opt[Binding[Int]] = UnsetParam,
+    marginTop: Opt[Binding[Int]] = UnsetParam,
+    maxWidthChars: Opt[Binding[Int]] = UnsetParam,
+    name: Opt[Binding[java.lang.String]] = UnsetParam,
+    numeric: Opt[Binding[Boolean]] = UnsetParam,
+    opacity: Opt[Binding[Double]] = UnsetParam,
+    orientation: Opt[Binding[org.gnome.gtk.Orientation]] = UnsetParam,
+    overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    position: Opt[Binding[Int]] = UnsetParam,
+    receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
+    sensitive: Opt[Binding[Boolean]] = UnsetParam,
+    snapToTicks: Opt[Binding[Boolean]] = UnsetParam,
+    text: Opt[Binding[java.lang.String]] = UnsetParam,
+    tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    updatePolicy: Opt[Binding[org.gnome.gtk.SpinButtonUpdatePolicy]] = UnsetParam,
+    valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    value: Opt[Binding[Double]] = UnsetParam,
+    vexpand: Opt[Binding[Boolean]] = UnsetParam,
+    vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    visible: Opt[Binding[Boolean]] = UnsetParam,
+    widthChars: Opt[Binding[Int]] = UnsetParam,
+    wrap: Opt[Binding[Boolean]] = UnsetParam
+  ): Toolkit ?=> VarContextAction[SpinButton] = {
     val res = uninitialized(arg$0, arg$1, arg$2)
-    init(res)
+    guarana.gtk.SpinButton.init(res)
     ifSet(activatesDefault, res.activatesDefault := _)
     ifSet(adjustment, res.adjustment := _)
     ifSet(alignment, res.alignment := _)
@@ -106,4 +192,6 @@ object SpinButton extends VarsMap {
     ifSet(wrap, res.wrap := _)
     res
   }
+  
 }
+        

@@ -28,11 +28,11 @@ object GuaranaGtkTeset {
       val window = ApplicationWindow(
         app,
         title = "Teset GTK",
-        child = Box(Orientation.VERTICAL, 10).unwrap.tap { box =>
-          box.append(Label("a string").unwrap)
-          box.append(Button(child = Label("a button").unwrap).unwrap)
-          box.append(greeterLabel.unwrap)
-          box.append(nameTextInput.unwrap)
+        child = Box(Orientation.VERTICAL, 10).tap { box =>
+          box.unwrap.append(Label("a string").unwrap)
+          box.unwrap.append(Button(child = Label("a button")).unwrap)
+          box.unwrap.append(greeterLabel.unwrap)
+          box.unwrap.append(nameTextInput.unwrap)
         },
         visible = true,
       )
