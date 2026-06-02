@@ -75,10 +75,6 @@ object Widget extends VarsMap {
     def vexpandSet: Var.Aux[Boolean, v.type] = guarana.gtk.Widget.VexpandSet.asInstanceOf[Var.Aux[Boolean, v.type]]
     def visible: Var.Aux[Boolean, v.type] = guarana.gtk.Widget.Visible.asInstanceOf[Var.Aux[Boolean, v.type]]
 
-    def getChildren(): Iterator[org.gnome.gtk.Widget] = Iterator.unfold(v.getFirstChild()) {
-      case null => None
-      case w => Some(w -> w.getNextSibling())
-    }
     
 
     export unwrap.{
@@ -97,6 +93,10 @@ object Widget extends VarsMap {
       onUnmap,
       onUnrealize
     }
+      def getChildren(): Iterator[org.gnome.gtk.Widget] = Iterator.unfold(v.getFirstChild()) {
+        case null => None
+        case w => Some(w -> w.getNextSibling())
+      }
   }
 
   def wrap(v: org.gnome.gtk.Widget): Widget = 

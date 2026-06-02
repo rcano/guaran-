@@ -6,7 +6,7 @@ import io.github.classgraph.{ClassGraph, ClassInfo}
 import scala.jdk.CollectionConverters.*
 import scala.meta.*
 
-object run extends Windows {
+object run extends Windows, Containers {
   lazy val classIndex = ClassIndex(
     ClassGraph()
       .enableClassInfo()
@@ -19,13 +19,21 @@ object run extends Windows {
   private lazy val widgetClassInfo = classIndex.scanResult.getClassInfo("org.gnome.gtk.Widget")
 
   lazy val WidgetNode = genNodeDescr(widgetClassInfo, "Widget", None)
+    .addOps(
+      Seq(
+        "def getChildren(): Iterator[org.gnome.gtk.Widget] = Iterator.unfold(v.getFirstChild()) {",
+        "  case null => None",
+        "  case w => Some(w -> w.getNextSibling())",
+        "}"
+      )
+    )
 
-  lazy val AllWidgets = WidgetNode :: AllWindows ::: classIndex.scanResult
+  lazy val AllWidgets = WidgetNode :: AllWindows ::: AllContainers ::: classIndex.scanResult
     .getSubclasses("org.gnome.gtk.Widget")
     .iterator()
     .asScala
     .filter(!_.isInnerClass())
-    .filterNot(c => AllWindows.exists(_.name == c.getSimpleName()))
+    .filterNot(c => (AllWindows ::: AllContainers).exists(_.name == c.getSimpleName()))
     .map(ci => genNodeDescr(ci, ci.getSimpleName(), Some(WidgetNode)))
     .toList
 

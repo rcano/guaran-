@@ -5,7 +5,7 @@ package gtk
 import guarana.util.*
 
 opaque type Grid <: guarana.gtk.Widget  = org.gnome.gtk.Grid & guarana.gtk.Widget
-object Grid extends VarsMap {
+object Grid extends VarsMap, internal.GridLayoutSupport {
   val BaselineRow: ExternalVar.Aux[Grid, Int] = ExternalVar[Grid, Int]("baseline-row", _.getBaselineRow(), _.setBaselineRow(_), true)
   val ColumnHomogeneous: ExternalVar.Aux[Grid, Boolean] = ExternalVar[Grid, Boolean]("column-homogeneous", _.getColumnHomogeneous(), _.setColumnHomogeneous(_), true)
   val ColumnSpacing: ExternalVar.Aux[Grid, Int] = ExternalVar[Grid, Int]("column-spacing", _.getColumnSpacing(), _.setColumnSpacing(_), true)
@@ -53,6 +53,7 @@ object Grid extends VarsMap {
   def init(v: Grid): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
+    tk.update(initNodesVar(v))
     
   }
   def uninitialized(): Grid = {

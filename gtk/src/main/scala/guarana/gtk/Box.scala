@@ -9,9 +9,9 @@ object Box extends VarsMap {
   val BaselineChild: ExternalVar.Aux[Box, Int] = ExternalVar[Box, Int]("baseline-child", _.getBaselineChild(), _.setBaselineChild(_), true)
   val BaselinePosition: ExternalVar.Aux[Box, org.gnome.gtk.BaselinePosition] = ExternalVar[Box, org.gnome.gtk.BaselinePosition]("baseline-position", _.getBaselinePosition(), _.setBaselinePosition(_), true)
   val Homogeneous: ExternalVar.Aux[Box, Boolean] = ExternalVar[Box, Boolean]("homogeneous", _.getHomogeneous(), _.setHomogeneous(_), true)
+  val Nodes: Var[Seq[Widget]] = Var[Seq[Widget]]("nodes", Seq.empty, false)
   val Orientation: ExternalVar.Aux[Box, org.gnome.gtk.Orientation] = ExternalVar[Box, org.gnome.gtk.Orientation]("orientation", _.getOrientation(), _.setOrientation(_), true)
   val Spacing: ExternalVar.Aux[Box, Int] = ExternalVar[Box, Int]("spacing", _.getSpacing(), _.setSpacing(_), true)
-  val Nodes: Var[Seq[Widget]] = Var.autoName(Seq.empty, true)
 
   
 
@@ -21,10 +21,9 @@ object Box extends VarsMap {
     def baselineChild: Var.Aux[Int, v.type] = guarana.gtk.Box.BaselineChild.asInstanceOf[Var.Aux[Int, v.type]]
     def baselinePosition: Var.Aux[org.gnome.gtk.BaselinePosition, v.type] = guarana.gtk.Box.BaselinePosition.asInstanceOf[Var.Aux[org.gnome.gtk.BaselinePosition, v.type]]
     def homogeneous: Var.Aux[Boolean, v.type] = guarana.gtk.Box.Homogeneous.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def nodes: Var.Aux[Seq[Widget], v.type] = guarana.gtk.Box.Nodes.asInstanceOf[Var.Aux[Seq[Widget], v.type]]
     def orientation: Var.Aux[org.gnome.gtk.Orientation, v.type] = guarana.gtk.Box.Orientation.asInstanceOf[Var.Aux[org.gnome.gtk.Orientation, v.type]]
     def spacing: Var.Aux[Int, v.type] = guarana.gtk.Box.Spacing.asInstanceOf[Var.Aux[Int, v.type]]
-
-    def nodes = Nodes.forInstance(v)
 
     
 
@@ -54,7 +53,6 @@ object Box extends VarsMap {
   def init(v: Box): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
-
     tk.update {
       v.varUpdates := EventIterator.forsome {
         case v.nodes(_, newv) =>
@@ -62,10 +60,11 @@ object Box extends VarsMap {
           newv.foreach(w => v.append(w.unwrap))
       }
     }
+    
   }
   def uninitialized(arg$0: org.gnome.gtk.Orientation, arg$1: Int): Box = {
     val res = new org.gnome.gtk.Box(arg$0, arg$1)
-
+    
     res.asInstanceOf[Box]
   }
   
@@ -95,6 +94,7 @@ object Box extends VarsMap {
     marginStart: Opt[Binding[Int]] = UnsetParam,
     marginTop: Opt[Binding[Int]] = UnsetParam,
     name: Opt[Binding[java.lang.String]] = UnsetParam,
+    nodes: Opt[Binding[Seq[Widget]]] = UnsetParam,
     opacity: Opt[Binding[Double]] = UnsetParam,
     orientation: Opt[Binding[org.gnome.gtk.Orientation]] = UnsetParam,
     overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
@@ -134,6 +134,7 @@ object Box extends VarsMap {
     ifSet(marginStart, res.marginStart := _)
     ifSet(marginTop, res.marginTop := _)
     ifSet(name, res.name := _)
+    ifSet(nodes, res.nodes := _)
     ifSet(opacity, res.opacity := _)
     ifSet(orientation, res.orientation := _)
     ifSet(overflow, res.overflow := _)

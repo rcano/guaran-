@@ -81,6 +81,18 @@ package codegen {
     deprecated: Boolean = false,
   ) {
     override def toString = s"${`package`}.$name"
+
+    def editProperty(propertyName: String)(f: PartialFunction[Property, Property]): NodeDescr =
+      val (discarded, newProps) = props.partition(_.name == propertyName)
+      require(discarded.size == 1, s"could not find property $propertyName")
+      copy(props = newProps :+ f.lift(discarded.head).get)
+    def addProperty(prop: Property): NodeDescr = copy(props = props :+ prop)
+    def addEmitter(emitter: EmitterDescr): NodeDescr = copy(emitters = emitters :+ emitter)
+    def addOps(ops: Seq[String]): NodeDescr = copy(opsExtra = opsExtra ++ ops)
+    def addUninitExtra(ops: Seq[String]): NodeDescr = copy(uninitExtra = uninitExtra ++ ops)
+    def addUninitParam(params: Seq[Parameter]): NodeDescr = copy(uninitExtraParams = uninitExtraParams ++ params)
+    def addInitExtra(ops: Seq[String]): NodeDescr = copy(initExtra = initExtra ++ ops)
+    def addCompanionObjectExtras(extras: Seq[String]): NodeDescr = copy(companionObjectExtras = companionObjectExtras ++ extras)
   }
 
   def genScalaSource(n: NodeDescr, objectExtends: Opt[String] = UnsetParam, toolkitType: Option[String] = None): String = {

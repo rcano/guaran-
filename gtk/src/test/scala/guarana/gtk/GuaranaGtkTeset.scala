@@ -18,22 +18,29 @@ object GuaranaGtkTeset {
 
     toolkit.update {
       val nameTextInput = Entry(placeholderText = "name")
-      val greeterLabel = Label("", text = dyn { 
-        nameTextInput.text() match {
-          case null | "" => "Type your name please"
-          case name => s"Hello $name!"
+      val greeterLabel = Label(
+        "",
+        text = dyn {
+          nameTextInput.text() match {
+            case null | "" => "Type your name please"
+            case name => s"Hello $name!"
+          }
         }
-      })
+      )
 
       val window = ApplicationWindow(
         app,
         title = "Teset GTK",
-        child = Box(Orientation.VERTICAL, 10).tap { box =>
-          box.unwrap.append(Label("a string").unwrap)
-          box.unwrap.append(Button(child = Label("a button")).unwrap)
-          box.unwrap.append(greeterLabel.unwrap)
-          box.unwrap.append(nameTextInput.unwrap)
-        },
+        child = Box(
+          Orientation.VERTICAL,
+          10,
+          nodes = Seq(
+            Label("a string"),
+            Button(child = Label("a button")),
+            greeterLabel,
+            nameTextInput
+          )
+        ),
         visible = true,
       )
     }

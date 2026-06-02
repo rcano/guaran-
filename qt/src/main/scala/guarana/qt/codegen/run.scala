@@ -146,20 +146,6 @@ object run extends Panels, ItemViews, Dialogs {
 
   }
 
-  extension (nd: NodeDescr) {
-    def editProperty(propertyName: String)(f: PartialFunction[Property, Property]): NodeDescr =
-      val (discarded, newProps) = nd.props.partition(_.name == propertyName)
-      require(discarded.size == 1, s"could not find property $propertyName")
-      nd.copy(props = newProps :+ f.lift(discarded.head).get)
-    def addProperty(prop: Property): NodeDescr = nd.copy(props = nd.props :+ prop)
-    def addEmitter(emitter: EmitterDescr): NodeDescr = nd.copy(emitters = nd.emitters :+ emitter)
-    def addOps(ops: Seq[String]): NodeDescr = nd.copy(opsExtra = nd.opsExtra ++ ops)
-    def addUninitExtra(ops: Seq[String]): NodeDescr = nd.copy(uninitExtra = nd.uninitExtra ++ ops)
-    def addUninitParam(params: Seq[Parameter]): NodeDescr = nd.copy(uninitExtraParams = nd.uninitExtraParams ++ params)
-    def addInitExtra(ops: Seq[String]): NodeDescr = nd.copy(initExtra = nd.initExtra ++ ops)
-    def addCompanionObjectExtras(extras: Seq[String]): NodeDescr = nd.copy(companionObjectExtras = nd.companionObjectExtras ++ extras)
-  }
-
   def genNodeDescsrFromMetaObject(mo: QMetaObject, targetName: String, parent: Option[NodeDescr]) = {
     given analysis: MetaObjectAnalysis = MetaObjectAnalysis(mo, parent)
     val actualClass = mo.`type`.unn
