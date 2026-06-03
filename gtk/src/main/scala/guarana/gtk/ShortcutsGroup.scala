@@ -40,7 +40,7 @@ object ShortcutsGroup extends VarsMap {
     
     res
 
-  def init(v: ShortcutsGroup): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: ShortcutsGroup): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -84,7 +84,7 @@ object ShortcutsGroup extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[ShortcutsGroup] = {
+  ): VarContextAction[ShortcutsGroup] = {
     val res = uninitialized()
     guarana.gtk.ShortcutsGroup.init(res)
     ifSet(canFocus, res.canFocus := _)

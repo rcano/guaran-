@@ -40,7 +40,7 @@ object Fixed extends VarsMap {
     
     res
 
-  def init(v: Fixed): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: Fixed): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -84,7 +84,7 @@ object Fixed extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[Fixed] = {
+  ): VarContextAction[Fixed] = {
     val res = uninitialized()
     guarana.gtk.Fixed.init(res)
     ifSet(canFocus, res.canFocus := _)

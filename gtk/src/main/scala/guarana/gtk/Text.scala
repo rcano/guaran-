@@ -93,7 +93,7 @@ object Text extends VarsMap {
     
     res
 
-  def init(v: Text): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: Text): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -159,7 +159,7 @@ object Text extends VarsMap {
     visibility: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam,
     widthChars: Opt[Binding[Int]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[Text] = {
+  ): VarContextAction[Text] = {
     val res = uninitialized()
     guarana.gtk.Text.init(res)
     ifSet(activatesDefault, res.activatesDefault := _)

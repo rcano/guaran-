@@ -16,9 +16,7 @@ trait VarsMap {
     .map(v => v.name -> v)
     .toMap
 
-  protected def connectVarsListener(instance: GObject, debug: Boolean = false)(using
-      tk: Toolkit
-  ): Unit = {
+  protected def connectVarsListener(instance: GObject, debug: Boolean = false): Unit = {
     val notifyCallback = NotifyBridge { param =>
       try {
         val property = param.getName
@@ -26,7 +24,7 @@ trait VarsMap {
           // if (debug) scribe.info(s"Trying to update $property")
           varsMap.get(property) foreach { case sv: ExternalVar[t] =>
             // if (debug) scribe.info("  found gtk var")
-            tk.update(
+            Toolkit.update(
               summon[VarContext].externalPropertyUpdated(sv, None)(using
                 ValueOf(instance.asInstanceOf[sv.ForInstance])
               )

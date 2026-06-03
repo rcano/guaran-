@@ -42,7 +42,7 @@ object LockButton extends VarsMap {
     
     res
 
-  def init(v: LockButton): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: LockButton): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -87,7 +87,7 @@ object LockButton extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[LockButton] = {
+  ): VarContextAction[LockButton] = {
     val res = uninitialized(arg$0)
     guarana.gtk.LockButton.init(res)
     ifSet(canFocus, res.canFocus := _)

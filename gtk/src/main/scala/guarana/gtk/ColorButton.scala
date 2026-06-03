@@ -46,7 +46,7 @@ object ColorButton extends VarsMap {
     
     res
 
-  def init(v: ColorButton): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: ColorButton): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -93,7 +93,7 @@ object ColorButton extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[ColorButton] = {
+  ): VarContextAction[ColorButton] = {
     val res = uninitialized()
     guarana.gtk.ColorButton.init(res)
     ifSet(canFocus, res.canFocus := _)

@@ -42,7 +42,7 @@ object Image extends VarsMap {
     
     res
 
-  def init(v: Image): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: Image): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -88,7 +88,7 @@ object Image extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[Image] = {
+  ): VarContextAction[Image] = {
     val res = uninitialized()
     guarana.gtk.Image.init(res)
     ifSet(canFocus, res.canFocus := _)

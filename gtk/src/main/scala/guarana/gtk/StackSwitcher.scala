@@ -42,7 +42,7 @@ object StackSwitcher extends VarsMap {
     
     res
 
-  def init(v: StackSwitcher): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: StackSwitcher): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -88,7 +88,7 @@ object StackSwitcher extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[StackSwitcher] = {
+  ): VarContextAction[StackSwitcher] = {
     val res = uninitialized()
     guarana.gtk.StackSwitcher.init(res)
     ifSet(canFocus, res.canFocus := _)

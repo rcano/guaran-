@@ -53,7 +53,7 @@ object FontChooserDialog extends VarsMap {
     
     res
 
-  def init(v: FontChooserDialog): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: FontChooserDialog): Unit = {
     guarana.gtk.Window.init(v)
     connectVarsListener(v)
     
@@ -120,7 +120,7 @@ object FontChooserDialog extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[FontChooserDialog] = {
+  ): VarContextAction[FontChooserDialog] = {
     val res = uninitialized(arg$0, arg$1)
     guarana.gtk.FontChooserDialog.init(res)
     ifSet(application, res.application := _)

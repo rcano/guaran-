@@ -62,7 +62,7 @@ object Paned extends VarsMap {
     
     res
 
-  def init(v: Paned): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: Paned): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -115,7 +115,7 @@ object Paned extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam,
     wideHandle: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[Paned] = {
+  ): VarContextAction[Paned] = {
     val res = uninitialized(arg$0)
     guarana.gtk.Paned.init(res)
     ifSet(canFocus, res.canFocus := _)

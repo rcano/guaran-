@@ -57,7 +57,7 @@ object Calendar extends VarsMap {
     
     res
 
-  def init(v: Calendar): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: Calendar): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -108,7 +108,7 @@ object Calendar extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam,
     year: Opt[Binding[Int]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[Calendar] = {
+  ): VarContextAction[Calendar] = {
     val res = uninitialized()
     guarana.gtk.Calendar.init(res)
     ifSet(canFocus, res.canFocus := _)

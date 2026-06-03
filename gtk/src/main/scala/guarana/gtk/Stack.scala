@@ -48,7 +48,7 @@ object Stack extends VarsMap {
     
     res
 
-  def init(v: Stack): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: Stack): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -97,7 +97,7 @@ object Stack extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     vhomogeneous: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[Stack] = {
+  ): VarContextAction[Stack] = {
     val res = uninitialized()
     guarana.gtk.Stack.init(res)
     ifSet(canFocus, res.canFocus := _)

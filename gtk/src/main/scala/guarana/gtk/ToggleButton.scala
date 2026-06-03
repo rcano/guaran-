@@ -43,7 +43,7 @@ object ToggleButton extends VarsMap {
     
     res
 
-  def init(v: ToggleButton): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: ToggleButton): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -88,7 +88,7 @@ object ToggleButton extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[ToggleButton] = {
+  ): VarContextAction[ToggleButton] = {
     val res = uninitialized()
     guarana.gtk.ToggleButton.init(res)
     ifSet(active, res.active := _)

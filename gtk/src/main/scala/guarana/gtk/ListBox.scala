@@ -56,7 +56,7 @@ object ListBox extends VarsMap {
     
     res
 
-  def init(v: ListBox): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: ListBox): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -105,7 +105,7 @@ object ListBox extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[ListBox] = {
+  ): VarContextAction[ListBox] = {
     val res = uninitialized()
     guarana.gtk.ListBox.init(res)
     ifSet(activateOnSingleClick, res.activateOnSingleClick := _)

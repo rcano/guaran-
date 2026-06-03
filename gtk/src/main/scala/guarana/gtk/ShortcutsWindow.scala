@@ -47,7 +47,7 @@ object ShortcutsWindow extends VarsMap {
     
     res
 
-  def init(v: ShortcutsWindow): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: ShortcutsWindow): Unit = {
     guarana.gtk.Window.init(v)
     connectVarsListener(v)
     
@@ -110,7 +110,7 @@ object ShortcutsWindow extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[ShortcutsWindow] = {
+  ): VarContextAction[ShortcutsWindow] = {
     val res = uninitialized()
     guarana.gtk.ShortcutsWindow.init(res)
     ifSet(application, res.application := _)

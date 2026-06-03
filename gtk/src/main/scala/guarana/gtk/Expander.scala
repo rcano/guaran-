@@ -53,7 +53,7 @@ object Expander extends VarsMap {
     
     res
 
-  def init(v: Expander): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: Expander): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -104,7 +104,7 @@ object Expander extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[Expander] = {
+  ): VarContextAction[Expander] = {
     val res = uninitialized(arg$0)
     guarana.gtk.Expander.init(res)
     ifSet(canFocus, res.canFocus := _)

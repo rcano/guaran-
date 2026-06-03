@@ -52,7 +52,7 @@ object ProgressBar extends VarsMap {
     
     res
 
-  def init(v: ProgressBar): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: ProgressBar): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -103,7 +103,7 @@ object ProgressBar extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[ProgressBar] = {
+  ): VarContextAction[ProgressBar] = {
     val res = uninitialized()
     guarana.gtk.ProgressBar.init(res)
     ifSet(canFocus, res.canFocus := _)

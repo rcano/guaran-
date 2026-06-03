@@ -97,7 +97,7 @@ object TextView extends VarsMap {
     
     res
 
-  def init(v: TextView): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: TextView): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -163,7 +163,7 @@ object TextView extends VarsMap {
     visible: Opt[Binding[Boolean]] = UnsetParam,
     vscrollPolicy: Opt[Binding[org.gnome.gtk.ScrollablePolicy]] = UnsetParam,
     wrapMode: Opt[Binding[org.gnome.gtk.WrapMode]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[TextView] = {
+  ): VarContextAction[TextView] = {
     val res = uninitialized()
     guarana.gtk.TextView.init(res)
     ifSet(acceptsTab, res.acceptsTab := _)

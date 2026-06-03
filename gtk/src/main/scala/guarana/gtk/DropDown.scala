@@ -57,7 +57,7 @@ object DropDown extends VarsMap {
     
     res
 
-  def init(v: DropDown): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: DropDown): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -110,7 +110,7 @@ object DropDown extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[DropDown] = {
+  ): VarContextAction[DropDown] = {
     val res = uninitialized(arg$0, arg$1)
     guarana.gtk.DropDown.init(res)
     ifSet(canFocus, res.canFocus := _)

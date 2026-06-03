@@ -85,7 +85,7 @@ object Entry extends VarsMap {
     
     res
 
-  def init(v: Entry): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: Entry): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -151,7 +151,7 @@ object Entry extends VarsMap {
     visibility: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam,
     widthChars: Opt[Binding[Int]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[Entry] = {
+  ): VarContextAction[Entry] = {
     val res = uninitialized()
     guarana.gtk.Entry.init(res)
     ifSet(activatesDefault, res.activatesDefault := _)

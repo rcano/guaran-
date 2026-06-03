@@ -46,7 +46,7 @@ object ComboBoxText extends VarsMap {
     
     res
 
-  def init(v: ComboBoxText): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: ComboBoxText): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -90,7 +90,7 @@ object ComboBoxText extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[ComboBoxText] = {
+  ): VarContextAction[ComboBoxText] = {
     val res = uninitialized()
     guarana.gtk.ComboBoxText.init(res)
     ifSet(canFocus, res.canFocus := _)

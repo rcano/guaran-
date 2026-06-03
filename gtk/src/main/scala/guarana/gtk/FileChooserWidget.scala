@@ -58,7 +58,7 @@ object FileChooserWidget extends VarsMap {
     
     res
 
-  def init(v: FileChooserWidget): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: FileChooserWidget): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -106,7 +106,7 @@ object FileChooserWidget extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[FileChooserWidget] = {
+  ): VarContextAction[FileChooserWidget] = {
     val res = uninitialized(arg$0)
     guarana.gtk.FileChooserWidget.init(res)
     ifSet(action, res.action := _)

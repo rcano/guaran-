@@ -48,7 +48,7 @@ object Video extends VarsMap {
     
     res
 
-  def init(v: Video): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: Video): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -97,7 +97,7 @@ object Video extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[Video] = {
+  ): VarContextAction[Video] = {
     val res = uninitialized()
     guarana.gtk.Video.init(res)
     ifSet(autoplay, res.autoplay := _)

@@ -50,7 +50,7 @@ object AppChooserWidget extends VarsMap {
     
     res
 
-  def init(v: AppChooserWidget): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: AppChooserWidget): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -99,7 +99,7 @@ object AppChooserWidget extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[AppChooserWidget] = {
+  ): VarContextAction[AppChooserWidget] = {
     val res = uninitialized(arg$0)
     guarana.gtk.AppChooserWidget.init(res)
     ifSet(canFocus, res.canFocus := _)

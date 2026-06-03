@@ -53,7 +53,7 @@ object GridView extends VarsMap {
     
     res
 
-  def init(v: GridView): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: GridView): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -104,7 +104,7 @@ object GridView extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[GridView] = {
+  ): VarContextAction[GridView] = {
     val res = uninitialized(arg$0, arg$1)
     guarana.gtk.GridView.init(res)
     ifSet(canFocus, res.canFocus := _)

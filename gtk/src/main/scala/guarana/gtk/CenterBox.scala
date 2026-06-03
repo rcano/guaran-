@@ -50,7 +50,7 @@ object CenterBox extends VarsMap {
     
     res
 
-  def init(v: CenterBox): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: CenterBox): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -100,7 +100,7 @@ object CenterBox extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[CenterBox] = {
+  ): VarContextAction[CenterBox] = {
     val res = uninitialized()
     guarana.gtk.CenterBox.init(res)
     ifSet(baselinePosition, res.baselinePosition := _)

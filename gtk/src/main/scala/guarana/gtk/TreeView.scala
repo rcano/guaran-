@@ -101,7 +101,7 @@ object TreeView extends VarsMap {
     
     res
 
-  def init(v: TreeView): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: TreeView): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -169,7 +169,7 @@ object TreeView extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam,
     vscrollPolicy: Opt[Binding[org.gnome.gtk.ScrollablePolicy]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[TreeView] = {
+  ): VarContextAction[TreeView] = {
     val res = uninitialized()
     guarana.gtk.TreeView.init(res)
     ifSet(activateOnSingleClick, res.activateOnSingleClick := _)

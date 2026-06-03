@@ -48,7 +48,7 @@ object Switch extends VarsMap {
     
     res
 
-  def init(v: Switch): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: Switch): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -96,7 +96,7 @@ object Switch extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[Switch] = {
+  ): VarContextAction[Switch] = {
     val res = uninitialized()
     guarana.gtk.Switch.init(res)
     ifSet(actionName, res.actionName := _)

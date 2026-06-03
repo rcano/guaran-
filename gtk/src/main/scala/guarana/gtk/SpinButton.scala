@@ -78,7 +78,7 @@ object SpinButton extends VarsMap {
     
     res
 
-  def init(v: SpinButton): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: SpinButton): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -139,7 +139,7 @@ object SpinButton extends VarsMap {
     visible: Opt[Binding[Boolean]] = UnsetParam,
     widthChars: Opt[Binding[Int]] = UnsetParam,
     wrap: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[SpinButton] = {
+  ): VarContextAction[SpinButton] = {
     val res = uninitialized(arg$0, arg$1, arg$2)
     guarana.gtk.SpinButton.init(res)
     ifSet(activatesDefault, res.activatesDefault := _)

@@ -52,7 +52,7 @@ object Button extends VarsMap {
     
     res
 
-  def init(v: Button): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: Button): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -102,7 +102,7 @@ object Button extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[Button] = {
+  ): VarContextAction[Button] = {
     val res = uninitialized()
     guarana.gtk.Button.init(res)
     ifSet(actionName, res.actionName := _)

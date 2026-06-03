@@ -47,7 +47,7 @@ object MessageDialog extends VarsMap {
     
     res
 
-  def init(v: MessageDialog): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: MessageDialog): Unit = {
     guarana.gtk.Window.init(v)
     connectVarsListener(v)
     
@@ -110,7 +110,7 @@ object MessageDialog extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[MessageDialog] = {
+  ): VarContextAction[MessageDialog] = {
     val res = uninitialized(arg$0, arg$1, arg$2, arg$3, arg$4, arg$5)
     guarana.gtk.MessageDialog.init(res)
     ifSet(application, res.application := _)

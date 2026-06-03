@@ -2,11 +2,12 @@ package guarana
 package gtk
 
 import guarana.animation.TimersDef
+import org.gnome.gdk.Display
 import org.gnome.glib.GLib
-import org.gnome.gtk.Application
+import org.gnome.gtk.{Application, CssProvider, Gtk}
 import scala.concurrent.duration.FiniteDuration
 
-class Toolkit(val application: Application) extends AbstractToolkit {
+object Toolkit extends AbstractToolkit {
   private val eventLoopThread = Thread.currentThread()
 
   override def timerDefs: TimersDef = TimersSupport()
@@ -16,6 +17,14 @@ class Toolkit(val application: Application) extends AbstractToolkit {
   override protected def runOnToolkitThread(r: () => Any): Unit = GLib.idleAddOnce(() => r())
 
   override def getMetrics(): Stylist.Metrics = Stylist.Metrics.NoOp
+
+  def loadCss(css: String): Unit = {
+    val cssProvider = CssProvider.builder().onParsingError((section, error) => 
+      scribe.warn(s"CSS parsing problem, $section: ${error.readMessage()}")
+    ).build()
+    cssProvider.loadFromString(css)
+    Gtk.styleContextAddProviderForDisplay(Display.getDefault(), cssProvider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+  }
 
   private class TimersSupport extends TimersDef {
     type Timer = TimerImpl

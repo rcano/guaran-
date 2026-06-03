@@ -40,7 +40,7 @@ object Spinner extends VarsMap {
     
     res
 
-  def init(v: Spinner): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: Spinner): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -85,7 +85,7 @@ object Spinner extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[Spinner] = {
+  ): VarContextAction[Spinner] = {
     val res = uninitialized()
     guarana.gtk.Spinner.init(res)
     ifSet(canFocus, res.canFocus := _)

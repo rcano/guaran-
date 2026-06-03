@@ -104,7 +104,7 @@ object Widget extends VarsMap {
     
     res
 
-  def init(v: Widget): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: Widget): Unit = {
     
     connectVarsListener(v)
     

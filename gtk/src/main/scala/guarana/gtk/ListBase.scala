@@ -48,7 +48,7 @@ object ListBase extends VarsMap {
     
     res
 
-  def init(v: ListBase): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: ListBase): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     

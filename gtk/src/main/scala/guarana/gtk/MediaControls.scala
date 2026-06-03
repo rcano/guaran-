@@ -40,7 +40,7 @@ object MediaControls extends VarsMap {
     
     res
 
-  def init(v: MediaControls): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: MediaControls): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -85,7 +85,7 @@ object MediaControls extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[MediaControls] = {
+  ): VarContextAction[MediaControls] = {
     val res = uninitialized(arg$0)
     guarana.gtk.MediaControls.init(res)
     ifSet(canFocus, res.canFocus := _)

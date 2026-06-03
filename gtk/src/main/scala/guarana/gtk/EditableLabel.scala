@@ -52,7 +52,7 @@ object EditableLabel extends VarsMap {
     
     res
 
-  def init(v: EditableLabel): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: EditableLabel): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -103,7 +103,7 @@ object EditableLabel extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam,
     widthChars: Opt[Binding[Int]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[EditableLabel] = {
+  ): VarContextAction[EditableLabel] = {
     val res = uninitialized(arg$0)
     guarana.gtk.EditableLabel.init(res)
     ifSet(alignment, res.alignment := _)

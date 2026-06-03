@@ -43,7 +43,7 @@ object EmojiChooser extends VarsMap {
     
     res
 
-  def init(v: EmojiChooser): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: EmojiChooser): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -87,7 +87,7 @@ object EmojiChooser extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[EmojiChooser] = {
+  ): VarContextAction[EmojiChooser] = {
     val res = uninitialized()
     guarana.gtk.EmojiChooser.init(res)
     ifSet(canFocus, res.canFocus := _)

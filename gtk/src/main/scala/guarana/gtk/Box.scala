@@ -50,10 +50,10 @@ object Box extends VarsMap {
     
     res
 
-  def init(v: Box): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: Box): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
-    tk.update {
+    Toolkit.update {
       v.varUpdates := EventIterator.forsome {
         case v.nodes(_, newv) =>
           while (v.getFirstChild() != null) v.remove(v.getFirstChild())
@@ -107,7 +107,7 @@ object Box extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[Box] = {
+  ): VarContextAction[Box] = {
     val res = uninitialized(arg$0, arg$1)
     guarana.gtk.Box.init(res)
     ifSet(baselineChild, res.baselineChild := _)

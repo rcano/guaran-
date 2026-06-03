@@ -46,7 +46,7 @@ object Frame extends VarsMap {
     
     res
 
-  def init(v: Frame): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: Frame): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -94,7 +94,7 @@ object Frame extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[Frame] = {
+  ): VarContextAction[Frame] = {
     val res = uninitialized(arg$0)
     guarana.gtk.Frame.init(res)
     ifSet(canFocus, res.canFocus := _)

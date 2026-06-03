@@ -40,7 +40,7 @@ object ShortcutLabel extends VarsMap {
     
     res
 
-  def init(v: ShortcutLabel): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: ShortcutLabel): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -84,7 +84,7 @@ object ShortcutLabel extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[ShortcutLabel] = {
+  ): VarContextAction[ShortcutLabel] = {
     val res = uninitialized(arg$0)
     guarana.gtk.ShortcutLabel.init(res)
     ifSet(canFocus, res.canFocus := _)

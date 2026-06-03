@@ -49,7 +49,7 @@ object ScaleButton extends VarsMap {
     
     res
 
-  def init(v: ScaleButton): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: ScaleButton): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -97,7 +97,7 @@ object ScaleButton extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[ScaleButton] = {
+  ): VarContextAction[ScaleButton] = {
     val res = uninitialized(arg$0, arg$1, arg$2, arg$3)
     guarana.gtk.ScaleButton.init(res)
     ifSet(adjustment, res.adjustment := _)

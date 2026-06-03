@@ -44,7 +44,7 @@ object GraphicsOffload extends VarsMap {
     
     res
 
-  def init(v: GraphicsOffload): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: GraphicsOffload): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -91,7 +91,7 @@ object GraphicsOffload extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[GraphicsOffload] = {
+  ): VarContextAction[GraphicsOffload] = {
     val res = uninitialized(arg$0)
     guarana.gtk.GraphicsOffload.init(res)
     ifSet(blackBackground, res.blackBackground := _)

@@ -48,7 +48,7 @@ object AspectFrame extends VarsMap {
     
     res
 
-  def init(v: AspectFrame): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: AspectFrame): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -97,7 +97,7 @@ object AspectFrame extends VarsMap {
     visible: Opt[Binding[Boolean]] = UnsetParam,
     xalign: Opt[Binding[Float]] = UnsetParam,
     yalign: Opt[Binding[Float]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[AspectFrame] = {
+  ): VarContextAction[AspectFrame] = {
     val res = uninitialized(arg$0, arg$1, arg$2, arg$3)
     guarana.gtk.AspectFrame.init(res)
     ifSet(canFocus, res.canFocus := _)

@@ -50,7 +50,7 @@ object Viewport extends VarsMap {
     
     res
 
-  def init(v: Viewport): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: Viewport): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -100,7 +100,7 @@ object Viewport extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam,
     vscrollPolicy: Opt[Binding[org.gnome.gtk.ScrollablePolicy]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[Viewport] = {
+  ): VarContextAction[Viewport] = {
     val res = uninitialized(arg$0, arg$1)
     guarana.gtk.Viewport.init(res)
     ifSet(canFocus, res.canFocus := _)

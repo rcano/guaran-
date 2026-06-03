@@ -68,7 +68,7 @@ object AboutDialog extends VarsMap {
     
     res
 
-  def init(v: AboutDialog): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: AboutDialog): Unit = {
     guarana.gtk.Window.init(v)
     connectVarsListener(v)
     
@@ -143,7 +143,7 @@ object AboutDialog extends VarsMap {
     visible: Opt[Binding[Boolean]] = UnsetParam,
     website: Opt[Binding[java.lang.String | Null]] = UnsetParam,
     wrapLicense: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[AboutDialog] = {
+  ): VarContextAction[AboutDialog] = {
     val res = uninitialized()
     guarana.gtk.AboutDialog.init(res)
     ifSet(application, res.application := _)

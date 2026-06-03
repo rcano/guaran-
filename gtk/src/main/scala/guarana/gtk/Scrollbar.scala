@@ -40,7 +40,7 @@ object Scrollbar extends VarsMap {
     
     res
 
-  def init(v: Scrollbar): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: Scrollbar): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -85,7 +85,7 @@ object Scrollbar extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[Scrollbar] = {
+  ): VarContextAction[Scrollbar] = {
     val res = uninitialized(arg$0, arg$1)
     guarana.gtk.Scrollbar.init(res)
     ifSet(canFocus, res.canFocus := _)

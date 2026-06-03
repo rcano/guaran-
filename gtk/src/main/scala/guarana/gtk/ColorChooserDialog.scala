@@ -47,7 +47,7 @@ object ColorChooserDialog extends VarsMap {
     
     res
 
-  def init(v: ColorChooserDialog): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: ColorChooserDialog): Unit = {
     guarana.gtk.Window.init(v)
     connectVarsListener(v)
     
@@ -111,7 +111,7 @@ object ColorChooserDialog extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[ColorChooserDialog] = {
+  ): VarContextAction[ColorChooserDialog] = {
     val res = uninitialized(arg$0, arg$1)
     guarana.gtk.ColorChooserDialog.init(res)
     ifSet(application, res.application := _)

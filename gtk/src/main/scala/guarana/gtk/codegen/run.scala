@@ -118,7 +118,7 @@ object run extends Windows, Containers {
 
         |import guarana.util.*
 
-        |${genScalaSource(node, toolkitType = Some("Toolkit"))}
+        |${genScalaSource(node)}
         """.stripMargin
       )
       println(s"$f written")

@@ -40,7 +40,7 @@ object PopoverMenuBar extends VarsMap {
     
     res
 
-  def init(v: PopoverMenuBar): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: PopoverMenuBar): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -85,7 +85,7 @@ object PopoverMenuBar extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[PopoverMenuBar] = {
+  ): VarContextAction[PopoverMenuBar] = {
     val res = uninitialized()
     guarana.gtk.PopoverMenuBar.init(res)
     ifSet(canFocus, res.canFocus := _)

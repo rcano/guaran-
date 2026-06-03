@@ -48,7 +48,7 @@ object CellView extends VarsMap {
     
     res
 
-  def init(v: CellView): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: CellView): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -97,7 +97,7 @@ object CellView extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[CellView] = {
+  ): VarContextAction[CellView] = {
     val res = uninitialized()
     guarana.gtk.CellView.init(res)
     ifSet(canFocus, res.canFocus := _)

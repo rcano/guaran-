@@ -68,7 +68,7 @@ object SearchEntry extends VarsMap {
     
     res
 
-  def init(v: SearchEntry): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: SearchEntry): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -124,7 +124,7 @@ object SearchEntry extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam,
     widthChars: Opt[Binding[Int]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[SearchEntry] = {
+  ): VarContextAction[SearchEntry] = {
     val res = uninitialized()
     guarana.gtk.SearchEntry.init(res)
     ifSet(alignment, res.alignment := _)

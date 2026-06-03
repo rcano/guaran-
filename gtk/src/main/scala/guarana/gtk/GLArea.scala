@@ -53,7 +53,7 @@ object GLArea extends VarsMap {
     
     res
 
-  def init(v: GLArea): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: GLArea): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -103,7 +103,7 @@ object GLArea extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[GLArea] = {
+  ): VarContextAction[GLArea] = {
     val res = uninitialized()
     guarana.gtk.GLArea.init(res)
     ifSet(allowedApis, res.allowedApis := _)

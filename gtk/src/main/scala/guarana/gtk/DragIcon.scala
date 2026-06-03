@@ -42,7 +42,7 @@ object DragIcon extends VarsMap {
     
     res
 
-  def init(v: DragIcon): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: DragIcon): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -88,7 +88,7 @@ object DragIcon extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[DragIcon] = {
+  ): VarContextAction[DragIcon] = {
     val res = uninitialized()
     guarana.gtk.DragIcon.init(res)
     ifSet(canFocus, res.canFocus := _)

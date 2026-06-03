@@ -43,7 +43,7 @@ object VolumeButton extends VarsMap {
     
     res
 
-  def init(v: VolumeButton): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: VolumeButton): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -87,7 +87,7 @@ object VolumeButton extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[VolumeButton] = {
+  ): VarContextAction[VolumeButton] = {
     val res = uninitialized()
     guarana.gtk.VolumeButton.init(res)
     ifSet(canFocus, res.canFocus := _)

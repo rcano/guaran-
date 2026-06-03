@@ -46,7 +46,7 @@ object HeaderBar extends VarsMap {
     
     res
 
-  def init(v: HeaderBar): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: HeaderBar): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -94,7 +94,7 @@ object HeaderBar extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[HeaderBar] = {
+  ): VarContextAction[HeaderBar] = {
     val res = uninitialized()
     guarana.gtk.HeaderBar.init(res)
     ifSet(canFocus, res.canFocus := _)

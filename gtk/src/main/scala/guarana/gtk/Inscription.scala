@@ -58,7 +58,7 @@ object Inscription extends VarsMap {
     
     res
 
-  def init(v: Inscription): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: Inscription): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -112,7 +112,7 @@ object Inscription extends VarsMap {
     wrapMode: Opt[Binding[org.gnome.pango.WrapMode]] = UnsetParam,
     xalign: Opt[Binding[Float]] = UnsetParam,
     yalign: Opt[Binding[Float]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[Inscription] = {
+  ): VarContextAction[Inscription] = {
     val res = uninitialized(arg$0)
     guarana.gtk.Inscription.init(res)
     ifSet(attributes, res.attributes := _)

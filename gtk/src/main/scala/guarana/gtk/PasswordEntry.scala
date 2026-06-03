@@ -57,7 +57,7 @@ object PasswordEntry extends VarsMap {
     
     res
 
-  def init(v: PasswordEntry): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: PasswordEntry): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -110,7 +110,7 @@ object PasswordEntry extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam,
     widthChars: Opt[Binding[Int]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[PasswordEntry] = {
+  ): VarContextAction[PasswordEntry] = {
     val res = uninitialized()
     guarana.gtk.PasswordEntry.init(res)
     ifSet(alignment, res.alignment := _)

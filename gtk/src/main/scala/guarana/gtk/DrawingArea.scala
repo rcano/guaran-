@@ -43,7 +43,7 @@ object DrawingArea extends VarsMap {
     
     res
 
-  def init(v: DrawingArea): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: DrawingArea): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -89,7 +89,7 @@ object DrawingArea extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[DrawingArea] = {
+  ): VarContextAction[DrawingArea] = {
     val res = uninitialized()
     guarana.gtk.DrawingArea.init(res)
     ifSet(canFocus, res.canFocus := _)

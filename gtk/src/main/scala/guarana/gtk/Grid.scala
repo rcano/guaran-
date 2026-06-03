@@ -50,10 +50,10 @@ object Grid extends VarsMap, internal.GridLayoutSupport {
     
     res
 
-  def init(v: Grid): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: Grid): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
-    tk.update(initNodesVar(v))
+    Toolkit.update(initNodesVar(v))
     
   }
   def uninitialized(): Grid = {
@@ -101,7 +101,7 @@ object Grid extends VarsMap, internal.GridLayoutSupport {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[Grid] = {
+  ): VarContextAction[Grid] = {
     val res = uninitialized()
     guarana.gtk.Grid.init(res)
     ifSet(baselineRow, res.baselineRow := _)

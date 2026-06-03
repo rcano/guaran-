@@ -86,7 +86,7 @@ object IconView extends VarsMap {
     
     res
 
-  def init(v: IconView): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: IconView): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -150,7 +150,7 @@ object IconView extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam,
     vscrollPolicy: Opt[Binding[org.gnome.gtk.ScrollablePolicy]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[IconView] = {
+  ): VarContextAction[IconView] = {
     val res = uninitialized()
     guarana.gtk.IconView.init(res)
     ifSet(activateOnSingleClick, res.activateOnSingleClick := _)

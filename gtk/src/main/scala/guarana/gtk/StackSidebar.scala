@@ -40,7 +40,7 @@ object StackSidebar extends VarsMap {
     
     res
 
-  def init(v: StackSidebar): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: StackSidebar): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -84,7 +84,7 @@ object StackSidebar extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[StackSidebar] = {
+  ): VarContextAction[StackSidebar] = {
     val res = uninitialized()
     guarana.gtk.StackSidebar.init(res)
     ifSet(canFocus, res.canFocus := _)

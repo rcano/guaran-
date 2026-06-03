@@ -46,7 +46,7 @@ object Revealer extends VarsMap {
     
     res
 
-  def init(v: Revealer): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: Revealer): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -94,7 +94,7 @@ object Revealer extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[Revealer] = {
+  ): VarContextAction[Revealer] = {
     val res = uninitialized()
     guarana.gtk.Revealer.init(res)
     ifSet(canFocus, res.canFocus := _)

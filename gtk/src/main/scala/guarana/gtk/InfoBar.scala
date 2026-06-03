@@ -46,7 +46,7 @@ object InfoBar extends VarsMap {
     
     res
 
-  def init(v: InfoBar): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: InfoBar): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -93,7 +93,7 @@ object InfoBar extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[InfoBar] = {
+  ): VarContextAction[InfoBar] = {
     val res = uninitialized()
     guarana.gtk.InfoBar.init(res)
     ifSet(canFocus, res.canFocus := _)

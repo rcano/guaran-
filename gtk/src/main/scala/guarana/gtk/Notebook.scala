@@ -60,7 +60,7 @@ object Notebook extends VarsMap {
     
     res
 
-  def init(v: Notebook): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: Notebook): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -110,7 +110,7 @@ object Notebook extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[Notebook] = {
+  ): VarContextAction[Notebook] = {
     val res = uninitialized()
     guarana.gtk.Notebook.init(res)
     ifSet(canFocus, res.canFocus := _)

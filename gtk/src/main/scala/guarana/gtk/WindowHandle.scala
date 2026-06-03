@@ -40,7 +40,7 @@ object WindowHandle extends VarsMap {
     
     res
 
-  def init(v: WindowHandle): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: WindowHandle): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -85,7 +85,7 @@ object WindowHandle extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[WindowHandle] = {
+  ): VarContextAction[WindowHandle] = {
     val res = uninitialized()
     guarana.gtk.WindowHandle.init(res)
     ifSet(canFocus, res.canFocus := _)

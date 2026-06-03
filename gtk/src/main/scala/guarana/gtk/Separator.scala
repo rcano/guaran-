@@ -40,7 +40,7 @@ object Separator extends VarsMap {
     
     res
 
-  def init(v: Separator): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: Separator): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -85,7 +85,7 @@ object Separator extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[Separator] = {
+  ): VarContextAction[Separator] = {
     val res = uninitialized(arg$0)
     guarana.gtk.Separator.init(res)
     ifSet(canFocus, res.canFocus := _)

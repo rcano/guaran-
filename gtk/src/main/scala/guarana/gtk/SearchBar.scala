@@ -46,7 +46,7 @@ object SearchBar extends VarsMap {
     
     res
 
-  def init(v: SearchBar): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: SearchBar): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -94,7 +94,7 @@ object SearchBar extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[SearchBar] = {
+  ): VarContextAction[SearchBar] = {
     val res = uninitialized()
     guarana.gtk.SearchBar.init(res)
     ifSet(canFocus, res.canFocus := _)

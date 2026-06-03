@@ -82,7 +82,7 @@ object Label extends VarsMap {
     
     res
 
-  def init(v: Label): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: Label): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -146,7 +146,7 @@ object Label extends VarsMap {
     wrapMode: Opt[Binding[org.gnome.pango.WrapMode]] = UnsetParam,
     xalign: Opt[Binding[Float]] = UnsetParam,
     yalign: Opt[Binding[Float]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[Label] = {
+  ): VarContextAction[Label] = {
     val res = uninitialized(arg$0)
     guarana.gtk.Label.init(res)
     ifSet(attributes, res.attributes := _)

@@ -57,7 +57,7 @@ object MenuButton extends VarsMap {
     
     res
 
-  def init(v: MenuButton): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: MenuButton): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -110,7 +110,7 @@ object MenuButton extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[MenuButton] = {
+  ): VarContextAction[MenuButton] = {
     val res = uninitialized()
     guarana.gtk.MenuButton.init(res)
     ifSet(active, res.active := _)

@@ -51,7 +51,7 @@ object LevelBar extends VarsMap {
     
     res
 
-  def init(v: LevelBar): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: LevelBar): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -101,7 +101,7 @@ object LevelBar extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[LevelBar] = {
+  ): VarContextAction[LevelBar] = {
     val res = uninitialized()
     guarana.gtk.LevelBar.init(res)
     ifSet(canFocus, res.canFocus := _)

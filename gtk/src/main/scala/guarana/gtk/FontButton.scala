@@ -56,7 +56,7 @@ object FontButton extends VarsMap {
     
     res
 
-  def init(v: FontButton): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: FontButton): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -108,7 +108,7 @@ object FontButton extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[FontButton] = {
+  ): VarContextAction[FontButton] = {
     val res = uninitialized()
     guarana.gtk.FontButton.init(res)
     ifSet(canFocus, res.canFocus := _)

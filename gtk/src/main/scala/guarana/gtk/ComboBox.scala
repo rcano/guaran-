@@ -62,7 +62,7 @@ object ComboBox extends VarsMap {
     
     res
 
-  def init(v: ComboBox): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: ComboBox): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -115,7 +115,7 @@ object ComboBox extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[ComboBox] = {
+  ): VarContextAction[ComboBox] = {
     val res = uninitialized()
     guarana.gtk.ComboBox.init(res)
     ifSet(active, res.active := _)

@@ -52,7 +52,7 @@ object Popover extends VarsMap {
     
     res
 
-  def init(v: Popover): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: Popover): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -102,7 +102,7 @@ object Popover extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[Popover] = {
+  ): VarContextAction[Popover] = {
     val res = uninitialized()
     guarana.gtk.Popover.init(res)
     ifSet(autohide, res.autohide := _)

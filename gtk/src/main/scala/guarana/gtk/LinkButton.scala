@@ -45,7 +45,7 @@ object LinkButton extends VarsMap {
     
     res
 
-  def init(v: LinkButton): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: LinkButton): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -91,7 +91,7 @@ object LinkButton extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam,
     visited: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[LinkButton] = {
+  ): VarContextAction[LinkButton] = {
     val res = uninitialized(arg$0)
     guarana.gtk.LinkButton.init(res)
     ifSet(canFocus, res.canFocus := _)

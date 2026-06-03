@@ -50,7 +50,7 @@ object Assistant extends VarsMap {
     
     res
 
-  def init(v: Assistant): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: Assistant): Unit = {
     guarana.gtk.Window.init(v)
     connectVarsListener(v)
     
@@ -114,7 +114,7 @@ object Assistant extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[Assistant] = {
+  ): VarContextAction[Assistant] = {
     val res = uninitialized()
     guarana.gtk.Assistant.init(res)
     ifSet(application, res.application := _)

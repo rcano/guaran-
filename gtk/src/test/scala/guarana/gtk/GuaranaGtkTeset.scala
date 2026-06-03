@@ -2,7 +2,6 @@ package guarana
 package gtk
 
 import org.gnome.gtk.{Application, Orientation}
-import scala.util.chaining.*
 
 import Binding.dyn
 
@@ -14,9 +13,14 @@ object GuaranaGtkTeset {
   }
 
   def setup(app: Application): Unit = try {
-    val toolkit = Toolkit(app)
 
-    toolkit.update {
+    Toolkit.loadCss("""
+    button {
+      background-color: red;
+    }
+    """)
+
+    Toolkit.update {
       val nameTextInput = Entry(placeholderText = "name")
       val greeterLabel = Label(
         "",

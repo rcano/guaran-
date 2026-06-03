@@ -42,7 +42,7 @@ object ActionBar extends VarsMap {
     
     res
 
-  def init(v: ActionBar): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: ActionBar): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -88,7 +88,7 @@ object ActionBar extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[ActionBar] = {
+  ): VarContextAction[ActionBar] = {
     val res = uninitialized()
     guarana.gtk.ActionBar.init(res)
     ifSet(canFocus, res.canFocus := _)

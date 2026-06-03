@@ -41,7 +41,7 @@ object FlowBoxChild extends VarsMap {
     
     res
 
-  def init(v: FlowBoxChild): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: FlowBoxChild): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -86,7 +86,7 @@ object FlowBoxChild extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[FlowBoxChild] = {
+  ): VarContextAction[FlowBoxChild] = {
     val res = uninitialized()
     guarana.gtk.FlowBoxChild.init(res)
     ifSet(canFocus, res.canFocus := _)

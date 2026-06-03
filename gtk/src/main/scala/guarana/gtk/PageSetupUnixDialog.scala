@@ -49,7 +49,7 @@ object PageSetupUnixDialog extends VarsMap {
     
     res
 
-  def init(v: PageSetupUnixDialog): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: PageSetupUnixDialog): Unit = {
     guarana.gtk.Window.init(v)
     connectVarsListener(v)
     
@@ -114,7 +114,7 @@ object PageSetupUnixDialog extends VarsMap {
     vexpand: Opt[Binding[Boolean]] = UnsetParam,
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[PageSetupUnixDialog] = {
+  ): VarContextAction[PageSetupUnixDialog] = {
     val res = uninitialized(arg$0, arg$1)
     guarana.gtk.PageSetupUnixDialog.init(res)
     ifSet(application, res.application := _)

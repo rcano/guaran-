@@ -65,7 +65,7 @@ object ColumnView extends VarsMap {
     
     res
 
-  def init(v: ColumnView): Toolkit ?=> Unit = (tk: Toolkit) ?=> {
+  def init(v: ColumnView): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
     
@@ -122,7 +122,7 @@ object ColumnView extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam,
     vscrollPolicy: Opt[Binding[org.gnome.gtk.ScrollablePolicy]] = UnsetParam
-  ): Toolkit ?=> VarContextAction[ColumnView] = {
+  ): VarContextAction[ColumnView] = {
     val res = uninitialized(arg$0)
     guarana.gtk.ColumnView.init(res)
     ifSet(canFocus, res.canFocus := _)
