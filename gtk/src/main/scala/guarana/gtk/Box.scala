@@ -62,15 +62,18 @@ object Box extends VarsMap {
     }
     
   }
-  def uninitialized(arg$0: org.gnome.gtk.Orientation, arg$1: Int, cssName: Opt[String]): Box = {
-    val res = org.gnome.gtk.Box.builder().setOrientation(arg$0).setSpacing(arg$1)
+  def uninitialized(cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): Box = {
+    val res = org.gnome.gtk.Box.builder()
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
     
     res.asInstanceOf[Box]
   }
   
   def apply(
-    arg$0: org.gnome.gtk.Orientation, arg$1: Int,
-    cssName: Opt[String] = UnsetParam,
+    cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam,
     baselineChild: Opt[Binding[Int]] = UnsetParam,
     baselinePosition: Opt[Binding[org.gnome.gtk.BaselinePosition]] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
@@ -110,7 +113,7 @@ object Box extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[Box] = {
-    val res = uninitialized(arg$0, arg$1, cssName)
+    val res = uninitialized(cssName, heightRequest, widthRequest, accessibleRole)
     guarana.gtk.Box.init(res)
     ifSet(baselineChild, res.baselineChild := _)
     ifSet(baselinePosition, res.baselinePosition := _)

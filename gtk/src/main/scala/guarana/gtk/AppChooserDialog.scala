@@ -52,14 +52,28 @@ object AppChooserDialog extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(arg$0: org.gnome.gtk.Window | Null, arg$1: java.util.Set[org.gnome.gtk.DialogFlags], arg$2: org.gnome.gio.File): AppChooserDialog = {
-    val res = new org.gnome.gtk.AppChooserDialog(arg$0, arg$1, arg$2)
+  def uninitialized(gfile: Opt[org.gnome.gio.File], heading: Opt[java.lang.String], useHeaderBar: Opt[Int], defaultHeight: Opt[Int], defaultWidth: Opt[Int], focusWidget: Opt[guarana.gtk.Widget], fullscreened: Opt[Boolean], maximized: Opt[Boolean], startupId: Opt[java.lang.String], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole], contentType: Opt[java.lang.String]): AppChooserDialog = {
+    val res = org.gnome.gtk.AppChooserDialog.builder()
+    ifSet(gfile, v => res.setGfile(v))
+    ifSet(heading, v => res.setHeading(v))
+    ifSet(useHeaderBar, v => res.setUseHeaderBar(v))
+    ifSet(defaultHeight, v => res.setDefaultHeight(v))
+    ifSet(defaultWidth, v => res.setDefaultWidth(v))
+    ifSet(focusWidget, v => res.setFocusWidget(v.unwrap))
+    ifSet(fullscreened, v => res.setFullscreened(v))
+    ifSet(maximized, v => res.setMaximized(v))
+    ifSet(startupId, v => res.setStartupId(v))
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
+    ifSet(contentType, v => res.setContentType(v))
     
     res.asInstanceOf[AppChooserDialog]
   }
   
   def apply(
-    arg$0: org.gnome.gtk.Window | Null, arg$1: java.util.Set[org.gnome.gtk.DialogFlags], arg$2: org.gnome.gio.File,
+    gfile: Opt[org.gnome.gio.File] = UnsetParam, heading: Opt[java.lang.String] = UnsetParam, useHeaderBar: Opt[Int] = UnsetParam, defaultHeight: Opt[Int] = UnsetParam, defaultWidth: Opt[Int] = UnsetParam, focusWidget: Opt[guarana.gtk.Widget] = UnsetParam, fullscreened: Opt[Boolean] = UnsetParam, maximized: Opt[Boolean] = UnsetParam, startupId: Opt[java.lang.String] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam, contentType: Opt[java.lang.String] = UnsetParam,
     application: Opt[Binding[org.gnome.gtk.Application | Null]] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
@@ -112,7 +126,7 @@ object AppChooserDialog extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[AppChooserDialog] = {
-    val res = uninitialized(arg$0, arg$1, arg$2)
+    val res = uninitialized(gfile, heading, useHeaderBar, defaultHeight, defaultWidth, focusWidget, fullscreened, maximized, startupId, cssName, heightRequest, widthRequest, accessibleRole, contentType)
     guarana.gtk.AppChooserDialog.init(res)
     ifSet(application, res.application := _)
     ifSet(canFocus, res.canFocus := _)

@@ -46,14 +46,19 @@ object ColorDialogButton extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(arg$0: org.gnome.gtk.ColorDialog | Null): ColorDialogButton = {
-    val res = new org.gnome.gtk.ColorDialogButton(arg$0)
+  def uninitialized(dialog: Opt[org.gnome.gtk.ColorDialog], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): ColorDialogButton = {
+    val res = org.gnome.gtk.ColorDialogButton.builder()
+    ifSet(dialog, v => res.setDialog(v))
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
     
     res.asInstanceOf[ColorDialogButton]
   }
   
   def apply(
-    arg$0: org.gnome.gtk.ColorDialog | Null,
+    dialog: Opt[org.gnome.gtk.ColorDialog] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
     childVisible: Opt[Binding[Boolean]] = UnsetParam,
@@ -88,7 +93,7 @@ object ColorDialogButton extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[ColorDialogButton] = {
-    val res = uninitialized(arg$0)
+    val res = uninitialized(dialog, cssName, heightRequest, widthRequest, accessibleRole)
     guarana.gtk.ColorDialogButton.init(res)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)

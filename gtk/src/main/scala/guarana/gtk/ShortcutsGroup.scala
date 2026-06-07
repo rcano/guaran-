@@ -45,14 +45,22 @@ object ShortcutsGroup extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(): ShortcutsGroup = {
-    val res = new org.gnome.gtk.ShortcutsGroup()
+  def uninitialized(accelSizeGroup: Opt[org.gnome.gtk.SizeGroup], title: Opt[java.lang.String], titleSizeGroup: Opt[org.gnome.gtk.SizeGroup], view: Opt[java.lang.String], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): ShortcutsGroup = {
+    val res = org.gnome.gtk.ShortcutsGroup.builder()
+    ifSet(accelSizeGroup, v => res.setAccelSizeGroup(v))
+    ifSet(title, v => res.setTitle(v))
+    ifSet(titleSizeGroup, v => res.setTitleSizeGroup(v))
+    ifSet(view, v => res.setView(v))
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
     
     res.asInstanceOf[ShortcutsGroup]
   }
   
   def apply(
-    
+    accelSizeGroup: Opt[org.gnome.gtk.SizeGroup] = UnsetParam, title: Opt[java.lang.String] = UnsetParam, titleSizeGroup: Opt[org.gnome.gtk.SizeGroup] = UnsetParam, view: Opt[java.lang.String] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
     childVisible: Opt[Binding[Boolean]] = UnsetParam,
@@ -86,7 +94,7 @@ object ShortcutsGroup extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[ShortcutsGroup] = {
-    val res = uninitialized()
+    val res = uninitialized(accelSizeGroup, title, titleSizeGroup, view, cssName, heightRequest, widthRequest, accessibleRole)
     guarana.gtk.ShortcutsGroup.init(res)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)

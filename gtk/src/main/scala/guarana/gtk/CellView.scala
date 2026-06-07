@@ -53,14 +53,20 @@ object CellView extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(): CellView = {
-    val res = new org.gnome.gtk.CellView()
+  def uninitialized(cellArea: Opt[org.gnome.gtk.CellArea], cellAreaContext: Opt[org.gnome.gtk.CellAreaContext], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): CellView = {
+    val res = org.gnome.gtk.CellView.builder()
+    ifSet(cellArea, v => res.setCellArea(v))
+    ifSet(cellAreaContext, v => res.setCellAreaContext(v))
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
     
     res.asInstanceOf[CellView]
   }
   
   def apply(
-    
+    cellArea: Opt[org.gnome.gtk.CellArea] = UnsetParam, cellAreaContext: Opt[org.gnome.gtk.CellAreaContext] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
     childVisible: Opt[Binding[Boolean]] = UnsetParam,
@@ -99,7 +105,7 @@ object CellView extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[CellView] = {
-    val res = uninitialized()
+    val res = uninitialized(cellArea, cellAreaContext, cssName, heightRequest, widthRequest, accessibleRole)
     guarana.gtk.CellView.init(res)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)

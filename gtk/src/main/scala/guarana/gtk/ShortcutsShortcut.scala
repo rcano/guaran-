@@ -45,14 +45,28 @@ object ShortcutsShortcut extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(): ShortcutsShortcut = {
-    val res = new org.gnome.gtk.ShortcutsShortcut()
+  def uninitialized(accelSizeGroup: Opt[org.gnome.gtk.SizeGroup], accelerator: Opt[java.lang.String], actionName: Opt[java.lang.String], icon: Opt[org.gnome.gio.Icon], iconSet: Opt[Boolean], shortcutType: Opt[org.gnome.gtk.ShortcutType], subtitle: Opt[java.lang.String], subtitleSet: Opt[Boolean], title: Opt[java.lang.String], titleSizeGroup: Opt[org.gnome.gtk.SizeGroup], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): ShortcutsShortcut = {
+    val res = org.gnome.gtk.ShortcutsShortcut.builder()
+    ifSet(accelSizeGroup, v => res.setAccelSizeGroup(v))
+    ifSet(accelerator, v => res.setAccelerator(v))
+    ifSet(actionName, v => res.setActionName(v))
+    ifSet(icon, v => res.setIcon(v))
+    ifSet(iconSet, v => res.setIconSet(v))
+    ifSet(shortcutType, v => res.setShortcutType(v))
+    ifSet(subtitle, v => res.setSubtitle(v))
+    ifSet(subtitleSet, v => res.setSubtitleSet(v))
+    ifSet(title, v => res.setTitle(v))
+    ifSet(titleSizeGroup, v => res.setTitleSizeGroup(v))
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
     
     res.asInstanceOf[ShortcutsShortcut]
   }
   
   def apply(
-    
+    accelSizeGroup: Opt[org.gnome.gtk.SizeGroup] = UnsetParam, accelerator: Opt[java.lang.String] = UnsetParam, actionName: Opt[java.lang.String] = UnsetParam, icon: Opt[org.gnome.gio.Icon] = UnsetParam, iconSet: Opt[Boolean] = UnsetParam, shortcutType: Opt[org.gnome.gtk.ShortcutType] = UnsetParam, subtitle: Opt[java.lang.String] = UnsetParam, subtitleSet: Opt[Boolean] = UnsetParam, title: Opt[java.lang.String] = UnsetParam, titleSizeGroup: Opt[org.gnome.gtk.SizeGroup] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
     childVisible: Opt[Binding[Boolean]] = UnsetParam,
@@ -86,7 +100,7 @@ object ShortcutsShortcut extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[ShortcutsShortcut] = {
-    val res = uninitialized()
+    val res = uninitialized(accelSizeGroup, accelerator, actionName, icon, iconSet, shortcutType, subtitle, subtitleSet, title, titleSizeGroup, cssName, heightRequest, widthRequest, accessibleRole)
     guarana.gtk.ShortcutsShortcut.init(res)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)

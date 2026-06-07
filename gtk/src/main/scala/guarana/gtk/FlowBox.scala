@@ -75,14 +75,19 @@ object FlowBox extends VarsMap {
     }
     
   }
-  def uninitialized(): FlowBox = {
-    val res = new org.gnome.gtk.FlowBox()
+  def uninitialized(acceptUnpairedRelease: Opt[Boolean], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): FlowBox = {
+    val res = org.gnome.gtk.FlowBox.builder()
+    ifSet(acceptUnpairedRelease, v => res.setAcceptUnpairedRelease(v))
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
     
     res.asInstanceOf[FlowBox]
   }
   
   def apply(
-    
+    acceptUnpairedRelease: Opt[Boolean] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam,
     activateOnSingleClick: Opt[Binding[Boolean]] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
@@ -125,7 +130,7 @@ object FlowBox extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[FlowBox] = {
-    val res = uninitialized()
+    val res = uninitialized(acceptUnpairedRelease, cssName, heightRequest, widthRequest, accessibleRole)
     guarana.gtk.FlowBox.init(res)
     ifSet(activateOnSingleClick, res.activateOnSingleClick := _)
     ifSet(canFocus, res.canFocus := _)

@@ -55,14 +55,20 @@ object AppChooserWidget extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(arg$0: java.lang.String): AppChooserWidget = {
-    val res = new org.gnome.gtk.AppChooserWidget(arg$0)
+  def uninitialized(defaultText: Opt[java.lang.String], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole], contentType: Opt[java.lang.String]): AppChooserWidget = {
+    val res = org.gnome.gtk.AppChooserWidget.builder()
+    ifSet(defaultText, v => res.setDefaultText(v))
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
+    ifSet(contentType, v => res.setContentType(v))
     
     res.asInstanceOf[AppChooserWidget]
   }
   
   def apply(
-    arg$0: java.lang.String,
+    defaultText: Opt[java.lang.String] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam, contentType: Opt[java.lang.String] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
     childVisible: Opt[Binding[Boolean]] = UnsetParam,
@@ -101,7 +107,7 @@ object AppChooserWidget extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[AppChooserWidget] = {
-    val res = uninitialized(arg$0)
+    val res = uninitialized(defaultText, cssName, heightRequest, widthRequest, accessibleRole, contentType)
     guarana.gtk.AppChooserWidget.init(res)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)

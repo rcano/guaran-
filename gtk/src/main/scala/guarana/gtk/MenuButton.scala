@@ -62,14 +62,20 @@ object MenuButton extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(): MenuButton = {
-    val res = new org.gnome.gtk.MenuButton()
+  def uninitialized(iconName: Opt[java.lang.String], label: Opt[java.lang.String], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): MenuButton = {
+    val res = org.gnome.gtk.MenuButton.builder()
+    ifSet(iconName, v => res.setIconName(v))
+    ifSet(label, v => res.setLabel(v))
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
     
     res.asInstanceOf[MenuButton]
   }
   
   def apply(
-    
+    iconName: Opt[java.lang.String] = UnsetParam, label: Opt[java.lang.String] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam,
     active: Opt[Binding[Boolean]] = UnsetParam,
     alwaysShowArrow: Opt[Binding[Boolean]] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
@@ -112,7 +118,7 @@ object MenuButton extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[MenuButton] = {
-    val res = uninitialized()
+    val res = uninitialized(iconName, label, cssName, heightRequest, widthRequest, accessibleRole)
     guarana.gtk.MenuButton.init(res)
     ifSet(active, res.active := _)
     ifSet(alwaysShowArrow, res.alwaysShowArrow := _)

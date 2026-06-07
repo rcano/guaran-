@@ -51,14 +51,20 @@ object FontChooserWidget extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(): FontChooserWidget = {
-    val res = new org.gnome.gtk.FontChooserWidget()
+  def uninitialized(cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole], font: Opt[java.lang.String], fontDesc: Opt[org.gnome.pango.FontDescription]): FontChooserWidget = {
+    val res = org.gnome.gtk.FontChooserWidget.builder()
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
+    ifSet(font, v => res.setFont(v))
+    ifSet(fontDesc, v => res.setFontDesc(v))
     
     res.asInstanceOf[FontChooserWidget]
   }
   
   def apply(
-    
+    cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam, font: Opt[java.lang.String] = UnsetParam, fontDesc: Opt[org.gnome.pango.FontDescription] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
     childVisible: Opt[Binding[Boolean]] = UnsetParam,
@@ -96,7 +102,7 @@ object FontChooserWidget extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[FontChooserWidget] = {
-    val res = uninitialized()
+    val res = uninitialized(cssName, heightRequest, widthRequest, accessibleRole, font, fontDesc)
     guarana.gtk.FontChooserWidget.init(res)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)

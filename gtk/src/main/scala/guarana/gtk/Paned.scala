@@ -67,14 +67,19 @@ object Paned extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(arg$0: org.gnome.gtk.Orientation): Paned = {
-    val res = new org.gnome.gtk.Paned(arg$0)
+  def uninitialized(positionSet: Opt[Boolean], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): Paned = {
+    val res = org.gnome.gtk.Paned.builder()
+    ifSet(positionSet, v => res.setPositionSet(v))
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
     
     res.asInstanceOf[Paned]
   }
   
   def apply(
-    arg$0: org.gnome.gtk.Orientation,
+    positionSet: Opt[Boolean] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
     childVisible: Opt[Binding[Boolean]] = UnsetParam,
@@ -117,7 +122,7 @@ object Paned extends VarsMap {
     visible: Opt[Binding[Boolean]] = UnsetParam,
     wideHandle: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[Paned] = {
-    val res = uninitialized(arg$0)
+    val res = uninitialized(positionSet, cssName, heightRequest, widthRequest, accessibleRole)
     guarana.gtk.Paned.init(res)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)

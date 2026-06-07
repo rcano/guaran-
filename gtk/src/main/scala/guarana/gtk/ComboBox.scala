@@ -67,14 +67,21 @@ object ComboBox extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(): ComboBox = {
-    val res = new org.gnome.gtk.ComboBox()
+  def uninitialized(hasEntry: Opt[Boolean], hasFrame: Opt[Boolean], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole], editingCanceled: Opt[Boolean]): ComboBox = {
+    val res = org.gnome.gtk.ComboBox.builder()
+    ifSet(hasEntry, v => res.setHasEntry(v))
+    ifSet(hasFrame, v => res.setHasFrame(v))
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
+    ifSet(editingCanceled, v => res.setEditingCanceled(v))
     
     res.asInstanceOf[ComboBox]
   }
   
   def apply(
-    
+    hasEntry: Opt[Boolean] = UnsetParam, hasFrame: Opt[Boolean] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam, editingCanceled: Opt[Boolean] = UnsetParam,
     active: Opt[Binding[Int]] = UnsetParam,
     activeId: Opt[Binding[java.lang.String | Null]] = UnsetParam,
     buttonSensitivity: Opt[Binding[org.gnome.gtk.SensitivityType]] = UnsetParam,
@@ -117,7 +124,7 @@ object ComboBox extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[ComboBox] = {
-    val res = uninitialized()
+    val res = uninitialized(hasEntry, hasFrame, cssName, heightRequest, widthRequest, accessibleRole, editingCanceled)
     guarana.gtk.ComboBox.init(res)
     ifSet(active, res.active := _)
     ifSet(activeId, res.activeId := _)

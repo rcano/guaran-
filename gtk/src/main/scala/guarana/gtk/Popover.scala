@@ -57,14 +57,20 @@ object Popover extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(): Popover = {
-    val res = new org.gnome.gtk.Popover()
+  def uninitialized(defaultWidget: Opt[guarana.gtk.Widget], pointingTo: Opt[org.gnome.gdk.Rectangle], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): Popover = {
+    val res = org.gnome.gtk.Popover.builder()
+    ifSet(defaultWidget, v => res.setDefaultWidget(v.unwrap))
+    ifSet(pointingTo, v => res.setPointingTo(v))
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
     
     res.asInstanceOf[Popover]
   }
   
   def apply(
-    
+    defaultWidget: Opt[guarana.gtk.Widget] = UnsetParam, pointingTo: Opt[org.gnome.gdk.Rectangle] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam,
     autohide: Opt[Binding[Boolean]] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
@@ -104,7 +110,7 @@ object Popover extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[Popover] = {
-    val res = uninitialized()
+    val res = uninitialized(defaultWidget, pointingTo, cssName, heightRequest, widthRequest, accessibleRole)
     guarana.gtk.Popover.init(res)
     ifSet(autohide, res.autohide := _)
     ifSet(canFocus, res.canFocus := _)

@@ -51,14 +51,19 @@ object SearchBar extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(): SearchBar = {
-    val res = new org.gnome.gtk.SearchBar()
+  def uninitialized(searchModeEnabled: Opt[Boolean], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): SearchBar = {
+    val res = org.gnome.gtk.SearchBar.builder()
+    ifSet(searchModeEnabled, v => res.setSearchModeEnabled(v))
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
     
     res.asInstanceOf[SearchBar]
   }
   
   def apply(
-    
+    searchModeEnabled: Opt[Boolean] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
     child: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
@@ -96,7 +101,7 @@ object SearchBar extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[SearchBar] = {
-    val res = uninitialized()
+    val res = uninitialized(searchModeEnabled, cssName, heightRequest, widthRequest, accessibleRole)
     guarana.gtk.SearchBar.init(res)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)

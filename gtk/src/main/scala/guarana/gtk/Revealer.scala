@@ -51,14 +51,18 @@ object Revealer extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(): Revealer = {
-    val res = new org.gnome.gtk.Revealer()
+  def uninitialized(cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): Revealer = {
+    val res = org.gnome.gtk.Revealer.builder()
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
     
     res.asInstanceOf[Revealer]
   }
   
   def apply(
-    
+    cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
     child: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
@@ -96,7 +100,7 @@ object Revealer extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[Revealer] = {
-    val res = uninitialized()
+    val res = uninitialized(cssName, heightRequest, widthRequest, accessibleRole)
     guarana.gtk.Revealer.init(res)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)

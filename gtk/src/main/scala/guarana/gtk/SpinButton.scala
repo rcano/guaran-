@@ -83,14 +83,20 @@ object SpinButton extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(arg$0: org.gnome.gtk.Adjustment | Null, arg$1: Double, arg$2: Int): SpinButton = {
-    val res = new org.gnome.gtk.SpinButton(arg$0, arg$1, arg$2)
+  def uninitialized(cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole], editingCanceled: Opt[Boolean], xalign: Opt[Float]): SpinButton = {
+    val res = org.gnome.gtk.SpinButton.builder()
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
+    ifSet(editingCanceled, v => res.setEditingCanceled(v))
+    ifSet(xalign, v => res.setXalign(v))
     
     res.asInstanceOf[SpinButton]
   }
   
   def apply(
-    arg$0: org.gnome.gtk.Adjustment | Null, arg$1: Double, arg$2: Int,
+    cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam, editingCanceled: Opt[Boolean] = UnsetParam, xalign: Opt[Float] = UnsetParam,
     activatesDefault: Opt[Binding[Boolean]] = UnsetParam,
     adjustment: Opt[Binding[org.gnome.gtk.Adjustment]] = UnsetParam,
     alignment: Opt[Binding[Float]] = UnsetParam,
@@ -141,7 +147,7 @@ object SpinButton extends VarsMap {
     widthChars: Opt[Binding[Int]] = UnsetParam,
     wrap: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[SpinButton] = {
-    val res = uninitialized(arg$0, arg$1, arg$2)
+    val res = uninitialized(cssName, heightRequest, widthRequest, accessibleRole, editingCanceled, xalign)
     guarana.gtk.SpinButton.init(res)
     ifSet(activatesDefault, res.activatesDefault := _)
     ifSet(adjustment, res.adjustment := _)

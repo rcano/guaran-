@@ -56,14 +56,18 @@ object Grid extends VarsMap, internal.GridLayoutSupport {
     Toolkit.update(initNodesVar(v))
     
   }
-  def uninitialized(): Grid = {
-    val res = new org.gnome.gtk.Grid()
+  def uninitialized(cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): Grid = {
+    val res = org.gnome.gtk.Grid.builder()
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
     
     res.asInstanceOf[Grid]
   }
   
   def apply(
-    
+    cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam,
     baselineRow: Opt[Binding[Int]] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
@@ -103,7 +107,7 @@ object Grid extends VarsMap, internal.GridLayoutSupport {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[Grid] = {
-    val res = uninitialized()
+    val res = uninitialized(cssName, heightRequest, widthRequest, accessibleRole)
     guarana.gtk.Grid.init(res)
     ifSet(baselineRow, res.baselineRow := _)
     ifSet(canFocus, res.canFocus := _)

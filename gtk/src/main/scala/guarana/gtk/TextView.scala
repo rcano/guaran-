@@ -102,14 +102,21 @@ object TextView extends VarsMap, internal.TextViewSupport {
     connectVarsListener(v)
     
   }
-  def uninitialized(): TextView = {
-    val res = new org.gnome.gtk.TextView()
+  def uninitialized(buffer: Opt[org.gnome.gtk.TextBuffer], imModule: Opt[java.lang.String], tabs: Opt[org.gnome.pango.TabArray], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): TextView = {
+    val res = org.gnome.gtk.TextView.builder()
+    ifSet(buffer, v => res.setBuffer(v))
+    ifSet(imModule, v => res.setImModule(v))
+    ifSet(tabs, v => res.setTabs(v))
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
     
     res.asInstanceOf[TextView]
   }
   
   def apply(
-    
+    buffer: Opt[org.gnome.gtk.TextBuffer] = UnsetParam, imModule: Opt[java.lang.String] = UnsetParam, tabs: Opt[org.gnome.pango.TabArray] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam,
     acceptsTab: Opt[Binding[Boolean]] = UnsetParam,
     bottomMargin: Opt[Binding[Int]] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
@@ -165,7 +172,7 @@ object TextView extends VarsMap, internal.TextViewSupport {
     vscrollPolicy: Opt[Binding[org.gnome.gtk.ScrollablePolicy]] = UnsetParam,
     wrapMode: Opt[Binding[org.gnome.gtk.WrapMode]] = UnsetParam
   ): VarContextAction[TextView] = {
-    val res = uninitialized()
+    val res = uninitialized(buffer, imModule, tabs, cssName, heightRequest, widthRequest, accessibleRole)
     guarana.gtk.TextView.init(res)
     ifSet(acceptsTab, res.acceptsTab := _)
     ifSet(bottomMargin, res.bottomMargin := _)

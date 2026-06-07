@@ -54,14 +54,19 @@ object ScaleButton extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(arg$0: Double, arg$1: Double, arg$2: Double, arg$3: Array[java.lang.String | Null]): ScaleButton = {
-    val res = new org.gnome.gtk.ScaleButton(arg$0, arg$1, arg$2, arg$3)
+  def uninitialized(icons: Opt[Array[java.lang.String]], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): ScaleButton = {
+    val res = org.gnome.gtk.ScaleButton.builder()
+    ifSet(icons, v => res.setIcons(v))
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
     
     res.asInstanceOf[ScaleButton]
   }
   
   def apply(
-    arg$0: Double, arg$1: Double, arg$2: Double, arg$3: Array[java.lang.String | Null],
+    icons: Opt[Array[java.lang.String]] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam,
     adjustment: Opt[Binding[org.gnome.gtk.Adjustment]] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
@@ -99,7 +104,7 @@ object ScaleButton extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[ScaleButton] = {
-    val res = uninitialized(arg$0, arg$1, arg$2, arg$3)
+    val res = uninitialized(icons, cssName, heightRequest, widthRequest, accessibleRole)
     guarana.gtk.ScaleButton.init(res)
     ifSet(adjustment, res.adjustment := _)
     ifSet(canFocus, res.canFocus := _)

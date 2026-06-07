@@ -58,14 +58,18 @@ object Expander extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(arg$0: java.lang.String | Null): Expander = {
-    val res = new org.gnome.gtk.Expander(arg$0)
+  def uninitialized(cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): Expander = {
+    val res = org.gnome.gtk.Expander.builder()
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
     
     res.asInstanceOf[Expander]
   }
   
   def apply(
-    arg$0: java.lang.String | Null,
+    cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
     child: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
@@ -106,7 +110,7 @@ object Expander extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[Expander] = {
-    val res = uninitialized(arg$0)
+    val res = uninitialized(cssName, heightRequest, widthRequest, accessibleRole)
     guarana.gtk.Expander.init(res)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)

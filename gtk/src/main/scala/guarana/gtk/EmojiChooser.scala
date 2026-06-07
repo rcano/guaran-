@@ -48,14 +48,20 @@ object EmojiChooser extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(): EmojiChooser = {
-    val res = new org.gnome.gtk.EmojiChooser()
+  def uninitialized(defaultWidget: Opt[guarana.gtk.Widget], pointingTo: Opt[org.gnome.gdk.Rectangle], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): EmojiChooser = {
+    val res = org.gnome.gtk.EmojiChooser.builder()
+    ifSet(defaultWidget, v => res.setDefaultWidget(v.unwrap))
+    ifSet(pointingTo, v => res.setPointingTo(v))
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
     
     res.asInstanceOf[EmojiChooser]
   }
   
   def apply(
-    
+    defaultWidget: Opt[guarana.gtk.Widget] = UnsetParam, pointingTo: Opt[org.gnome.gdk.Rectangle] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
     childVisible: Opt[Binding[Boolean]] = UnsetParam,
@@ -89,7 +95,7 @@ object EmojiChooser extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[EmojiChooser] = {
-    val res = uninitialized()
+    val res = uninitialized(defaultWidget, pointingTo, cssName, heightRequest, widthRequest, accessibleRole)
     guarana.gtk.EmojiChooser.init(res)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)

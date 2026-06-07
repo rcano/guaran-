@@ -59,14 +59,20 @@ object CheckButton extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(): CheckButton = {
-    val res = new org.gnome.gtk.CheckButton()
+  def uninitialized(group: Opt[org.gnome.gtk.CheckButton], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole], actionTarget: Opt[org.gnome.glib.Variant]): CheckButton = {
+    val res = org.gnome.gtk.CheckButton.builder()
+    ifSet(group, v => res.setGroup(v))
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
+    ifSet(actionTarget, v => res.setActionTarget(v))
     
     res.asInstanceOf[CheckButton]
   }
   
   def apply(
-    
+    group: Opt[org.gnome.gtk.CheckButton] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam, actionTarget: Opt[org.gnome.glib.Variant] = UnsetParam,
     actionName: Opt[Binding[java.lang.String | Null]] = UnsetParam,
     actionTargetValue: Opt[Binding[org.gnome.glib.Variant | Null]] = UnsetParam,
     active: Opt[Binding[Boolean]] = UnsetParam,
@@ -107,7 +113,7 @@ object CheckButton extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[CheckButton] = {
-    val res = uninitialized()
+    val res = uninitialized(group, cssName, heightRequest, widthRequest, accessibleRole, actionTarget)
     guarana.gtk.CheckButton.init(res)
     ifSet(actionName, res.actionName := _)
     ifSet(actionTargetValue, res.actionTargetValue := _)

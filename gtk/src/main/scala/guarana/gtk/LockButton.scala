@@ -47,14 +47,26 @@ object LockButton extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(arg$0: org.gnome.gio.Permission | Null): LockButton = {
-    val res = new org.gnome.gtk.LockButton(arg$0)
+  def uninitialized(textLock: Opt[java.lang.String], textUnlock: Opt[java.lang.String], tooltipLock: Opt[java.lang.String], tooltipNotAuthorized: Opt[java.lang.String], tooltipUnlock: Opt[java.lang.String], iconName: Opt[java.lang.String], label: Opt[java.lang.String], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole], actionTarget: Opt[org.gnome.glib.Variant]): LockButton = {
+    val res = org.gnome.gtk.LockButton.builder()
+    ifSet(textLock, v => res.setTextLock(v))
+    ifSet(textUnlock, v => res.setTextUnlock(v))
+    ifSet(tooltipLock, v => res.setTooltipLock(v))
+    ifSet(tooltipNotAuthorized, v => res.setTooltipNotAuthorized(v))
+    ifSet(tooltipUnlock, v => res.setTooltipUnlock(v))
+    ifSet(iconName, v => res.setIconName(v))
+    ifSet(label, v => res.setLabel(v))
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
+    ifSet(actionTarget, v => res.setActionTarget(v))
     
     res.asInstanceOf[LockButton]
   }
   
   def apply(
-    arg$0: org.gnome.gio.Permission | Null,
+    textLock: Opt[java.lang.String] = UnsetParam, textUnlock: Opt[java.lang.String] = UnsetParam, tooltipLock: Opt[java.lang.String] = UnsetParam, tooltipNotAuthorized: Opt[java.lang.String] = UnsetParam, tooltipUnlock: Opt[java.lang.String] = UnsetParam, iconName: Opt[java.lang.String] = UnsetParam, label: Opt[java.lang.String] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam, actionTarget: Opt[org.gnome.glib.Variant] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
     childVisible: Opt[Binding[Boolean]] = UnsetParam,
@@ -89,7 +101,7 @@ object LockButton extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[LockButton] = {
-    val res = uninitialized(arg$0)
+    val res = uninitialized(textLock, textUnlock, tooltipLock, tooltipNotAuthorized, tooltipUnlock, iconName, label, cssName, heightRequest, widthRequest, accessibleRole, actionTarget)
     guarana.gtk.LockButton.init(res)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)

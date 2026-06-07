@@ -90,14 +90,42 @@ object Entry extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(): Entry = {
-    val res = new org.gnome.gtk.Entry()
+  def uninitialized(attributes: Opt[org.gnome.pango.AttrList], enableEmojiCompletion: Opt[Boolean], imModule: Opt[java.lang.String], invisibleCharSet: Opt[Boolean], menuEntryIconPrimaryText: Opt[java.lang.String], menuEntryIconSecondaryText: Opt[java.lang.String], primaryIconActivatable: Opt[Boolean], primaryIconGicon: Opt[org.gnome.gio.Icon], primaryIconName: Opt[java.lang.String], primaryIconPaintable: Opt[org.gnome.gdk.Paintable], primaryIconSensitive: Opt[Boolean], primaryIconTooltipMarkup: Opt[java.lang.String], primaryIconTooltipText: Opt[java.lang.String], secondaryIconActivatable: Opt[Boolean], secondaryIconGicon: Opt[org.gnome.gio.Icon], secondaryIconName: Opt[java.lang.String], secondaryIconPaintable: Opt[org.gnome.gdk.Paintable], secondaryIconSensitive: Opt[Boolean], secondaryIconTooltipMarkup: Opt[java.lang.String], secondaryIconTooltipText: Opt[java.lang.String], showEmojiIcon: Opt[Boolean], truncateMultiline: Opt[Boolean], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole], editingCanceled: Opt[Boolean], xalign: Opt[Float]): Entry = {
+    val res = org.gnome.gtk.Entry.builder()
+    ifSet(attributes, v => res.setAttributes(v))
+    ifSet(enableEmojiCompletion, v => res.setEnableEmojiCompletion(v))
+    ifSet(imModule, v => res.setImModule(v))
+    ifSet(invisibleCharSet, v => res.setInvisibleCharSet(v))
+    ifSet(menuEntryIconPrimaryText, v => res.setMenuEntryIconPrimaryText(v))
+    ifSet(menuEntryIconSecondaryText, v => res.setMenuEntryIconSecondaryText(v))
+    ifSet(primaryIconActivatable, v => res.setPrimaryIconActivatable(v))
+    ifSet(primaryIconGicon, v => res.setPrimaryIconGicon(v))
+    ifSet(primaryIconName, v => res.setPrimaryIconName(v))
+    ifSet(primaryIconPaintable, v => res.setPrimaryIconPaintable(v))
+    ifSet(primaryIconSensitive, v => res.setPrimaryIconSensitive(v))
+    ifSet(primaryIconTooltipMarkup, v => res.setPrimaryIconTooltipMarkup(v))
+    ifSet(primaryIconTooltipText, v => res.setPrimaryIconTooltipText(v))
+    ifSet(secondaryIconActivatable, v => res.setSecondaryIconActivatable(v))
+    ifSet(secondaryIconGicon, v => res.setSecondaryIconGicon(v))
+    ifSet(secondaryIconName, v => res.setSecondaryIconName(v))
+    ifSet(secondaryIconPaintable, v => res.setSecondaryIconPaintable(v))
+    ifSet(secondaryIconSensitive, v => res.setSecondaryIconSensitive(v))
+    ifSet(secondaryIconTooltipMarkup, v => res.setSecondaryIconTooltipMarkup(v))
+    ifSet(secondaryIconTooltipText, v => res.setSecondaryIconTooltipText(v))
+    ifSet(showEmojiIcon, v => res.setShowEmojiIcon(v))
+    ifSet(truncateMultiline, v => res.setTruncateMultiline(v))
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
+    ifSet(editingCanceled, v => res.setEditingCanceled(v))
+    ifSet(xalign, v => res.setXalign(v))
     
     res.asInstanceOf[Entry]
   }
   
   def apply(
-    
+    attributes: Opt[org.gnome.pango.AttrList] = UnsetParam, enableEmojiCompletion: Opt[Boolean] = UnsetParam, imModule: Opt[java.lang.String] = UnsetParam, invisibleCharSet: Opt[Boolean] = UnsetParam, menuEntryIconPrimaryText: Opt[java.lang.String] = UnsetParam, menuEntryIconSecondaryText: Opt[java.lang.String] = UnsetParam, primaryIconActivatable: Opt[Boolean] = UnsetParam, primaryIconGicon: Opt[org.gnome.gio.Icon] = UnsetParam, primaryIconName: Opt[java.lang.String] = UnsetParam, primaryIconPaintable: Opt[org.gnome.gdk.Paintable] = UnsetParam, primaryIconSensitive: Opt[Boolean] = UnsetParam, primaryIconTooltipMarkup: Opt[java.lang.String] = UnsetParam, primaryIconTooltipText: Opt[java.lang.String] = UnsetParam, secondaryIconActivatable: Opt[Boolean] = UnsetParam, secondaryIconGicon: Opt[org.gnome.gio.Icon] = UnsetParam, secondaryIconName: Opt[java.lang.String] = UnsetParam, secondaryIconPaintable: Opt[org.gnome.gdk.Paintable] = UnsetParam, secondaryIconSensitive: Opt[Boolean] = UnsetParam, secondaryIconTooltipMarkup: Opt[java.lang.String] = UnsetParam, secondaryIconTooltipText: Opt[java.lang.String] = UnsetParam, showEmojiIcon: Opt[Boolean] = UnsetParam, truncateMultiline: Opt[Boolean] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam, editingCanceled: Opt[Boolean] = UnsetParam, xalign: Opt[Float] = UnsetParam,
     activatesDefault: Opt[Binding[Boolean]] = UnsetParam,
     alignment: Opt[Binding[Float]] = UnsetParam,
     buffer: Opt[Binding[org.gnome.gtk.EntryBuffer]] = UnsetParam,
@@ -153,7 +181,7 @@ object Entry extends VarsMap {
     visible: Opt[Binding[Boolean]] = UnsetParam,
     widthChars: Opt[Binding[Int]] = UnsetParam
   ): VarContextAction[Entry] = {
-    val res = uninitialized()
+    val res = uninitialized(attributes, enableEmojiCompletion, imModule, invisibleCharSet, menuEntryIconPrimaryText, menuEntryIconSecondaryText, primaryIconActivatable, primaryIconGicon, primaryIconName, primaryIconPaintable, primaryIconSensitive, primaryIconTooltipMarkup, primaryIconTooltipText, secondaryIconActivatable, secondaryIconGicon, secondaryIconName, secondaryIconPaintable, secondaryIconSensitive, secondaryIconTooltipMarkup, secondaryIconTooltipText, showEmojiIcon, truncateMultiline, cssName, heightRequest, widthRequest, accessibleRole, editingCanceled, xalign)
     guarana.gtk.Entry.init(res)
     ifSet(activatesDefault, res.activatesDefault := _)
     ifSet(alignment, res.alignment := _)

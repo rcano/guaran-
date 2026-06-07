@@ -55,14 +55,18 @@ object CenterBox extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(): CenterBox = {
-    val res = new org.gnome.gtk.CenterBox()
+  def uninitialized(cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): CenterBox = {
+    val res = org.gnome.gtk.CenterBox.builder()
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
     
     res.asInstanceOf[CenterBox]
   }
   
   def apply(
-    
+    cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam,
     baselinePosition: Opt[Binding[org.gnome.gtk.BaselinePosition]] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
@@ -102,7 +106,7 @@ object CenterBox extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[CenterBox] = {
-    val res = uninitialized()
+    val res = uninitialized(cssName, heightRequest, widthRequest, accessibleRole)
     guarana.gtk.CenterBox.init(res)
     ifSet(baselinePosition, res.baselinePosition := _)
     ifSet(canFocus, res.canFocus := _)

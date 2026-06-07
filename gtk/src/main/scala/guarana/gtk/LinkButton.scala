@@ -50,14 +50,21 @@ object LinkButton extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(arg$0: java.lang.String): LinkButton = {
-    val res = new org.gnome.gtk.LinkButton(arg$0)
+  def uninitialized(iconName: Opt[java.lang.String], label: Opt[java.lang.String], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole], actionTarget: Opt[org.gnome.glib.Variant]): LinkButton = {
+    val res = org.gnome.gtk.LinkButton.builder()
+    ifSet(iconName, v => res.setIconName(v))
+    ifSet(label, v => res.setLabel(v))
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
+    ifSet(actionTarget, v => res.setActionTarget(v))
     
     res.asInstanceOf[LinkButton]
   }
   
   def apply(
-    arg$0: java.lang.String,
+    iconName: Opt[java.lang.String] = UnsetParam, label: Opt[java.lang.String] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam, actionTarget: Opt[org.gnome.glib.Variant] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
     childVisible: Opt[Binding[Boolean]] = UnsetParam,
@@ -93,7 +100,7 @@ object LinkButton extends VarsMap {
     visible: Opt[Binding[Boolean]] = UnsetParam,
     visited: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[LinkButton] = {
-    val res = uninitialized(arg$0)
+    val res = uninitialized(iconName, label, cssName, heightRequest, widthRequest, accessibleRole, actionTarget)
     guarana.gtk.LinkButton.init(res)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)

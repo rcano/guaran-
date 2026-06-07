@@ -73,14 +73,20 @@ object SearchEntry extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(): SearchEntry = {
-    val res = new org.gnome.gtk.SearchEntry()
+  def uninitialized(activatesDefault: Opt[Boolean], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole], xalign: Opt[Float]): SearchEntry = {
+    val res = org.gnome.gtk.SearchEntry.builder()
+    ifSet(activatesDefault, v => res.setActivatesDefault(v))
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
+    ifSet(xalign, v => res.setXalign(v))
     
     res.asInstanceOf[SearchEntry]
   }
   
   def apply(
-    
+    activatesDefault: Opt[Boolean] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam, xalign: Opt[Float] = UnsetParam,
     alignment: Opt[Binding[Float]] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
@@ -126,7 +132,7 @@ object SearchEntry extends VarsMap {
     visible: Opt[Binding[Boolean]] = UnsetParam,
     widthChars: Opt[Binding[Int]] = UnsetParam
   ): VarContextAction[SearchEntry] = {
-    val res = uninitialized()
+    val res = uninitialized(activatesDefault, cssName, heightRequest, widthRequest, accessibleRole, xalign)
     guarana.gtk.SearchEntry.init(res)
     ifSet(alignment, res.alignment := _)
     ifSet(canFocus, res.canFocus := _)

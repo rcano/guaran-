@@ -98,14 +98,21 @@ object Text extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(): Text = {
-    val res = new org.gnome.gtk.Text()
+  def uninitialized(imModule: Opt[java.lang.String], invisibleCharSet: Opt[Boolean], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole], xalign: Opt[Float]): Text = {
+    val res = org.gnome.gtk.Text.builder()
+    ifSet(imModule, v => res.setImModule(v))
+    ifSet(invisibleCharSet, v => res.setInvisibleCharSet(v))
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
+    ifSet(xalign, v => res.setXalign(v))
     
     res.asInstanceOf[Text]
   }
   
   def apply(
-    
+    imModule: Opt[java.lang.String] = UnsetParam, invisibleCharSet: Opt[Boolean] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam, xalign: Opt[Float] = UnsetParam,
     activatesDefault: Opt[Binding[Boolean]] = UnsetParam,
     alignment: Opt[Binding[Float]] = UnsetParam,
     attributes: Opt[Binding[org.gnome.pango.AttrList | Null]] = UnsetParam,
@@ -161,7 +168,7 @@ object Text extends VarsMap {
     visible: Opt[Binding[Boolean]] = UnsetParam,
     widthChars: Opt[Binding[Int]] = UnsetParam
   ): VarContextAction[Text] = {
-    val res = uninitialized()
+    val res = uninitialized(imModule, invisibleCharSet, cssName, heightRequest, widthRequest, accessibleRole, xalign)
     guarana.gtk.Text.init(res)
     ifSet(activatesDefault, res.activatesDefault := _)
     ifSet(alignment, res.alignment := _)

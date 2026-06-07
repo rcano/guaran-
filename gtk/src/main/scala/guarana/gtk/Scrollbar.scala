@@ -45,14 +45,19 @@ object Scrollbar extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(arg$0: org.gnome.gtk.Orientation, arg$1: org.gnome.gtk.Adjustment | Null): Scrollbar = {
-    val res = new org.gnome.gtk.Scrollbar(arg$0, arg$1)
+  def uninitialized(adjustment: Opt[org.gnome.gtk.Adjustment], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): Scrollbar = {
+    val res = org.gnome.gtk.Scrollbar.builder()
+    ifSet(adjustment, v => res.setAdjustment(v))
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
     
     res.asInstanceOf[Scrollbar]
   }
   
   def apply(
-    arg$0: org.gnome.gtk.Orientation, arg$1: org.gnome.gtk.Adjustment | Null,
+    adjustment: Opt[org.gnome.gtk.Adjustment] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
     childVisible: Opt[Binding[Boolean]] = UnsetParam,
@@ -87,7 +92,7 @@ object Scrollbar extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[Scrollbar] = {
-    val res = uninitialized(arg$0, arg$1)
+    val res = uninitialized(adjustment, cssName, heightRequest, widthRequest, accessibleRole)
     guarana.gtk.Scrollbar.init(res)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)

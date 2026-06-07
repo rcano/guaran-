@@ -49,14 +49,21 @@ object PopoverMenu extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(): PopoverMenu = {
-    val res = new org.gnome.gtk.PopoverMenu()
+  def uninitialized(visibleSubmenu: Opt[java.lang.String], defaultWidget: Opt[guarana.gtk.Widget], pointingTo: Opt[org.gnome.gdk.Rectangle], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): PopoverMenu = {
+    val res = org.gnome.gtk.PopoverMenu.builder()
+    ifSet(visibleSubmenu, v => res.setVisibleSubmenu(v))
+    ifSet(defaultWidget, v => res.setDefaultWidget(v.unwrap))
+    ifSet(pointingTo, v => res.setPointingTo(v))
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
     
     res.asInstanceOf[PopoverMenu]
   }
   
   def apply(
-    
+    visibleSubmenu: Opt[java.lang.String] = UnsetParam, defaultWidget: Opt[guarana.gtk.Widget] = UnsetParam, pointingTo: Opt[org.gnome.gdk.Rectangle] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
     childVisible: Opt[Binding[Boolean]] = UnsetParam,
@@ -92,7 +99,7 @@ object PopoverMenu extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[PopoverMenu] = {
-    val res = uninitialized()
+    val res = uninitialized(visibleSubmenu, defaultWidget, pointingTo, cssName, heightRequest, widthRequest, accessibleRole)
     guarana.gtk.PopoverMenu.init(res)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)

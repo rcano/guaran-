@@ -63,14 +63,19 @@ object Inscription extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(arg$0: java.lang.String | Null): Inscription = {
-    val res = new org.gnome.gtk.Inscription(arg$0)
+  def uninitialized(markup: Opt[java.lang.String], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): Inscription = {
+    val res = org.gnome.gtk.Inscription.builder()
+    ifSet(markup, v => res.setMarkup(v))
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
     
     res.asInstanceOf[Inscription]
   }
   
   def apply(
-    arg$0: java.lang.String | Null,
+    markup: Opt[java.lang.String] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam,
     attributes: Opt[Binding[org.gnome.pango.AttrList | Null]] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
@@ -114,7 +119,7 @@ object Inscription extends VarsMap {
     xalign: Opt[Binding[Float]] = UnsetParam,
     yalign: Opt[Binding[Float]] = UnsetParam
   ): VarContextAction[Inscription] = {
-    val res = uninitialized(arg$0)
+    val res = uninitialized(markup, cssName, heightRequest, widthRequest, accessibleRole)
     guarana.gtk.Inscription.init(res)
     ifSet(attributes, res.attributes := _)
     ifSet(canFocus, res.canFocus := _)

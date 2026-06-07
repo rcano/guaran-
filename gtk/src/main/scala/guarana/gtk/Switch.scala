@@ -53,14 +53,19 @@ object Switch extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(): Switch = {
-    val res = new org.gnome.gtk.Switch()
+  def uninitialized(cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole], actionTarget: Opt[org.gnome.glib.Variant]): Switch = {
+    val res = org.gnome.gtk.Switch.builder()
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
+    ifSet(actionTarget, v => res.setActionTarget(v))
     
     res.asInstanceOf[Switch]
   }
   
   def apply(
-    
+    cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam, actionTarget: Opt[org.gnome.glib.Variant] = UnsetParam,
     actionName: Opt[Binding[java.lang.String | Null]] = UnsetParam,
     actionTargetValue: Opt[Binding[org.gnome.glib.Variant | Null]] = UnsetParam,
     active: Opt[Binding[Boolean]] = UnsetParam,
@@ -98,7 +103,7 @@ object Switch extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[Switch] = {
-    val res = uninitialized()
+    val res = uninitialized(cssName, heightRequest, widthRequest, accessibleRole, actionTarget)
     guarana.gtk.Switch.init(res)
     ifSet(actionName, res.actionName := _)
     ifSet(actionTargetValue, res.actionTargetValue := _)

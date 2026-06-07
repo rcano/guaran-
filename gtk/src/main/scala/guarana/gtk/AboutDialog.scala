@@ -73,14 +73,28 @@ object AboutDialog extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(): AboutDialog = {
-    val res = new org.gnome.gtk.AboutDialog()
+  def uninitialized(artists: Opt[Array[java.lang.String]], authors: Opt[Array[java.lang.String]], documenters: Opt[Array[java.lang.String]], websiteLabel: Opt[java.lang.String], defaultHeight: Opt[Int], defaultWidth: Opt[Int], focusWidget: Opt[guarana.gtk.Widget], fullscreened: Opt[Boolean], maximized: Opt[Boolean], startupId: Opt[java.lang.String], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): AboutDialog = {
+    val res = org.gnome.gtk.AboutDialog.builder()
+    ifSet(artists, v => res.setArtists(v))
+    ifSet(authors, v => res.setAuthors(v))
+    ifSet(documenters, v => res.setDocumenters(v))
+    ifSet(websiteLabel, v => res.setWebsiteLabel(v))
+    ifSet(defaultHeight, v => res.setDefaultHeight(v))
+    ifSet(defaultWidth, v => res.setDefaultWidth(v))
+    ifSet(focusWidget, v => res.setFocusWidget(v.unwrap))
+    ifSet(fullscreened, v => res.setFullscreened(v))
+    ifSet(maximized, v => res.setMaximized(v))
+    ifSet(startupId, v => res.setStartupId(v))
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
     
     res.asInstanceOf[AboutDialog]
   }
   
   def apply(
-    
+    artists: Opt[Array[java.lang.String]] = UnsetParam, authors: Opt[Array[java.lang.String]] = UnsetParam, documenters: Opt[Array[java.lang.String]] = UnsetParam, websiteLabel: Opt[java.lang.String] = UnsetParam, defaultHeight: Opt[Int] = UnsetParam, defaultWidth: Opt[Int] = UnsetParam, focusWidget: Opt[guarana.gtk.Widget] = UnsetParam, fullscreened: Opt[Boolean] = UnsetParam, maximized: Opt[Boolean] = UnsetParam, startupId: Opt[java.lang.String] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam,
     application: Opt[Binding[org.gnome.gtk.Application | Null]] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
@@ -145,7 +159,7 @@ object AboutDialog extends VarsMap {
     website: Opt[Binding[java.lang.String | Null]] = UnsetParam,
     wrapLicense: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[AboutDialog] = {
-    val res = uninitialized()
+    val res = uninitialized(artists, authors, documenters, websiteLabel, defaultHeight, defaultWidth, focusWidget, fullscreened, maximized, startupId, cssName, heightRequest, widthRequest, accessibleRole)
     guarana.gtk.AboutDialog.init(res)
     ifSet(application, res.application := _)
     ifSet(canFocus, res.canFocus := _)

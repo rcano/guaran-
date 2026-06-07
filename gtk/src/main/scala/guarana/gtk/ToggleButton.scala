@@ -48,14 +48,22 @@ object ToggleButton extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(): ToggleButton = {
-    val res = new org.gnome.gtk.ToggleButton()
+  def uninitialized(group: Opt[org.gnome.gtk.ToggleButton], iconName: Opt[java.lang.String], label: Opt[java.lang.String], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole], actionTarget: Opt[org.gnome.glib.Variant]): ToggleButton = {
+    val res = org.gnome.gtk.ToggleButton.builder()
+    ifSet(group, v => res.setGroup(v))
+    ifSet(iconName, v => res.setIconName(v))
+    ifSet(label, v => res.setLabel(v))
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
+    ifSet(actionTarget, v => res.setActionTarget(v))
     
     res.asInstanceOf[ToggleButton]
   }
   
   def apply(
-    
+    group: Opt[org.gnome.gtk.ToggleButton] = UnsetParam, iconName: Opt[java.lang.String] = UnsetParam, label: Opt[java.lang.String] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam, actionTarget: Opt[org.gnome.glib.Variant] = UnsetParam,
     active: Opt[Binding[Boolean]] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
@@ -90,7 +98,7 @@ object ToggleButton extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[ToggleButton] = {
-    val res = uninitialized()
+    val res = uninitialized(group, iconName, label, cssName, heightRequest, widthRequest, accessibleRole, actionTarget)
     guarana.gtk.ToggleButton.init(res)
     ifSet(active, res.active := _)
     ifSet(canFocus, res.canFocus := _)

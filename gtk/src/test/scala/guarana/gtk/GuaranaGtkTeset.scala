@@ -29,11 +29,9 @@ object GuaranaGtkTeset {
       val b = Button()
 
       val window = ApplicationWindow(
-        app,
+        application = app,
         title = "Teset GTK",
         child = Box(
-          Orientation.VERTICAL,
-          10,
           nodes = Seq(
             Label("a string"),
             Button(child = Label("a button")).tap(_.unwrap.setLabel("and a label?")),

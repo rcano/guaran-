@@ -53,14 +53,20 @@ object Stack extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(): Stack = {
-    val res = new org.gnome.gtk.Stack()
+  def uninitialized(visibleChild: Opt[guarana.gtk.Widget], visibleChildName: Opt[java.lang.String], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): Stack = {
+    val res = org.gnome.gtk.Stack.builder()
+    ifSet(visibleChild, v => res.setVisibleChild(v.unwrap))
+    ifSet(visibleChildName, v => res.setVisibleChildName(v))
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
     
     res.asInstanceOf[Stack]
   }
   
   def apply(
-    
+    visibleChild: Opt[guarana.gtk.Widget] = UnsetParam, visibleChildName: Opt[java.lang.String] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
     childVisible: Opt[Binding[Boolean]] = UnsetParam,
@@ -99,7 +105,7 @@ object Stack extends VarsMap {
     vhomogeneous: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[Stack] = {
-    val res = uninitialized()
+    val res = uninitialized(visibleChild, visibleChildName, cssName, heightRequest, widthRequest, accessibleRole)
     guarana.gtk.Stack.init(res)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)

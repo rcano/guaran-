@@ -106,14 +106,19 @@ object TreeView extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(): TreeView = {
-    val res = new org.gnome.gtk.TreeView()
+  def uninitialized(enableGridLines: Opt[org.gnome.gtk.TreeViewGridLines], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): TreeView = {
+    val res = org.gnome.gtk.TreeView.builder()
+    ifSet(enableGridLines, v => res.setEnableGridLines(v))
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
     
     res.asInstanceOf[TreeView]
   }
   
   def apply(
-    
+    enableGridLines: Opt[org.gnome.gtk.TreeViewGridLines] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam,
     activateOnSingleClick: Opt[Binding[Boolean]] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
@@ -171,7 +176,7 @@ object TreeView extends VarsMap {
     visible: Opt[Binding[Boolean]] = UnsetParam,
     vscrollPolicy: Opt[Binding[org.gnome.gtk.ScrollablePolicy]] = UnsetParam
   ): VarContextAction[TreeView] = {
-    val res = uninitialized()
+    val res = uninitialized(enableGridLines, cssName, heightRequest, widthRequest, accessibleRole)
     guarana.gtk.TreeView.init(res)
     ifSet(activateOnSingleClick, res.activateOnSingleClick := _)
     ifSet(canFocus, res.canFocus := _)

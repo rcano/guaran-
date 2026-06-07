@@ -57,14 +57,20 @@ object EditableLabel extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(arg$0: java.lang.String): EditableLabel = {
-    val res = new org.gnome.gtk.EditableLabel(arg$0)
+  def uninitialized(editing: Opt[Boolean], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole], xalign: Opt[Float]): EditableLabel = {
+    val res = org.gnome.gtk.EditableLabel.builder()
+    ifSet(editing, v => res.setEditing(v))
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
+    ifSet(xalign, v => res.setXalign(v))
     
     res.asInstanceOf[EditableLabel]
   }
   
   def apply(
-    arg$0: java.lang.String,
+    editing: Opt[Boolean] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam, xalign: Opt[Float] = UnsetParam,
     alignment: Opt[Binding[Float]] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
@@ -105,7 +111,7 @@ object EditableLabel extends VarsMap {
     visible: Opt[Binding[Boolean]] = UnsetParam,
     widthChars: Opt[Binding[Int]] = UnsetParam
   ): VarContextAction[EditableLabel] = {
-    val res = uninitialized(arg$0)
+    val res = uninitialized(editing, cssName, heightRequest, widthRequest, accessibleRole, xalign)
     guarana.gtk.EditableLabel.init(res)
     ifSet(alignment, res.alignment := _)
     ifSet(canFocus, res.canFocus := _)

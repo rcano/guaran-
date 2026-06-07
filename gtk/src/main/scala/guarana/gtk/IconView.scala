@@ -91,14 +91,19 @@ object IconView extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(): IconView = {
-    val res = new org.gnome.gtk.IconView()
+  def uninitialized(cellArea: Opt[org.gnome.gtk.CellArea], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): IconView = {
+    val res = org.gnome.gtk.IconView.builder()
+    ifSet(cellArea, v => res.setCellArea(v))
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
     
     res.asInstanceOf[IconView]
   }
   
   def apply(
-    
+    cellArea: Opt[org.gnome.gtk.CellArea] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam,
     activateOnSingleClick: Opt[Binding[Boolean]] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
@@ -152,7 +157,7 @@ object IconView extends VarsMap {
     visible: Opt[Binding[Boolean]] = UnsetParam,
     vscrollPolicy: Opt[Binding[org.gnome.gtk.ScrollablePolicy]] = UnsetParam
   ): VarContextAction[IconView] = {
-    val res = uninitialized()
+    val res = uninitialized(cellArea, cssName, heightRequest, widthRequest, accessibleRole)
     guarana.gtk.IconView.init(res)
     ifSet(activateOnSingleClick, res.activateOnSingleClick := _)
     ifSet(canFocus, res.canFocus := _)

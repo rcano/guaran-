@@ -45,14 +45,20 @@ object ShortcutLabel extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(arg$0: java.lang.String): ShortcutLabel = {
-    val res = new org.gnome.gtk.ShortcutLabel(arg$0)
+  def uninitialized(accelerator: Opt[java.lang.String], disabledText: Opt[java.lang.String], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): ShortcutLabel = {
+    val res = org.gnome.gtk.ShortcutLabel.builder()
+    ifSet(accelerator, v => res.setAccelerator(v))
+    ifSet(disabledText, v => res.setDisabledText(v))
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
     
     res.asInstanceOf[ShortcutLabel]
   }
   
   def apply(
-    arg$0: java.lang.String,
+    accelerator: Opt[java.lang.String] = UnsetParam, disabledText: Opt[java.lang.String] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
     childVisible: Opt[Binding[Boolean]] = UnsetParam,
@@ -86,7 +92,7 @@ object ShortcutLabel extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[ShortcutLabel] = {
-    val res = uninitialized(arg$0)
+    val res = uninitialized(accelerator, disabledText, cssName, heightRequest, widthRequest, accessibleRole)
     guarana.gtk.ShortcutLabel.init(res)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)

@@ -56,14 +56,19 @@ object ListBoxRow extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(): ListBoxRow = {
-    val res = new org.gnome.gtk.ListBoxRow()
+  def uninitialized(cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole], actionTarget: Opt[org.gnome.glib.Variant]): ListBoxRow = {
+    val res = org.gnome.gtk.ListBoxRow.builder()
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
+    ifSet(actionTarget, v => res.setActionTarget(v))
     
     res.asInstanceOf[ListBoxRow]
   }
   
   def apply(
-    
+    cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam, actionTarget: Opt[org.gnome.glib.Variant] = UnsetParam,
     actionName: Opt[Binding[java.lang.String | Null]] = UnsetParam,
     actionTargetValue: Opt[Binding[org.gnome.glib.Variant | Null]] = UnsetParam,
     activatable: Opt[Binding[Boolean]] = UnsetParam,
@@ -103,7 +108,7 @@ object ListBoxRow extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[ListBoxRow] = {
-    val res = uninitialized()
+    val res = uninitialized(cssName, heightRequest, widthRequest, accessibleRole, actionTarget)
     guarana.gtk.ListBoxRow.init(res)
     ifSet(actionName, res.actionName := _)
     ifSet(actionTargetValue, res.actionTargetValue := _)

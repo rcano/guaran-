@@ -52,14 +52,27 @@ object ColorChooserDialog extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(arg$0: java.lang.String | Null, arg$1: org.gnome.gtk.Window | Null): ColorChooserDialog = {
-    val res = new org.gnome.gtk.ColorChooserDialog(arg$0, arg$1)
+  def uninitialized(showEditor: Opt[Boolean], useHeaderBar: Opt[Int], defaultHeight: Opt[Int], defaultWidth: Opt[Int], focusWidget: Opt[guarana.gtk.Widget], fullscreened: Opt[Boolean], maximized: Opt[Boolean], startupId: Opt[java.lang.String], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole], rgba: Opt[org.gnome.gdk.RGBA]): ColorChooserDialog = {
+    val res = org.gnome.gtk.ColorChooserDialog.builder()
+    ifSet(showEditor, v => res.setShowEditor(v))
+    ifSet(useHeaderBar, v => res.setUseHeaderBar(v))
+    ifSet(defaultHeight, v => res.setDefaultHeight(v))
+    ifSet(defaultWidth, v => res.setDefaultWidth(v))
+    ifSet(focusWidget, v => res.setFocusWidget(v.unwrap))
+    ifSet(fullscreened, v => res.setFullscreened(v))
+    ifSet(maximized, v => res.setMaximized(v))
+    ifSet(startupId, v => res.setStartupId(v))
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
+    ifSet(rgba, v => res.setRgba(v))
     
     res.asInstanceOf[ColorChooserDialog]
   }
   
   def apply(
-    arg$0: java.lang.String | Null, arg$1: org.gnome.gtk.Window | Null,
+    showEditor: Opt[Boolean] = UnsetParam, useHeaderBar: Opt[Int] = UnsetParam, defaultHeight: Opt[Int] = UnsetParam, defaultWidth: Opt[Int] = UnsetParam, focusWidget: Opt[guarana.gtk.Widget] = UnsetParam, fullscreened: Opt[Boolean] = UnsetParam, maximized: Opt[Boolean] = UnsetParam, startupId: Opt[java.lang.String] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam, rgba: Opt[org.gnome.gdk.RGBA] = UnsetParam,
     application: Opt[Binding[org.gnome.gtk.Application | Null]] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
@@ -113,7 +126,7 @@ object ColorChooserDialog extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[ColorChooserDialog] = {
-    val res = uninitialized(arg$0, arg$1)
+    val res = uninitialized(showEditor, useHeaderBar, defaultHeight, defaultWidth, focusWidget, fullscreened, maximized, startupId, cssName, heightRequest, widthRequest, accessibleRole, rgba)
     guarana.gtk.ColorChooserDialog.init(res)
     ifSet(application, res.application := _)
     ifSet(canFocus, res.canFocus := _)

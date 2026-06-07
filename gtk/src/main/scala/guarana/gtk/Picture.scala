@@ -57,14 +57,18 @@ object Picture extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(): Picture = {
-    val res = new org.gnome.gtk.Picture()
+  def uninitialized(cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): Picture = {
+    val res = org.gnome.gtk.Picture.builder()
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
     
     res.asInstanceOf[Picture]
   }
   
   def apply(
-    
+    cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam,
     alternativeText: Opt[Binding[java.lang.String | Null]] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canShrink: Opt[Binding[Boolean]] = UnsetParam,
@@ -105,7 +109,7 @@ object Picture extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[Picture] = {
-    val res = uninitialized()
+    val res = uninitialized(cssName, heightRequest, widthRequest, accessibleRole)
     guarana.gtk.Picture.init(res)
     ifSet(alternativeText, res.alternativeText := _)
     ifSet(canFocus, res.canFocus := _)

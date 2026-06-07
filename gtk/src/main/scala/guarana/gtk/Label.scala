@@ -87,14 +87,18 @@ object Label extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(arg$0: java.lang.String | Null): Label = {
-    val res = new org.gnome.gtk.Label(arg$0)
+  def uninitialized(cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): Label = {
+    val res = org.gnome.gtk.Label.builder()
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
     
     res.asInstanceOf[Label]
   }
   
   def apply(
-    arg$0: java.lang.String | Null,
+    cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam,
     attributes: Opt[Binding[org.gnome.pango.AttrList | Null]] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
@@ -148,7 +152,7 @@ object Label extends VarsMap {
     xalign: Opt[Binding[Float]] = UnsetParam,
     yalign: Opt[Binding[Float]] = UnsetParam
   ): VarContextAction[Label] = {
-    val res = uninitialized(arg$0)
+    val res = uninitialized(cssName, heightRequest, widthRequest, accessibleRole)
     guarana.gtk.Label.init(res)
     ifSet(attributes, res.attributes := _)
     ifSet(canFocus, res.canFocus := _)

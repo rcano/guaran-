@@ -45,14 +45,19 @@ object StackSidebar extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(): StackSidebar = {
-    val res = new org.gnome.gtk.StackSidebar()
+  def uninitialized(stack: Opt[org.gnome.gtk.Stack], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): StackSidebar = {
+    val res = org.gnome.gtk.StackSidebar.builder()
+    ifSet(stack, v => res.setStack(v))
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
     
     res.asInstanceOf[StackSidebar]
   }
   
   def apply(
-    
+    stack: Opt[org.gnome.gtk.Stack] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
     childVisible: Opt[Binding[Boolean]] = UnsetParam,
@@ -86,7 +91,7 @@ object StackSidebar extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[StackSidebar] = {
-    val res = uninitialized()
+    val res = uninitialized(stack, cssName, heightRequest, widthRequest, accessibleRole)
     guarana.gtk.StackSidebar.init(res)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)

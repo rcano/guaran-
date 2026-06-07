@@ -62,14 +62,21 @@ object PasswordEntry extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(): PasswordEntry = {
-    val res = new org.gnome.gtk.PasswordEntry()
+  def uninitialized(activatesDefault: Opt[Boolean], placeholderText: Opt[java.lang.String], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole], xalign: Opt[Float]): PasswordEntry = {
+    val res = org.gnome.gtk.PasswordEntry.builder()
+    ifSet(activatesDefault, v => res.setActivatesDefault(v))
+    ifSet(placeholderText, v => res.setPlaceholderText(v))
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
+    ifSet(xalign, v => res.setXalign(v))
     
     res.asInstanceOf[PasswordEntry]
   }
   
   def apply(
-    
+    activatesDefault: Opt[Boolean] = UnsetParam, placeholderText: Opt[java.lang.String] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam, xalign: Opt[Float] = UnsetParam,
     alignment: Opt[Binding[Float]] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
@@ -112,7 +119,7 @@ object PasswordEntry extends VarsMap {
     visible: Opt[Binding[Boolean]] = UnsetParam,
     widthChars: Opt[Binding[Int]] = UnsetParam
   ): VarContextAction[PasswordEntry] = {
-    val res = uninitialized()
+    val res = uninitialized(activatesDefault, placeholderText, cssName, heightRequest, widthRequest, accessibleRole, xalign)
     guarana.gtk.PasswordEntry.init(res)
     ifSet(alignment, res.alignment := _)
     ifSet(canFocus, res.canFocus := _)

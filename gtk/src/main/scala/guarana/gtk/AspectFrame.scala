@@ -53,14 +53,18 @@ object AspectFrame extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(arg$0: Float, arg$1: Float, arg$2: Float, arg$3: Boolean): AspectFrame = {
-    val res = new org.gnome.gtk.AspectFrame(arg$0, arg$1, arg$2, arg$3)
+  def uninitialized(cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): AspectFrame = {
+    val res = org.gnome.gtk.AspectFrame.builder()
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
     
     res.asInstanceOf[AspectFrame]
   }
   
   def apply(
-    arg$0: Float, arg$1: Float, arg$2: Float, arg$3: Boolean,
+    cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
     child: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
@@ -99,7 +103,7 @@ object AspectFrame extends VarsMap {
     xalign: Opt[Binding[Float]] = UnsetParam,
     yalign: Opt[Binding[Float]] = UnsetParam
   ): VarContextAction[AspectFrame] = {
-    val res = uninitialized(arg$0, arg$1, arg$2, arg$3)
+    val res = uninitialized(cssName, heightRequest, widthRequest, accessibleRole)
     guarana.gtk.AspectFrame.init(res)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)

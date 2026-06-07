@@ -55,14 +55,18 @@ object Viewport extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(arg$0: org.gnome.gtk.Adjustment | Null, arg$1: org.gnome.gtk.Adjustment | Null): Viewport = {
-    val res = new org.gnome.gtk.Viewport(arg$0, arg$1)
+  def uninitialized(cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): Viewport = {
+    val res = org.gnome.gtk.Viewport.builder()
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
     
     res.asInstanceOf[Viewport]
   }
   
   def apply(
-    arg$0: org.gnome.gtk.Adjustment | Null, arg$1: org.gnome.gtk.Adjustment | Null,
+    cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
     child: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
@@ -102,7 +106,7 @@ object Viewport extends VarsMap {
     visible: Opt[Binding[Boolean]] = UnsetParam,
     vscrollPolicy: Opt[Binding[org.gnome.gtk.ScrollablePolicy]] = UnsetParam
   ): VarContextAction[Viewport] = {
-    val res = uninitialized(arg$0, arg$1)
+    val res = uninitialized(cssName, heightRequest, widthRequest, accessibleRole)
     guarana.gtk.Viewport.init(res)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)

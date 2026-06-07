@@ -52,14 +52,31 @@ object MessageDialog extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(arg$0: org.gnome.gtk.Window | Null, arg$1: java.util.Set[org.gnome.gtk.DialogFlags], arg$2: org.gnome.gtk.MessageType, arg$3: org.gnome.gtk.ButtonsType, arg$4: java.lang.String | Null, arg$5: Array[java.lang.Object]): MessageDialog = {
-    val res = new org.gnome.gtk.MessageDialog(arg$0, arg$1, arg$2, arg$3, arg$4, arg$5)
+  def uninitialized(buttons: Opt[org.gnome.gtk.ButtonsType], messageType: Opt[org.gnome.gtk.MessageType], secondaryText: Opt[java.lang.String], secondaryUseMarkup: Opt[Boolean], text: Opt[java.lang.String], useMarkup: Opt[Boolean], useHeaderBar: Opt[Int], defaultHeight: Opt[Int], defaultWidth: Opt[Int], focusWidget: Opt[guarana.gtk.Widget], fullscreened: Opt[Boolean], maximized: Opt[Boolean], startupId: Opt[java.lang.String], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): MessageDialog = {
+    val res = org.gnome.gtk.MessageDialog.builder()
+    ifSet(buttons, v => res.setButtons(v))
+    ifSet(messageType, v => res.setMessageType(v))
+    ifSet(secondaryText, v => res.setSecondaryText(v))
+    ifSet(secondaryUseMarkup, v => res.setSecondaryUseMarkup(v))
+    ifSet(text, v => res.setText(v))
+    ifSet(useMarkup, v => res.setUseMarkup(v))
+    ifSet(useHeaderBar, v => res.setUseHeaderBar(v))
+    ifSet(defaultHeight, v => res.setDefaultHeight(v))
+    ifSet(defaultWidth, v => res.setDefaultWidth(v))
+    ifSet(focusWidget, v => res.setFocusWidget(v.unwrap))
+    ifSet(fullscreened, v => res.setFullscreened(v))
+    ifSet(maximized, v => res.setMaximized(v))
+    ifSet(startupId, v => res.setStartupId(v))
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
     
     res.asInstanceOf[MessageDialog]
   }
   
   def apply(
-    arg$0: org.gnome.gtk.Window | Null, arg$1: java.util.Set[org.gnome.gtk.DialogFlags], arg$2: org.gnome.gtk.MessageType, arg$3: org.gnome.gtk.ButtonsType, arg$4: java.lang.String | Null, arg$5: Array[java.lang.Object],
+    buttons: Opt[org.gnome.gtk.ButtonsType] = UnsetParam, messageType: Opt[org.gnome.gtk.MessageType] = UnsetParam, secondaryText: Opt[java.lang.String] = UnsetParam, secondaryUseMarkup: Opt[Boolean] = UnsetParam, text: Opt[java.lang.String] = UnsetParam, useMarkup: Opt[Boolean] = UnsetParam, useHeaderBar: Opt[Int] = UnsetParam, defaultHeight: Opt[Int] = UnsetParam, defaultWidth: Opt[Int] = UnsetParam, focusWidget: Opt[guarana.gtk.Widget] = UnsetParam, fullscreened: Opt[Boolean] = UnsetParam, maximized: Opt[Boolean] = UnsetParam, startupId: Opt[java.lang.String] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam,
     application: Opt[Binding[org.gnome.gtk.Application | Null]] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
@@ -112,7 +129,7 @@ object MessageDialog extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[MessageDialog] = {
-    val res = uninitialized(arg$0, arg$1, arg$2, arg$3, arg$4, arg$5)
+    val res = uninitialized(buttons, messageType, secondaryText, secondaryUseMarkup, text, useMarkup, useHeaderBar, defaultHeight, defaultWidth, focusWidget, fullscreened, maximized, startupId, cssName, heightRequest, widthRequest, accessibleRole)
     guarana.gtk.MessageDialog.init(res)
     ifSet(application, res.application := _)
     ifSet(canFocus, res.canFocus := _)

@@ -44,7 +44,7 @@ class ClassIndex(val scanResult: ScanResult) {
         setter <- builderClass.getMethodInfo().filter(m => setterPat.matches(m.getName())).asScala
         if setter.isPublic() && !setter.isStatic()
         propName = computeNameParts(setter.getName().stripPrefix("set"))
-        propType = setter.getTypeSignatureOrTypeDescriptor().getResultType()
+        propType = setter.getParameterInfo()(0).getTypeSignatureOrTypeDescriptor()
         res = GtkPropertyInfo(propName, ReflectedType(ReflectedTypeParser.toType(propType)), setter.hasAnnotation(classOf[Deprecated]))(Some(setter.getName()))
         if (!existingProperties(res.nameInCamelCase))
       } yield res).toIndexedSeq

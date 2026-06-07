@@ -69,14 +69,23 @@ object ScrolledWindow extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(): ScrolledWindow = {
-    val res = new org.gnome.gtk.ScrolledWindow()
+  def uninitialized(hadjustment: Opt[org.gnome.gtk.Adjustment], hscrollbarPolicy: Opt[org.gnome.gtk.PolicyType], vadjustment: Opt[org.gnome.gtk.Adjustment], vscrollbarPolicy: Opt[org.gnome.gtk.PolicyType], windowPlacement: Opt[org.gnome.gtk.CornerType], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): ScrolledWindow = {
+    val res = org.gnome.gtk.ScrolledWindow.builder()
+    ifSet(hadjustment, v => res.setHadjustment(v))
+    ifSet(hscrollbarPolicy, v => res.setHscrollbarPolicy(v))
+    ifSet(vadjustment, v => res.setVadjustment(v))
+    ifSet(vscrollbarPolicy, v => res.setVscrollbarPolicy(v))
+    ifSet(windowPlacement, v => res.setWindowPlacement(v))
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
     
     res.asInstanceOf[ScrolledWindow]
   }
   
   def apply(
-    
+    hadjustment: Opt[org.gnome.gtk.Adjustment] = UnsetParam, hscrollbarPolicy: Opt[org.gnome.gtk.PolicyType] = UnsetParam, vadjustment: Opt[org.gnome.gtk.Adjustment] = UnsetParam, vscrollbarPolicy: Opt[org.gnome.gtk.PolicyType] = UnsetParam, windowPlacement: Opt[org.gnome.gtk.CornerType] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
     child: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
@@ -121,7 +130,7 @@ object ScrolledWindow extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[ScrolledWindow] = {
-    val res = uninitialized()
+    val res = uninitialized(hadjustment, hscrollbarPolicy, vadjustment, vscrollbarPolicy, windowPlacement, cssName, heightRequest, widthRequest, accessibleRole)
     guarana.gtk.ScrolledWindow.init(res)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)

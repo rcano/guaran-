@@ -5,6 +5,7 @@ import guarana.codegen.*
 import io.github.classgraph.{ClassGraph, ClassInfo}
 import scala.jdk.CollectionConverters.*
 import scala.meta.*
+import scala.util.chaining.*
 
 object run extends Windows, Containers, TextNodes {
   lazy val classIndex = ClassIndex(
@@ -39,6 +40,7 @@ object run extends Windows, Containers, TextNodes {
 
   lazy val ButtonNode = genNodeDescr(classIndex.scanResult.getClassInfo("org.gnome.gtk.Button"), "Button", Some(WidgetNode))
     .addProperty(ExternalProp("label", "String | Null"))
+    .pipe(n => n.copy(uninitExtraParams = n.uninitExtraParams.filterNot(_.name == "label")))
 
   lazy val OverlayNode = genNodeDescr(classIndex.scanResult.getClassInfo("org.gnome.gtk.Overlay"), "Overlay", Some(WidgetNode))
     .addProperty(VarProp("overlayed", "Seq[Widget]", "Seq.empty", eagerEvaluation = true))
@@ -74,7 +76,10 @@ object run extends Windows, Containers, TextNodes {
       else widgetInfo.properties
     ).toList.sortBy(_.nameInPascalCase)
 
-    val uninitParams = widgetInfo.constructorParams.map(p => Parameter(p.nameInCamelCase, s"Opt[${mapTypeToNodes(p.tpe)}]", "", default = Some("UnsetParam"))).sortBy(_.name)
+    val ctorParams = widgetInfo.constructorParams.filterNot(_.nameInCamelCase == "cssClasses")
+
+    val uninitParams = ctorParams
+      .map(p => Parameter(p.nameInCamelCase, s"Opt[${mapTypeToNodes(p.tpe)}]", "", default = Some("UnsetParam")))
 
     NodeDescr(
       "guarana.gtk",
@@ -84,17 +89,15 @@ object run extends Windows, Containers, TextNodes {
       isAbstract = ci.isAbstract(),
       companionObjectExtends = Some("VarsMap"),
       uninitExtraParams = uninitParams,
-      // creator = Seq(s"new ${ci.getName()}(${widgetInfo.constructorParams
-      //     .map { p =>
-      //       val paramType = mapTypeToNodes(p.tpe)
-      //       val isNullable = paramType.endsWith(" | Null")
-      //       if (paramType.startsWith("guarana.gtk")) {
-      //         if (isNullable) s"${p.nameInCamelCase}.?(_.unwrap)"
-      //         else s"${p.nameInCamelCase}.unwrap"
-      //       } else p.nameInCamelCase
-      //     }
-      //     .mkString(", ")})"),
-      creator = Seq(s"${ci.getName()}.builder()") ++ uninitParams.map(p => s"""ifSet(${p.name}, res.set${p.name.capitalize}(_))"""),
+      creator = Seq("{", s"val res = ${ci.getName()}.builder()") ++ ctorParams.map { p =>
+        val paramType = mapTypeToNodes(p.tpe)
+        val isNullable = paramType.endsWith(" | Null")
+        val value = if (paramType.startsWith("guarana.gtk")) {
+          if (isNullable) s"v.?(_.unwrap)"
+          else s"v.unwrap"
+        } else "v"
+        s"""  ifSet(${p.nameInCamelCase}, v => res.set${p.nameInPascalCase}($value))"""
+      } :+ "}",
       props = widgetProperties.map(p =>
         val varType = mapTypeToNodes(p.tpe)
         ExternalProp(

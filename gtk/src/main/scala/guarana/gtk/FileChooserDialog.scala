@@ -58,14 +58,26 @@ object FileChooserDialog extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(arg$0: java.lang.String | Null, arg$1: org.gnome.gtk.Window | Null, arg$2: org.gnome.gtk.FileChooserAction, arg$3: java.lang.String | Null, arg$4: Array[java.lang.Object]): FileChooserDialog = {
-    val res = new org.gnome.gtk.FileChooserDialog(arg$0, arg$1, arg$2, arg$3, arg$4)
+  def uninitialized(useHeaderBar: Opt[Int], defaultHeight: Opt[Int], defaultWidth: Opt[Int], focusWidget: Opt[guarana.gtk.Widget], fullscreened: Opt[Boolean], maximized: Opt[Boolean], startupId: Opt[java.lang.String], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole], filter: Opt[org.gnome.gtk.FileFilter]): FileChooserDialog = {
+    val res = org.gnome.gtk.FileChooserDialog.builder()
+    ifSet(useHeaderBar, v => res.setUseHeaderBar(v))
+    ifSet(defaultHeight, v => res.setDefaultHeight(v))
+    ifSet(defaultWidth, v => res.setDefaultWidth(v))
+    ifSet(focusWidget, v => res.setFocusWidget(v.unwrap))
+    ifSet(fullscreened, v => res.setFullscreened(v))
+    ifSet(maximized, v => res.setMaximized(v))
+    ifSet(startupId, v => res.setStartupId(v))
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
+    ifSet(filter, v => res.setFilter(v))
     
     res.asInstanceOf[FileChooserDialog]
   }
   
   def apply(
-    arg$0: java.lang.String | Null, arg$1: org.gnome.gtk.Window | Null, arg$2: org.gnome.gtk.FileChooserAction, arg$3: java.lang.String | Null, arg$4: Array[java.lang.Object],
+    useHeaderBar: Opt[Int] = UnsetParam, defaultHeight: Opt[Int] = UnsetParam, defaultWidth: Opt[Int] = UnsetParam, focusWidget: Opt[guarana.gtk.Widget] = UnsetParam, fullscreened: Opt[Boolean] = UnsetParam, maximized: Opt[Boolean] = UnsetParam, startupId: Opt[java.lang.String] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam, filter: Opt[org.gnome.gtk.FileFilter] = UnsetParam,
     action: Opt[Binding[org.gnome.gtk.FileChooserAction]] = UnsetParam,
     application: Opt[Binding[org.gnome.gtk.Application | Null]] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
@@ -122,7 +134,7 @@ object FileChooserDialog extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[FileChooserDialog] = {
-    val res = uninitialized(arg$0, arg$1, arg$2, arg$3, arg$4)
+    val res = uninitialized(useHeaderBar, defaultHeight, defaultWidth, focusWidget, fullscreened, maximized, startupId, cssName, heightRequest, widthRequest, accessibleRole, filter)
     guarana.gtk.FileChooserDialog.init(res)
     ifSet(action, res.action := _)
     ifSet(application, res.application := _)

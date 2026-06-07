@@ -51,14 +51,19 @@ object Frame extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(arg$0: java.lang.String | Null): Frame = {
-    val res = new org.gnome.gtk.Frame(arg$0)
+  def uninitialized(labelXalign: Opt[Float], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): Frame = {
+    val res = org.gnome.gtk.Frame.builder()
+    ifSet(labelXalign, v => res.setLabelXalign(v))
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
     
     res.asInstanceOf[Frame]
   }
   
   def apply(
-    arg$0: java.lang.String | Null,
+    labelXalign: Opt[Float] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
     child: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
@@ -96,7 +101,7 @@ object Frame extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[Frame] = {
-    val res = uninitialized(arg$0)
+    val res = uninitialized(labelXalign, cssName, heightRequest, widthRequest, accessibleRole)
     guarana.gtk.Frame.init(res)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)

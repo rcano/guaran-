@@ -54,14 +54,20 @@ object FontDialogButton extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(arg$0: org.gnome.gtk.FontDialog | Null): FontDialogButton = {
-    val res = new org.gnome.gtk.FontDialogButton(arg$0)
+  def uninitialized(dialog: Opt[org.gnome.gtk.FontDialog], fontDesc: Opt[org.gnome.pango.FontDescription], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): FontDialogButton = {
+    val res = org.gnome.gtk.FontDialogButton.builder()
+    ifSet(dialog, v => res.setDialog(v))
+    ifSet(fontDesc, v => res.setFontDesc(v))
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
     
     res.asInstanceOf[FontDialogButton]
   }
   
   def apply(
-    arg$0: org.gnome.gtk.FontDialog | Null,
+    dialog: Opt[org.gnome.gtk.FontDialog] = UnsetParam, fontDesc: Opt[org.gnome.pango.FontDescription] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
     childVisible: Opt[Binding[Boolean]] = UnsetParam,
@@ -100,7 +106,7 @@ object FontDialogButton extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[FontDialogButton] = {
-    val res = uninitialized(arg$0)
+    val res = uninitialized(dialog, fontDesc, cssName, heightRequest, widthRequest, accessibleRole)
     guarana.gtk.FontDialogButton.init(res)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)

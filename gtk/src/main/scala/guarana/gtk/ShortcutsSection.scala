@@ -46,14 +46,22 @@ object ShortcutsSection extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(): ShortcutsSection = {
-    val res = new org.gnome.gtk.ShortcutsSection()
+  def uninitialized(maxHeight: Opt[Int], sectionName: Opt[java.lang.String], title: Opt[java.lang.String], viewName: Opt[java.lang.String], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): ShortcutsSection = {
+    val res = org.gnome.gtk.ShortcutsSection.builder()
+    ifSet(maxHeight, v => res.setMaxHeight(v))
+    ifSet(sectionName, v => res.setSectionName(v))
+    ifSet(title, v => res.setTitle(v))
+    ifSet(viewName, v => res.setViewName(v))
+    ifSet(cssName, v => res.setCssName(v))
+    ifSet(heightRequest, v => res.setHeightRequest(v))
+    ifSet(widthRequest, v => res.setWidthRequest(v))
+    ifSet(accessibleRole, v => res.setAccessibleRole(v))
     
     res.asInstanceOf[ShortcutsSection]
   }
   
   def apply(
-    
+    maxHeight: Opt[Int] = UnsetParam, sectionName: Opt[java.lang.String] = UnsetParam, title: Opt[java.lang.String] = UnsetParam, viewName: Opt[java.lang.String] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
     childVisible: Opt[Binding[Boolean]] = UnsetParam,
@@ -87,7 +95,7 @@ object ShortcutsSection extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[ShortcutsSection] = {
-    val res = uninitialized()
+    val res = uninitialized(maxHeight, sectionName, title, viewName, cssName, heightRequest, widthRequest, accessibleRole)
     guarana.gtk.ShortcutsSection.init(res)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)
