@@ -46,13 +46,16 @@ object ColorChooserWidget extends VarsMap {
     
   }
   def uninitialized(showEditor: Opt[Boolean], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole], rgba: Opt[org.gnome.gdk.RGBA]): ColorChooserWidget = {
-    val res = org.gnome.gtk.ColorChooserWidget.builder()
-    ifSet(showEditor, v => res.setShowEditor(v))
-    ifSet(cssName, v => res.setCssName(v))
-    ifSet(heightRequest, v => res.setHeightRequest(v))
-    ifSet(widthRequest, v => res.setWidthRequest(v))
-    ifSet(accessibleRole, v => res.setAccessibleRole(v))
-    ifSet(rgba, v => res.setRgba(v))
+    val res = {
+      val res = org.gnome.gtk.ColorChooserWidget.builder()
+      ifSet(showEditor, v => res.setShowEditor(v))
+      ifSet(cssName, v => res.setCssName(v))
+      ifSet(heightRequest, v => res.setHeightRequest(v))
+      ifSet(widthRequest, v => res.setWidthRequest(v))
+      ifSet(accessibleRole, v => res.setAccessibleRole(v))
+      ifSet(rgba, v => res.setRgba(v))
+      res.build()
+    }
     
     res.asInstanceOf[ColorChooserWidget]
   }

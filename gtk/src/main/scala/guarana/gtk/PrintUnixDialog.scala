@@ -63,19 +63,22 @@ object PrintUnixDialog extends VarsMap {
     
   }
   def uninitialized(printSettings: Opt[org.gnome.gtk.PrintSettings], useHeaderBar: Opt[Int], defaultHeight: Opt[Int], defaultWidth: Opt[Int], focusWidget: Opt[guarana.gtk.Widget], fullscreened: Opt[Boolean], maximized: Opt[Boolean], startupId: Opt[java.lang.String], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): PrintUnixDialog = {
-    val res = org.gnome.gtk.PrintUnixDialog.builder()
-    ifSet(printSettings, v => res.setPrintSettings(v))
-    ifSet(useHeaderBar, v => res.setUseHeaderBar(v))
-    ifSet(defaultHeight, v => res.setDefaultHeight(v))
-    ifSet(defaultWidth, v => res.setDefaultWidth(v))
-    ifSet(focusWidget, v => res.setFocusWidget(v.unwrap))
-    ifSet(fullscreened, v => res.setFullscreened(v))
-    ifSet(maximized, v => res.setMaximized(v))
-    ifSet(startupId, v => res.setStartupId(v))
-    ifSet(cssName, v => res.setCssName(v))
-    ifSet(heightRequest, v => res.setHeightRequest(v))
-    ifSet(widthRequest, v => res.setWidthRequest(v))
-    ifSet(accessibleRole, v => res.setAccessibleRole(v))
+    val res = {
+      val res = org.gnome.gtk.PrintUnixDialog.builder()
+      ifSet(printSettings, v => res.setPrintSettings(v))
+      ifSet(useHeaderBar, v => res.setUseHeaderBar(v))
+      ifSet(defaultHeight, v => res.setDefaultHeight(v))
+      ifSet(defaultWidth, v => res.setDefaultWidth(v))
+      ifSet(focusWidget, v => res.setFocusWidget(v.unwrap))
+      ifSet(fullscreened, v => res.setFullscreened(v))
+      ifSet(maximized, v => res.setMaximized(v))
+      ifSet(startupId, v => res.setStartupId(v))
+      ifSet(cssName, v => res.setCssName(v))
+      ifSet(heightRequest, v => res.setHeightRequest(v))
+      ifSet(widthRequest, v => res.setWidthRequest(v))
+      ifSet(accessibleRole, v => res.setAccessibleRole(v))
+      res.build()
+    }
     
     res.asInstanceOf[PrintUnixDialog]
   }

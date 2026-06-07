@@ -46,12 +46,15 @@ object Scrollbar extends VarsMap {
     
   }
   def uninitialized(adjustment: Opt[org.gnome.gtk.Adjustment], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): Scrollbar = {
-    val res = org.gnome.gtk.Scrollbar.builder()
-    ifSet(adjustment, v => res.setAdjustment(v))
-    ifSet(cssName, v => res.setCssName(v))
-    ifSet(heightRequest, v => res.setHeightRequest(v))
-    ifSet(widthRequest, v => res.setWidthRequest(v))
-    ifSet(accessibleRole, v => res.setAccessibleRole(v))
+    val res = {
+      val res = org.gnome.gtk.Scrollbar.builder()
+      ifSet(adjustment, v => res.setAdjustment(v))
+      ifSet(cssName, v => res.setCssName(v))
+      ifSet(heightRequest, v => res.setHeightRequest(v))
+      ifSet(widthRequest, v => res.setWidthRequest(v))
+      ifSet(accessibleRole, v => res.setAccessibleRole(v))
+      res.build()
+    }
     
     res.asInstanceOf[Scrollbar]
   }

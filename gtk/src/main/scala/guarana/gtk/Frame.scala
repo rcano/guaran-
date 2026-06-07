@@ -52,12 +52,15 @@ object Frame extends VarsMap {
     
   }
   def uninitialized(labelXalign: Opt[Float], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): Frame = {
-    val res = org.gnome.gtk.Frame.builder()
-    ifSet(labelXalign, v => res.setLabelXalign(v))
-    ifSet(cssName, v => res.setCssName(v))
-    ifSet(heightRequest, v => res.setHeightRequest(v))
-    ifSet(widthRequest, v => res.setWidthRequest(v))
-    ifSet(accessibleRole, v => res.setAccessibleRole(v))
+    val res = {
+      val res = org.gnome.gtk.Frame.builder()
+      ifSet(labelXalign, v => res.setLabelXalign(v))
+      ifSet(cssName, v => res.setCssName(v))
+      ifSet(heightRequest, v => res.setHeightRequest(v))
+      ifSet(widthRequest, v => res.setWidthRequest(v))
+      ifSet(accessibleRole, v => res.setAccessibleRole(v))
+      res.build()
+    }
     
     res.asInstanceOf[Frame]
   }

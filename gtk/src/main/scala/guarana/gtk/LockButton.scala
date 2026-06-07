@@ -48,19 +48,22 @@ object LockButton extends VarsMap {
     
   }
   def uninitialized(textLock: Opt[java.lang.String], textUnlock: Opt[java.lang.String], tooltipLock: Opt[java.lang.String], tooltipNotAuthorized: Opt[java.lang.String], tooltipUnlock: Opt[java.lang.String], iconName: Opt[java.lang.String], label: Opt[java.lang.String], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole], actionTarget: Opt[org.gnome.glib.Variant]): LockButton = {
-    val res = org.gnome.gtk.LockButton.builder()
-    ifSet(textLock, v => res.setTextLock(v))
-    ifSet(textUnlock, v => res.setTextUnlock(v))
-    ifSet(tooltipLock, v => res.setTooltipLock(v))
-    ifSet(tooltipNotAuthorized, v => res.setTooltipNotAuthorized(v))
-    ifSet(tooltipUnlock, v => res.setTooltipUnlock(v))
-    ifSet(iconName, v => res.setIconName(v))
-    ifSet(label, v => res.setLabel(v))
-    ifSet(cssName, v => res.setCssName(v))
-    ifSet(heightRequest, v => res.setHeightRequest(v))
-    ifSet(widthRequest, v => res.setWidthRequest(v))
-    ifSet(accessibleRole, v => res.setAccessibleRole(v))
-    ifSet(actionTarget, v => res.setActionTarget(v))
+    val res = {
+      val res = org.gnome.gtk.LockButton.builder()
+      ifSet(textLock, v => res.setTextLock(v))
+      ifSet(textUnlock, v => res.setTextUnlock(v))
+      ifSet(tooltipLock, v => res.setTooltipLock(v))
+      ifSet(tooltipNotAuthorized, v => res.setTooltipNotAuthorized(v))
+      ifSet(tooltipUnlock, v => res.setTooltipUnlock(v))
+      ifSet(iconName, v => res.setIconName(v))
+      ifSet(label, v => res.setLabel(v))
+      ifSet(cssName, v => res.setCssName(v))
+      ifSet(heightRequest, v => res.setHeightRequest(v))
+      ifSet(widthRequest, v => res.setWidthRequest(v))
+      ifSet(accessibleRole, v => res.setAccessibleRole(v))
+      ifSet(actionTarget, v => res.setActionTarget(v))
+      res.build()
+    }
     
     res.asInstanceOf[LockButton]
   }

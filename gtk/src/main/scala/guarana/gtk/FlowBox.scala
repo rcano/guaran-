@@ -76,12 +76,15 @@ object FlowBox extends VarsMap {
     
   }
   def uninitialized(acceptUnpairedRelease: Opt[Boolean], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): FlowBox = {
-    val res = org.gnome.gtk.FlowBox.builder()
-    ifSet(acceptUnpairedRelease, v => res.setAcceptUnpairedRelease(v))
-    ifSet(cssName, v => res.setCssName(v))
-    ifSet(heightRequest, v => res.setHeightRequest(v))
-    ifSet(widthRequest, v => res.setWidthRequest(v))
-    ifSet(accessibleRole, v => res.setAccessibleRole(v))
+    val res = {
+      val res = org.gnome.gtk.FlowBox.builder()
+      ifSet(acceptUnpairedRelease, v => res.setAcceptUnpairedRelease(v))
+      ifSet(cssName, v => res.setCssName(v))
+      ifSet(heightRequest, v => res.setHeightRequest(v))
+      ifSet(widthRequest, v => res.setWidthRequest(v))
+      ifSet(accessibleRole, v => res.setAccessibleRole(v))
+      res.build()
+    }
     
     res.asInstanceOf[FlowBox]
   }

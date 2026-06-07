@@ -55,13 +55,16 @@ object FontDialogButton extends VarsMap {
     
   }
   def uninitialized(dialog: Opt[org.gnome.gtk.FontDialog], fontDesc: Opt[org.gnome.pango.FontDescription], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): FontDialogButton = {
-    val res = org.gnome.gtk.FontDialogButton.builder()
-    ifSet(dialog, v => res.setDialog(v))
-    ifSet(fontDesc, v => res.setFontDesc(v))
-    ifSet(cssName, v => res.setCssName(v))
-    ifSet(heightRequest, v => res.setHeightRequest(v))
-    ifSet(widthRequest, v => res.setWidthRequest(v))
-    ifSet(accessibleRole, v => res.setAccessibleRole(v))
+    val res = {
+      val res = org.gnome.gtk.FontDialogButton.builder()
+      ifSet(dialog, v => res.setDialog(v))
+      ifSet(fontDesc, v => res.setFontDesc(v))
+      ifSet(cssName, v => res.setCssName(v))
+      ifSet(heightRequest, v => res.setHeightRequest(v))
+      ifSet(widthRequest, v => res.setWidthRequest(v))
+      ifSet(accessibleRole, v => res.setAccessibleRole(v))
+      res.build()
+    }
     
     res.asInstanceOf[FontDialogButton]
   }

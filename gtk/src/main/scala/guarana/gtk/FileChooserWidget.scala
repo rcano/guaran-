@@ -64,13 +64,16 @@ object FileChooserWidget extends VarsMap {
     
   }
   def uninitialized(searchMode: Opt[Boolean], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole], filter: Opt[org.gnome.gtk.FileFilter]): FileChooserWidget = {
-    val res = org.gnome.gtk.FileChooserWidget.builder()
-    ifSet(searchMode, v => res.setSearchMode(v))
-    ifSet(cssName, v => res.setCssName(v))
-    ifSet(heightRequest, v => res.setHeightRequest(v))
-    ifSet(widthRequest, v => res.setWidthRequest(v))
-    ifSet(accessibleRole, v => res.setAccessibleRole(v))
-    ifSet(filter, v => res.setFilter(v))
+    val res = {
+      val res = org.gnome.gtk.FileChooserWidget.builder()
+      ifSet(searchMode, v => res.setSearchMode(v))
+      ifSet(cssName, v => res.setCssName(v))
+      ifSet(heightRequest, v => res.setHeightRequest(v))
+      ifSet(widthRequest, v => res.setWidthRequest(v))
+      ifSet(accessibleRole, v => res.setAccessibleRole(v))
+      ifSet(filter, v => res.setFilter(v))
+      res.build()
+    }
     
     res.asInstanceOf[FileChooserWidget]
   }

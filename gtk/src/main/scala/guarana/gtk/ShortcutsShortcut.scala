@@ -46,21 +46,24 @@ object ShortcutsShortcut extends VarsMap {
     
   }
   def uninitialized(accelSizeGroup: Opt[org.gnome.gtk.SizeGroup], accelerator: Opt[java.lang.String], actionName: Opt[java.lang.String], icon: Opt[org.gnome.gio.Icon], iconSet: Opt[Boolean], shortcutType: Opt[org.gnome.gtk.ShortcutType], subtitle: Opt[java.lang.String], subtitleSet: Opt[Boolean], title: Opt[java.lang.String], titleSizeGroup: Opt[org.gnome.gtk.SizeGroup], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): ShortcutsShortcut = {
-    val res = org.gnome.gtk.ShortcutsShortcut.builder()
-    ifSet(accelSizeGroup, v => res.setAccelSizeGroup(v))
-    ifSet(accelerator, v => res.setAccelerator(v))
-    ifSet(actionName, v => res.setActionName(v))
-    ifSet(icon, v => res.setIcon(v))
-    ifSet(iconSet, v => res.setIconSet(v))
-    ifSet(shortcutType, v => res.setShortcutType(v))
-    ifSet(subtitle, v => res.setSubtitle(v))
-    ifSet(subtitleSet, v => res.setSubtitleSet(v))
-    ifSet(title, v => res.setTitle(v))
-    ifSet(titleSizeGroup, v => res.setTitleSizeGroup(v))
-    ifSet(cssName, v => res.setCssName(v))
-    ifSet(heightRequest, v => res.setHeightRequest(v))
-    ifSet(widthRequest, v => res.setWidthRequest(v))
-    ifSet(accessibleRole, v => res.setAccessibleRole(v))
+    val res = {
+      val res = org.gnome.gtk.ShortcutsShortcut.builder()
+      ifSet(accelSizeGroup, v => res.setAccelSizeGroup(v))
+      ifSet(accelerator, v => res.setAccelerator(v))
+      ifSet(actionName, v => res.setActionName(v))
+      ifSet(icon, v => res.setIcon(v))
+      ifSet(iconSet, v => res.setIconSet(v))
+      ifSet(shortcutType, v => res.setShortcutType(v))
+      ifSet(subtitle, v => res.setSubtitle(v))
+      ifSet(subtitleSet, v => res.setSubtitleSet(v))
+      ifSet(title, v => res.setTitle(v))
+      ifSet(titleSizeGroup, v => res.setTitleSizeGroup(v))
+      ifSet(cssName, v => res.setCssName(v))
+      ifSet(heightRequest, v => res.setHeightRequest(v))
+      ifSet(widthRequest, v => res.setWidthRequest(v))
+      ifSet(accessibleRole, v => res.setAccessibleRole(v))
+      res.build()
+    }
     
     res.asInstanceOf[ShortcutsShortcut]
   }

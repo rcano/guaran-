@@ -46,12 +46,15 @@ object StackSidebar extends VarsMap {
     
   }
   def uninitialized(stack: Opt[org.gnome.gtk.Stack], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): StackSidebar = {
-    val res = org.gnome.gtk.StackSidebar.builder()
-    ifSet(stack, v => res.setStack(v))
-    ifSet(cssName, v => res.setCssName(v))
-    ifSet(heightRequest, v => res.setHeightRequest(v))
-    ifSet(widthRequest, v => res.setWidthRequest(v))
-    ifSet(accessibleRole, v => res.setAccessibleRole(v))
+    val res = {
+      val res = org.gnome.gtk.StackSidebar.builder()
+      ifSet(stack, v => res.setStack(v))
+      ifSet(cssName, v => res.setCssName(v))
+      ifSet(heightRequest, v => res.setHeightRequest(v))
+      ifSet(widthRequest, v => res.setWidthRequest(v))
+      ifSet(accessibleRole, v => res.setAccessibleRole(v))
+      res.build()
+    }
     
     res.asInstanceOf[StackSidebar]
   }

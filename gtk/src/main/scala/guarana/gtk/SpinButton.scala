@@ -84,13 +84,16 @@ object SpinButton extends VarsMap {
     
   }
   def uninitialized(cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole], editingCanceled: Opt[Boolean], xalign: Opt[Float]): SpinButton = {
-    val res = org.gnome.gtk.SpinButton.builder()
-    ifSet(cssName, v => res.setCssName(v))
-    ifSet(heightRequest, v => res.setHeightRequest(v))
-    ifSet(widthRequest, v => res.setWidthRequest(v))
-    ifSet(accessibleRole, v => res.setAccessibleRole(v))
-    ifSet(editingCanceled, v => res.setEditingCanceled(v))
-    ifSet(xalign, v => res.setXalign(v))
+    val res = {
+      val res = org.gnome.gtk.SpinButton.builder()
+      ifSet(cssName, v => res.setCssName(v))
+      ifSet(heightRequest, v => res.setHeightRequest(v))
+      ifSet(widthRequest, v => res.setWidthRequest(v))
+      ifSet(accessibleRole, v => res.setAccessibleRole(v))
+      ifSet(editingCanceled, v => res.setEditingCanceled(v))
+      ifSet(xalign, v => res.setXalign(v))
+      res.build()
+    }
     
     res.asInstanceOf[SpinButton]
   }

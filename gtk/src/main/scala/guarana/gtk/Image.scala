@@ -48,17 +48,20 @@ object Image extends VarsMap {
     
   }
   def uninitialized(file: Opt[java.lang.String], gicon: Opt[org.gnome.gio.Icon], iconName: Opt[java.lang.String], paintable: Opt[org.gnome.gdk.Paintable], resource: Opt[java.lang.String], useFallback: Opt[Boolean], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): Image = {
-    val res = org.gnome.gtk.Image.builder()
-    ifSet(file, v => res.setFile(v))
-    ifSet(gicon, v => res.setGicon(v))
-    ifSet(iconName, v => res.setIconName(v))
-    ifSet(paintable, v => res.setPaintable(v))
-    ifSet(resource, v => res.setResource(v))
-    ifSet(useFallback, v => res.setUseFallback(v))
-    ifSet(cssName, v => res.setCssName(v))
-    ifSet(heightRequest, v => res.setHeightRequest(v))
-    ifSet(widthRequest, v => res.setWidthRequest(v))
-    ifSet(accessibleRole, v => res.setAccessibleRole(v))
+    val res = {
+      val res = org.gnome.gtk.Image.builder()
+      ifSet(file, v => res.setFile(v))
+      ifSet(gicon, v => res.setGicon(v))
+      ifSet(iconName, v => res.setIconName(v))
+      ifSet(paintable, v => res.setPaintable(v))
+      ifSet(resource, v => res.setResource(v))
+      ifSet(useFallback, v => res.setUseFallback(v))
+      ifSet(cssName, v => res.setCssName(v))
+      ifSet(heightRequest, v => res.setHeightRequest(v))
+      ifSet(widthRequest, v => res.setWidthRequest(v))
+      ifSet(accessibleRole, v => res.setAccessibleRole(v))
+      res.build()
+    }
     
     res.asInstanceOf[Image]
   }

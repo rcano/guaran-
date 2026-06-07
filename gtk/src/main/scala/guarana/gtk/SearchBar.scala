@@ -52,12 +52,15 @@ object SearchBar extends VarsMap {
     
   }
   def uninitialized(searchModeEnabled: Opt[Boolean], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): SearchBar = {
-    val res = org.gnome.gtk.SearchBar.builder()
-    ifSet(searchModeEnabled, v => res.setSearchModeEnabled(v))
-    ifSet(cssName, v => res.setCssName(v))
-    ifSet(heightRequest, v => res.setHeightRequest(v))
-    ifSet(widthRequest, v => res.setWidthRequest(v))
-    ifSet(accessibleRole, v => res.setAccessibleRole(v))
+    val res = {
+      val res = org.gnome.gtk.SearchBar.builder()
+      ifSet(searchModeEnabled, v => res.setSearchModeEnabled(v))
+      ifSet(cssName, v => res.setCssName(v))
+      ifSet(heightRequest, v => res.setHeightRequest(v))
+      ifSet(widthRequest, v => res.setWidthRequest(v))
+      ifSet(accessibleRole, v => res.setAccessibleRole(v))
+      res.build()
+    }
     
     res.asInstanceOf[SearchBar]
   }

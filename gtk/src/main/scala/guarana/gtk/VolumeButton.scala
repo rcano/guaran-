@@ -49,13 +49,16 @@ object VolumeButton extends VarsMap {
     
   }
   def uninitialized(useSymbolic: Opt[Boolean], icons: Opt[Array[java.lang.String]], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): VolumeButton = {
-    val res = org.gnome.gtk.VolumeButton.builder()
-    ifSet(useSymbolic, v => res.setUseSymbolic(v))
-    ifSet(icons, v => res.setIcons(v))
-    ifSet(cssName, v => res.setCssName(v))
-    ifSet(heightRequest, v => res.setHeightRequest(v))
-    ifSet(widthRequest, v => res.setWidthRequest(v))
-    ifSet(accessibleRole, v => res.setAccessibleRole(v))
+    val res = {
+      val res = org.gnome.gtk.VolumeButton.builder()
+      ifSet(useSymbolic, v => res.setUseSymbolic(v))
+      ifSet(icons, v => res.setIcons(v))
+      ifSet(cssName, v => res.setCssName(v))
+      ifSet(heightRequest, v => res.setHeightRequest(v))
+      ifSet(widthRequest, v => res.setWidthRequest(v))
+      ifSet(accessibleRole, v => res.setAccessibleRole(v))
+      res.build()
+    }
     
     res.asInstanceOf[VolumeButton]
   }

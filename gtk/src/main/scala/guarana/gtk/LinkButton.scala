@@ -51,14 +51,17 @@ object LinkButton extends VarsMap {
     
   }
   def uninitialized(iconName: Opt[java.lang.String], label: Opt[java.lang.String], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole], actionTarget: Opt[org.gnome.glib.Variant]): LinkButton = {
-    val res = org.gnome.gtk.LinkButton.builder()
-    ifSet(iconName, v => res.setIconName(v))
-    ifSet(label, v => res.setLabel(v))
-    ifSet(cssName, v => res.setCssName(v))
-    ifSet(heightRequest, v => res.setHeightRequest(v))
-    ifSet(widthRequest, v => res.setWidthRequest(v))
-    ifSet(accessibleRole, v => res.setAccessibleRole(v))
-    ifSet(actionTarget, v => res.setActionTarget(v))
+    val res = {
+      val res = org.gnome.gtk.LinkButton.builder()
+      ifSet(iconName, v => res.setIconName(v))
+      ifSet(label, v => res.setLabel(v))
+      ifSet(cssName, v => res.setCssName(v))
+      ifSet(heightRequest, v => res.setHeightRequest(v))
+      ifSet(widthRequest, v => res.setWidthRequest(v))
+      ifSet(accessibleRole, v => res.setAccessibleRole(v))
+      ifSet(actionTarget, v => res.setActionTarget(v))
+      res.build()
+    }
     
     res.asInstanceOf[LinkButton]
   }

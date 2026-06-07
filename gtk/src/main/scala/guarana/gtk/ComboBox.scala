@@ -68,14 +68,17 @@ object ComboBox extends VarsMap {
     
   }
   def uninitialized(hasEntry: Opt[Boolean], hasFrame: Opt[Boolean], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole], editingCanceled: Opt[Boolean]): ComboBox = {
-    val res = org.gnome.gtk.ComboBox.builder()
-    ifSet(hasEntry, v => res.setHasEntry(v))
-    ifSet(hasFrame, v => res.setHasFrame(v))
-    ifSet(cssName, v => res.setCssName(v))
-    ifSet(heightRequest, v => res.setHeightRequest(v))
-    ifSet(widthRequest, v => res.setWidthRequest(v))
-    ifSet(accessibleRole, v => res.setAccessibleRole(v))
-    ifSet(editingCanceled, v => res.setEditingCanceled(v))
+    val res = {
+      val res = org.gnome.gtk.ComboBox.builder()
+      ifSet(hasEntry, v => res.setHasEntry(v))
+      ifSet(hasFrame, v => res.setHasFrame(v))
+      ifSet(cssName, v => res.setCssName(v))
+      ifSet(heightRequest, v => res.setHeightRequest(v))
+      ifSet(widthRequest, v => res.setWidthRequest(v))
+      ifSet(accessibleRole, v => res.setAccessibleRole(v))
+      ifSet(editingCanceled, v => res.setEditingCanceled(v))
+      res.build()
+    }
     
     res.asInstanceOf[ComboBox]
   }

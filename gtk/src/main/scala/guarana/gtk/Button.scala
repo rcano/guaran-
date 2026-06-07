@@ -59,21 +59,23 @@ object Button extends VarsMap {
     connectVarsListener(v)
     
   }
-  def uninitialized(iconName: Opt[java.lang.String], label: Opt[java.lang.String], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole], actionTarget: Opt[org.gnome.glib.Variant]): Button = {
-    val res = org.gnome.gtk.Button.builder()
-    ifSet(iconName, v => res.setIconName(v))
-    ifSet(label, v => res.setLabel(v))
-    ifSet(cssName, v => res.setCssName(v))
-    ifSet(heightRequest, v => res.setHeightRequest(v))
-    ifSet(widthRequest, v => res.setWidthRequest(v))
-    ifSet(accessibleRole, v => res.setAccessibleRole(v))
-    ifSet(actionTarget, v => res.setActionTarget(v))
+  def uninitialized(iconName: Opt[java.lang.String], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole], actionTarget: Opt[org.gnome.glib.Variant]): Button = {
+    val res = {
+      val res = org.gnome.gtk.Button.builder()
+      ifSet(iconName, v => res.setIconName(v))
+      ifSet(cssName, v => res.setCssName(v))
+      ifSet(heightRequest, v => res.setHeightRequest(v))
+      ifSet(widthRequest, v => res.setWidthRequest(v))
+      ifSet(accessibleRole, v => res.setAccessibleRole(v))
+      ifSet(actionTarget, v => res.setActionTarget(v))
+      res.build()
+    }
     
     res.asInstanceOf[Button]
   }
   
   def apply(
-    iconName: Opt[java.lang.String] = UnsetParam, label: Opt[java.lang.String] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam, actionTarget: Opt[org.gnome.glib.Variant] = UnsetParam,
+    iconName: Opt[java.lang.String] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam, actionTarget: Opt[org.gnome.glib.Variant] = UnsetParam,
     actionName: Opt[Binding[java.lang.String | Null]] = UnsetParam,
     actionTargetValue: Opt[Binding[org.gnome.glib.Variant | Null]] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
@@ -94,6 +96,7 @@ object Button extends VarsMap {
     hasTooltip: Opt[Binding[Boolean]] = UnsetParam,
     hexpand: Opt[Binding[Boolean]] = UnsetParam,
     hexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    label: Opt[Binding[String | Null]] = UnsetParam,
     layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam,
     limitEvents: Opt[Binding[Boolean]] = UnsetParam,
     marginBottom: Opt[Binding[Int]] = UnsetParam,
@@ -113,7 +116,7 @@ object Button extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[Button] = {
-    val res = uninitialized(iconName, label, cssName, heightRequest, widthRequest, accessibleRole, actionTarget)
+    val res = uninitialized(iconName, cssName, heightRequest, widthRequest, accessibleRole, actionTarget)
     guarana.gtk.Button.init(res)
     ifSet(actionName, res.actionName := _)
     ifSet(actionTargetValue, res.actionTargetValue := _)

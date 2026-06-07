@@ -54,13 +54,16 @@ object Stack extends VarsMap {
     
   }
   def uninitialized(visibleChild: Opt[guarana.gtk.Widget], visibleChildName: Opt[java.lang.String], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): Stack = {
-    val res = org.gnome.gtk.Stack.builder()
-    ifSet(visibleChild, v => res.setVisibleChild(v.unwrap))
-    ifSet(visibleChildName, v => res.setVisibleChildName(v))
-    ifSet(cssName, v => res.setCssName(v))
-    ifSet(heightRequest, v => res.setHeightRequest(v))
-    ifSet(widthRequest, v => res.setWidthRequest(v))
-    ifSet(accessibleRole, v => res.setAccessibleRole(v))
+    val res = {
+      val res = org.gnome.gtk.Stack.builder()
+      ifSet(visibleChild, v => res.setVisibleChild(v.unwrap))
+      ifSet(visibleChildName, v => res.setVisibleChildName(v))
+      ifSet(cssName, v => res.setCssName(v))
+      ifSet(heightRequest, v => res.setHeightRequest(v))
+      ifSet(widthRequest, v => res.setWidthRequest(v))
+      ifSet(accessibleRole, v => res.setAccessibleRole(v))
+      res.build()
+    }
     
     res.asInstanceOf[Stack]
   }

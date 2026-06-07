@@ -46,13 +46,16 @@ object ShortcutLabel extends VarsMap {
     
   }
   def uninitialized(accelerator: Opt[java.lang.String], disabledText: Opt[java.lang.String], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): ShortcutLabel = {
-    val res = org.gnome.gtk.ShortcutLabel.builder()
-    ifSet(accelerator, v => res.setAccelerator(v))
-    ifSet(disabledText, v => res.setDisabledText(v))
-    ifSet(cssName, v => res.setCssName(v))
-    ifSet(heightRequest, v => res.setHeightRequest(v))
-    ifSet(widthRequest, v => res.setWidthRequest(v))
-    ifSet(accessibleRole, v => res.setAccessibleRole(v))
+    val res = {
+      val res = org.gnome.gtk.ShortcutLabel.builder()
+      ifSet(accelerator, v => res.setAccelerator(v))
+      ifSet(disabledText, v => res.setDisabledText(v))
+      ifSet(cssName, v => res.setCssName(v))
+      ifSet(heightRequest, v => res.setHeightRequest(v))
+      ifSet(widthRequest, v => res.setWidthRequest(v))
+      ifSet(accessibleRole, v => res.setAccessibleRole(v))
+      res.build()
+    }
     
     res.asInstanceOf[ShortcutLabel]
   }

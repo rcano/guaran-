@@ -57,12 +57,15 @@ object ListBoxRow extends VarsMap {
     
   }
   def uninitialized(cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole], actionTarget: Opt[org.gnome.glib.Variant]): ListBoxRow = {
-    val res = org.gnome.gtk.ListBoxRow.builder()
-    ifSet(cssName, v => res.setCssName(v))
-    ifSet(heightRequest, v => res.setHeightRequest(v))
-    ifSet(widthRequest, v => res.setWidthRequest(v))
-    ifSet(accessibleRole, v => res.setAccessibleRole(v))
-    ifSet(actionTarget, v => res.setActionTarget(v))
+    val res = {
+      val res = org.gnome.gtk.ListBoxRow.builder()
+      ifSet(cssName, v => res.setCssName(v))
+      ifSet(heightRequest, v => res.setHeightRequest(v))
+      ifSet(widthRequest, v => res.setWidthRequest(v))
+      ifSet(accessibleRole, v => res.setAccessibleRole(v))
+      ifSet(actionTarget, v => res.setActionTarget(v))
+      res.build()
+    }
     
     res.asInstanceOf[ListBoxRow]
   }

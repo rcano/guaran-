@@ -53,13 +53,16 @@ object AppChooserButton extends VarsMap {
     
   }
   def uninitialized(heading: Opt[java.lang.String], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole], contentType: Opt[java.lang.String]): AppChooserButton = {
-    val res = org.gnome.gtk.AppChooserButton.builder()
-    ifSet(heading, v => res.setHeading(v))
-    ifSet(cssName, v => res.setCssName(v))
-    ifSet(heightRequest, v => res.setHeightRequest(v))
-    ifSet(widthRequest, v => res.setWidthRequest(v))
-    ifSet(accessibleRole, v => res.setAccessibleRole(v))
-    ifSet(contentType, v => res.setContentType(v))
+    val res = {
+      val res = org.gnome.gtk.AppChooserButton.builder()
+      ifSet(heading, v => res.setHeading(v))
+      ifSet(cssName, v => res.setCssName(v))
+      ifSet(heightRequest, v => res.setHeightRequest(v))
+      ifSet(widthRequest, v => res.setWidthRequest(v))
+      ifSet(accessibleRole, v => res.setAccessibleRole(v))
+      ifSet(contentType, v => res.setContentType(v))
+      res.build()
+    }
     
     res.asInstanceOf[AppChooserButton]
   }

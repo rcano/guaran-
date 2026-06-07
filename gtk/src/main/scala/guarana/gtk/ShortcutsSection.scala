@@ -47,15 +47,18 @@ object ShortcutsSection extends VarsMap {
     
   }
   def uninitialized(maxHeight: Opt[Int], sectionName: Opt[java.lang.String], title: Opt[java.lang.String], viewName: Opt[java.lang.String], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): ShortcutsSection = {
-    val res = org.gnome.gtk.ShortcutsSection.builder()
-    ifSet(maxHeight, v => res.setMaxHeight(v))
-    ifSet(sectionName, v => res.setSectionName(v))
-    ifSet(title, v => res.setTitle(v))
-    ifSet(viewName, v => res.setViewName(v))
-    ifSet(cssName, v => res.setCssName(v))
-    ifSet(heightRequest, v => res.setHeightRequest(v))
-    ifSet(widthRequest, v => res.setWidthRequest(v))
-    ifSet(accessibleRole, v => res.setAccessibleRole(v))
+    val res = {
+      val res = org.gnome.gtk.ShortcutsSection.builder()
+      ifSet(maxHeight, v => res.setMaxHeight(v))
+      ifSet(sectionName, v => res.setSectionName(v))
+      ifSet(title, v => res.setTitle(v))
+      ifSet(viewName, v => res.setViewName(v))
+      ifSet(cssName, v => res.setCssName(v))
+      ifSet(heightRequest, v => res.setHeightRequest(v))
+      ifSet(widthRequest, v => res.setWidthRequest(v))
+      ifSet(accessibleRole, v => res.setAccessibleRole(v))
+      res.build()
+    }
     
     res.asInstanceOf[ShortcutsSection]
   }

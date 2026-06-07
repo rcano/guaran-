@@ -58,13 +58,16 @@ object Popover extends VarsMap {
     
   }
   def uninitialized(defaultWidget: Opt[guarana.gtk.Widget], pointingTo: Opt[org.gnome.gdk.Rectangle], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): Popover = {
-    val res = org.gnome.gtk.Popover.builder()
-    ifSet(defaultWidget, v => res.setDefaultWidget(v.unwrap))
-    ifSet(pointingTo, v => res.setPointingTo(v))
-    ifSet(cssName, v => res.setCssName(v))
-    ifSet(heightRequest, v => res.setHeightRequest(v))
-    ifSet(widthRequest, v => res.setWidthRequest(v))
-    ifSet(accessibleRole, v => res.setAccessibleRole(v))
+    val res = {
+      val res = org.gnome.gtk.Popover.builder()
+      ifSet(defaultWidget, v => res.setDefaultWidget(v.unwrap))
+      ifSet(pointingTo, v => res.setPointingTo(v))
+      ifSet(cssName, v => res.setCssName(v))
+      ifSet(heightRequest, v => res.setHeightRequest(v))
+      ifSet(widthRequest, v => res.setWidthRequest(v))
+      ifSet(accessibleRole, v => res.setAccessibleRole(v))
+      res.build()
+    }
     
     res.asInstanceOf[Popover]
   }

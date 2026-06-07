@@ -53,21 +53,24 @@ object AppChooserDialog extends VarsMap {
     
   }
   def uninitialized(gfile: Opt[org.gnome.gio.File], heading: Opt[java.lang.String], useHeaderBar: Opt[Int], defaultHeight: Opt[Int], defaultWidth: Opt[Int], focusWidget: Opt[guarana.gtk.Widget], fullscreened: Opt[Boolean], maximized: Opt[Boolean], startupId: Opt[java.lang.String], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole], contentType: Opt[java.lang.String]): AppChooserDialog = {
-    val res = org.gnome.gtk.AppChooserDialog.builder()
-    ifSet(gfile, v => res.setGfile(v))
-    ifSet(heading, v => res.setHeading(v))
-    ifSet(useHeaderBar, v => res.setUseHeaderBar(v))
-    ifSet(defaultHeight, v => res.setDefaultHeight(v))
-    ifSet(defaultWidth, v => res.setDefaultWidth(v))
-    ifSet(focusWidget, v => res.setFocusWidget(v.unwrap))
-    ifSet(fullscreened, v => res.setFullscreened(v))
-    ifSet(maximized, v => res.setMaximized(v))
-    ifSet(startupId, v => res.setStartupId(v))
-    ifSet(cssName, v => res.setCssName(v))
-    ifSet(heightRequest, v => res.setHeightRequest(v))
-    ifSet(widthRequest, v => res.setWidthRequest(v))
-    ifSet(accessibleRole, v => res.setAccessibleRole(v))
-    ifSet(contentType, v => res.setContentType(v))
+    val res = {
+      val res = org.gnome.gtk.AppChooserDialog.builder()
+      ifSet(gfile, v => res.setGfile(v))
+      ifSet(heading, v => res.setHeading(v))
+      ifSet(useHeaderBar, v => res.setUseHeaderBar(v))
+      ifSet(defaultHeight, v => res.setDefaultHeight(v))
+      ifSet(defaultWidth, v => res.setDefaultWidth(v))
+      ifSet(focusWidget, v => res.setFocusWidget(v.unwrap))
+      ifSet(fullscreened, v => res.setFullscreened(v))
+      ifSet(maximized, v => res.setMaximized(v))
+      ifSet(startupId, v => res.setStartupId(v))
+      ifSet(cssName, v => res.setCssName(v))
+      ifSet(heightRequest, v => res.setHeightRequest(v))
+      ifSet(widthRequest, v => res.setWidthRequest(v))
+      ifSet(accessibleRole, v => res.setAccessibleRole(v))
+      ifSet(contentType, v => res.setContentType(v))
+      res.build()
+    }
     
     res.asInstanceOf[AppChooserDialog]
   }

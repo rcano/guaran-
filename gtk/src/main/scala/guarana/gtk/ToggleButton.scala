@@ -49,15 +49,18 @@ object ToggleButton extends VarsMap {
     
   }
   def uninitialized(group: Opt[org.gnome.gtk.ToggleButton], iconName: Opt[java.lang.String], label: Opt[java.lang.String], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole], actionTarget: Opt[org.gnome.glib.Variant]): ToggleButton = {
-    val res = org.gnome.gtk.ToggleButton.builder()
-    ifSet(group, v => res.setGroup(v))
-    ifSet(iconName, v => res.setIconName(v))
-    ifSet(label, v => res.setLabel(v))
-    ifSet(cssName, v => res.setCssName(v))
-    ifSet(heightRequest, v => res.setHeightRequest(v))
-    ifSet(widthRequest, v => res.setWidthRequest(v))
-    ifSet(accessibleRole, v => res.setAccessibleRole(v))
-    ifSet(actionTarget, v => res.setActionTarget(v))
+    val res = {
+      val res = org.gnome.gtk.ToggleButton.builder()
+      ifSet(group, v => res.setGroup(v))
+      ifSet(iconName, v => res.setIconName(v))
+      ifSet(label, v => res.setLabel(v))
+      ifSet(cssName, v => res.setCssName(v))
+      ifSet(heightRequest, v => res.setHeightRequest(v))
+      ifSet(widthRequest, v => res.setWidthRequest(v))
+      ifSet(accessibleRole, v => res.setAccessibleRole(v))
+      ifSet(actionTarget, v => res.setActionTarget(v))
+      res.build()
+    }
     
     res.asInstanceOf[ToggleButton]
   }

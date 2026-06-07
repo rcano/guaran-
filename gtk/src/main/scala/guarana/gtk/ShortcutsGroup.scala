@@ -46,15 +46,18 @@ object ShortcutsGroup extends VarsMap {
     
   }
   def uninitialized(accelSizeGroup: Opt[org.gnome.gtk.SizeGroup], title: Opt[java.lang.String], titleSizeGroup: Opt[org.gnome.gtk.SizeGroup], view: Opt[java.lang.String], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): ShortcutsGroup = {
-    val res = org.gnome.gtk.ShortcutsGroup.builder()
-    ifSet(accelSizeGroup, v => res.setAccelSizeGroup(v))
-    ifSet(title, v => res.setTitle(v))
-    ifSet(titleSizeGroup, v => res.setTitleSizeGroup(v))
-    ifSet(view, v => res.setView(v))
-    ifSet(cssName, v => res.setCssName(v))
-    ifSet(heightRequest, v => res.setHeightRequest(v))
-    ifSet(widthRequest, v => res.setWidthRequest(v))
-    ifSet(accessibleRole, v => res.setAccessibleRole(v))
+    val res = {
+      val res = org.gnome.gtk.ShortcutsGroup.builder()
+      ifSet(accelSizeGroup, v => res.setAccelSizeGroup(v))
+      ifSet(title, v => res.setTitle(v))
+      ifSet(titleSizeGroup, v => res.setTitleSizeGroup(v))
+      ifSet(view, v => res.setView(v))
+      ifSet(cssName, v => res.setCssName(v))
+      ifSet(heightRequest, v => res.setHeightRequest(v))
+      ifSet(widthRequest, v => res.setWidthRequest(v))
+      ifSet(accessibleRole, v => res.setAccessibleRole(v))
+      res.build()
+    }
     
     res.asInstanceOf[ShortcutsGroup]
   }

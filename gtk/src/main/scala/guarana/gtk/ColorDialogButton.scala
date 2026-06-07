@@ -47,12 +47,15 @@ object ColorDialogButton extends VarsMap {
     
   }
   def uninitialized(dialog: Opt[org.gnome.gtk.ColorDialog], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): ColorDialogButton = {
-    val res = org.gnome.gtk.ColorDialogButton.builder()
-    ifSet(dialog, v => res.setDialog(v))
-    ifSet(cssName, v => res.setCssName(v))
-    ifSet(heightRequest, v => res.setHeightRequest(v))
-    ifSet(widthRequest, v => res.setWidthRequest(v))
-    ifSet(accessibleRole, v => res.setAccessibleRole(v))
+    val res = {
+      val res = org.gnome.gtk.ColorDialogButton.builder()
+      ifSet(dialog, v => res.setDialog(v))
+      ifSet(cssName, v => res.setCssName(v))
+      ifSet(heightRequest, v => res.setHeightRequest(v))
+      ifSet(widthRequest, v => res.setWidthRequest(v))
+      ifSet(accessibleRole, v => res.setAccessibleRole(v))
+      res.build()
+    }
     
     res.asInstanceOf[ColorDialogButton]
   }

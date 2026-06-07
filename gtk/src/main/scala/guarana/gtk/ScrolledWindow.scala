@@ -70,16 +70,19 @@ object ScrolledWindow extends VarsMap {
     
   }
   def uninitialized(hadjustment: Opt[org.gnome.gtk.Adjustment], hscrollbarPolicy: Opt[org.gnome.gtk.PolicyType], vadjustment: Opt[org.gnome.gtk.Adjustment], vscrollbarPolicy: Opt[org.gnome.gtk.PolicyType], windowPlacement: Opt[org.gnome.gtk.CornerType], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): ScrolledWindow = {
-    val res = org.gnome.gtk.ScrolledWindow.builder()
-    ifSet(hadjustment, v => res.setHadjustment(v))
-    ifSet(hscrollbarPolicy, v => res.setHscrollbarPolicy(v))
-    ifSet(vadjustment, v => res.setVadjustment(v))
-    ifSet(vscrollbarPolicy, v => res.setVscrollbarPolicy(v))
-    ifSet(windowPlacement, v => res.setWindowPlacement(v))
-    ifSet(cssName, v => res.setCssName(v))
-    ifSet(heightRequest, v => res.setHeightRequest(v))
-    ifSet(widthRequest, v => res.setWidthRequest(v))
-    ifSet(accessibleRole, v => res.setAccessibleRole(v))
+    val res = {
+      val res = org.gnome.gtk.ScrolledWindow.builder()
+      ifSet(hadjustment, v => res.setHadjustment(v))
+      ifSet(hscrollbarPolicy, v => res.setHscrollbarPolicy(v))
+      ifSet(vadjustment, v => res.setVadjustment(v))
+      ifSet(vscrollbarPolicy, v => res.setVscrollbarPolicy(v))
+      ifSet(windowPlacement, v => res.setWindowPlacement(v))
+      ifSet(cssName, v => res.setCssName(v))
+      ifSet(heightRequest, v => res.setHeightRequest(v))
+      ifSet(widthRequest, v => res.setWidthRequest(v))
+      ifSet(accessibleRole, v => res.setAccessibleRole(v))
+      res.build()
+    }
     
     res.asInstanceOf[ScrolledWindow]
   }

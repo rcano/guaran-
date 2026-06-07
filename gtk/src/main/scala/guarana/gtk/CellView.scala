@@ -54,13 +54,16 @@ object CellView extends VarsMap {
     
   }
   def uninitialized(cellArea: Opt[org.gnome.gtk.CellArea], cellAreaContext: Opt[org.gnome.gtk.CellAreaContext], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): CellView = {
-    val res = org.gnome.gtk.CellView.builder()
-    ifSet(cellArea, v => res.setCellArea(v))
-    ifSet(cellAreaContext, v => res.setCellAreaContext(v))
-    ifSet(cssName, v => res.setCssName(v))
-    ifSet(heightRequest, v => res.setHeightRequest(v))
-    ifSet(widthRequest, v => res.setWidthRequest(v))
-    ifSet(accessibleRole, v => res.setAccessibleRole(v))
+    val res = {
+      val res = org.gnome.gtk.CellView.builder()
+      ifSet(cellArea, v => res.setCellArea(v))
+      ifSet(cellAreaContext, v => res.setCellAreaContext(v))
+      ifSet(cssName, v => res.setCssName(v))
+      ifSet(heightRequest, v => res.setHeightRequest(v))
+      ifSet(widthRequest, v => res.setWidthRequest(v))
+      ifSet(accessibleRole, v => res.setAccessibleRole(v))
+      res.build()
+    }
     
     res.asInstanceOf[CellView]
   }

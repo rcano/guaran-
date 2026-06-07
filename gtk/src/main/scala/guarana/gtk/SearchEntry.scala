@@ -74,13 +74,16 @@ object SearchEntry extends VarsMap {
     
   }
   def uninitialized(activatesDefault: Opt[Boolean], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole], xalign: Opt[Float]): SearchEntry = {
-    val res = org.gnome.gtk.SearchEntry.builder()
-    ifSet(activatesDefault, v => res.setActivatesDefault(v))
-    ifSet(cssName, v => res.setCssName(v))
-    ifSet(heightRequest, v => res.setHeightRequest(v))
-    ifSet(widthRequest, v => res.setWidthRequest(v))
-    ifSet(accessibleRole, v => res.setAccessibleRole(v))
-    ifSet(xalign, v => res.setXalign(v))
+    val res = {
+      val res = org.gnome.gtk.SearchEntry.builder()
+      ifSet(activatesDefault, v => res.setActivatesDefault(v))
+      ifSet(cssName, v => res.setCssName(v))
+      ifSet(heightRequest, v => res.setHeightRequest(v))
+      ifSet(widthRequest, v => res.setWidthRequest(v))
+      ifSet(accessibleRole, v => res.setAccessibleRole(v))
+      ifSet(xalign, v => res.setXalign(v))
+      res.build()
+    }
     
     res.asInstanceOf[SearchEntry]
   }

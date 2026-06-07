@@ -63,14 +63,17 @@ object PasswordEntry extends VarsMap {
     
   }
   def uninitialized(activatesDefault: Opt[Boolean], placeholderText: Opt[java.lang.String], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole], xalign: Opt[Float]): PasswordEntry = {
-    val res = org.gnome.gtk.PasswordEntry.builder()
-    ifSet(activatesDefault, v => res.setActivatesDefault(v))
-    ifSet(placeholderText, v => res.setPlaceholderText(v))
-    ifSet(cssName, v => res.setCssName(v))
-    ifSet(heightRequest, v => res.setHeightRequest(v))
-    ifSet(widthRequest, v => res.setWidthRequest(v))
-    ifSet(accessibleRole, v => res.setAccessibleRole(v))
-    ifSet(xalign, v => res.setXalign(v))
+    val res = {
+      val res = org.gnome.gtk.PasswordEntry.builder()
+      ifSet(activatesDefault, v => res.setActivatesDefault(v))
+      ifSet(placeholderText, v => res.setPlaceholderText(v))
+      ifSet(cssName, v => res.setCssName(v))
+      ifSet(heightRequest, v => res.setHeightRequest(v))
+      ifSet(widthRequest, v => res.setWidthRequest(v))
+      ifSet(accessibleRole, v => res.setAccessibleRole(v))
+      ifSet(xalign, v => res.setXalign(v))
+      res.build()
+    }
     
     res.asInstanceOf[PasswordEntry]
   }

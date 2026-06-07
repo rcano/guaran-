@@ -92,12 +92,15 @@ object IconView extends VarsMap {
     
   }
   def uninitialized(cellArea: Opt[org.gnome.gtk.CellArea], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): IconView = {
-    val res = org.gnome.gtk.IconView.builder()
-    ifSet(cellArea, v => res.setCellArea(v))
-    ifSet(cssName, v => res.setCssName(v))
-    ifSet(heightRequest, v => res.setHeightRequest(v))
-    ifSet(widthRequest, v => res.setWidthRequest(v))
-    ifSet(accessibleRole, v => res.setAccessibleRole(v))
+    val res = {
+      val res = org.gnome.gtk.IconView.builder()
+      ifSet(cellArea, v => res.setCellArea(v))
+      ifSet(cssName, v => res.setCssName(v))
+      ifSet(heightRequest, v => res.setHeightRequest(v))
+      ifSet(widthRequest, v => res.setWidthRequest(v))
+      ifSet(accessibleRole, v => res.setAccessibleRole(v))
+      res.build()
+    }
     
     res.asInstanceOf[IconView]
   }

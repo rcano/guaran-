@@ -107,12 +107,15 @@ object TreeView extends VarsMap {
     
   }
   def uninitialized(enableGridLines: Opt[org.gnome.gtk.TreeViewGridLines], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): TreeView = {
-    val res = org.gnome.gtk.TreeView.builder()
-    ifSet(enableGridLines, v => res.setEnableGridLines(v))
-    ifSet(cssName, v => res.setCssName(v))
-    ifSet(heightRequest, v => res.setHeightRequest(v))
-    ifSet(widthRequest, v => res.setWidthRequest(v))
-    ifSet(accessibleRole, v => res.setAccessibleRole(v))
+    val res = {
+      val res = org.gnome.gtk.TreeView.builder()
+      ifSet(enableGridLines, v => res.setEnableGridLines(v))
+      ifSet(cssName, v => res.setCssName(v))
+      ifSet(heightRequest, v => res.setHeightRequest(v))
+      ifSet(widthRequest, v => res.setWidthRequest(v))
+      ifSet(accessibleRole, v => res.setAccessibleRole(v))
+      res.build()
+    }
     
     res.asInstanceOf[TreeView]
   }

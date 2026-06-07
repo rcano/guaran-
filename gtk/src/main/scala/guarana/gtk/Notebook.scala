@@ -66,13 +66,16 @@ object Notebook extends VarsMap {
     
   }
   def uninitialized(enablePopup: Opt[Boolean], page: Opt[Int], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): Notebook = {
-    val res = org.gnome.gtk.Notebook.builder()
-    ifSet(enablePopup, v => res.setEnablePopup(v))
-    ifSet(page, v => res.setPage(v))
-    ifSet(cssName, v => res.setCssName(v))
-    ifSet(heightRequest, v => res.setHeightRequest(v))
-    ifSet(widthRequest, v => res.setWidthRequest(v))
-    ifSet(accessibleRole, v => res.setAccessibleRole(v))
+    val res = {
+      val res = org.gnome.gtk.Notebook.builder()
+      ifSet(enablePopup, v => res.setEnablePopup(v))
+      ifSet(page, v => res.setPage(v))
+      ifSet(cssName, v => res.setCssName(v))
+      ifSet(heightRequest, v => res.setHeightRequest(v))
+      ifSet(widthRequest, v => res.setWidthRequest(v))
+      ifSet(accessibleRole, v => res.setAccessibleRole(v))
+      res.build()
+    }
     
     res.asInstanceOf[Notebook]
   }

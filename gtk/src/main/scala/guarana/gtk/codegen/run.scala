@@ -40,7 +40,7 @@ object run extends Windows, Containers, TextNodes {
 
   lazy val ButtonNode = genNodeDescr(classIndex.scanResult.getClassInfo("org.gnome.gtk.Button"), "Button", Some(WidgetNode))
     .addProperty(ExternalProp("label", "String | Null"))
-    .pipe(n => n.copy(uninitExtraParams = n.uninitExtraParams.filterNot(_.name == "label")))
+    .pipe(n => n.copy(uninitExtraParams = n.uninitExtraParams.filterNot(_.name == "label"), creator = n.creator.filterNot(_.startsWith("ifSet(label"))))
 
   lazy val OverlayNode = genNodeDescr(classIndex.scanResult.getClassInfo("org.gnome.gtk.Overlay"), "Overlay", Some(WidgetNode))
     .addProperty(VarProp("overlayed", "Seq[Widget]", "Seq.empty", eagerEvaluation = true))
@@ -89,7 +89,7 @@ object run extends Windows, Containers, TextNodes {
       isAbstract = ci.isAbstract(),
       companionObjectExtends = Some("VarsMap"),
       uninitExtraParams = uninitParams,
-      creator = Seq("{", s"val res = ${ci.getName()}.builder()") ++ ctorParams.map { p =>
+      creator = Seq("{", s"  val res = ${ci.getName()}.builder()") ++ ctorParams.map { p =>
         val paramType = mapTypeToNodes(p.tpe)
         val isNullable = paramType.endsWith(" | Null")
         val value = if (paramType.startsWith("guarana.gtk")) {
@@ -97,7 +97,7 @@ object run extends Windows, Containers, TextNodes {
           else s"v.unwrap"
         } else "v"
         s"""  ifSet(${p.nameInCamelCase}, v => res.set${p.nameInPascalCase}($value))"""
-      } :+ "}",
+      } ++ Seq("  res.build()", "}"),
       props = widgetProperties.map(p =>
         val varType = mapTypeToNodes(p.tpe)
         ExternalProp(
