@@ -70,6 +70,7 @@ object Grid extends VarsMap, internal.GridLayoutSupport {
     childVisible: Opt[Binding[Boolean]] = UnsetParam,
     columnHomogeneous: Opt[Binding[Boolean]] = UnsetParam,
     columnSpacing: Opt[Binding[Int]] = UnsetParam,
+    cssClasses: Opt[Binding[Array[String]]] = UnsetParam,
     cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam,
     direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam,
     focusChild: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
@@ -110,6 +111,7 @@ object Grid extends VarsMap, internal.GridLayoutSupport {
     ifSet(childVisible, res.childVisible := _)
     ifSet(columnHomogeneous, res.columnHomogeneous := _)
     ifSet(columnSpacing, res.columnSpacing := _)
+    ifSet(cssClasses, res.cssClasses := _)
     ifSet(cursor, res.cursor := _)
     ifSet(direction, res.direction := _)
     ifSet(focusChild, res.focusChild := _)

@@ -6,7 +6,7 @@ import io.github.classgraph.{ClassGraph, ClassInfo}
 import scala.jdk.CollectionConverters.*
 import scala.meta.*
 
-object run extends Windows, Containers {
+object run extends Windows, Containers, TextNodes {
   lazy val classIndex = ClassIndex(
     ClassGraph()
       .enableClassInfo()
@@ -19,6 +19,7 @@ object run extends Windows, Containers {
   private lazy val widgetClassInfo = classIndex.scanResult.getClassInfo("org.gnome.gtk.Widget")
 
   lazy val WidgetNode = genNodeDescr(widgetClassInfo, "Widget", None)
+    .addProperty(ExternalProp("cssClasses", "Array[String]"))
     .addOps(
       Seq(
         "def getChildren(): Iterator[org.gnome.gtk.Widget] = Iterator.unfold(v.getFirstChild()) {",
@@ -27,13 +28,40 @@ object run extends Windows, Containers {
         "}"
       )
     )
+    .addCompanionObjectExtras(
+      Seq(
+        "extension [W <: Widget](w: W) {",
+        "  def addCssClasses(cssClasses: String*): W = {cssClasses.foreach(w.addCssClass(_)); w}",
+        "  def removeCssClasses(cssClasses: String*): W = {cssClasses.foreach(w.removeCssClass(_)); w}",
+        "}"
+      )
+    )
 
-  lazy val AllWidgets = WidgetNode :: AllWindows ::: AllContainers ::: classIndex.scanResult
+  lazy val ButtonNode = genNodeDescr(classIndex.scanResult.getClassInfo("org.gnome.gtk.Button"), "Button", Some(WidgetNode))
+    .addProperty(ExternalProp("label", "String | Null"))
+
+  lazy val OverlayNode = genNodeDescr(classIndex.scanResult.getClassInfo("org.gnome.gtk.Overlay"), "Overlay", Some(WidgetNode))
+    .addProperty(VarProp("overlayed", "Seq[Widget]", "Seq.empty", eagerEvaluation = true))
+    .addInitExtra(
+      Seq(
+        "Toolkit.update {",
+        "  v.varUpdates := EventIterator.forsome {",
+        "    case v.overlayed(prevOpt, newv) =>",
+        "      for {prev <- prevOpt; w <- prev } v.removeOverlay(w.unwrap)",
+        "      newv.foreach(w => v.addOverlay(w.unwrap))",
+        "  }",
+        "}",
+      )
+    )
+
+  lazy val alreadyProcessed = WidgetNode :: ButtonNode :: OverlayNode :: AllWindows ::: AllContainers ::: AllTextNodes
+
+  lazy val AllWidgets = alreadyProcessed ::: classIndex.scanResult
     .getSubclasses("org.gnome.gtk.Widget")
     .iterator()
     .asScala
     .filter(!_.isInnerClass())
-    .filterNot(c => (AllWindows ::: AllContainers).exists(_.name == c.getSimpleName()))
+    .filterNot(c => alreadyProcessed.exists(_.name == c.getSimpleName()))
     .map(ci => genNodeDescr(ci, ci.getSimpleName(), Some(WidgetNode)))
     .toList
 
@@ -46,7 +74,7 @@ object run extends Windows, Containers {
       else widgetInfo.properties
     ).toList.sortBy(_.nameInPascalCase)
 
-    val uninitParams = widgetInfo.constructorParams.map(p => Parameter(p.nameInCamelCase, mapTypeToNodes(p.tpe), ""))
+    val uninitParams = widgetInfo.constructorParams.map(p => Parameter(p.nameInCamelCase, s"Opt[${mapTypeToNodes(p.tpe)}]", "", default = Some("UnsetParam"))).sortBy(_.name)
 
     NodeDescr(
       "guarana.gtk",
@@ -56,16 +84,17 @@ object run extends Windows, Containers {
       isAbstract = ci.isAbstract(),
       companionObjectExtends = Some("VarsMap"),
       uninitExtraParams = uninitParams,
-      creator = Seq(s"new ${ci.getName()}(${widgetInfo.constructorParams
-          .map { p =>
-            val paramType = mapTypeToNodes(p.tpe)
-            val isNullable = paramType.endsWith(" | Null")
-            if (paramType.startsWith("guarana.gtk")) {
-              if (isNullable) s"${p.nameInCamelCase}.?(_.unwrap)"
-              else s"${p.nameInCamelCase}.unwrap"
-            } else p.nameInCamelCase
-          }
-          .mkString(", ")})"),
+      // creator = Seq(s"new ${ci.getName()}(${widgetInfo.constructorParams
+      //     .map { p =>
+      //       val paramType = mapTypeToNodes(p.tpe)
+      //       val isNullable = paramType.endsWith(" | Null")
+      //       if (paramType.startsWith("guarana.gtk")) {
+      //         if (isNullable) s"${p.nameInCamelCase}.?(_.unwrap)"
+      //         else s"${p.nameInCamelCase}.unwrap"
+      //       } else p.nameInCamelCase
+      //     }
+      //     .mkString(", ")})"),
+      creator = Seq(s"${ci.getName()}.builder()") ++ uninitParams.map(p => s"""ifSet(${p.name}, res.set${p.name.capitalize}(_))"""),
       props = widgetProperties.map(p =>
         val varType = mapTypeToNodes(p.tpe)
         ExternalProp(

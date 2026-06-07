@@ -70,6 +70,7 @@ object Expander extends VarsMap {
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
     child: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
     childVisible: Opt[Binding[Boolean]] = UnsetParam,
+    cssClasses: Opt[Binding[Array[String]]] = UnsetParam,
     cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam,
     direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam,
     expanded: Opt[Binding[Boolean]] = UnsetParam,
@@ -111,6 +112,7 @@ object Expander extends VarsMap {
     ifSet(canTarget, res.canTarget := _)
     ifSet(child, res.child := _)
     ifSet(childVisible, res.childVisible := _)
+    ifSet(cssClasses, res.cssClasses := _)
     ifSet(cursor, res.cursor := _)
     ifSet(direction, res.direction := _)
     ifSet(expanded, res.expanded := _)

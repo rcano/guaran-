@@ -73,6 +73,7 @@ object FileChooserDialog extends VarsMap {
     child: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
     childVisible: Opt[Binding[Boolean]] = UnsetParam,
     createFolders: Opt[Binding[Boolean]] = UnsetParam,
+    cssClasses: Opt[Binding[Array[String]]] = UnsetParam,
     currentFolder: Opt[Binding[org.gnome.gio.File | Null]] = UnsetParam,
     cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam,
     decorated: Opt[Binding[Boolean]] = UnsetParam,
@@ -130,6 +131,7 @@ object FileChooserDialog extends VarsMap {
     ifSet(child, res.child := _)
     ifSet(childVisible, res.childVisible := _)
     ifSet(createFolders, res.createFolders := _)
+    ifSet(cssClasses, res.cssClasses := _)
     ifSet(currentFolder, res.currentFolder := _)
     ifSet(cursor, res.cursor := _)
     ifSet(decorated, res.decorated := _)

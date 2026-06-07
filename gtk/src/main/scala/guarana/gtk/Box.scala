@@ -62,19 +62,21 @@ object Box extends VarsMap {
     }
     
   }
-  def uninitialized(arg$0: org.gnome.gtk.Orientation, arg$1: Int): Box = {
-    val res = new org.gnome.gtk.Box(arg$0, arg$1)
+  def uninitialized(arg$0: org.gnome.gtk.Orientation, arg$1: Int, cssName: Opt[String]): Box = {
+    val res = org.gnome.gtk.Box.builder().setOrientation(arg$0).setSpacing(arg$1)
     
     res.asInstanceOf[Box]
   }
   
   def apply(
     arg$0: org.gnome.gtk.Orientation, arg$1: Int,
+    cssName: Opt[String] = UnsetParam,
     baselineChild: Opt[Binding[Int]] = UnsetParam,
     baselinePosition: Opt[Binding[org.gnome.gtk.BaselinePosition]] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
     childVisible: Opt[Binding[Boolean]] = UnsetParam,
+    cssClasses: Opt[Binding[Array[String]]] = UnsetParam,
     cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam,
     direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam,
     focusChild: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
@@ -108,13 +110,14 @@ object Box extends VarsMap {
     vexpandSet: Opt[Binding[Boolean]] = UnsetParam,
     visible: Opt[Binding[Boolean]] = UnsetParam
   ): VarContextAction[Box] = {
-    val res = uninitialized(arg$0, arg$1)
+    val res = uninitialized(arg$0, arg$1, cssName)
     guarana.gtk.Box.init(res)
     ifSet(baselineChild, res.baselineChild := _)
     ifSet(baselinePosition, res.baselinePosition := _)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)
     ifSet(childVisible, res.childVisible := _)
+    ifSet(cssClasses, res.cssClasses := _)
     ifSet(cursor, res.cursor := _)
     ifSet(direction, res.direction := _)
     ifSet(focusChild, res.focusChild := _)

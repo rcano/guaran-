@@ -9,6 +9,7 @@ object Widget extends VarsMap {
   val CanFocus: ExternalVar.Aux[Widget, Boolean] = ExternalVar[Widget, Boolean]("can-focus", _.getCanFocus(), _.setCanFocus(_), true)
   val CanTarget: ExternalVar.Aux[Widget, Boolean] = ExternalVar[Widget, Boolean]("can-target", _.getCanTarget(), _.setCanTarget(_), true)
   val ChildVisible: ExternalVar.Aux[Widget, Boolean] = ExternalVar[Widget, Boolean]("child-visible", _.getChildVisible(), _.setChildVisible(_), true)
+  val CssClasses: ExternalVar.Aux[Widget, Array[String]] = ExternalVar[Widget, Array[String]]("cssClasses", _.getCssClasses.nn, _.setCssClasses(_), true)
   val Cursor: ExternalVar.Aux[Widget, org.gnome.gdk.Cursor | Null] = ExternalVar[Widget, org.gnome.gdk.Cursor | Null]("cursor", _.getCursor(), _.setCursor(_), true)
   val Direction: ExternalVar.Aux[Widget, org.gnome.gtk.TextDirection] = ExternalVar[Widget, org.gnome.gtk.TextDirection]("direction", _.getDirection(), _.setDirection(_), true)
   val FocusChild: ExternalVar.Aux[Widget, guarana.gtk.Widget | Null] = ExternalVar[Widget, guarana.gtk.Widget | Null]("focus-child", _.getFocusChild().?(guarana.gtk.Widget.wrap), (n, v) => n.setFocusChild(v.?(_.unwrap)), true)
@@ -46,6 +47,7 @@ object Widget extends VarsMap {
     def canFocus: Var.Aux[Boolean, v.type] = guarana.gtk.Widget.CanFocus.asInstanceOf[Var.Aux[Boolean, v.type]]
     def canTarget: Var.Aux[Boolean, v.type] = guarana.gtk.Widget.CanTarget.asInstanceOf[Var.Aux[Boolean, v.type]]
     def childVisible: Var.Aux[Boolean, v.type] = guarana.gtk.Widget.ChildVisible.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def cssClasses: Var.Aux[Array[String], v.type] = guarana.gtk.Widget.CssClasses.asInstanceOf[Var.Aux[Array[String], v.type]]
     def cursor: Var.Aux[org.gnome.gdk.Cursor | Null, v.type] = guarana.gtk.Widget.Cursor.asInstanceOf[Var.Aux[org.gnome.gdk.Cursor | Null, v.type]]
     def direction: Var.Aux[org.gnome.gtk.TextDirection, v.type] = guarana.gtk.Widget.Direction.asInstanceOf[Var.Aux[org.gnome.gtk.TextDirection, v.type]]
     def focusChild: Var.Aux[guarana.gtk.Widget | Null, v.type] = guarana.gtk.Widget.FocusChild.asInstanceOf[Var.Aux[guarana.gtk.Widget | Null, v.type]]
@@ -93,10 +95,10 @@ object Widget extends VarsMap {
       onUnmap,
       onUnrealize
     }
-      def getChildren(): Iterator[org.gnome.gtk.Widget] = Iterator.unfold(v.getFirstChild()) {
-        case null => None
-        case w => Some(w -> w.getNextSibling())
-      }
+    def getChildren(): Iterator[org.gnome.gtk.Widget] = Iterator.unfold(v.getFirstChild()) {
+      case null => None
+      case w => Some(w -> w.getNextSibling())
+    }
   }
 
   def wrap(v: org.gnome.gtk.Widget): Widget = 
@@ -110,6 +112,9 @@ object Widget extends VarsMap {
     
   }
   
-  
+  extension [W <: Widget](w: W) {
+    def addCssClasses(cssClasses: String*): W = {cssClasses.foreach(w.addCssClass(_)); w}
+    def removeCssClasses(cssClasses: String*): W = {cssClasses.foreach(w.removeCssClass(_)); w}
+  }
 }
         

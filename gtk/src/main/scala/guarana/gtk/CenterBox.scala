@@ -68,6 +68,7 @@ object CenterBox extends VarsMap {
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
     centerWidget: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
     childVisible: Opt[Binding[Boolean]] = UnsetParam,
+    cssClasses: Opt[Binding[Array[String]]] = UnsetParam,
     cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam,
     direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam,
     endWidget: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
@@ -108,6 +109,7 @@ object CenterBox extends VarsMap {
     ifSet(canTarget, res.canTarget := _)
     ifSet(centerWidget, res.centerWidget := _)
     ifSet(childVisible, res.childVisible := _)
+    ifSet(cssClasses, res.cssClasses := _)
     ifSet(cursor, res.cursor := _)
     ifSet(direction, res.direction := _)
     ifSet(endWidget, res.endWidget := _)

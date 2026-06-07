@@ -2,6 +2,7 @@ package guarana
 package gtk
 
 import org.gnome.gtk.{Application, Orientation}
+import scala.util.chaining.*
 
 import Binding.dyn
 
@@ -13,13 +14,6 @@ object GuaranaGtkTeset {
   }
 
   def setup(app: Application): Unit = try {
-
-    Toolkit.loadCss("""
-    button {
-      background-color: red;
-    }
-    """)
-
     Toolkit.update {
       val nameTextInput = Entry(placeholderText = "name")
       val greeterLabel = Label(
@@ -32,6 +26,8 @@ object GuaranaGtkTeset {
         }
       )
 
+      val b = Button()
+
       val window = ApplicationWindow(
         app,
         title = "Teset GTK",
@@ -40,9 +36,10 @@ object GuaranaGtkTeset {
           10,
           nodes = Seq(
             Label("a string"),
-            Button(child = Label("a button")),
+            Button(child = Label("a button")).tap(_.unwrap.setLabel("and a label?")),
             greeterLabel,
-            nameTextInput
+            nameTextInput,
+            Label("You wrote something!", visible = dyn { nameTextInput.text().nonEmpty})
           )
         ),
         visible = true,

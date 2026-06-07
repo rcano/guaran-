@@ -187,7 +187,7 @@ class SignalsTest extends AnyFunSuite {
     assert(sb(myVar.y, this) == 10)
   }
 
-   test("var projections with bindings") {
+  test("var projections with bindings") {
     implicit val sb = BetterSignalSwitchboardImpl(noopReporter, defaultValueProvider, varsLookup, false, ManualTimers)
     case class Vec2(x: Double, y: Double)
     object VecVar extends Var[Vec2] {

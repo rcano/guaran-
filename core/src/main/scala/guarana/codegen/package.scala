@@ -58,7 +58,7 @@ package codegen {
   }
 
   case class EmitterDescr(name: String, tpe: String, initializer: Seq[String])
-  case class Parameter(name: String, tpe: String, passAs: String, erased: Boolean = false)
+  case class Parameter(name: String, tpe: String, passAs: String, erased: Boolean = false, default: Option[String] = None)
 
   case class NodeDescr(
     `package`: String,
@@ -129,7 +129,7 @@ package codegen {
           |}
           |
           |def apply$tpeParams(
-          |  ${if (n.uninitExtraParams.nonEmpty) n.uninitExtraParams.filterNot(_.erased).map(t => s"${t.name}: ${t.tpe}").mkString(", ") + "," else ""}
+          |  ${if (n.uninitExtraParams.nonEmpty) n.uninitExtraParams.filterNot(_.erased).map(t => s"${t.name}: ${t.tpe}${t.default.fold("")(i => s" = $i")}").mkString(", ") + "," else ""}
           |  ${allMutVars.map(v => s"${v._2.name}: Opt[Binding[${v._2.tpe}]] = UnsetParam").mkString(",\n  ")}
           |): ${toolkitType.fold("")(n => s"$n ?=> ")}VarContextAction[${n.name}$tpeParams] = {
           |  val res = uninitialized$tpeParams(${n.uninitExtraParams.filterNot(_.erased).map(_.name).mkString(", ")})
@@ -164,7 +164,7 @@ package codegen {
 
       |    ${sortedEmitters.map(e => s"def ${e.name}: Emitter.Aux[${e.tpe}, v.type] = $n.${e.name.capitalize}.forInstance(v)").mkString("\n      ")}
 
-      |    ${n.opsExtra.mkString("\n      ")}
+      |    ${n.opsExtra.mkString("\n    ")}
       |  }
       |
       |  def wrap$tpeParams(v: ${n.underlying}): ${n.name}$tpeParams = 

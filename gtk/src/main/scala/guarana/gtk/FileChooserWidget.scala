@@ -76,6 +76,7 @@ object FileChooserWidget extends VarsMap {
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
     childVisible: Opt[Binding[Boolean]] = UnsetParam,
     createFolders: Opt[Binding[Boolean]] = UnsetParam,
+    cssClasses: Opt[Binding[Array[String]]] = UnsetParam,
     currentFolder: Opt[Binding[org.gnome.gio.File | Null]] = UnsetParam,
     cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam,
     direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam,
@@ -114,6 +115,7 @@ object FileChooserWidget extends VarsMap {
     ifSet(canTarget, res.canTarget := _)
     ifSet(childVisible, res.childVisible := _)
     ifSet(createFolders, res.createFolders := _)
+    ifSet(cssClasses, res.cssClasses := _)
     ifSet(currentFolder, res.currentFolder := _)
     ifSet(cursor, res.cursor := _)
     ifSet(direction, res.direction := _)

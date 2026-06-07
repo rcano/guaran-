@@ -71,6 +71,7 @@ object Picture extends VarsMap {
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
     childVisible: Opt[Binding[Boolean]] = UnsetParam,
     contentFit: Opt[Binding[org.gnome.gtk.ContentFit]] = UnsetParam,
+    cssClasses: Opt[Binding[Array[String]]] = UnsetParam,
     cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam,
     direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam,
     file: Opt[Binding[org.gnome.gio.File | Null]] = UnsetParam,
@@ -112,6 +113,7 @@ object Picture extends VarsMap {
     ifSet(canTarget, res.canTarget := _)
     ifSet(childVisible, res.childVisible := _)
     ifSet(contentFit, res.contentFit := _)
+    ifSet(cssClasses, res.cssClasses := _)
     ifSet(cursor, res.cursor := _)
     ifSet(direction, res.direction := _)
     ifSet(file, res.file := _)

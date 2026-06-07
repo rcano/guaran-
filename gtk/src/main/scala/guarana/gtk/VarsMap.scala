@@ -21,9 +21,9 @@ trait VarsMap {
       try {
         val property = param.getName
         if (!ignoreProperties(property)) {
-          // if (debug) scribe.info(s"Trying to update $property")
+          if (debug) scribe.info(s"Trying to update $property")
           varsMap.get(property) foreach { case sv: ExternalVar[t] =>
-            // if (debug) scribe.info("  found gtk var")
+            if (debug) scribe.info("  found gtk var")
             Toolkit.update(
               summon[VarContext].externalPropertyUpdated(sv, None)(using
                 ValueOf(instance.asInstanceOf[sv.ForInstance])

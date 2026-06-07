@@ -71,6 +71,7 @@ object FontChooserDialog extends VarsMap {
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
     child: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
     childVisible: Opt[Binding[Boolean]] = UnsetParam,
+    cssClasses: Opt[Binding[Array[String]]] = UnsetParam,
     cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam,
     decorated: Opt[Binding[Boolean]] = UnsetParam,
     defaultWidget: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
@@ -128,6 +129,7 @@ object FontChooserDialog extends VarsMap {
     ifSet(canTarget, res.canTarget := _)
     ifSet(child, res.child := _)
     ifSet(childVisible, res.childVisible := _)
+    ifSet(cssClasses, res.cssClasses := _)
     ifSet(cursor, res.cursor := _)
     ifSet(decorated, res.decorated := _)
     ifSet(defaultWidget, res.defaultWidget := _)

@@ -81,12 +81,12 @@ object ObsVal {
   extension [T](v: ObsVal[T]) {
     def debounce(
         duration: FiniteDuration
-    )(using tk: AbstractToolkit & animation.TimersDef, instance: ValueOf[v.ForInstance]): ObsVal.Aux[T, instance.value.type] = {
+    )(using tk: AbstractToolkit, td: animation.TimersDef, instance: ValueOf[v.ForInstance]): ObsVal.Aux[T, instance.value.type] = {
       tk.update {
         val debouncer = DebounceEmitter.asInstanceOf[Emitter[T]].forInstance(instance.value)
         var lastValue = v()
         val notifier = debouncer.toVar(lastValue, EventIterator)
-        val timer = tk.TimerLike(
+        val timer = td.TimerLike(
           duration,
           timer => {
             timer.stop()

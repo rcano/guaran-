@@ -98,6 +98,7 @@ object SpinButton extends VarsMap {
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
     childVisible: Opt[Binding[Boolean]] = UnsetParam,
     climbRate: Opt[Binding[Double]] = UnsetParam,
+    cssClasses: Opt[Binding[Array[String]]] = UnsetParam,
     cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam,
     digits: Opt[Binding[Int]] = UnsetParam,
     direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam,
@@ -149,6 +150,7 @@ object SpinButton extends VarsMap {
     ifSet(canTarget, res.canTarget := _)
     ifSet(childVisible, res.childVisible := _)
     ifSet(climbRate, res.climbRate := _)
+    ifSet(cssClasses, res.cssClasses := _)
     ifSet(cursor, res.cursor := _)
     ifSet(digits, res.digits := _)
     ifSet(direction, res.direction := _)

@@ -88,6 +88,7 @@ object AboutDialog extends VarsMap {
     childVisible: Opt[Binding[Boolean]] = UnsetParam,
     comments: Opt[Binding[java.lang.String | Null]] = UnsetParam,
     copyright: Opt[Binding[java.lang.String | Null]] = UnsetParam,
+    cssClasses: Opt[Binding[Array[String]]] = UnsetParam,
     cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam,
     decorated: Opt[Binding[Boolean]] = UnsetParam,
     defaultWidget: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
@@ -153,6 +154,7 @@ object AboutDialog extends VarsMap {
     ifSet(childVisible, res.childVisible := _)
     ifSet(comments, res.comments := _)
     ifSet(copyright, res.copyright := _)
+    ifSet(cssClasses, res.cssClasses := _)
     ifSet(cursor, res.cursor := _)
     ifSet(decorated, res.decorated := _)
     ifSet(defaultWidget, res.defaultWidget := _)

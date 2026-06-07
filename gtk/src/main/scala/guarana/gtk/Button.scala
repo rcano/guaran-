@@ -11,6 +11,7 @@ object Button extends VarsMap {
   val CanShrink: ExternalVar.Aux[Button, Boolean] = ExternalVar[Button, Boolean]("can-shrink", _.getCanShrink(), _.setCanShrink(_), true)
   val Child: ExternalVar.Aux[Button, guarana.gtk.Widget | Null] = ExternalVar[Button, guarana.gtk.Widget | Null]("child", _.getChild().?(guarana.gtk.Widget.wrap), (n, v) => n.setChild(v.?(_.unwrap)), true)
   val HasFrame: ExternalVar.Aux[Button, Boolean] = ExternalVar[Button, Boolean]("has-frame", _.getHasFrame(), _.setHasFrame(_), true)
+  val Label: ExternalVar.Aux[Button, String | Null] = ExternalVar[Button, String | Null]("label", _.getLabel, _.setLabel(_), true)
   val UseUnderline: ExternalVar.Aux[Button, Boolean] = ExternalVar[Button, Boolean]("use-underline", _.getUseUnderline(), _.setUseUnderline(_), true)
 
   
@@ -23,6 +24,7 @@ object Button extends VarsMap {
     def canShrink: Var.Aux[Boolean, v.type] = guarana.gtk.Button.CanShrink.asInstanceOf[Var.Aux[Boolean, v.type]]
     def child: Var.Aux[guarana.gtk.Widget | Null, v.type] = guarana.gtk.Button.Child.asInstanceOf[Var.Aux[guarana.gtk.Widget | Null, v.type]]
     def hasFrame: Var.Aux[Boolean, v.type] = guarana.gtk.Button.HasFrame.asInstanceOf[Var.Aux[Boolean, v.type]]
+    def label: Var.Aux[String | Null, v.type] = guarana.gtk.Button.Label.asInstanceOf[Var.Aux[String | Null, v.type]]
     def useUnderline: Var.Aux[Boolean, v.type] = guarana.gtk.Button.UseUnderline.asInstanceOf[Var.Aux[Boolean, v.type]]
 
     
@@ -72,6 +74,7 @@ object Button extends VarsMap {
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
     child: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
     childVisible: Opt[Binding[Boolean]] = UnsetParam,
+    cssClasses: Opt[Binding[Array[String]]] = UnsetParam,
     cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam,
     direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam,
     focusChild: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
@@ -84,6 +87,7 @@ object Button extends VarsMap {
     hasTooltip: Opt[Binding[Boolean]] = UnsetParam,
     hexpand: Opt[Binding[Boolean]] = UnsetParam,
     hexpandSet: Opt[Binding[Boolean]] = UnsetParam,
+    label: Opt[Binding[String | Null]] = UnsetParam,
     layoutManager: Opt[Binding[org.gnome.gtk.LayoutManager | Null]] = UnsetParam,
     limitEvents: Opt[Binding[Boolean]] = UnsetParam,
     marginBottom: Opt[Binding[Int]] = UnsetParam,
@@ -112,6 +116,7 @@ object Button extends VarsMap {
     ifSet(canTarget, res.canTarget := _)
     ifSet(child, res.child := _)
     ifSet(childVisible, res.childVisible := _)
+    ifSet(cssClasses, res.cssClasses := _)
     ifSet(cursor, res.cursor := _)
     ifSet(direction, res.direction := _)
     ifSet(focusChild, res.focusChild := _)
@@ -124,6 +129,7 @@ object Button extends VarsMap {
     ifSet(hasTooltip, res.hasTooltip := _)
     ifSet(hexpand, res.hexpand := _)
     ifSet(hexpandSet, res.hexpandSet := _)
+    ifSet(label, res.label := _)
     ifSet(layoutManager, res.layoutManager := _)
     ifSet(limitEvents, res.limitEvents := _)
     ifSet(marginBottom, res.marginBottom := _)

@@ -7,6 +7,7 @@ import guarana.util.*
 opaque type Overlay <: guarana.gtk.Widget  = org.gnome.gtk.Overlay & guarana.gtk.Widget
 object Overlay extends VarsMap {
   val Child: ExternalVar.Aux[Overlay, guarana.gtk.Widget | Null] = ExternalVar[Overlay, guarana.gtk.Widget | Null]("child", _.getChild().?(guarana.gtk.Widget.wrap), (n, v) => n.setChild(v.?(_.unwrap)), true)
+  val Overlayed: Var[Seq[Widget]] = Var[Seq[Widget]]("overlayed", Seq.empty, true)
 
   
 
@@ -14,6 +15,7 @@ object Overlay extends VarsMap {
     def unwrap: org.gnome.gtk.Overlay = v
 
     def child: Var.Aux[guarana.gtk.Widget | Null, v.type] = guarana.gtk.Overlay.Child.asInstanceOf[Var.Aux[guarana.gtk.Widget | Null, v.type]]
+    def overlayed: Var.Aux[Seq[Widget], v.type] = guarana.gtk.Overlay.Overlayed.asInstanceOf[Var.Aux[Seq[Widget], v.type]]
 
     
 
@@ -44,6 +46,13 @@ object Overlay extends VarsMap {
   def init(v: Overlay): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
+    Toolkit.update {
+      v.varUpdates := EventIterator.forsome {
+        case v.overlayed(prevOpt, newv) =>
+          for {prev <- prevOpt; w <- prev } v.removeOverlay(w.unwrap)
+          newv.foreach(w => v.addOverlay(w.unwrap))
+      }
+    }
     
   }
   def uninitialized(): Overlay = {
@@ -58,6 +67,7 @@ object Overlay extends VarsMap {
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
     child: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
     childVisible: Opt[Binding[Boolean]] = UnsetParam,
+    cssClasses: Opt[Binding[Array[String]]] = UnsetParam,
     cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam,
     direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam,
     focusChild: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
@@ -78,6 +88,7 @@ object Overlay extends VarsMap {
     name: Opt[Binding[java.lang.String]] = UnsetParam,
     opacity: Opt[Binding[Double]] = UnsetParam,
     overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    overlayed: Opt[Binding[Seq[Widget]]] = UnsetParam,
     receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
     sensitive: Opt[Binding[Boolean]] = UnsetParam,
     tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam,
@@ -93,6 +104,7 @@ object Overlay extends VarsMap {
     ifSet(canTarget, res.canTarget := _)
     ifSet(child, res.child := _)
     ifSet(childVisible, res.childVisible := _)
+    ifSet(cssClasses, res.cssClasses := _)
     ifSet(cursor, res.cursor := _)
     ifSet(direction, res.direction := _)
     ifSet(focusChild, res.focusChild := _)
@@ -113,6 +125,7 @@ object Overlay extends VarsMap {
     ifSet(name, res.name := _)
     ifSet(opacity, res.opacity := _)
     ifSet(overflow, res.overflow := _)
+    ifSet(overlayed, res.overlayed := _)
     ifSet(receivesDefault, res.receivesDefault := _)
     ifSet(sensitive, res.sensitive := _)
     ifSet(tooltipMarkup, res.tooltipMarkup := _)

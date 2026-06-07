@@ -61,6 +61,7 @@ object DrawingArea extends VarsMap {
     childVisible: Opt[Binding[Boolean]] = UnsetParam,
     contentHeight: Opt[Binding[Int]] = UnsetParam,
     contentWidth: Opt[Binding[Int]] = UnsetParam,
+    cssClasses: Opt[Binding[Array[String]]] = UnsetParam,
     cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam,
     direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam,
     focusChild: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
@@ -97,6 +98,7 @@ object DrawingArea extends VarsMap {
     ifSet(childVisible, res.childVisible := _)
     ifSet(contentHeight, res.contentHeight := _)
     ifSet(contentWidth, res.contentWidth := _)
+    ifSet(cssClasses, res.cssClasses := _)
     ifSet(cursor, res.cursor := _)
     ifSet(direction, res.direction := _)
     ifSet(focusChild, res.focusChild := _)

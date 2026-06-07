@@ -105,6 +105,7 @@ object IconView extends VarsMap {
     childVisible: Opt[Binding[Boolean]] = UnsetParam,
     columnSpacing: Opt[Binding[Int]] = UnsetParam,
     columns: Opt[Binding[Int]] = UnsetParam,
+    cssClasses: Opt[Binding[Array[String]]] = UnsetParam,
     cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam,
     direction: Opt[Binding[org.gnome.gtk.TextDirection]] = UnsetParam,
     focusChild: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
@@ -159,6 +160,7 @@ object IconView extends VarsMap {
     ifSet(childVisible, res.childVisible := _)
     ifSet(columnSpacing, res.columnSpacing := _)
     ifSet(columns, res.columns := _)
+    ifSet(cssClasses, res.cssClasses := _)
     ifSet(cursor, res.cursor := _)
     ifSet(direction, res.direction := _)
     ifSet(focusChild, res.focusChild := _)

@@ -64,21 +64,26 @@ abstract class AbstractToolkit {
     */
   private def reactingToExtVar[R](k: Keyed[ObsVal[?]])(f: => R): R = {
     reactingExtVars.add(k.id)
+    
+    impl.Debug.elidable { varcontextLogger.debug(s"Keyed(${varsLookup.describe(k)}) is being reacted to") }
     val res =
       try f
-      finally reactingExtVars.remove(k.id)
+      finally {
+        reactingExtVars.remove(k.id)
+        impl.Debug.elidable { varcontextLogger.debug(s"Keyed(${varsLookup.describe(k)}) is done reacting") }
+      }
     res
   }
   private object reporter extends SignalSwitchboard.Reporter {
 
     def signalRemoved[T](sb: SignalSwitchboard, s: Keyed[ObsVal[T]]): Unit = ()
     def signalInvalidated[T](sb: SignalSwitchboard, v: ObsVal[T], instance: v.ForInstance) = {
-      impl.Debug.elidable { scribe.debug(s"Keyed($instance, $v) invalidated") }
+      impl.Debug.elidable { varcontextLogger.debug(s"Keyed($instance, $v) invalidated") }
       v match {
         case v: Var.Aux[T, v.ForInstance] @unchecked if v.eagerEvaluation =>
-          impl.Debug.elidable { scribe.debug(s"Keyed($instance, $v) eagerly evaluating") }
+          impl.Debug.elidable { varcontextLogger.debug(s"Keyed($instance, $v) eagerly evaluating") }
           switchboard.get(v, instance)
-          impl.Debug.elidable { scribe.debug(s"Keyed($instance, $v) eagerly evaluated") }
+          impl.Debug.elidable { varcontextLogger.debug(s"Keyed($instance, $v) eagerly evaluated") }
         // v match {
         //   case ev: ExternalVar[t] => reactingToExtVar(s) {
 
@@ -117,19 +122,19 @@ abstract class AbstractToolkit {
     ): Unit = {
       val s = Keyed(v, instance)
       // FIXME: broken api
-      impl.Debug.elidable { scribe.debug(s"Keyed($instance, $v) updated to $newValue") }
+      impl.Debug.elidable { varcontextLogger.debug(s"Keyed($instance, $v) updated to $newValue") }
       // println(s"signal updated ${signalDescriptor.describe(s)}, reacting ? ${reactingExtVars.contains(s.id)}")
       v match {
         case v: ExternalVar[T] { type ForInstance = v.ForInstance } if !reactingExtVars.contains(s.id) =>
           reactingToExtVar(s) {
-            // println(s"    setting external prop ${signalDescriptor.describe(s)}")
+            impl.Debug.elidable { varcontextLogger.debug(s"External Keyed($instance, $v) setting to $newValue as we were not in reacting state") }
             v.asInstanceOf[ExternalVar[T] { type ForInstance = instance.type }].set(instance, newValue)
           }
         case _ =>
       }
 
       if (emitterStation.hasListeners(instance.varUpdates)) {
-        impl.Debug.elidable { scribe.debug(s"Keyed($instance, $v) has listeners on its changes, emitting VarValueChanged") }
+        impl.Debug.elidable { varcontextLogger.debug(s"Keyed($instance, $v) has listeners on its changes, emitting VarValueChanged") }
         given ctx: ContextImpl = {
           if (stackContext.isBound()) stackContext.get().unn
           else ContextImpl(switchboard, emitterStation)
