@@ -32,12 +32,13 @@ object GuaranaGtkTeset {
         application = app,
         title = "Teset GTK",
         child = Box(
+          orientation = Orientation.VERTICAL,
           nodes = Seq(
-            Label("a string"),
+            Label(text = "a string"),
             Button(child = Label("a button")).tap(_.unwrap.setLabel("and a label?")),
             greeterLabel,
             nameTextInput,
-            Label("You wrote something!", visible = dyn { nameTextInput.text().nonEmpty})
+            Label(text = "You wrote something!", visible = dyn { nameTextInput.text().nonEmpty})
           )
         ),
         visible = true,

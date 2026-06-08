@@ -40,7 +40,7 @@ object run extends Windows, Containers, TextNodes {
 
   lazy val ButtonNode = genNodeDescr(classIndex.scanResult.getClassInfo("org.gnome.gtk.Button"), "Button", Some(WidgetNode))
     .addProperty(ExternalProp("label", "String | Null"))
-    .pipe(n => n.copy(uninitExtraParams = n.uninitExtraParams.filterNot(_.name == "label"), creator = n.creator.filterNot(_.startsWith("ifSet(label"))))
+    .pipe(n => n.copy(uninitExtraParams = n.uninitExtraParams.filterNot(_.name == "label"), creator = n.creator.filterNot(_.contains("ifSet(label"))))
 
   lazy val OverlayNode = genNodeDescr(classIndex.scanResult.getClassInfo("org.gnome.gtk.Overlay"), "Overlay", Some(WidgetNode))
     .addProperty(VarProp("overlayed", "Seq[Widget]", "Seq.empty", eagerEvaluation = true))
@@ -117,7 +117,7 @@ object run extends Windows, Containers, TextNodes {
   }
 
   /** Looks for raw gtk types that should be mapped to our guarana ones */
-  def mapTypeToNodes(tpe: ReflectedType): String = tpe.value.syntax.replace("org.gnome.gtk.Widget", "guarana.gtk.Widget")
+  def mapTypeToNodes(tpe: ReflectedType): String = tpe.value.syntax.replace("org.gnome.gtk.Widget", "Conversion.into[guarana.gtk.Widget]")
 
   def genGetter(prop: GtkPropertyInfo, tpe: String): String = {
     val isWrappedType = tpe.startsWith("guarana.gtk")
