@@ -4,7 +4,7 @@ import guarana.codegen.*
 
 trait Containers { self: run.type =>
   lazy val BoxNode = genNodeDescr(classIndex.scanResult.getClassInfo("org.gnome.gtk.Box"), "Box", Some(WidgetNode))
-    .addProperty(VarProp("nodes", "Seq[Widget]", "Seq.empty"))
+    .addProperty(VarProp("nodes", "Seq[Widget]", "Seq.empty", eagerEvaluation = true))
     .addInitExtra(
       Seq(
         "Toolkit.update {",
@@ -18,7 +18,7 @@ trait Containers { self: run.type =>
     )
 
   lazy val FlowBoxNode = genNodeDescr(classIndex.scanResult.getClassInfo("org.gnome.gtk.FlowBox"), "FlowBox", Some(WidgetNode))
-    .addProperty(VarProp("nodes", "Seq[Widget]", "Seq.empty"))
+    .addProperty(VarProp("nodes", "Seq[Widget]", "Seq.empty", eagerEvaluation = true))
     .addInitExtra(
       Seq(
         "Toolkit.update {",

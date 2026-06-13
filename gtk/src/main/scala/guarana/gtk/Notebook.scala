@@ -5,7 +5,7 @@ package gtk
 import guarana.util.*
 
 opaque type Notebook <: guarana.gtk.Widget  = org.gnome.gtk.Notebook & guarana.gtk.Widget
-object Notebook extends VarsMap {
+object Notebook extends VarsMap, internal.NotebookTabsSupport {
   val CurrentPage: ExternalVar.Aux[Notebook, Int] = ExternalVar[Notebook, Int]("current-page", _.getCurrentPage(), _.setCurrentPage(_), true)
   val GroupName: ExternalVar.Aux[Notebook, java.lang.String | Null] = ExternalVar[Notebook, java.lang.String | Null]("group-name", _.getGroupName(), _.setGroupName(_), true)
   val Scrollable: ExternalVar.Aux[Notebook, Boolean] = ExternalVar[Notebook, Boolean]("scrollable", _.getScrollable(), _.setScrollable(_), true)
@@ -63,6 +63,7 @@ object Notebook extends VarsMap {
   def init(v: Notebook): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
+    Toolkit.update(initVars(v))
     
   }
   def uninitialized(enablePopup: Opt[Boolean], page: Opt[Int], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): Notebook = {
