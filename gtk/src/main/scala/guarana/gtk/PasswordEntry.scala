@@ -165,6 +165,7 @@ object PasswordEntry extends VarsMap {
     ifSet(vexpandSet, res.vexpandSet := _)
     ifSet(visible, res.visible := _)
     ifSet(widthChars, res.widthChars := _)
+    
     res
   }
   

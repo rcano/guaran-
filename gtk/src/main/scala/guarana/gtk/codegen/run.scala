@@ -58,6 +58,8 @@ object run extends Windows, Containers, TextNodes {
 
   lazy val NotebookNode = genNodeDescr(classIndex.scanResult.getClassInfo("org.gnome.gtk.Notebook"), "Notebook", Some(WidgetNode))
     .copy(companionObjectExtends = Some("VarsMap, internal.NotebookTabsSupport"))
+    .addApplyExtraParams(Seq(Parameter("tabs", "Opt[Binding[Seq[Tab]]]", "", default = Some("UnsetParam"))))
+    .addApplyExtras(Seq("ifSet(tabs, res.tabs := _)"))
     .addInitExtra(Seq("Toolkit.update(initVars(v))"))
 
 

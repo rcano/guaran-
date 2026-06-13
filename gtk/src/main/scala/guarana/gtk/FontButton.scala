@@ -161,6 +161,7 @@ object FontButton extends VarsMap {
     ifSet(vexpand, res.vexpand := _)
     ifSet(vexpandSet, res.vexpandSet := _)
     ifSet(visible, res.visible := _)
+    
     res
   }
   

@@ -139,6 +139,7 @@ object LinkButton extends VarsMap {
     ifSet(vexpandSet, res.vexpandSet := _)
     ifSet(visible, res.visible := _)
     ifSet(visited, res.visited := _)
+    
     res
   }
   

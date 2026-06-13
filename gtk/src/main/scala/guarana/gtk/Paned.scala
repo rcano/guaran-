@@ -168,6 +168,7 @@ object Paned extends VarsMap {
     ifSet(vexpandSet, res.vexpandSet := _)
     ifSet(visible, res.visible := _)
     ifSet(wideHandle, res.wideHandle := _)
+    
     res
   }
   

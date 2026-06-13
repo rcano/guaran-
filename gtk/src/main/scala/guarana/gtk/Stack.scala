@@ -147,6 +147,7 @@ object Stack extends VarsMap {
     ifSet(vexpandSet, res.vexpandSet := _)
     ifSet(vhomogeneous, res.vhomogeneous := _)
     ifSet(visible, res.visible := _)
+    
     res
   }
   

@@ -14,7 +14,7 @@ trait Panels { self: run.type =>
   )
   lazy val hboxNode = genNodeDescsrFromMetaObject(QWidget.staticMetaObject.nn, "HBox", Some(widgetNode))
     .addProperty(VarProp("nodes", "Seq[Widget | LayoutItem]", "Seq.empty", eagerEvaluation = true))
-    .addUninitExtra(
+    .addUninitExtras(
       Seq(
         "QHBoxLayout(res)"
       )
@@ -22,7 +22,7 @@ trait Panels { self: run.type =>
     .addInitExtra("val layout = v.layout().asInstanceOf[QHBoxLayout]" +: replaceAllNodesInit)
   lazy val vboxNode = genNodeDescsrFromMetaObject(QWidget.staticMetaObject.nn, "VBox", Some(widgetNode))
     .addProperty(VarProp("nodes", "Seq[Widget | LayoutItem]", "Seq.empty", eagerEvaluation = true))
-    .addUninitExtra(
+    .addUninitExtras(
       Seq(
         "QVBoxLayout(res)"
       )

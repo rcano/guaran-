@@ -209,6 +209,7 @@ object Label extends VarsMap {
     ifSet(wrapMode, res.wrapMode := _)
     ifSet(xalign, res.xalign := _)
     ifSet(yalign, res.yalign := _)
+    
     res
   }
   

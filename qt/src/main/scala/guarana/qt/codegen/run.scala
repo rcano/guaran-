@@ -17,7 +17,7 @@ object run extends Panels, ItemViews, Dialogs {
     .addOps(Seq("def contentOrientation = ContentOrientation.asObsValIn(v)"))
 
   lazy val widgetNode = genNodeDescsrFromMetaObject(QWidget.staticMetaObject.unn, "Widget", None)
-    .addUninitParam(Seq(Parameter("parent", "Widget | Null = null", "---"), Parameter("windowFlags", "Qt.WindowFlags | Null = null", "---")))
+    .addUninitParams(Seq(Parameter("parent", "Widget | Null = null", "---"), Parameter("windowFlags", "Qt.WindowFlags | Null = null", "---")))
     .copy(creator = Seq("new io.qt.widgets.QWidget(parent.?(_.unwrap), windowFlags)"), lowerBounds = Seq("io.qt.widgets.QWidget"))
     .addOps(Seq("def windowHandle: Option[Window] = v.windowHandle.?(Window.wrap(_)).toOption"))
 

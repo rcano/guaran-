@@ -158,6 +158,7 @@ object Calendar extends VarsMap {
     ifSet(vexpandSet, res.vexpandSet := _)
     ifSet(visible, res.visible := _)
     ifSet(year, res.year := _)
+    
     res
   }
   

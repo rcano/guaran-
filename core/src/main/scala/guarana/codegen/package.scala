@@ -72,6 +72,8 @@ package codegen {
     opsExtra: Seq[String] = Seq.empty,
     emitters: Seq[EmitterDescr] = Seq.empty,
     initExtra: Seq[String] = Seq.empty,
+    applyExtraParams: Seq[Parameter] = Seq.empty,
+    applyExtra: Seq[String] = Seq.empty,
     uninitExtraParams: Seq[Parameter] = Seq.empty,
     uninitExtra: Seq[String] = Seq.empty,
     wrapExtra: Seq[String] = Seq.empty,
@@ -89,8 +91,10 @@ package codegen {
     def addProperty(prop: Property): NodeDescr = copy(props = props :+ prop)
     def addEmitter(emitter: EmitterDescr): NodeDescr = copy(emitters = emitters :+ emitter)
     def addOps(ops: Seq[String]): NodeDescr = copy(opsExtra = opsExtra ++ ops)
-    def addUninitExtra(ops: Seq[String]): NodeDescr = copy(uninitExtra = uninitExtra ++ ops)
-    def addUninitParam(params: Seq[Parameter]): NodeDescr = copy(uninitExtraParams = uninitExtraParams ++ params)
+    def addApplyExtras(ops: Seq[String]): NodeDescr = copy(applyExtra = applyExtra ++ ops)
+    def addApplyExtraParams(params: Seq[Parameter]): NodeDescr = copy(applyExtraParams = applyExtraParams ++ params)
+    def addUninitExtras(ops: Seq[String]): NodeDescr = copy(uninitExtra = uninitExtra ++ ops)
+    def addUninitParams(params: Seq[Parameter]): NodeDescr = copy(uninitExtraParams = uninitExtraParams ++ params)
     def addInitExtra(ops: Seq[String]): NodeDescr = copy(initExtra = initExtra ++ ops)
     def addCompanionObjectExtras(extras: Seq[String]): NodeDescr = copy(companionObjectExtras = companionObjectExtras ++ extras)
   }
@@ -111,6 +115,8 @@ package codegen {
         s"""${if (p.deprecated) "@deprecated(\"\", \"\") " else ""}val ${name.capitalize}: Var[${p.tpeInStaticPos}] = Var[${p.tpeInStaticPos}]("$name", $initValue, $eval)"""
     })
 
+    def paramDecl(t: Parameter): String = s"${t.name}: ${t.tpe}${t.default.fold("")(i => s" = $i")}"
+
     val seenVars = collection.mutable.Set.empty[String]
     val allMutVars: Vector[(NodeDescr, Property)] = Iterator.unfold(Seq(n)) {
       case Seq() => None
@@ -119,6 +125,8 @@ package codegen {
         seenVars ++= allParentVars.map(_._2.name)
         Some(allParentVars -> parents.flatMap(_.upperBounds.collect { case n: NodeDescr => n }))
     }.flatten.toVector.filter(!_._2.readOnly).sortBy(_._2.name)
+
+    val allApplyParams = (allMutVars ++ n.applyExtraParams).sortBy { case p: Parameter => p.name; case (_, prop) => prop.name }
 
     val initializers = 
       if (!n.isAbstract) {
@@ -129,12 +137,16 @@ package codegen {
           |}
           |
           |def apply$tpeParams(
-          |  ${if (n.uninitExtraParams.nonEmpty) n.uninitExtraParams.filterNot(_.erased).map(t => s"${t.name}: ${t.tpe}${t.default.fold("")(i => s" = $i")}").mkString(", ") + "," else ""}
-          |  ${allMutVars.map(v => s"${v._2.name}: Opt[Binding[${v._2.tpe}]] = UnsetParam").mkString(",\n  ")}
+          |  ${if (n.uninitExtraParams.nonEmpty) n.uninitExtraParams.filterNot(_.erased).map(paramDecl).mkString(", ") + "," else ""}
+          |  ${allApplyParams.map{
+                case (_, prop) => s"${prop.name}: Opt[Binding[${prop.tpe}]] = UnsetParam"
+                case param: Parameter => paramDecl(param)
+              }.mkString(",\n  ")}
           |): ${toolkitType.fold("")(n => s"$n ?=> ")}VarContextAction[${n.name}$tpeParams] = {
           |  val res = uninitialized$tpeParams(${n.uninitExtraParams.filterNot(_.erased).map(_.name).mkString(", ")})
           |  $n.init(res)
           |  ${allMutVars.map(v => s"ifSet(${v._2.name}, res.${v._2.name} := _)").mkString("\n  ")}
+          |  ${n.applyExtra.mkString("\n    ")}
           |  res
           |}
           |

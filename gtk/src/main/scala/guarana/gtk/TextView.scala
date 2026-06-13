@@ -231,6 +231,7 @@ object TextView extends VarsMap, internal.TextViewSupport {
     ifSet(visible, res.visible := _)
     ifSet(vscrollPolicy, res.vscrollPolicy := _)
     ifSet(wrapMode, res.wrapMode := _)
+    
     res
   }
   

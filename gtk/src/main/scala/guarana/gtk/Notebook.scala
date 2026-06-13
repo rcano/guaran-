@@ -115,6 +115,7 @@ object Notebook extends VarsMap, internal.NotebookTabsSupport {
     showBorder: Opt[Binding[Boolean]] = UnsetParam,
     showTabs: Opt[Binding[Boolean]] = UnsetParam,
     tabPos: Opt[Binding[org.gnome.gtk.PositionType]] = UnsetParam,
+    tabs: Opt[Binding[Seq[Tab]]] = UnsetParam,
     tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam,
     tooltipText: Opt[Binding[java.lang.String | Null]] = UnsetParam,
     valign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
@@ -162,6 +163,7 @@ object Notebook extends VarsMap, internal.NotebookTabsSupport {
     ifSet(vexpand, res.vexpand := _)
     ifSet(vexpandSet, res.vexpandSet := _)
     ifSet(visible, res.visible := _)
+    ifSet(tabs, res.tabs := _)
     res
   }
   

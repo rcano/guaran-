@@ -150,6 +150,7 @@ object Grid extends VarsMap, internal.GridLayoutSupport {
     ifSet(vexpand, res.vexpand := _)
     ifSet(vexpandSet, res.vexpandSet := _)
     ifSet(visible, res.visible := _)
+    
     res
   }
   

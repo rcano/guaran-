@@ -145,6 +145,7 @@ object AspectFrame extends VarsMap {
     ifSet(visible, res.visible := _)
     ifSet(xalign, res.xalign := _)
     ifSet(yalign, res.yalign := _)
+    
     res
   }
   

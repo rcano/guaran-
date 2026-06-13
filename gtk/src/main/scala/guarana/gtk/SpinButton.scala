@@ -201,6 +201,7 @@ object SpinButton extends VarsMap {
     ifSet(visible, res.visible := _)
     ifSet(widthChars, res.widthChars := _)
     ifSet(wrap, res.wrap := _)
+    
     res
   }
   

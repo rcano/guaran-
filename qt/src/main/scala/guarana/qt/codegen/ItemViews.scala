@@ -76,7 +76,7 @@ trait ItemViews { self: run.type =>
   lazy val treeViewNode = genNodeDescsrFromMetaObject(QTreeView.staticMetaObject.unn, "TreeView", Some(itemViewBaseNode))
 
   lazy val headerViewNode = genNodeDescsrFromMetaObject(QHeaderView.staticMetaObject.unn, "HeaderView", Some(itemViewBaseNode))
-    .addUninitParam(
+    .addUninitParams(
       Seq(Parameter("orientation", "io.qt.core.Qt.Orientation", "---"), Parameter("parent", "Widget | Null = null", "---"))
     )
     .copy(creator = Seq("new io.qt.widgets.QHeaderView(orientation, parent.?(_.unwrap))"))

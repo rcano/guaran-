@@ -227,6 +227,7 @@ object AboutDialog extends VarsMap {
     ifSet(visible, res.visible := _)
     ifSet(website, res.website := _)
     ifSet(wrapLicense, res.wrapLicense := _)
+    
     res
   }
   

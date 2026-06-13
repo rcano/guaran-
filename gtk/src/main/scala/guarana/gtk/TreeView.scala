@@ -237,6 +237,7 @@ object TreeView extends VarsMap {
     ifSet(vexpandSet, res.vexpandSet := _)
     ifSet(visible, res.visible := _)
     ifSet(vscrollPolicy, res.vscrollPolicy := _)
+    
     res
   }
   

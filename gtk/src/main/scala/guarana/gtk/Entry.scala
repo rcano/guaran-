@@ -240,6 +240,7 @@ object Entry extends VarsMap {
     ifSet(visibility, res.visibility := _)
     ifSet(visible, res.visible := _)
     ifSet(widthChars, res.widthChars := _)
+    
     res
   }
   
