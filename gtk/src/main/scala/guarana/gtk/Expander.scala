@@ -1,7 +1,8 @@
 
-package guarana
-package gtk
+package guarana.gtk
 
+import guarana.*
+import guarana.gtk.*
 import guarana.util.*
 
 opaque type Expander <: guarana.gtk.Widget  = org.gnome.gtk.Expander & guarana.gtk.Widget

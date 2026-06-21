@@ -1,7 +1,8 @@
 
-package guarana
-package gtk
+package guarana.gtk
 
+import guarana.*
+import guarana.gtk.*
 import guarana.util.*
 
 opaque type ShortcutsWindow <: guarana.gtk.Window  = org.gnome.gtk.ShortcutsWindow & guarana.gtk.Window

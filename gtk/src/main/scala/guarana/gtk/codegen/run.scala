@@ -88,7 +88,10 @@ object run extends Windows, Containers, TextNodes, ButtonNodes {
       .map(p => Parameter(p.nameInCamelCase, s"Opt[${mapTypeToNodes(p.tpe)}]", "", default = Some("UnsetParam")))
 
     NodeDescr(
-      "guarana.gtk",
+      "guarana." + ci.getPackageName().stripPrefix("org.gnome.").match {
+        case "gtk" => "gtk"
+        case other => s"gtk.$other"
+      },
       name = name,
       underlying = ci.getName(),
       upperBounds = parent.toSeq,
@@ -148,12 +151,14 @@ object run extends Windows, Containers, TextNodes, ButtonNodes {
 
   def main(args: Array[String]): Unit = {
     for (node <- AllWidgets) {
-      val f = File(s"src/main/scala/guarana/gtk/${node.name}.scala")
+      val dir = node.`package`.stripPrefix("guarana.").replace(".", "/")
+      val f = File(s"src/main/scala/guarana/$dir/${node.name}.scala")
       f.writeText(
         s"""
-        |package guarana
-        |package gtk
-
+        |package ${node.`package`}
+        |
+        |import guarana.*
+        |import guarana.gtk.*
         |import guarana.util.*
 
         |${genScalaSource(node)}

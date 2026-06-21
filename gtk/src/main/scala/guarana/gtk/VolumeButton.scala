@@ -1,7 +1,8 @@
 
-package guarana
-package gtk
+package guarana.gtk
 
+import guarana.*
+import guarana.gtk.*
 import guarana.util.*
 
 opaque type VolumeButton <: guarana.gtk.Widget  = org.gnome.gtk.VolumeButton & guarana.gtk.Widget

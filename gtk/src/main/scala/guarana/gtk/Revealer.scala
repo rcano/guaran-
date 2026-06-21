@@ -1,7 +1,8 @@
 
-package guarana
-package gtk
+package guarana.gtk
 
+import guarana.*
+import guarana.gtk.*
 import guarana.util.*
 
 opaque type Revealer <: guarana.gtk.Widget  = org.gnome.gtk.Revealer & guarana.gtk.Widget

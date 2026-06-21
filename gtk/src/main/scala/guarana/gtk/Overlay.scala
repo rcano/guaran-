@@ -1,7 +1,8 @@
 
-package guarana
-package gtk
+package guarana.gtk
 
+import guarana.*
+import guarana.gtk.*
 import guarana.util.*
 
 opaque type Overlay <: guarana.gtk.Widget  = org.gnome.gtk.Overlay & guarana.gtk.Widget

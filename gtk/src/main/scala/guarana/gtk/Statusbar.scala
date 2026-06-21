@@ -1,7 +1,8 @@
 
-package guarana
-package gtk
+package guarana.gtk
 
+import guarana.*
+import guarana.gtk.*
 import guarana.util.*
 
 opaque type Statusbar <: guarana.gtk.Widget  = org.gnome.gtk.Statusbar & guarana.gtk.Widget

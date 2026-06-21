@@ -1,7 +1,8 @@
 
-package guarana
-package gtk
+package guarana.gtk
 
+import guarana.*
+import guarana.gtk.*
 import guarana.util.*
 
 opaque type PopoverMenuBar <: guarana.gtk.Widget  = org.gnome.gtk.PopoverMenuBar & guarana.gtk.Widget

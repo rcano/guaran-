@@ -1,7 +1,8 @@
 
-package guarana
-package gtk
+package guarana.gtk
 
+import guarana.*
+import guarana.gtk.*
 import guarana.util.*
 
 opaque type AppChooserDialog <: guarana.gtk.Window  = org.gnome.gtk.AppChooserDialog & guarana.gtk.Window

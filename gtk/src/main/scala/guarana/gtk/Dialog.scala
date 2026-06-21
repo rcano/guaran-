@@ -1,7 +1,8 @@
 
-package guarana
-package gtk
+package guarana.gtk
 
+import guarana.*
+import guarana.gtk.*
 import guarana.util.*
 
 opaque type Dialog <: guarana.gtk.Window  = org.gnome.gtk.Dialog & guarana.gtk.Window

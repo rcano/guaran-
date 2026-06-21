@@ -1,7 +1,8 @@
 
-package guarana
-package gtk
+package guarana.gtk
 
+import guarana.*
+import guarana.gtk.*
 import guarana.util.*
 
 opaque type PasswordEntry <: guarana.gtk.Widget  = org.gnome.gtk.PasswordEntry & guarana.gtk.Widget

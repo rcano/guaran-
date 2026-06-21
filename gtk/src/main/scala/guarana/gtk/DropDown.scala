@@ -1,7 +1,8 @@
 
-package guarana
-package gtk
+package guarana.gtk
 
+import guarana.*
+import guarana.gtk.*
 import guarana.util.*
 
 opaque type DropDown <: guarana.gtk.Widget  = org.gnome.gtk.DropDown & guarana.gtk.Widget

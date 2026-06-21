@@ -1,7 +1,8 @@
 
-package guarana
-package gtk
+package guarana.gtk
 
+import guarana.*
+import guarana.gtk.*
 import guarana.util.*
 
 opaque type MessageDialog <: guarana.gtk.Window  = org.gnome.gtk.MessageDialog & guarana.gtk.Window

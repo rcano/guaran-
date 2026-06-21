@@ -1,7 +1,8 @@
 
-package guarana
-package gtk
+package guarana.gtk
 
+import guarana.*
+import guarana.gtk.*
 import guarana.util.*
 
 opaque type ToggleButton <: guarana.gtk.Button  = org.gnome.gtk.ToggleButton & guarana.gtk.Button

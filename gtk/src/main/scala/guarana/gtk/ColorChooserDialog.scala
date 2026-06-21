@@ -1,7 +1,8 @@
 
-package guarana
-package gtk
+package guarana.gtk
 
+import guarana.*
+import guarana.gtk.*
 import guarana.util.*
 
 opaque type ColorChooserDialog <: guarana.gtk.Window  = org.gnome.gtk.ColorChooserDialog & guarana.gtk.Window
