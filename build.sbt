@@ -157,12 +157,13 @@ lazy val gtk = Project(id = "guarana-gtk", base = file("gtk"))
   .dependsOn(coreJvm)
   .settings(
     {
-      val gtkVersion = "0.15.0"
+      val gtkVersion = "1.0.0-RC1"
       libraryDependencies ++= Seq(
         "com.github.pathikrit" %% "better-files" % "3.9.2",
         "org.scalameta" %% "scalameta" % "4.17.0" % "provided,runtime",
         "io.github.classgraph" % "classgraph" % "4.8.184" % "provided,runtime",
         "org.java-gi" % "gtk" % gtkVersion,
+        "org.java-gi" % "adw" % gtkVersion,
       )
     },
     javaOptions += "--enable-preview",

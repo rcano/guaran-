@@ -3,6 +3,13 @@ package guarana.gtk
 import org.gnome.gobject.GObject
 import org.gnome.gtk.{Unit as MetricUnit, *}
 import org.gnome.gobject.ParamSpec
+import scala.util.Try
+import scala.util.Using
+import java.lang.foreign.Arena
+import org.gnome.glib.MarkupParseContext
+import org.gnome.glib.MarkupParser
+import org.gnome.glib.MarkupParseFlags
+import scala.util.chaining.*
 
 object RawGtkTeset {
   def main(args: Array[String]): Unit = {
@@ -11,23 +18,11 @@ object RawGtkTeset {
     gtkApp.run(null)
   }
 
-  def setup(app: Application): Unit = try {
-    val window = ApplicationWindow(app)
-    
-    val notifyCallback = NotifyBridge(param => println(s"${param.getName} changed to ${param}"))
-    window.setTitle("Test")
-    window.connect("notify", notifyCallback, true)
-
-    val box = Box.builder().setSpacing(10).setOrientation(Orientation.VERTICAL).build()
-    box.append(Label("a string"))
-    val button = Button.builder().setLabel("a button").build()
-    button.onClicked(() => ())
-    button.connect("notify", notifyCallback, true)
-    box.append(button)
-
-    window.setChild(box)
-    window.setVisible(true)
-  } catch {
-    case e => e.printStackTrace()
-  }
+  def setup(app: Application): Unit = Using.Manager { use =>
+    val arena = use(Arena.ofConfined())
+    val parser = MarkupParseContext(MarkupParser(arena), MarkupParseFlags.DEFAULT_FLAGS, null)
+    "this is some <kanji>marked up text</kanji>, ok?".pipe(s => parser.parse(s, s.length()))
+    println(s"text parsed. Checking")
+    println(parser.getElementStack())
+  }.failed.foreach(_.printStackTrace())
 }

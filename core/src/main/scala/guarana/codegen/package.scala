@@ -138,7 +138,7 @@ package codegen {
           |
           |def apply$tpeParams(
           |  ${if (n.uninitExtraParams.nonEmpty) n.uninitExtraParams.filterNot(_.erased).map(paramDecl).mkString(", ") + "," else ""}
-          |  ${allApplyParams.map{
+          |  ${allApplyParams.map {
                 case (_, prop) => s"${prop.name}: Opt[Binding[${prop.tpe}]] = UnsetParam"
                 case param: Parameter => paramDecl(param)
               }.mkString(",\n  ")}

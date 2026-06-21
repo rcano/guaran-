@@ -96,6 +96,7 @@ object Grid extends VarsMap, internal.GridLayoutSupport {
     marginStart: Opt[Binding[Int]] = UnsetParam,
     marginTop: Opt[Binding[Int]] = UnsetParam,
     name: Opt[Binding[java.lang.String]] = UnsetParam,
+    nodes: Opt[Binding[Seq[GridEntry]]] = UnsetParam,
     opacity: Opt[Binding[Double]] = UnsetParam,
     orientation: Opt[Binding[org.gnome.gtk.Orientation]] = UnsetParam,
     overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
@@ -150,7 +151,7 @@ object Grid extends VarsMap, internal.GridLayoutSupport {
     ifSet(vexpand, res.vexpand := _)
     ifSet(vexpandSet, res.vexpandSet := _)
     ifSet(visible, res.visible := _)
-    
+    ifSet(nodes, res.nodes := _)
     res
   }
   

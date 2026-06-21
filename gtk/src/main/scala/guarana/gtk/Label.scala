@@ -12,6 +12,7 @@ object Label extends VarsMap {
   val Justify: ExternalVar.Aux[Label, org.gnome.gtk.Justification] = ExternalVar[Label, org.gnome.gtk.Justification]("justify", _.getJustify(), _.setJustify(_), true)
   val Label: ExternalVar.Aux[Label, java.lang.String] = ExternalVar[Label, java.lang.String]("label", _.getLabel(), _.setLabel(_), true)
   val Lines: ExternalVar.Aux[Label, Int] = ExternalVar[Label, Int]("lines", _.getLines(), _.setLines(_), true)
+  val MarkupText: ExternalVar.Aux[Label, String | Null] = ExternalVar[Label, String | Null]("markupText", _.getLabel(), _.setMarkup(_), true)
   val MaxWidthChars: ExternalVar.Aux[Label, Int] = ExternalVar[Label, Int]("max-width-chars", _.getMaxWidthChars(), _.setMaxWidthChars(_), true)
   val MnemonicWidget: ExternalVar.Aux[Label, guarana.gtk.Widget | Null] = ExternalVar[Label, guarana.gtk.Widget | Null]("mnemonic-widget", _.getMnemonicWidget().?(guarana.gtk.Widget.wrap), (n, v) => n.setMnemonicWidget(v.?(_.unwrap)), true)
   val NaturalWrapMode: ExternalVar.Aux[Label, org.gnome.gtk.NaturalWrapMode] = ExternalVar[Label, org.gnome.gtk.NaturalWrapMode]("natural-wrap-mode", _.getNaturalWrapMode(), _.setNaturalWrapMode(_), true)
@@ -38,6 +39,7 @@ object Label extends VarsMap {
     def justify: Var.Aux[org.gnome.gtk.Justification, v.type] = guarana.gtk.Label.Justify.asInstanceOf[Var.Aux[org.gnome.gtk.Justification, v.type]]
     def label: Var.Aux[java.lang.String, v.type] = guarana.gtk.Label.Label.asInstanceOf[Var.Aux[java.lang.String, v.type]]
     def lines: Var.Aux[Int, v.type] = guarana.gtk.Label.Lines.asInstanceOf[Var.Aux[Int, v.type]]
+    def markupText: Var.Aux[String | Null, v.type] = guarana.gtk.Label.MarkupText.asInstanceOf[Var.Aux[String | Null, v.type]]
     def maxWidthChars: Var.Aux[Int, v.type] = guarana.gtk.Label.MaxWidthChars.asInstanceOf[Var.Aux[Int, v.type]]
     def mnemonicWidget: Var.Aux[guarana.gtk.Widget | Null, v.type] = guarana.gtk.Label.MnemonicWidget.asInstanceOf[Var.Aux[guarana.gtk.Widget | Null, v.type]]
     def naturalWrapMode: Var.Aux[org.gnome.gtk.NaturalWrapMode, v.type] = guarana.gtk.Label.NaturalWrapMode.asInstanceOf[Var.Aux[org.gnome.gtk.NaturalWrapMode, v.type]]
@@ -129,6 +131,7 @@ object Label extends VarsMap {
     marginEnd: Opt[Binding[Int]] = UnsetParam,
     marginStart: Opt[Binding[Int]] = UnsetParam,
     marginTop: Opt[Binding[Int]] = UnsetParam,
+    markupText: Opt[Binding[String | Null]] = UnsetParam,
     maxWidthChars: Opt[Binding[Int]] = UnsetParam,
     mnemonicWidget: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
     name: Opt[Binding[java.lang.String]] = UnsetParam,
@@ -184,6 +187,7 @@ object Label extends VarsMap {
     ifSet(marginEnd, res.marginEnd := _)
     ifSet(marginStart, res.marginStart := _)
     ifSet(marginTop, res.marginTop := _)
+    ifSet(markupText, res.markupText := _)
     ifSet(maxWidthChars, res.maxWidthChars := _)
     ifSet(mnemonicWidget, res.mnemonicWidget := _)
     ifSet(name, res.name := _)

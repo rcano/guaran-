@@ -7,7 +7,7 @@ import scala.jdk.CollectionConverters.*
 import scala.meta.*
 import scala.util.chaining.*
 
-object run extends Windows, Containers, TextNodes {
+object run extends Windows, Containers, TextNodes, ButtonNodes {
   lazy val classIndex = ClassIndex(
     ClassGraph()
       .enableClassInfo()
@@ -38,10 +38,6 @@ object run extends Windows, Containers, TextNodes {
       )
     )
 
-  lazy val ButtonNode = genNodeDescr(classIndex.scanResult.getClassInfo("org.gnome.gtk.Button"), "Button", Some(WidgetNode))
-    .addProperty(ExternalProp("label", "String | Null"))
-    .pipe(n => n.copy(uninitExtraParams = n.uninitExtraParams.filterNot(_.name == "label"), creator = n.creator.filterNot(_.contains("ifSet(label"))))
-
   lazy val OverlayNode = genNodeDescr(classIndex.scanResult.getClassInfo("org.gnome.gtk.Overlay"), "Overlay", Some(WidgetNode))
     .addProperty(VarProp("overlayed", "Seq[Widget]", "Seq.empty", eagerEvaluation = true))
     .addInitExtra(
@@ -62,8 +58,11 @@ object run extends Windows, Containers, TextNodes {
     .addApplyExtras(Seq("ifSet(tabs, res.tabs := _)"))
     .addInitExtra(Seq("Toolkit.update(initVars(v))"))
 
+  lazy val LabelNode = genNodeDescr(classIndex.scanResult.getClassInfo("org.gnome.gtk.Label"), "Label", Some(WidgetNode))
+    .addProperty(ExternalProp("markupText", "String | Null", "_.getLabel()", "_.setMarkup(_)"))
 
-  lazy val alreadyProcessed = WidgetNode :: ButtonNode :: OverlayNode :: NotebookNode :: AllWindows ::: AllContainers ::: AllTextNodes
+
+  lazy val alreadyProcessed = WidgetNode :: OverlayNode :: NotebookNode :: LabelNode :: AllButtonNodes ::: AllWindows ::: AllContainers ::: AllTextNodes
 
   lazy val AllWidgets = alreadyProcessed ::: classIndex.scanResult
     .getSubclasses("org.gnome.gtk.Widget")

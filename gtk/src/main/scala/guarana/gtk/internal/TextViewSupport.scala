@@ -28,7 +28,7 @@ trait TextViewSupport { self: TextView.type =>
               nodes.foreach { elem =>
                 buffer.getEndIter(ti)
                 elem match {
-                  case t: String => buffer.insertMarkup(ti, t, t.length())
+                  case t: String => buffer.insertMarkup(ti, t, -1)
                   case widget =>
                     val anchor = buffer.createChildAnchor(ti)
                     tv.unwrap.addChildAtAnchor(widget.asInstanceOf[Widget].unwrap, anchor)

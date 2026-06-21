@@ -15,7 +15,7 @@ transparent trait GridLayoutSupport { self: Grid.type =>
       val grid = v.unwrap
       while (grid.getFirstChild() != null) grid.remove(grid.getFirstChild)
       // this `match` works in runtime due to tuple sizes
-      entries.foreach(e => grid.attach(e.node.unwrap, e.col, e.row, 1, 1))
+      entries.foreach(e => grid.attach(e.node.unwrap, e.col, e.row, e.colSpan, e.rowSpan))
     }
   }
 }

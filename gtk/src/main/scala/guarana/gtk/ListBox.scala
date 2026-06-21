@@ -8,6 +8,7 @@ opaque type ListBox <: guarana.gtk.Widget  = org.gnome.gtk.ListBox & guarana.gtk
 object ListBox extends VarsMap {
   val ActivateOnSingleClick: ExternalVar.Aux[ListBox, Boolean] = ExternalVar[ListBox, Boolean]("activate-on-single-click", _.getActivateOnSingleClick(), _.setActivateOnSingleClick(_), true)
   val Adjustment: ExternalVar.Aux[ListBox, org.gnome.gtk.Adjustment | Null] = ExternalVar[ListBox, org.gnome.gtk.Adjustment | Null]("adjustment", _.getAdjustment(), _.setAdjustment(_), true)
+  val Nodes: Var[Seq[Widget]] = Var[Seq[Widget]]("nodes", Seq.empty, true)
   val SelectionMode: ExternalVar.Aux[ListBox, org.gnome.gtk.SelectionMode] = ExternalVar[ListBox, org.gnome.gtk.SelectionMode]("selection-mode", _.getSelectionMode(), _.setSelectionMode(_), true)
   val ShowSeparators: ExternalVar.Aux[ListBox, Boolean] = ExternalVar[ListBox, Boolean]("show-separators", _.getShowSeparators(), _.setShowSeparators(_), true)
   val TabBehavior: ExternalVar.Aux[ListBox, org.gnome.gtk.ListTabBehavior] = ExternalVar[ListBox, org.gnome.gtk.ListTabBehavior]("tab-behavior", _.getTabBehavior(), _.setTabBehavior(_), true)
@@ -19,6 +20,7 @@ object ListBox extends VarsMap {
 
     def activateOnSingleClick: Var.Aux[Boolean, v.type] = guarana.gtk.ListBox.ActivateOnSingleClick.asInstanceOf[Var.Aux[Boolean, v.type]]
     def adjustment: Var.Aux[org.gnome.gtk.Adjustment | Null, v.type] = guarana.gtk.ListBox.Adjustment.asInstanceOf[Var.Aux[org.gnome.gtk.Adjustment | Null, v.type]]
+    def nodes: Var.Aux[Seq[Widget], v.type] = guarana.gtk.ListBox.Nodes.asInstanceOf[Var.Aux[Seq[Widget], v.type]]
     def selectionMode: Var.Aux[org.gnome.gtk.SelectionMode, v.type] = guarana.gtk.ListBox.SelectionMode.asInstanceOf[Var.Aux[org.gnome.gtk.SelectionMode, v.type]]
     def showSeparators: Var.Aux[Boolean, v.type] = guarana.gtk.ListBox.ShowSeparators.asInstanceOf[Var.Aux[Boolean, v.type]]
     def tabBehavior: Var.Aux[org.gnome.gtk.ListTabBehavior, v.type] = guarana.gtk.ListBox.TabBehavior.asInstanceOf[Var.Aux[org.gnome.gtk.ListTabBehavior, v.type]]
@@ -59,6 +61,13 @@ object ListBox extends VarsMap {
   def init(v: ListBox): Unit = {
     guarana.gtk.Widget.init(v)
     connectVarsListener(v)
+    Toolkit.update {
+      v.varUpdates := EventIterator.forsome {
+        case v.nodes(_, newv) =>
+          while (v.getFirstChild() != null) v.remove(v.getFirstChild())
+          newv.foreach(w => v.append(w.unwrap))
+      }
+    }
     
   }
   def uninitialized(acceptUnpairedRelease: Opt[Boolean], cssName: Opt[java.lang.String], heightRequest: Opt[Int], widthRequest: Opt[Int], accessibleRole: Opt[org.gnome.gtk.AccessibleRole]): ListBox = {
@@ -101,6 +110,7 @@ object ListBox extends VarsMap {
     marginStart: Opt[Binding[Int]] = UnsetParam,
     marginTop: Opt[Binding[Int]] = UnsetParam,
     name: Opt[Binding[java.lang.String]] = UnsetParam,
+    nodes: Opt[Binding[Seq[Widget]]] = UnsetParam,
     opacity: Opt[Binding[Double]] = UnsetParam,
     overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
     receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
@@ -141,6 +151,7 @@ object ListBox extends VarsMap {
     ifSet(marginStart, res.marginStart := _)
     ifSet(marginTop, res.marginTop := _)
     ifSet(name, res.name := _)
+    ifSet(nodes, res.nodes := _)
     ifSet(opacity, res.opacity := _)
     ifSet(overflow, res.overflow := _)
     ifSet(receivesDefault, res.receivesDefault := _)

@@ -230,6 +230,16 @@ abstract class AbstractToolkit {
       switchboard(v.asInstanceOf[Var.Aux[T, v.ForInstance]], instance.value)
     }
 
+    def apply[T](b: Binding[T]): T = b.apply()(using readerVarContext)
+
+    private object readerVarContext extends VarContext {
+      override def update[T](v: Var[T], binding: Binding[T])(using instance: ValueOf[v.ForInstance]): Unit = throw IllegalStateException("state-reader can't set variables")
+      override def apply[T](v: ObsVal[T])(using instance: ValueOf[v.ForInstance]): T = stateReader(v)
+      override def listen[A](emitter: Emitter[A])(f: EventIterator[A])(implicit instance: ValueOf[emitter.ForInstance]): Unit = throw IllegalStateException("state-reader can't register listeners")
+      override def emit[A](emitter: Emitter[A], evt: A)(implicit instance: ValueOf[emitter.ForInstance]): Unit = throw IllegalStateException("state-reader can't emit events")
+      override def externalPropertyUpdated[T](v: ObsVal[T], oldValue: Option[T])(using instance: ValueOf[v.ForInstance]): Unit = throw IllegalStateException("state-reader can't report external properties")
+    }
+
     /** Reads the stored value of the property, if any. */
     def get[T](property: ObsVal[T])(using instance: ValueOf[property.ForInstance]): Option[T] =
       switchboard.get(property.asInstanceOf[Var.Aux[T, property.ForInstance]], instance.value) match
