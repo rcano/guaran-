@@ -124,6 +124,7 @@ object FontChooserDialog extends VarsMap {
     name: Opt[Binding[java.lang.String]] = UnsetParam,
     opacity: Opt[Binding[Double]] = UnsetParam,
     overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    parent: Opt[Binding[Widget | Null]] = UnsetParam,
     previewText: Opt[Binding[java.lang.String]] = UnsetParam,
     receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
     resizable: Opt[Binding[Boolean]] = UnsetParam,
@@ -182,6 +183,7 @@ object FontChooserDialog extends VarsMap {
     ifSet(name, res.name := _)
     ifSet(opacity, res.opacity := _)
     ifSet(overflow, res.overflow := _)
+    ifSet(parent, res.parent := _)
     ifSet(previewText, res.previewText := _)
     ifSet(receivesDefault, res.receivesDefault := _)
     ifSet(resizable, res.resizable := _)

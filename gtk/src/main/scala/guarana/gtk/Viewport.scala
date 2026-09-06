@@ -98,6 +98,7 @@ object Viewport extends VarsMap {
     name: Opt[Binding[java.lang.String]] = UnsetParam,
     opacity: Opt[Binding[Double]] = UnsetParam,
     overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    parent: Opt[Binding[Widget | Null]] = UnsetParam,
     receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
     scrollToFocus: Opt[Binding[Boolean]] = UnsetParam,
     sensitive: Opt[Binding[Boolean]] = UnsetParam,
@@ -139,6 +140,7 @@ object Viewport extends VarsMap {
     ifSet(name, res.name := _)
     ifSet(opacity, res.opacity := _)
     ifSet(overflow, res.overflow := _)
+    ifSet(parent, res.parent := _)
     ifSet(receivesDefault, res.receivesDefault := _)
     ifSet(scrollToFocus, res.scrollToFocus := _)
     ifSet(sensitive, res.sensitive := _)

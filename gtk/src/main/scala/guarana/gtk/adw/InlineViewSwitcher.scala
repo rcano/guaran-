@@ -97,6 +97,7 @@ object InlineViewSwitcher extends VarsMap {
     opacity: Opt[Binding[Double]] = UnsetParam,
     orientation: Opt[Binding[org.gnome.gtk.Orientation]] = UnsetParam,
     overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    parent: Opt[Binding[Widget | Null]] = UnsetParam,
     receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
     sensitive: Opt[Binding[Boolean]] = UnsetParam,
     stack: Opt[Binding[org.gnome.adw.ViewStack | Null]] = UnsetParam,
@@ -137,6 +138,7 @@ object InlineViewSwitcher extends VarsMap {
     ifSet(opacity, res.opacity := _)
     ifSet(orientation, res.orientation := _)
     ifSet(overflow, res.overflow := _)
+    ifSet(parent, res.parent := _)
     ifSet(receivesDefault, res.receivesDefault := _)
     ifSet(sensitive, res.sensitive := _)
     ifSet(stack, res.stack := _)

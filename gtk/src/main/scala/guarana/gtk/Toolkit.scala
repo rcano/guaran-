@@ -6,8 +6,10 @@ import org.gnome.gdk.Display
 import org.gnome.glib.GLib
 import org.gnome.gtk.{CssProvider, Gtk}
 import scala.concurrent.duration.FiniteDuration
+import org.javagi.base.ExceptionHandler
 
 object Toolkit extends AbstractToolkit, TimersDef {
+  ExceptionHandler.setUncaughtExceptionHandler((err, source) => scribe.error(s"Unhandled exception GTK callback $source", err))
   private val eventLoopThread = Thread.currentThread()
 
   override def timerDefs: TimersDef = this

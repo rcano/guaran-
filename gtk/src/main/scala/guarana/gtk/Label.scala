@@ -139,6 +139,7 @@ object Label extends VarsMap {
     naturalWrapMode: Opt[Binding[org.gnome.gtk.NaturalWrapMode]] = UnsetParam,
     opacity: Opt[Binding[Double]] = UnsetParam,
     overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    parent: Opt[Binding[Widget | Null]] = UnsetParam,
     receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
     selectable: Opt[Binding[Boolean]] = UnsetParam,
     sensitive: Opt[Binding[Boolean]] = UnsetParam,
@@ -195,6 +196,7 @@ object Label extends VarsMap {
     ifSet(naturalWrapMode, res.naturalWrapMode := _)
     ifSet(opacity, res.opacity := _)
     ifSet(overflow, res.overflow := _)
+    ifSet(parent, res.parent := _)
     ifSet(receivesDefault, res.receivesDefault := _)
     ifSet(selectable, res.selectable := _)
     ifSet(sensitive, res.sensitive := _)

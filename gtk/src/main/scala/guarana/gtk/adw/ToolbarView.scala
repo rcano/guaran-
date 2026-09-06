@@ -101,6 +101,7 @@ object ToolbarView extends VarsMap {
     name: Opt[Binding[java.lang.String]] = UnsetParam,
     opacity: Opt[Binding[Double]] = UnsetParam,
     overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    parent: Opt[Binding[Widget | Null]] = UnsetParam,
     receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
     revealBottomBars: Opt[Binding[Boolean]] = UnsetParam,
     revealTopBars: Opt[Binding[Boolean]] = UnsetParam,
@@ -143,6 +144,7 @@ object ToolbarView extends VarsMap {
     ifSet(name, res.name := _)
     ifSet(opacity, res.opacity := _)
     ifSet(overflow, res.overflow := _)
+    ifSet(parent, res.parent := _)
     ifSet(receivesDefault, res.receivesDefault := _)
     ifSet(revealBottomBars, res.revealBottomBars := _)
     ifSet(revealTopBars, res.revealTopBars := _)

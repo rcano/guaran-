@@ -122,6 +122,7 @@ object Flap extends VarsMap {
     opacity: Opt[Binding[Double]] = UnsetParam,
     orientation: Opt[Binding[org.gnome.gtk.Orientation]] = UnsetParam,
     overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    parent: Opt[Binding[Widget | Null]] = UnsetParam,
     receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
     revealFlap: Opt[Binding[Boolean]] = UnsetParam,
     revealParams: Opt[Binding[org.gnome.adw.SpringParams]] = UnsetParam,
@@ -172,6 +173,7 @@ object Flap extends VarsMap {
     ifSet(opacity, res.opacity := _)
     ifSet(orientation, res.orientation := _)
     ifSet(overflow, res.overflow := _)
+    ifSet(parent, res.parent := _)
     ifSet(receivesDefault, res.receivesDefault := _)
     ifSet(revealFlap, res.revealFlap := _)
     ifSet(revealParams, res.revealParams := _)

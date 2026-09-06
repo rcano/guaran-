@@ -101,6 +101,7 @@ object Grid extends VarsMap, internal.GridLayoutSupport {
     opacity: Opt[Binding[Double]] = UnsetParam,
     orientation: Opt[Binding[org.gnome.gtk.Orientation]] = UnsetParam,
     overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    parent: Opt[Binding[Widget | Null]] = UnsetParam,
     receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
     rowHomogeneous: Opt[Binding[Boolean]] = UnsetParam,
     rowSpacing: Opt[Binding[Int]] = UnsetParam,
@@ -142,6 +143,7 @@ object Grid extends VarsMap, internal.GridLayoutSupport {
     ifSet(opacity, res.opacity := _)
     ifSet(orientation, res.orientation := _)
     ifSet(overflow, res.overflow := _)
+    ifSet(parent, res.parent := _)
     ifSet(receivesDefault, res.receivesDefault := _)
     ifSet(rowHomogeneous, res.rowHomogeneous := _)
     ifSet(rowSpacing, res.rowSpacing := _)

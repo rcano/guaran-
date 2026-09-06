@@ -104,6 +104,7 @@ object Picture extends VarsMap {
     opacity: Opt[Binding[Double]] = UnsetParam,
     overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
     paintable: Opt[Binding[org.gnome.gdk.Paintable | Null]] = UnsetParam,
+    parent: Opt[Binding[Widget | Null]] = UnsetParam,
     receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
     sensitive: Opt[Binding[Boolean]] = UnsetParam,
     tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam,
@@ -146,6 +147,7 @@ object Picture extends VarsMap {
     ifSet(opacity, res.opacity := _)
     ifSet(overflow, res.overflow := _)
     ifSet(paintable, res.paintable := _)
+    ifSet(parent, res.parent := _)
     ifSet(receivesDefault, res.receivesDefault := _)
     ifSet(sensitive, res.sensitive := _)
     ifSet(tooltipMarkup, res.tooltipMarkup := _)

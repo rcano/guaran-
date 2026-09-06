@@ -133,6 +133,7 @@ object WrapBox extends VarsMap {
     orientation: Opt[Binding[org.gnome.gtk.Orientation]] = UnsetParam,
     overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
     packDirection: Opt[Binding[org.gnome.adw.PackDirection]] = UnsetParam,
+    parent: Opt[Binding[Widget | Null]] = UnsetParam,
     receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
     sensitive: Opt[Binding[Boolean]] = UnsetParam,
     tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam,
@@ -183,6 +184,7 @@ object WrapBox extends VarsMap {
     ifSet(orientation, res.orientation := _)
     ifSet(overflow, res.overflow := _)
     ifSet(packDirection, res.packDirection := _)
+    ifSet(parent, res.parent := _)
     ifSet(receivesDefault, res.receivesDefault := _)
     ifSet(sensitive, res.sensitive := _)
     ifSet(tooltipMarkup, res.tooltipMarkup := _)

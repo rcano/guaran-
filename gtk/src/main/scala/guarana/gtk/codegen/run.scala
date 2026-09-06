@@ -21,6 +21,7 @@ object run extends Windows, Containers, TextNodes, ButtonNodes {
 
   lazy val WidgetNode = genNodeDescr(widgetClassInfo, "Widget", None)
     .addProperty(ExternalProp("cssClasses", "Array[String]"))
+    .addProperty(ExternalProp("parent", "Widget | Null", getter = "_.getParent().?(guarana.gtk.Widget.wrap)", setter = "(n, v) => n.setParent(v.?(_.unwrap))"))
     .addOps(
       Seq(
         "def getChildren(): Iterator[org.gnome.gtk.Widget] = Iterator.unfold(v.getFirstChild()) {",

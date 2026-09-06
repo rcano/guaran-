@@ -31,6 +31,7 @@ object Widget extends VarsMap {
   val Name: ExternalVar.Aux[Widget, java.lang.String] = ExternalVar[Widget, java.lang.String]("name", _.getName(), _.setName(_), true)
   val Opacity: ExternalVar.Aux[Widget, Double] = ExternalVar[Widget, Double]("opacity", _.getOpacity(), _.setOpacity(_), true)
   val Overflow: ExternalVar.Aux[Widget, org.gnome.gtk.Overflow] = ExternalVar[Widget, org.gnome.gtk.Overflow]("overflow", _.getOverflow(), _.setOverflow(_), true)
+  val Parent: ExternalVar.Aux[Widget, Widget | Null] = ExternalVar[Widget, Widget | Null]("parent", _.getParent().?(guarana.gtk.Widget.wrap), (n, v) => n.setParent(v.?(_.unwrap)), true)
   val ReceivesDefault: ExternalVar.Aux[Widget, Boolean] = ExternalVar[Widget, Boolean]("receives-default", _.getReceivesDefault(), _.setReceivesDefault(_), true)
   val Sensitive: ExternalVar.Aux[Widget, Boolean] = ExternalVar[Widget, Boolean]("sensitive", _.getSensitive(), _.setSensitive(_), true)
   val TooltipMarkup: ExternalVar.Aux[Widget, java.lang.String | Null] = ExternalVar[Widget, java.lang.String | Null]("tooltip-markup", _.getTooltipMarkup(), _.setTooltipMarkup(_), true)
@@ -69,6 +70,7 @@ object Widget extends VarsMap {
     def name: Var.Aux[java.lang.String, v.type] = guarana.gtk.Widget.Name.asInstanceOf[Var.Aux[java.lang.String, v.type]]
     def opacity: Var.Aux[Double, v.type] = guarana.gtk.Widget.Opacity.asInstanceOf[Var.Aux[Double, v.type]]
     def overflow: Var.Aux[org.gnome.gtk.Overflow, v.type] = guarana.gtk.Widget.Overflow.asInstanceOf[Var.Aux[org.gnome.gtk.Overflow, v.type]]
+    def parent: Var.Aux[Widget | Null, v.type] = guarana.gtk.Widget.Parent.asInstanceOf[Var.Aux[Widget | Null, v.type]]
     def receivesDefault: Var.Aux[Boolean, v.type] = guarana.gtk.Widget.ReceivesDefault.asInstanceOf[Var.Aux[Boolean, v.type]]
     def sensitive: Var.Aux[Boolean, v.type] = guarana.gtk.Widget.Sensitive.asInstanceOf[Var.Aux[Boolean, v.type]]
     def tooltipMarkup: Var.Aux[java.lang.String | Null, v.type] = guarana.gtk.Widget.TooltipMarkup.asInstanceOf[Var.Aux[java.lang.String | Null, v.type]]

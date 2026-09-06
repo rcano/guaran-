@@ -117,6 +117,7 @@ object ComboBox extends VarsMap {
     name: Opt[Binding[java.lang.String]] = UnsetParam,
     opacity: Opt[Binding[Double]] = UnsetParam,
     overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    parent: Opt[Binding[Widget | Null]] = UnsetParam,
     popupFixedWidth: Opt[Binding[Boolean]] = UnsetParam,
     receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
     rowSeparatorFunc: Opt[Binding[org.gnome.gtk.TreeViewRowSeparatorFunc | Null]] = UnsetParam,
@@ -161,6 +162,7 @@ object ComboBox extends VarsMap {
     ifSet(name, res.name := _)
     ifSet(opacity, res.opacity := _)
     ifSet(overflow, res.overflow := _)
+    ifSet(parent, res.parent := _)
     ifSet(popupFixedWidth, res.popupFixedWidth := _)
     ifSet(receivesDefault, res.receivesDefault := _)
     ifSet(rowSeparatorFunc, res.rowSeparatorFunc := _)

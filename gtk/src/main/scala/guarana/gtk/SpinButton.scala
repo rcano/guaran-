@@ -135,6 +135,7 @@ object SpinButton extends VarsMap {
     opacity: Opt[Binding[Double]] = UnsetParam,
     orientation: Opt[Binding[org.gnome.gtk.Orientation]] = UnsetParam,
     overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    parent: Opt[Binding[Widget | Null]] = UnsetParam,
     position: Opt[Binding[Int]] = UnsetParam,
     receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
     sensitive: Opt[Binding[Boolean]] = UnsetParam,
@@ -187,6 +188,7 @@ object SpinButton extends VarsMap {
     ifSet(opacity, res.opacity := _)
     ifSet(orientation, res.orientation := _)
     ifSet(overflow, res.overflow := _)
+    ifSet(parent, res.parent := _)
     ifSet(position, res.position := _)
     ifSet(receivesDefault, res.receivesDefault := _)
     ifSet(sensitive, res.sensitive := _)

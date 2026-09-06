@@ -114,6 +114,7 @@ object BottomSheet extends VarsMap {
     opacity: Opt[Binding[Double]] = UnsetParam,
     open: Opt[Binding[Boolean]] = UnsetParam,
     overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    parent: Opt[Binding[Widget | Null]] = UnsetParam,
     receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
     revealBottomBar: Opt[Binding[Boolean]] = UnsetParam,
     sensitive: Opt[Binding[Boolean]] = UnsetParam,
@@ -160,6 +161,7 @@ object BottomSheet extends VarsMap {
     ifSet(opacity, res.opacity := _)
     ifSet(open, res.open := _)
     ifSet(overflow, res.overflow := _)
+    ifSet(parent, res.parent := _)
     ifSet(receivesDefault, res.receivesDefault := _)
     ifSet(revealBottomBar, res.revealBottomBar := _)
     ifSet(sensitive, res.sensitive := _)

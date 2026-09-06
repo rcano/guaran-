@@ -164,6 +164,7 @@ object AboutWindow extends VarsMap {
     name: Opt[Binding[java.lang.String]] = UnsetParam,
     opacity: Opt[Binding[Double]] = UnsetParam,
     overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    parent: Opt[Binding[Widget | Null]] = UnsetParam,
     receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
     releaseNotes: Opt[Binding[java.lang.String]] = UnsetParam,
     releaseNotesVersion: Opt[Binding[java.lang.String]] = UnsetParam,
@@ -238,6 +239,7 @@ object AboutWindow extends VarsMap {
     ifSet(name, res.name := _)
     ifSet(opacity, res.opacity := _)
     ifSet(overflow, res.overflow := _)
+    ifSet(parent, res.parent := _)
     ifSet(receivesDefault, res.receivesDefault := _)
     ifSet(releaseNotes, res.releaseNotes := _)
     ifSet(releaseNotesVersion, res.releaseNotesVersion := _)

@@ -3,6 +3,7 @@ package gtk
 
 import org.gnome.gobject.GObject
 import guarana.impl.RefCleaner
+import org.gnome.gobject.ParamSpec
 
 /** Calculates the map of name→var for this node by using reflection
   */
@@ -17,27 +18,40 @@ trait VarsMap {
     .toMap
 
   protected def connectVarsListener(instance: GObject, debug: Boolean = false): Unit = {
-    val notifyCallback = NotifyBridge { param =>
+    val wrInstance = ref.WeakReference(instance)
+    val notifyCallback = NotifyBridge(VarsMap.PropertyNotifier(ignoreProperties, debug, varsMap, wrInstance))
+    val conn = instance.connect("notify", notifyCallback, true)
+    // VarsMap.cleaner.register(instance, () => conn.disconnect()) // hopefully this doesn't cause a sigsev
+  }
+}
+
+object VarsMap {
+  val cleaner = RefCleaner()
+
+  private class PropertyNotifier(
+    ignoreProperties: collection.Set[String],
+    debug: Boolean,
+    varsMap: Map[String, ExternalVar[?]],
+    wrInstance: ref.WeakReference[GObject]
+  ) extends (ParamSpec => Unit) {
+
+    override def apply(param: ParamSpec): Unit = {
       try {
         val property = param.getName
         if (!ignoreProperties(property)) {
           if (debug) scribe.info(s"Trying to update $property")
           varsMap.get(property) foreach { case sv: ExternalVar[t] =>
             if (debug) scribe.info("  found gtk var")
-            Toolkit.update(
-              summon[VarContext].externalPropertyUpdated(sv, None)(using
-                ValueOf(instance.asInstanceOf[sv.ForInstance])
+            wrInstance.get.foreach(instance =>
+              Toolkit.update(
+                summon[VarContext].externalPropertyUpdated(sv, None)(using
+                  ValueOf(instance.asInstanceOf[sv.ForInstance])
+                )
               )
             )
           }
         }
       } catch case e => e.printStackTrace()
     }
-    val conn = instance.connect("notify", notifyCallback, true)
-    VarsMap.cleaner.register(instance, () => conn.disconnect()) // hopefully this doesn't cause a sigsev
   }
-}
-
-object VarsMap {
-  val cleaner = RefCleaner()
 }

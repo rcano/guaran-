@@ -3,7 +3,7 @@ name := "guarana"
 inThisBuild(
   Seq(
     organization := "guarana",
-    version := "0.3.0-SNAPSHOT",
+    version := "0.3.2-SNAPSHOT",
     scalaVersion := "3.8.4",
     fork := true,
     libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.19" % "test",
@@ -16,7 +16,7 @@ inThisBuild(
       "-language:implicitConversions",
       // "-rewrite",
       // "-source",
-      // "3.7-migration",
+      // "3.8-migration",
       "-explain",
       "-opt"
     ),
@@ -157,7 +157,7 @@ lazy val gtk = Project(id = "guarana-gtk", base = file("gtk"))
   .dependsOn(coreJvm)
   .settings(
     {
-      val gtkVersion = "1.0.0-RC1"
+      val gtkVersion = "1.0.0-RC3"
       libraryDependencies ++= Seq(
         "com.github.pathikrit" %% "better-files" % "3.9.2",
         "org.scalameta" %% "scalameta" % "4.17.0" % "provided,runtime",

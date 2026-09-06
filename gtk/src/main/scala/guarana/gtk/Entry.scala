@@ -168,6 +168,7 @@ object Entry extends VarsMap {
     opacity: Opt[Binding[Double]] = UnsetParam,
     overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
     overwriteMode: Opt[Binding[Boolean]] = UnsetParam,
+    parent: Opt[Binding[Widget | Null]] = UnsetParam,
     placeholderText: Opt[Binding[java.lang.String | Null]] = UnsetParam,
     position: Opt[Binding[Int]] = UnsetParam,
     progressFraction: Opt[Binding[Double]] = UnsetParam,
@@ -225,6 +226,7 @@ object Entry extends VarsMap {
     ifSet(opacity, res.opacity := _)
     ifSet(overflow, res.overflow := _)
     ifSet(overwriteMode, res.overwriteMode := _)
+    ifSet(parent, res.parent := _)
     ifSet(placeholderText, res.placeholderText := _)
     ifSet(position, res.position := _)
     ifSet(progressFraction, res.progressFraction := _)

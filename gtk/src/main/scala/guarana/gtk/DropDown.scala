@@ -108,6 +108,7 @@ object DropDown extends VarsMap {
     name: Opt[Binding[java.lang.String]] = UnsetParam,
     opacity: Opt[Binding[Double]] = UnsetParam,
     overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    parent: Opt[Binding[Widget | Null]] = UnsetParam,
     receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
     searchMatchMode: Opt[Binding[org.gnome.gtk.StringFilterMatchMode]] = UnsetParam,
     selected: Opt[Binding[Int]] = UnsetParam,
@@ -152,6 +153,7 @@ object DropDown extends VarsMap {
     ifSet(name, res.name := _)
     ifSet(opacity, res.opacity := _)
     ifSet(overflow, res.overflow := _)
+    ifSet(parent, res.parent := _)
     ifSet(receivesDefault, res.receivesDefault := _)
     ifSet(searchMatchMode, res.searchMatchMode := _)
     ifSet(selected, res.selected := _)

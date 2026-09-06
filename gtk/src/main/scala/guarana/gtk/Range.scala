@@ -112,6 +112,7 @@ object Range extends VarsMap {
     opacity: Opt[Binding[Double]] = UnsetParam,
     orientation: Opt[Binding[org.gnome.gtk.Orientation]] = UnsetParam,
     overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    parent: Opt[Binding[Widget | Null]] = UnsetParam,
     receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
     restrictToFillLevel: Opt[Binding[Boolean]] = UnsetParam,
     roundDigits: Opt[Binding[Int]] = UnsetParam,
@@ -157,6 +158,7 @@ object Range extends VarsMap {
     ifSet(opacity, res.opacity := _)
     ifSet(orientation, res.orientation := _)
     ifSet(overflow, res.overflow := _)
+    ifSet(parent, res.parent := _)
     ifSet(receivesDefault, res.receivesDefault := _)
     ifSet(restrictToFillLevel, res.restrictToFillLevel := _)
     ifSet(roundDigits, res.roundDigits := _)

@@ -1,381 +1,837 @@
-/*
- * Copyright 2014-2021 Real Logic Limited.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.agrona.collections
 
-import java.io.Serializable
-import java.util.*
-import java.util.function.Consumer
-import java.util.function.LongFunction
+import language.unsafeNulls
 
-import java.util.Objects.requireNonNull
+import java.util.{AbstractCollection, AbstractSet, Arrays, NoSuchElementException, Objects}
+import java.util.{Map => JMap}
+import java.util.Map.{Entry => JEntry}
+import java.util.function.{BiConsumer, BiFunction, Consumer, Function, LongFunction, LongPredicate}
+
 import org.agrona.BitUtil.findNextPositivePowerOfTwo
 import org.agrona.collections.CollectionUtil.validateLoadFactor
+import org.agrona.generation.DoNotSub
 
-import scala.compiletime.uninitialized
+/**
+ * Literal port of `org.agrona.collections.Long2ObjectHashMap`.
+ *
+ * `java.util.Map` implementation specialised for int keys using open addressing and
+ * linear probing for cache efficient access.
+ *
+ * NB on the port: several private backing fields in the Java original share their name
+ * with a public zero-arg accessor method (`size`/`size()`, `loadFactor`/`loadFactor()`,
+ * `resizeThreshold`/`resizeThreshold()`, `values`/`values()`, `keySet`/`keySet()`,
+ * `entrySet`/`entrySet()`, and `remaining`/`remaining()` on the iterator base class).
+ * Java allows this because fields and methods are in separate namespaces; Scala unifies
+ * them, so those particular backing fields are stored under a renamed identifier here
+ * while every public method keeps its exact Java name and signature.
+ *
+ * @tparam V type of values stored in the `java.util.Map`.
+ */
+class Long2ObjectHashMap[V](
+  initialCapacity: Int = Long2ObjectHashMap.MIN_CAPACITY,
+  loadFactorCtor: Float = Hashing.DEFAULT_LOAD_FACTOR,
+  shouldAvoidAllocationCtor: Boolean = true)
+  extends JMap[java.lang.Long, V]
+{
+  import Long2ObjectHashMap._
 
-object Long2ObjectHashMap {
-  val MIN_CAPACITY = 8
+  private val _loadFactor: Float = loadFactorCtor
+  @DoNotSub private var _resizeThreshold: Int = 0
+  @DoNotSub private var _size: Int = 0
+  private val shouldAvoidAllocation: Boolean = shouldAvoidAllocationCtor
 
-  def apply[V <: Object | Null](mapToCopy: Long2ObjectHashMap[V]): Long2ObjectHashMap[V] = {
-    val res = new Long2ObjectHashMap[V](mapToCopy.capacity(), mapToCopy.loadFactor, mapToCopy.shouldAvoidAllocation)
-    System.arraycopy(mapToCopy._values, 0, res._values, 0, mapToCopy._values.length)
-    res
-  }
-}
+  private var keys: Array[Long] = scala.compiletime.uninitialized
+  private var valuesArray: Array[Object] = scala.compiletime.uninitialized
 
-/** {@link java.util.Map} implementation specialised for long keys using open addressing and linear probing for cache efficient access.
-  *
-  * @param [V]
-  *   type of values stored in the {@link java.util.Map}
-  *
-  * Construct a new map allowing a configuration for initial capacity and load factor.
-  *
-  * @param initialCapacity
-  *   for the backing array
-  * @param loadFactor
-  *   limit for resizing on puts
-  * @param shouldAvoidAllocation
-  *   should allocation be avoided by caching iterators and map entries.
-  */
-@SerialVersionUID(-87577678740521569L)
-class Long2ObjectHashMap[V <: Object | Null](
-    initialCapacity: Int = Long2ObjectHashMap.MIN_CAPACITY,
-    val loadFactor: Float = Hashing.DEFAULT_LOAD_FACTOR,
-    val shouldAvoidAllocation: Boolean = true,
-) extends Map[java.lang.Long, V],
-      Serializable {
+  private var valueCollection: ValueCollection = scala.compiletime.uninitialized
+  private var _keySet: KeySet = scala.compiletime.uninitialized
+  private var _entrySet: EntrySet = scala.compiletime.uninitialized
 
-  private var _resizeThreshold: Int = uninitialized
-  private var _size: Int = 0
-
-  private var keys: Array[Long] = uninitialized
-  private[Long2ObjectHashMap] var _values: Array[Object | Null] = uninitialized
-
-  private var _valueCollection: ValueCollection | Null = null
-  private var _keySet: KeySet | Null = null
-  private var _entrySet: EntrySet | Null = null
+  validateLoadFactor(loadFactorCtor)
 
   {
-    validateLoadFactor(loadFactor)
-
-    val capacity = findNextPositivePowerOfTwo(Math.max(Long2ObjectHashMap.MIN_CAPACITY, initialCapacity))
-    _resizeThreshold = (capacity * loadFactor).toInt
+    /* @DoNotSub */ val capacity = findNextPositivePowerOfTwo(Math.max(MIN_CAPACITY, initialCapacity))
+    /* @DoNotSub */ _resizeThreshold = (capacity * loadFactorCtor).toInt
 
     keys = new Array[Long](capacity)
-    _values = new Array[Object | Null](capacity)
+    valuesArray = new Array[Object](capacity)
   }
 
-  /** Get the total capacity for the map to which the load factor will be a fraction of.
-    *
-    * @return
-    *   the total capacity for the map.
-    */
-  def capacity(): Int = {
-    return _values.length
+  /**
+   * Copy construct a new map from an existing one.
+   *
+   * @param mapToCopy for construction.
+   */
+  def this(mapToCopy: Long2ObjectHashMap[V]) =
+  {
+    this(mapToCopy.keys.length, mapToCopy._loadFactor, mapToCopy.shouldAvoidAllocation)
+    this._resizeThreshold = mapToCopy._resizeThreshold
+    this._size = mapToCopy._size
+    this.keys = mapToCopy.keys.clone()
+    this.valuesArray = mapToCopy.valuesArray.clone()
   }
 
-  /** Get the actual threshold which when reached the map will resize. This is a function of the current capacity and load factor.
-    *
-    * @return
-    *   the threshold when the map will resize.
-    */
-  def resizeThreshold(): Int = {
-    return _resizeThreshold
+  /**
+   * Get the load factor beyond which the map will increase size.
+   *
+   * @return load factor for when the map should increase size.
+   */
+  def loadFactor(): Float = _loadFactor
+
+  /**
+   * Get the total capacity for the map to which the load factor will be a fraction of.
+   *
+   * @return the total capacity for the map.
+   */
+  @DoNotSub def capacity(): Int = valuesArray.length
+
+  /**
+   * Get the actual threshold which when reached the map will resize.
+   * This is a function of the current capacity and load factor.
+   *
+   * @return the threshold when the map will resize.
+   */
+  @DoNotSub def resizeThreshold(): Int = _resizeThreshold
+
+  /**
+   * {@inheritDoc}
+   */
+  @DoNotSub override def size(): Int = _size
+
+  /**
+   * {@inheritDoc}
+   */
+  override def isEmpty(): Boolean = 0 == _size
+
+  /**
+   * {@inheritDoc}
+   */
+  override def forEach(action: BiConsumer[? >: java.lang.Long, ? >: V]): Unit =
+  {
+    forEachLong(new LongObjConsumer[V]
+    {
+      override def accept(key: Long, value: V): Unit = action.accept(key, value)
+    })
   }
 
-  /** {@inheritDoc}
-    */
-  def size(): Int = {
-    return _size
+  /**
+   * Use `forEachLong(LongObjConsumer)` instead.
+   *
+   * @param consumer a callback called for each key/value pair in the map.
+   * @see #forEachLong
+   * @deprecated Use `forEachLong(LongObjConsumer)` instead.
+   */
+  @deprecated("Use forEachLong(LongObjConsumer) instead.", "port")
+  def longForEach(consumer: LongObjConsumer[V]): Unit = forEachLong(consumer)
+
+  /**
+   * Primitive specialised implementation of `Map#forEach(BiConsumer)`.
+   *
+   * NB: Renamed from forEach to avoid overloading on parameter types of lambda
+   * expression, which doesn't play well with type inference in lambda expressions.
+   *
+   * @param consumer a callback called for each key/value pair in the map.
+   */
+  def forEachLong(consumer: LongObjConsumer[V]): Unit =
+  {
+    Objects.requireNonNull(consumer)
+    val keys = this.keys
+    val values = this.valuesArray
+    @DoNotSub val length = values.length
+
+    @DoNotSub var index = 0
+    @DoNotSub var remaining = _size
+    while (remaining > 0 && index < length)
+    {
+      val value = values(index)
+      if (null != value)
+      {
+        consumer.accept(keys(index), unmapNullValue(value))
+        remaining -= 1
+      }
+      index += 1
+    }
   }
 
-  /** {@inheritDoc}
-    */
-  def isEmpty(): Boolean = {
-    return 0 == _size
-  }
+  /**
+   * {@inheritDoc}
+   */
+  override def containsKey(key: Any): Boolean = containsKey(key.asInstanceOf[java.lang.Long].longValue())
 
-  /** {@inheritDoc}
-    */
-  def containsKey(key: Object): Boolean = {
-    return containsKey(key.asInstanceOf[java.lang.Long].longValue())
-  }
-
-  /** Overloaded version of {@link Map#containsKey(Object)} that takes a primitive long key.
-    *
-    * @param key
-    *   for indexing the {@link Map}
-    * @return
-    *   true if the key is found otherwise false.
-    */
-  def containsKey(key: Long): Boolean = {
-    val mask = _values.length - 1
-    var index = Hashing.hash(key, mask)
+  /**
+   * Overloaded version of `Map#containsKey(Object)` that takes a primitive int key.
+   *
+   * @param key for indexing the `Map`.
+   * @return true if the key is found otherwise false.
+   */
+  def containsKey(key: Long): Boolean =
+  {
+    val keys = this.keys
+    val values = this.valuesArray
+    @DoNotSub val mask = values.length - 1
+    @DoNotSub var index = Hashing.hash(key, mask)
 
     var found = false
-    while (!found && null != _values(index))
+    while (null != values(index))
     {
       if (key == keys(index))
       {
         found = true
+        return found
       }
 
       index = (index + 1) & mask
     }
 
-    return found
+    found
   }
 
-  /** {@inheritDoc}
-    */
-  def containsValue(value: Object): Boolean = {
+  /**
+   * {@inheritDoc}
+   */
+  override def containsValue(value: Any): Boolean =
+  {
     var found = false
-    val newVal = mapNullValue(value)
+    val vObj: AnyRef = value.asInstanceOf[AnyRef]
+    val v = mapNullValue(vObj)
 
-    if (null != newVal)
+    if (null != v)
     {
-      var remaining = Long2ObjectHashMap.this.size
-
-      var i = -1
-      var length = _values.length
-      while ({ i += 1; !found && remaining > 0 && i < length }) {
-        if (null != _values(i)) {
-          if (newVal.equals(_values(i)))
+      val values = this.valuesArray
+      @DoNotSub val length = values.length
+      @DoNotSub var i = 0
+      @DoNotSub var remaining = _size
+      while (remaining > 0 && i < length)
+      {
+        val existingValue = values(i)
+        if (null != existingValue)
+        {
+          if (Objects.equals(existingValue, v))
           {
             found = true
+            return found
           }
           remaining -= 1
         }
+        i += 1
       }
     }
 
-    return found
+    found
   }
 
-  /** {@inheritDoc}
-    */
-  def get(key: Object): V | Null = {
-    return get(key.asInstanceOf[java.lang.Long].longValue())
+  /**
+   * {@inheritDoc}
+   */
+  override def get(key: Any): V = get(key.asInstanceOf[java.lang.Long].longValue())
+
+  /**
+   * Overloaded version of `Map#get(Object)` that takes a primitive int key.
+   *
+   * @param key for indexing the `Map`.
+   * @return the value if found otherwise null.
+   */
+  def get(key: Long): V = unmapNullValue(getMapped(key))
+
+  /**
+   * Returns the value to which the specified key is mapped, or defaultValue if this map
+   * contains no mapping for the key.
+   *
+   * @param key          whose associated value is to be returned.
+   * @param defaultValue the default mapping of the key.
+   * @return the value to which the specified key is mapped, or `defaultValue` if this
+   *         map contains no mapping for the key.
+   */
+  def getOrDefault(key: Long, defaultValue: V): V =
+  {
+    val value = getMapped(key)
+    if (null != value) unmapNullValue(value) else defaultValue
   }
 
-  /** Overloaded version of {@link Map#get(Object)} that takes a primitive long key.
-    *
-    * @param key
-    *   for indexing the {@link Map}
-    * @return
-    *   the value if found otherwise null
-    */
-  def get(key: Long): V | Null = {
-    return unmapNullValue(getMapped(key))
-  }
+  /**
+   * Get mapped value without boxing the key.
+   *
+   * @param key to get value by.
+   * @return mapped value or `null`.
+   */
+  protected def getMapped(key: Long): V =
+  {
+    val keys = this.keys
+    val values = this.valuesArray
+    @DoNotSub val mask = values.length - 1
+    @DoNotSub var index = Hashing.hash(key, mask)
 
-  /** Get mapped value without boxing the key.
-    *
-    * @param key
-    *   to get value by.
-    * @return
-    *   mapped value or {@code null}.
-    */
-  protected def getMapped(key: Long): V | Null = {
-    val mask = _values.length - 1
-    var index = Hashing.hash(key, mask)
-
-    var value: Object | Null = null
-    while ({ value = _values(index); null != value && key != keys(index) })
+    var value = values(index)
+    while (null != value)
     {
+      if (key == keys(index))
+      {
+        return value.asInstanceOf[V]
+      }
+
       index = (index + 1) & mask
+      value = values(index)
     }
 
-    return value.asInstanceOf[V]
+    value.asInstanceOf[V]
   }
 
-  /** Get a value for a given key, or if it does not exist then default the value via a {@link java.util.function.LongFunction} and put it
-    * in the map. <p> Primitive specialized version of {@link java.util.Map#computeIfAbsent}.
-    *
-    * @param key
-    *   to search on.
-    * @param mappingFunction
-    *   to provide a value if the get returns null.
-    * @return
-    *   the value if found otherwise the default.
-    */
-  def computeIfAbsent(key: Long, mappingFunction: LongFunction[? <: V]): V = {
-    var value = getMapped(key)
-    if (value == null) {
-      value = mappingFunction.apply(key)
-      if (value != null) {
-        put(key, value)
-      }
-    } else {
-      value = unmapNullValue(value)
-    }
-
-    return value.asInstanceOf[V]
-  }
-
-  /** {@inheritDoc}
-    */
-  def put(key: java.lang.Long | Null, value: V | Null): V | Null = {
-    return put(key.nn.longValue(), value)
-  }
-
-  /** Overloaded version of {@link Map#put(Object, Object)} that takes a primitive long key.
-    *
-    * @param key
-    *   for indexing the {@link Map}
-    * @param value
-    *   to be inserted in the {@link Map}
-    * @return
-    *   the previous value if found otherwise null
-    */
-  def put(key: Long, value: V | Null): V | Null = {
-    val newVal = mapNullValue(value).asInstanceOf[V | Null]
-    requireNonNull(newVal, "value cannot be null")
-
-    var oldValue: V | Null = null
-    val mask = _values.length - 1
-    var index = Hashing.hash(key, mask)
-
+  /**
+   * {@inheritDoc}
+   */
+  override def computeIfAbsent(key: java.lang.Long, mappingFunction: Function[? >: java.lang.Long, ? <: V]): V =
+    computeIfAbsent(key.longValue(), new LongFunction[V]
     {
-      var found = false
-      while (!found && null != _values(index)) {
-        if (key == keys(index)) {
-          oldValue = _values(index).asInstanceOf[V | Null]
-          found = true
-        } else {
-          index = (index + 1) & mask
+      override def apply(k: Long): V = mappingFunction.apply(k)
+    })
+
+  /**
+   * Get a value for a given key, or if it does not exist then default the value via an
+   * `LongFunction` and put it in the map.
+   *
+   * Primitive specialized version of `Map#computeIfAbsent(Object, Function)`.
+   *
+   * @param key             to search on.
+   * @param mappingFunction to provide a value if the get returns null.
+   * @return the value if found otherwise the default.
+   */
+  def computeIfAbsent(key: Long, mappingFunction: LongFunction[? <: V]): V =
+  {
+    Objects.requireNonNull(mappingFunction)
+    val keys = this.keys
+    val values = this.valuesArray
+    @DoNotSub val mask = values.length - 1
+    @DoNotSub var index = Hashing.hash(key, mask)
+
+    var mappedValue = values(index)
+    while (null != mappedValue)
+    {
+      if (key == keys(index))
+      {
+        return finishComputeIfAbsent(keys, values, index, key, mappedValue, mappingFunction)
+      }
+
+      index = (index + 1) & mask
+      mappedValue = values(index)
+    }
+
+    finishComputeIfAbsent(keys, values, index, key, mappedValue, mappingFunction)
+  }
+
+  // Java exits its `while` loop via `break` and falls through to shared code that uses
+  // whatever `index`/`mappedValue` the loop stopped at (match or empty slot); this
+  // private helper is that shared continuation, called from both loop-exit points below.
+  private def finishComputeIfAbsent(
+    keys: Array[Long],
+    values: Array[Object],
+    @DoNotSub index: Int,
+    key: Long,
+    mappedValueAtIndex: Object,
+    mappingFunction: LongFunction[? <: V]): V =
+  {
+    var value = unmapNullValue(mappedValueAtIndex)
+
+    if (null == value)
+    {
+      val computed = mappingFunction.apply(key)
+      if (null != computed)
+      {
+        value = computed
+        values(index) = value.asInstanceOf[Object]
+        if (null == mappedValueAtIndex)
+        {
+          keys(index) = key
+          _size += 1
+          if (_size > _resizeThreshold)
+          {
+            increaseCapacity()
+          }
         }
-
       }
     }
 
-    if (null == oldValue)
+    value
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  override def computeIfPresent(
+    key: java.lang.Long, remappingFunction: BiFunction[? >: java.lang.Long, ? >: V, ? <: V]): V =
+    computeIfPresent(key.longValue(), new LongObjectToObjectFunction[V, V]
     {
-      _size += 1
-      keys(index) = key
+      override def apply(k: Long, value: V): V = remappingFunction.apply(k, value)
+    })
+
+  /**
+   * If the value for the specified key is present and non-null, attempts to compute a
+   * new mapping given the key and its current mapped value.
+   *
+   * If the function returns `null`, the mapping is removed.
+   *
+   * Primitive specialized version of `Map#computeIfPresent(Object, BiFunction)`.
+   *
+   * @param key               to search on.
+   * @param remappingFunction to provide a value if the get returns missingValue.
+   * @return the new value associated with the specified key, or `null` if none.
+   */
+  def computeIfPresent(
+    key: Long, remappingFunction: LongObjectToObjectFunction[? >: V, ? <: V]): V =
+  {
+    Objects.requireNonNull(remappingFunction)
+    val keys = this.keys
+    val values = this.valuesArray
+    @DoNotSub val mask = values.length - 1
+    @DoNotSub var index = Hashing.hash(key, mask)
+
+    var mappedValue = values(index)
+    while (null != mappedValue)
+    {
+      if (key == keys(index))
+      {
+        var value = unmapNullValue(mappedValue)
+        if (null != value)
+        {
+          value = remappingFunction.apply(key, value)
+          values(index) = value.asInstanceOf[Object]
+          if (null == value)
+          {
+            _size -= 1
+            compactChain(index)
+          }
+        }
+        return value
+      }
+
+      index = (index + 1) & mask
+      mappedValue = values(index)
     }
 
-    _values(index) = newVal
+    unmapNullValue(mappedValue)
+  }
 
-    if (_size > _resizeThreshold) {
+  /**
+   * {@inheritDoc}
+   */
+  override def compute(key: java.lang.Long, remappingFunction: BiFunction[? >: java.lang.Long, ? >: V, ? <: V]): V =
+    compute(key.longValue(), new LongObjectToObjectFunction[V, V]
+    {
+      override def apply(k: Long, value: V): V = remappingFunction.apply(k, value)
+    })
+
+  /**
+   * Attempts to compute a mapping for the specified key and its current mapped value
+   * (or `null` if there is no current mapping).
+   *
+   * If the function returns `null`, the mapping is removed (or remains absent if
+   * initially absent).
+   *
+   * Primitive specialized version of `Map#compute(Object, BiFunction)`.
+   *
+   * @param key               to search on.
+   * @param remappingFunction to provide a value if the get returns missingValue.
+   * @return the new value associated with the specified key, or `null` if none.
+   */
+  def compute(key: Long, remappingFunction: LongObjectToObjectFunction[? >: V, ? <: V]): V =
+  {
+    Objects.requireNonNull(remappingFunction)
+    val keys = this.keys
+    val values = this.valuesArray
+    @DoNotSub val mask = values.length - 1
+    @DoNotSub var index = Hashing.hash(key, mask)
+
+    var mappedvalue = values(index)
+    while (null != mappedvalue)
+    {
+      if (key == keys(index))
+      {
+        return finishCompute(keys, values, mask, index, key, mappedvalue, remappingFunction)
+      }
+      index = (index + 1) & mask
+      mappedvalue = values(index)
+    }
+
+    finishCompute(keys, values, mask, index, key, mappedvalue, remappingFunction)
+  }
+
+  private def finishCompute(
+    keys: Array[Long],
+    values: Array[Object],
+    @DoNotSub mask: Int,
+    @DoNotSub index: Int,
+    key: Long,
+    mappedvalue: Object,
+    remappingFunction: LongObjectToObjectFunction[? >: V, ? <: V]): V =
+  {
+    val newValue = remappingFunction.apply(key, unmapNullValue(mappedvalue))
+    if (null != newValue)
+    {
+      values(index) = newValue.asInstanceOf[Object]
+      if (null == mappedvalue)
+      {
+        keys(index) = key
+        _size += 1
+        if (_size > _resizeThreshold)
+        {
+          increaseCapacity()
+        }
+      }
+    }
+    else if (null != mappedvalue)
+    {
+      values(index) = null
+      _size -= 1
+      compactChain(index)
+    }
+
+    newValue
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  override def merge(key: java.lang.Long, value: V, remappingFunction: BiFunction[? >: V, ? >: V, ? <: V]): V =
+    merge(key.longValue(), value, remappingFunction)
+
+  /**
+   * Primitive specialised version of `Map#merge(Object, Object, BiFunction)`.
+   *
+   * @param key               with which the resulting value is to be associated.
+   * @param value             the non-null value to be merged with the existing value
+   *                          associated with the key or, if no existing value or a null
+   *                          value is associated with the key, to be associated with the
+   *                          key.
+   * @param remappingFunction the function to recompute a value if present.
+   * @return the new value associated with the specified key, or null if no value is
+   *         associated with the key.
+   */
+  def merge(key: Long, value: V, remappingFunction: BiFunction[? >: V, ? >: V, ? <: V]): V =
+  {
+    Objects.requireNonNull(value)
+    Objects.requireNonNull(remappingFunction)
+    val keys = this.keys
+    val values = this.valuesArray
+    @DoNotSub val mask = values.length - 1
+    @DoNotSub var index = Hashing.hash(key, mask)
+
+    var mappedvalue = values(index)
+    while (null != mappedvalue)
+    {
+      if (key == keys(index))
+      {
+        return finishMerge(keys, values, mask, index, key, value, mappedvalue, remappingFunction)
+      }
+      index = (index + 1) & mask
+      mappedvalue = values(index)
+    }
+
+    finishMerge(keys, values, mask, index, key, value, mappedvalue, remappingFunction)
+  }
+
+  private def finishMerge(
+    keys: Array[Long],
+    values: Array[Object],
+    @DoNotSub mask: Int,
+    @DoNotSub index: Int,
+    key: Long,
+    value: V,
+    mappedvalue: Object,
+    remappingFunction: BiFunction[? >: V, ? >: V, ? <: V]): V =
+  {
+    val oldValue = unmapNullValue(mappedvalue)
+    val newValue = if (null == oldValue) value else remappingFunction.apply(oldValue, value)
+
+    if (null != newValue)
+    {
+      values(index) = newValue.asInstanceOf[Object]
+      if (null == mappedvalue)
+      {
+        keys(index) = key
+        _size += 1
+        if (_size > _resizeThreshold)
+        {
+          increaseCapacity()
+        }
+      }
+    }
+    else if (null != mappedvalue)
+    {
+      values(index) = null
+      _size -= 1
+      compactChain(index)
+    }
+
+    newValue
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  override def put(key: java.lang.Long, value: V): V = put(key.longValue(), value)
+
+  /**
+   * Overloaded version of `Map#put(Object, Object)` that takes a primitive int key.
+   *
+   * @param key   for indexing the `Map`.
+   * @param value to be inserted in the `Map`.
+   * @return the previous value if found otherwise null.
+   */
+  def put(key: Long, value: V): V =
+  {
+    val v = mapNullValue(value.asInstanceOf[AnyRef])
+    Objects.requireNonNull(v, "value cannot be null")
+
+    val keys = this.keys
+    val values = this.valuesArray
+    @DoNotSub val mask = values.length - 1
+    @DoNotSub var index = Hashing.hash(key, mask)
+
+    var oldValue = values(index)
+    while (null != oldValue)
+    {
+      if (key == keys(index))
+      {
+
+        values(index) = v
+        return unmapNullValue(oldValue)
+      }
+
+      index = (index + 1) & mask
+      oldValue = values(index)
+    }
+
+    _size += 1
+    keys(index) = key
+    values(index) = v
+
+    if (_size > _resizeThreshold)
+    {
       increaseCapacity()
     }
 
-    return unmapNullValue(oldValue)
+    unmapNullValue(oldValue)
   }
 
-  /** {@inheritDoc}
-    */
-  def remove(key: Object): V | Null = {
-    return remove(key.asInstanceOf[java.lang.Long].longValue())
-  }
+  /**
+   * {@inheritDoc}
+   */
+  override def remove(key: Any): V = remove(key.asInstanceOf[java.lang.Long].longValue())
 
-  /** Overloaded version of {@link Map#remove(Object)} that takes a primitive long key.
-    *
-    * @param key
-    *   for indexing the {@link Map}
-    * @return
-    *   the value if found otherwise null
-    */
-  def remove(key: Long): V | Null = {
-    val mask = _values.length - 1
-    var index = Hashing.hash(key, mask)
+  /**
+   * Overloaded version of `Map#remove(Object)` that takes a primitive int key.
+   *
+   * @param key for indexing the `Map`.
+   * @return the value if found otherwise null.
+   */
+  def remove(key: Long): V =
+  {
+    val keys = this.keys
+    val values = this.valuesArray
+    @DoNotSub val mask = values.length - 1
+    @DoNotSub var index = Hashing.hash(key, mask)
 
-    var value: Object | Null = null
-    var found = false
-    while ({ value = _values(index); !found && null != value })
+    var value = values(index)
+    while (null != value)
     {
-      if (key == keys(index)) {
-        _values(index) = null
+      if (key == keys(index))
+      {
+        values(index) = null
         _size -= 1
 
         compactChain(index)
-        found = true
-      } else {
-        index = (index + 1) & mask
+        return unmapNullValue(value)
       }
 
+      index = (index + 1) & mask
+      value = values(index)
     }
 
-    return unmapNullValue(value.asInstanceOf[V | Null])
+    unmapNullValue(value)
   }
 
-  /** {@inheritDoc}
-    */
-  def clear(): Unit = {
-    if (_size > 0) {
-      Arrays.fill(_values, null)
+  /**
+   * {@inheritDoc}
+   */
+  override def remove(key: Any, value: Any): Boolean = remove(key.asInstanceOf[java.lang.Long].longValue(), value.asInstanceOf[V])
+
+  /**
+   * Primitive specialised version of `Map#remove(Object, Object)`.
+   *
+   * @param key   with which the specified value is associated.
+   * @param value expected to be associated with the specified key.
+   * @return `true` if the value was removed.
+   */
+  def remove(key: Long, value: V): Boolean =
+  {
+    val v = mapNullValue(value.asInstanceOf[AnyRef])
+    if (null != v)
+    {
+      val keys = this.keys
+      val values = this.valuesArray
+      @DoNotSub val mask = values.length - 1
+      @DoNotSub var index = Hashing.hash(key, mask)
+
+      var mappedValue = values(index)
+      while (null != mappedValue)
+      {
+        if (key == keys(index))
+        {
+          if (Objects.equals(unmapNullValue(mappedValue), value))
+          {
+            values(index) = null
+            _size -= 1
+
+            compactChain(index)
+            return true
+          }
+          return false
+        }
+
+        index = (index + 1) & mask
+        mappedValue = values(index)
+      }
+    }
+    false
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  override def clear(): Unit =
+  {
+    if (_size > 0)
+    {
+      Arrays.fill(valuesArray.asInstanceOf[Array[Object]], null)
       _size = 0
     }
   }
 
-  /** Compact the {@link Map} backing arrays by rehashing with a capacity just larger than current size and giving consideration to the load
-    * factor.
-    */
-  def compact(): Unit = {
-    val idealCapacity = Math.round(size() * (1.0d / loadFactor)).toInt
-    rehash(findNextPositivePowerOfTwo(Math.max(Long2ObjectHashMap.MIN_CAPACITY, idealCapacity)))
+  /**
+   * Compact the `Map` backing arrays by rehashing with a capacity just larger than
+   * current size and giving consideration to the load factor.
+   */
+  def compact(): Unit =
+  {
+    @DoNotSub val idealCapacity = Math.round(size() * (1.0d / _loadFactor)).toInt
+    rehash(findNextPositivePowerOfTwo(Math.max(MIN_CAPACITY, idealCapacity)))
   }
 
-  /** {@inheritDoc}
-    */
-  def putAll(map: java.util.Map[? <: java.lang.Long, ? <: V]): Unit = {
-    val it = map.entrySet().nn.iterator().nn
-    while (it.hasNext()) {
-      val entry = it.next().asInstanceOf[java.util.Map.Entry[? <: java.lang.Long, ? <: V]]
-      put(entry.getKey().asInstanceOf[java.lang.Long].longValue(), entry.getValue().asInstanceOf[V])
+  /**
+   * {@inheritDoc}
+   */
+  override def putAll(map: JMap[? <: java.lang.Long, ? <: V]): Unit =
+  {
+    val it = map.entrySet().iterator()
+    while (it.hasNext)
+    {
+      val entry = it.next()
+      put(entry.getKey(), entry.getValue())
     }
   }
 
-  /** {@inheritDoc}
-    */
-  def keySet(): KeySet = {
+  /**
+   * Put all values from the given map into this one without allocation.
+   *
+   * @param map whose value are to be added.
+   */
+  def putAll(map: Long2ObjectHashMap[? <: V]): Unit =
+  {
+    val iterator: map.EntryIterator = map.entrySet().iterator()
+    while (iterator.hasNext)
+    {
+      iterator.findNext()
+      put(iterator.getLongKey(), iterator.getValue().asInstanceOf[V])
+    }
+  }
+
+  /**
+   * Primitive specialised version of `putIfAbsent(Object, Object)`.
+   *
+   * @param key   with which the specified value is to be associated.
+   * @param value to be associated with the specified key.
+   * @return the previous value associated with the specified key, or `null` if there was
+   *         no mapping for the key.
+   */
+  def putIfAbsent(key: Long, value: V): V =
+  {
+    val v = mapNullValue(value.asInstanceOf[AnyRef])
+    Objects.requireNonNull(v, "value cannot be null")
+
+    val keys = this.keys
+    val values = this.valuesArray
+    @DoNotSub val mask = values.length - 1
+    @DoNotSub var index = Hashing.hash(key, mask)
+
+    var mappedValue = values(index)
+    while (null != mappedValue)
+    {
+      if (key == keys(index))
+      {
+        return unmapNullValue(mappedValue)
+      }
+
+      index = (index + 1) & mask
+      mappedValue = values(index)
+    }
+
+    val oldValue = unmapNullValue(mappedValue)
+
+    _size += 1
+    keys(index) = key
+    values(index) = v
+
+    if (_size > _resizeThreshold)
+    {
+      increaseCapacity()
+    }
+
+    oldValue
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  override def keySet(): KeySet =
+  {
     if (null == _keySet)
     {
       _keySet = new KeySet()
     }
 
-    return _keySet.asInstanceOf[KeySet]
+    _keySet
   }
 
-  /** {@inheritDoc}
-    */
-  def values(): ValueCollection = {
-    if (null == _valueCollection)
+  /**
+   * {@inheritDoc}
+   */
+  override def values(): ValueCollection =
+  {
+    if (null == valueCollection)
     {
-      _valueCollection = new ValueCollection()
+      valueCollection = new ValueCollection()
     }
 
-    return _valueCollection.asInstanceOf[ValueCollection]
+    valueCollection
   }
 
-  /** {@inheritDoc}
-    */
-  def entrySet(): EntrySet = {
+  /**
+   * {@inheritDoc}
+   */
+  override def entrySet(): EntrySet =
+  {
     if (null == _entrySet)
     {
       _entrySet = new EntrySet()
     }
 
-    return _entrySet.asInstanceOf[EntrySet]
+    _entrySet
   }
 
-  /** {@inheritDoc}
-    */
-  override def toString(): String = {
+  /**
+   * {@inheritDoc}
+   */
+  override def toString(): String =
+  {
     if (isEmpty())
     {
       return "{}"
@@ -385,157 +841,245 @@ class Long2ObjectHashMap[V <: Object | Null](
     entryIterator.reset()
 
     val sb = new StringBuilder().append('{')
-    while (true) {
+    while (true)
+    {
       entryIterator.next()
-      sb.append(entryIterator.getLongKey()).append('=').append(unmapNullValue(entryIterator.getValue()))
+      sb.append(entryIterator.getLongKey()).append('=').append(unmapNullValue(entryIterator.getValue().asInstanceOf[Object]))
       if (!entryIterator.hasNext())
       {
         return sb.append('}').toString()
       }
       sb.append(',').append(' ')
     }
-    throw IllegalStateException("Unreachable code")
+
+    sb.toString() // unreachable, mirrors Java's structurally-infinite while(true)
   }
 
-  /** {@inheritDoc}
-    */
-  override def equals(o: Any): Boolean = {
-    if (this == o)
+  /**
+   * {@inheritDoc}
+   */
+  override def equals(o: Any): Boolean =
+  {
+    if (this.asInstanceOf[AnyRef] eq o.asInstanceOf[AnyRef])
     {
       return true
     }
 
-    o match {
-      case that: java.util.Map[?, ?] =>
-        if (size != that.size())
+    o match
+    {
+      case that: JMap[_, _] =>
+        if (_size != that.size())
         {
           return false
         }
 
-        var i = -1
-        val length = _values.length
-        while ({ i += 1; i < length }) {
-          val thisValue = _values(i)
-          if (null != thisValue) {
-            val thatValue = that.get(keys(i))
-            if (!thisValue.equals(mapNullValue(thatValue))) {
+        val keys = this.keys
+        val values = this.valuesArray
+        @DoNotSub var i = 0
+        @DoNotSub val length = values.length
+        while (i < length)
+        {
+          val thisValue = values(i)
+          if (null != thisValue)
+          {
+            val thatValue = that.asInstanceOf[JMap[Any, Any]].get(java.lang.Long.valueOf(keys(i)))
+            if (!thisValue.equals(mapNullValue(thatValue.asInstanceOf[AnyRef])))
+            {
               return false
             }
           }
+          i += 1
         }
-        return true
 
+        true
       case _ => false
     }
   }
 
-  /** {@inheritDoc}
-    */
-  override def hashCode(): Int = {
-    var result = 0
-    var i = -1
-    val length = _values.length
-    while ({ i += 1; i < length })
+  /**
+   * {@inheritDoc}
+   */
+  @DoNotSub override def hashCode(): Int =
+  {
+    @DoNotSub var result = 0
+
+    val keys = this.keys
+    val values = this.valuesArray
+    @DoNotSub var i = 0
+    @DoNotSub val length = values.length
+    while (i < length)
     {
-      val value = _values(i)
-      if (null != value) {
+      val value = values(i)
+      if (null != value)
+      {
         result += (java.lang.Long.hashCode(keys(i)) ^ value.hashCode())
       }
+      i += 1
     }
 
-    return result
+    result
   }
 
-  /** Interceptor for masking null values.
-    *
-    * @param value
-    *   value to mask.
-    * @return
-    *   masked value.
-    */
-  protected def mapNullValue(value: Object | Null): Object | Null = {
-    return value
-  }
+  /**
+   * Interceptor for masking null values.
+   *
+   * @param value value to mask.
+   * @return masked value.
+   */
+  protected def mapNullValue(value: Any): AnyRef = value.asInstanceOf[AnyRef]
 
-  /** Interceptor for unmasking null values.
-    *
-    * @param value
-    *   value to unmask.
-    * @return
-    *   unmasked value.
-    */
-  protected def unmapNullValue(value: V | Null): V | Null = {
-    return value
-  }
+  /**
+   * Interceptor for unmasking null values.
+   *
+   * @param value value to unmask.
+   * @return unmasked value.
+   */
+  protected def unmapNullValue(value: Any): V = value.asInstanceOf[V]
 
-  /** Primitive specialised version of {@link #replace(Object, Object)}
-    *
-    * @param key
-    *   key with which the specified value is associated
-    * @param value
-    *   value to be associated with the specified key
-    * @return
-    *   the previous value associated with the specified key, or {@code null} if there was no mapping for the key.
-    */
-  def replace(key: Long, value: V): V | Null = {
-    var currentValue = get(key)
-    if (currentValue != null)
+  /**
+   * Primitive specialised version of `Map#replace(Object, Object)`.
+   *
+   * @param key   key with which the specified value is associated.
+   * @param value value to be associated with the specified key.
+   * @return the previous value associated with the specified key, or `null` if there was
+   *         no mapping for the key.
+   */
+  def replace(key: Long, value: V): V =
+  {
+    val v = mapNullValue(value.asInstanceOf[AnyRef])
+    Objects.requireNonNull(v, "value cannot be null")
+
+    val keys = this.keys
+    val values = this.valuesArray
+    @DoNotSub val mask = values.length - 1
+    @DoNotSub var index = Hashing.hash(key, mask)
+
+    var oldValue = values(index)
+    while (null != oldValue)
     {
-      currentValue = put(key, value)
+      if (key == keys(index))
+      {
+        values(index) = v
+        return unmapNullValue(oldValue)
+      }
+
+      index = (index + 1) & mask
+      oldValue = values(index)
     }
 
-    return currentValue
+    unmapNullValue(oldValue)
   }
 
-  /** Primitive specialised version of {@link #replace(Object, Object, Object)}
-    *
-    * @param key
-    *   key with which the specified value is associated
-    * @param oldValue
-    *   value expected to be associated with the specified key
-    * @param newValue
-    *   value to be associated with the specified key
-    * @return
-    *   {@code true} if the value was replaced
-    */
-  def replace(key: Long, oldValue: V, newValue: V): Boolean = {
-    val curValue = get(key)
-    if (curValue == null || !Objects.equals(unmapNullValue(curValue), oldValue))
+  /**
+   * Primitive specialised version of `Map#replace(Object, Object, Object)`.
+   *
+   * @param key      key with which the specified value is associated.
+   * @param oldValue value expected to be associated with the specified key.
+   * @param newValue value to be associated with the specified key.
+   * @return `true` if the value was replaced.
+   */
+  def replace(key: Long, oldValue: V, newValue: V): Boolean =
+  {
+    val v = mapNullValue(newValue.asInstanceOf[AnyRef])
+    Objects.requireNonNull(v, "value cannot be null")
+
+    val keys = this.keys
+    val values = this.valuesArray
+    @DoNotSub val mask = values.length - 1
+    @DoNotSub var index = Hashing.hash(key, mask)
+
+    var mappedValue = values(index)
+    while (null != mappedValue)
     {
-      return false
+      if (key == keys(index))
+      {
+        if (Objects.equals(unmapNullValue(mappedValue), oldValue))
+        {
+          values(index) = v
+          return true
+        }
+        return false
+      }
+
+      index = (index + 1) & mask
+      mappedValue = values(index)
     }
 
-    put(key, newValue)
-
-    return true
+    false
   }
 
-  private def increaseCapacity(): Unit = {
-    val newCapacity = _values.length << 1
+  /**
+   * {@inheritDoc}
+   */
+  override def replaceAll(function: BiFunction[? >: java.lang.Long, ? >: V, ? <: V]): Unit =
+  {
+    replaceAllLong(new LongObjectToObjectFunction[V, V]
+    {
+      override def apply(k: Long, value: V): V = function.apply(k, value)
+    })
+  }
+
+  /**
+   * Primitive specialised version of `Map#replaceAll(BiFunction)`.
+   *
+   * NB: Renamed from replaceAll to avoid overloading on parameter types of lambda
+   * expression, which doesn't play well with type inference in lambda expressions.
+   *
+   * @param function the function to apply to each entry.
+   */
+  def replaceAllLong(function: LongObjectToObjectFunction[? >: V, ? <: V]): Unit =
+  {
+    Objects.requireNonNull(function)
+    val keys = this.keys
+    val values = this.valuesArray
+    @DoNotSub val length = values.length
+    @DoNotSub var remaining = _size
+
+    @DoNotSub var index = 0
+    while (remaining > 0 && index < length)
+    {
+      val oldValue = values(index)
+      if (null != oldValue)
+      {
+        val newVal = mapNullValue(function.apply(keys(index), unmapNullValue(oldValue)).asInstanceOf[AnyRef])
+        Objects.requireNonNull(newVal, "value cannot be null")
+        values(index) = newVal
+        remaining -= 1
+      }
+      index += 1
+    }
+  }
+
+  private def increaseCapacity(): Unit =
+  {
+    @DoNotSub val newCapacity = valuesArray.length << 1
     if (newCapacity < 0)
     {
-      throw new IllegalStateException("max capacity reached at size=" + size)
+      throw new IllegalStateException("max capacity reached at size=" + _size)
     }
 
     rehash(newCapacity)
   }
 
-  private def rehash(newCapacity: Int): Unit = {
-    val mask = newCapacity - 1
-    /* @DoNotSub */
-    _resizeThreshold = (newCapacity * loadFactor).toInt
+  private def rehash(@DoNotSub newCapacity: Int): Unit =
+  {
+    @DoNotSub val mask = newCapacity - 1
+    /* @DoNotSub */ _resizeThreshold = (newCapacity * _loadFactor).toInt
 
     val tempKeys = new Array[Long](newCapacity)
-    val tempValues = new Array[Object | Null](newCapacity)
+    val tempValues = new Array[Object](newCapacity)
 
-    var i = -1
-    _size = _values.length
-    while ({ i += 1; i < _size })
+    val keys = this.keys
+    val values = this.valuesArray
+    @DoNotSub var i = 0
+    @DoNotSub val size = values.length
+    while (i < size)
     {
-      val value = _values(i)
-      if (null != value) {
+      val value = values(i)
+      if (null != value)
+      {
         val key = keys(i)
-        var index = Hashing.hash(key, mask)
+        @DoNotSub var index = Hashing.hash(key, mask)
         while (null != tempValues(index))
         {
           index = (index + 1) & mask
@@ -544,320 +1088,399 @@ class Long2ObjectHashMap[V <: Object | Null](
         tempKeys(index) = key
         tempValues(index) = value
       }
+      i += 1
     }
 
-    keys = tempKeys
-    _values = tempValues
+    this.keys = tempKeys
+    this.valuesArray = tempValues
   }
 
-  private def compactChain(deleteIndex0: Int): Unit = {
-    var deleteIndex = deleteIndex0
-    val mask = _values.length - 1
-    var index = deleteIndex
-    var break = false
-    while (!break) {
+  private def compactChain(@DoNotSub deleteIndexParam: Int): Unit =
+  {
+    var deleteIndex = deleteIndexParam
+    val keys = this.keys
+    val values = this.valuesArray
+    @DoNotSub val mask = values.length - 1
+    @DoNotSub var index = deleteIndex
+    var continue = true
+    while (continue)
+    {
       index = (index + 1) & mask
-      if (null != _values(index))
+      val value = values(index)
+      if (null == value)
       {
-          val hash = Hashing.hash(keys(index), mask)
-    
-          if (
-            (index < hash && (hash <= deleteIndex || deleteIndex <= index)) ||
-            (hash <= deleteIndex && deleteIndex <= index)
-          ) {
-            keys(deleteIndex) = keys(index)
-            _values(deleteIndex) = _values(index)
-    
-            _values(index) = null
-            deleteIndex = index
-          }
-      } else {
-          break = true
+        continue = false
       }
+      else
+      {
+        val key = keys(index)
+        @DoNotSub val hash = Hashing.hash(key, mask)
 
-    }
-  }
+        if ((index < hash && (hash <= deleteIndex || deleteIndex <= index)) ||
+          (hash <= deleteIndex && deleteIndex <= index))
+        {
+          keys(deleteIndex) = key
+          values(deleteIndex) = value
 
-  ///////////////////////////////////////////////////////////////////////////////////////////////
-  // Sets and Collections
-  ///////////////////////////////////////////////////////////////////////////////////////////////
-
-  /** Set of keys which supports optionally cached iterators to avoid allocation.
-    */
-  @SerialVersionUID(174654887531298424L)
-  final class KeySet extends AbstractSet[java.lang.Long], Serializable {
-    private val keyIterator: KeyIterator | Null = if shouldAvoidAllocation then new KeyIterator() else null
-
-    /** {@inheritDoc}
-      */
-    def iterator(): KeyIterator = {
-      var keyIterator = if (null == this.keyIterator) new KeyIterator() else this.keyIterator
-
-      keyIterator.reset()
-      return keyIterator
-    }
-
-    /** {@inheritDoc}
-      */
-    def size(): Int = {
-      return Long2ObjectHashMap.this.size()
-    }
-
-    /** {@inheritDoc}
-      */
-    override def contains(o: Object): Boolean = {
-      return Long2ObjectHashMap.this.containsKey(o)
-    }
-
-    /** Checks if the key is contained in the map.
-      *
-      * @param key
-      *   to check.
-      * @return
-      *   {@code true} if the key is contained in the map.
-      */
-    def contains(key: Long): Boolean = {
-      return Long2ObjectHashMap.this.containsKey(key)
-    }
-
-    /** {@inheritDoc}
-      */
-    override def remove(o: Object): Boolean = {
-      return null != Long2ObjectHashMap.this.remove(o)
-    }
-
-    /** Removes key and the corresponding value from the map.
-      *
-      * @param key
-      *   to be removed.
-      * @return
-      *   {@code true} if the mapping was removed.
-      */
-    def remove(key: Long): Boolean = {
-      return null != Long2ObjectHashMap.this.remove(key)
-    }
-
-    /** {@inheritDoc}
-      */
-    override def clear(): Unit = {
-      Long2ObjectHashMap.this.clear()
-    }
-  }
-
-  /** Collection of values which supports optionally cached iterators to avoid allocation.
-    */
-  @SerialVersionUID(6851282235497568109L)
-  final class ValueCollection extends AbstractCollection[V], Serializable {
-    private val valueIterator: ValueIterator | Null = if shouldAvoidAllocation then new ValueIterator() else null
-
-    /** {@inheritDoc}
-      */
-    def iterator(): ValueIterator = {
-      val valueIterator = if (null == this.valueIterator) new ValueIterator() else this.valueIterator
-
-      valueIterator.reset()
-      return valueIterator
-    }
-
-    /** {@inheritDoc}
-      */
-    def size(): Int = {
-      return Long2ObjectHashMap.this.size()
-    }
-
-    /** {@inheritDoc}
-      */
-    override def contains(o: Object): Boolean = {
-      return Long2ObjectHashMap.this.containsValue(o)
-    }
-
-    /** {@inheritDoc}
-      */
-    override def clear(): Unit = {
-      Long2ObjectHashMap.this.clear()
-    }
-
-    /** {@inheritDoc}
-      */
-    override def forEach(action: Consumer[? >: V]): Unit = {
-      var remaining = Long2ObjectHashMap.this.size
-
-      var i = -1
-      val length = _values.length
-      while ({ i += 1; remaining > 0 && i < length }) {
-        if (null != _values(i)) {
-          action.accept(unmapNullValue(_values(i).asInstanceOf[V | Null]))
-          remaining -= 1
+          values(index) = null
+          deleteIndex = index
         }
       }
     }
   }
 
-  /** Set of entries which supports access via an optionally cached iterator to avoid allocation.
-    */
-  @SerialVersionUID(6797969139720339177L)
-  final class EntrySet extends AbstractSet[java.util.Map.Entry[java.lang.Long, V]], Serializable {
-    private val entryIterator = if shouldAvoidAllocation then new EntryIterator() else null
+  /**
+   * Set of keys which supports optionally cached iterators to avoid allocation.
+   */
+  final class KeySet extends AbstractSet[java.lang.Long]
+  {
+    private val cachedKeyIterator: KeyIterator = if (shouldAvoidAllocation) new KeyIterator() else null
 
-    /** {@inheritDoc}
-      */
-    def iterator(): EntryIterator = {
-      val entryIterator = if (null == this.entryIterator) new EntryIterator() else this.entryIterator
-
-      entryIterator.reset()
-      return entryIterator
-    }
-
-    /** {@inheritDoc}
-      */
-    def size(): Int = {
-      return Long2ObjectHashMap.this.size()
-    }
-
-    /** {@inheritDoc}
-      */
-    override def clear(): Unit = {
-      Long2ObjectHashMap.this.clear()
-    }
-
-    /** {@inheritDoc}
-      */
-    override def contains(o: Object): Boolean = {
-      if (!(o.isInstanceOf[java.util.Map.Entry[?, ?]]))
+    /**
+     * {@inheritDoc}
+     */
+    override def iterator(): KeyIterator =
+    {
+      var keyIterator = this.cachedKeyIterator
+      if (null == keyIterator)
       {
-        return false
+        keyIterator = new KeyIterator()
       }
 
-      val entry = o.asInstanceOf[java.util.Map.Entry[?, ?]]
-      val key = entry.getKey().asInstanceOf[Long]
-      val value = getMapped(key)
-      return value != null && value.equals(mapNullValue(entry.getValue()))
+      keyIterator.reset()
+      keyIterator
     }
 
-    /** {@inheritDoc}
-      */
-    override def toArray(): Array[Object] = {
-      return toArray[Object](new Array[Object](size()))
-    }
+    /**
+     * {@inheritDoc}
+     */
+    @DoNotSub override def size(): Int = Long2ObjectHashMap.this.size()
 
-    /** {@inheritDoc}
-      */
-    def toArray[T](a: Array[T]): Array[T] = {
-      val array =
-        if a.length >= size then a else java.lang.reflect.Array.newInstance(a.getClass().getComponentType(), size).asInstanceOf[Array[T]]
-      val it = iterator()
+    /**
+     * {@inheritDoc}
+     */
+    override def contains(o: Any): Boolean = Long2ObjectHashMap.this.containsKey(o)
 
-      var i = -1
-      while ({ i += 1; i < array.length && it.hasNext() })
+    /**
+     * Checks if the key is contained in the map.
+     *
+     * @param key to check.
+     * @return `true` if the key is contained in the map.
+     */
+    def contains(key: Long): Boolean = Long2ObjectHashMap.this.containsKey(key)
+
+    /**
+     * {@inheritDoc}
+     */
+    override def remove(o: Any): Boolean = null != Long2ObjectHashMap.this.remove(o)
+
+    /**
+     * Removes key and the corresponding value from the map.
+     *
+     * @param key to be removed.
+     * @return `true` if the mapping was removed.
+     */
+    def remove(key: Long): Boolean = null != Long2ObjectHashMap.this.remove(key)
+
+    /**
+     * {@inheritDoc}
+     */
+    override def clear(): Unit = Long2ObjectHashMap.this.clear()
+
+    /**
+     * Removes all the elements of this collection that satisfy the given predicate.
+     *
+     * NB: Renamed from removeIf to avoid overloading on parameter types of lambda
+     * expression, which doesn't play well with type inference in lambda expressions.
+     *
+     * @param filter a predicate to apply.
+     * @return `true` if at least one key was removed.
+     */
+    def removeIfLong(filter: LongPredicate): Boolean =
+    {
+      var removed = false
+      val iterator = this.iterator()
+      while (iterator.hasNext)
       {
-        it.next()
-        array(i) = it.allocateDuplicateEntry().asInstanceOf[T]
+        if (filter.test(iterator.nextLong()))
+        {
+          iterator.remove()
+          removed = true
+        }
       }
-      if i < array.length then array.asInstanceOf[Array[T | Null]](i) = null
-
-      return array
+      removed
     }
   }
 
-  ///////////////////////////////////////////////////////////////////////////////////////////////
-  // Iterators
-  ///////////////////////////////////////////////////////////////////////////////////////////////
+  /**
+   * Collection of values which supports optionally cached iterators to avoid allocation.
+   */
+  final class ValueCollection extends AbstractCollection[V]
+  {
+    private val cachedValueIterator: ValueIterator = if (shouldAvoidAllocation) new ValueIterator() else null
 
-  /** Base iterator implementation that contains basic logic of traversing the element in the backing array.
-    *
-    * @param [T]
-    *   type of elements.
-    */
-  @SerialVersionUID(7955640333577513200L)
-  abstract class AbstractIterator[T] extends Iterator[T], Serializable {
-    private var posCounter: Int = 0
-    private var stopCounter: Int = 0
-    private var _remaining: Int = 0
-    protected[AbstractIterator] var isPositionValid = false
+    /**
+     * {@inheritDoc}
+     */
+    override def iterator(): ValueIterator =
+    {
+      var valueIterator = this.cachedValueIterator
+      if (null == valueIterator)
+      {
+        valueIterator = new ValueIterator()
+      }
 
-    /** Position of the current element.
-      *
-      * @return
-      *   position of the current element.
-      */
-    protected final def position(): Int = {
-      return posCounter & (_values.length - 1)
+      valueIterator.reset()
+      valueIterator
     }
 
-    /** Number of remaining elements.
-      *
-      * @return
-      *   number of remaining elements.
-      */
-    def remaining(): Int = {
-      return _remaining
+    /**
+     * {@inheritDoc}
+     */
+    @DoNotSub override def size(): Int = Long2ObjectHashMap.this.size()
+
+    /**
+     * {@inheritDoc}
+     */
+    override def contains(o: Any): Boolean = Long2ObjectHashMap.this.containsValue(o)
+
+    /**
+     * {@inheritDoc}
+     */
+    override def clear(): Unit = Long2ObjectHashMap.this.clear()
+
+    /**
+     * {@inheritDoc}
+     */
+    override def forEach(action: Consumer[? >: V]): Unit =
+    {
+      @DoNotSub var remaining = Long2ObjectHashMap.this._size
+
+      val values = Long2ObjectHashMap.this.valuesArray
+      @DoNotSub var i = 0
+      @DoNotSub val length = values.length
+      while (remaining > 0 && i < length)
+      {
+        val value = values(i)
+        if (null != value)
+        {
+          action.accept(unmapNullValue(value))
+          remaining -= 1
+        }
+        i += 1
+      }
+    }
+  }
+
+  /**
+   * Set of entries which supports access via an optionally cached iterator to avoid
+   * allocation.
+   */
+  final class EntrySet extends AbstractSet[JEntry[java.lang.Long, V]]
+  {
+    private val cachedEntryIterator: EntryIterator = if (shouldAvoidAllocation) new EntryIterator() else null
+
+    /**
+     * {@inheritDoc}
+     */
+    override def iterator(): EntryIterator =
+    {
+      var entryIterator = this.cachedEntryIterator
+      if (null == entryIterator)
+      {
+        entryIterator = new EntryIterator()
+      }
+
+      entryIterator.reset()
+      entryIterator
     }
 
-    /** {@inheritDoc}
-      */
-    def hasNext(): Boolean = {
-      return _remaining > 0
+    /**
+     * {@inheritDoc}
+     */
+    @DoNotSub override def size(): Int = Long2ObjectHashMap.this.size()
+
+    /**
+     * {@inheritDoc}
+     */
+    override def clear(): Unit = Long2ObjectHashMap.this.clear()
+
+    /**
+     * {@inheritDoc}
+     */
+    override def contains(o: Any): Boolean =
+    {
+      o match
+      {
+        case entry: JEntry[_, _] =>
+          val key = entry.getKey().asInstanceOf[java.lang.Long].longValue()
+          val value = getMapped(key)
+          null != value && value.equals(mapNullValue(entry.getValue().asInstanceOf[AnyRef]))
+        case _ => false
+      }
     }
 
-    /** Find the next element.
-      *
-      * @throws NoSuchElementException
-      *   if no more elements.
-      */
-    protected final def findNext(): Unit = {
+    /**
+     * Removes all the elements of this collection that satisfy the given predicate.
+     *
+     * NB: Renamed from removeIf to avoid overloading on parameter types of lambda
+     * expression, which doesn't play well with type inference in lambda expressions.
+     *
+     * @param filter a predicate to apply.
+     * @return `true` if at least one key was removed.
+     */
+    def removeIfLong(filter: LongObjPredicate[V]): Boolean =
+    {
+      var removed = false
+      val iterator = this.iterator()
+      while (iterator.hasNext)
+      {
+        iterator.findNext()
+        if (filter.test(iterator.getLongKey(), iterator.getValue()))
+        {
+          iterator.remove()
+          removed = true
+        }
+      }
+      removed
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    override def toArray(): Array[Object] = toArray(new Array[Object](size()))
+
+    /**
+     * {@inheritDoc}
+     */
+    override def toArray[T](a: Array[T & Object]): Array[T & Object] =
+    {
+      val array: Array[T & Object] =
+        if (a.length >= _size) a
+        else java.lang.reflect.Array.newInstance(a.getClass.getComponentType, _size).asInstanceOf[Array[T & Object]]
+      val it = iterator()
+
+      @DoNotSub var i = 0
+      while (i < array.length)
+      {
+        if (it.hasNext)
+        {
+          it.next()
+          array(i) = it.allocateDuplicateEntry().asInstanceOf[T & Object]
+        }
+        else
+        {
+          array(i) = null.asInstanceOf[T & Object]
+          i = array.length
+        }
+        i += 1
+      }
+
+      array
+    }
+  }
+
+  /**
+   * Base iterator implementation that contains basic logic of traversing the elements
+   * in the backing array.
+   *
+   * @tparam T type of elements.
+   */
+  private[collections] abstract class AbstractIterator[T] extends java.util.Iterator[T]
+  {
+    @DoNotSub private var posCounter: Int = 0
+    @DoNotSub private var stopCounter: Int = 0
+    @DoNotSub private var _remaining: Int = 0
+    private[Long2ObjectHashMap] var isPositionValid: Boolean = false
+
+    /**
+     * Position of the current element.
+     *
+     * @return position of the current element.
+     */
+    @DoNotSub protected final def position(): Int = posCounter & (valuesArray.length - 1)
+
+    /**
+     * Number of remaining elements.
+     *
+     * @return number of remaining elements.
+     */
+    @DoNotSub def remaining(): Int = _remaining
+
+    /**
+     * {@inheritDoc}
+     */
+    override def hasNext(): Boolean = _remaining > 0
+
+    /**
+     * Find the next element.
+     *
+     * @throws NoSuchElementException if no more elements.
+     */
+    protected[Long2ObjectHashMap] final def findNext(): Unit =
+    {
       if (!hasNext())
       {
         throw new NoSuchElementException()
       }
 
-      val _values = Long2ObjectHashMap.this._values
-      val mask = _values.length - 1
+      val values = Long2ObjectHashMap.this.valuesArray
+      @DoNotSub val mask = values.length - 1
 
-      var i = posCounter
-      while ({ i -= 1; i >= stopCounter }) {
-        val index = i & mask
-        if (null != _values(index)) {
+      @DoNotSub var i = posCounter - 1
+      @DoNotSub val stop = stopCounter
+      while (i >= stop)
+      {
+        @DoNotSub val index = i & mask
+        if (null != values(index))
+        {
           posCounter = i
           isPositionValid = true
           _remaining -= 1
           return
         }
+        i -= 1
       }
 
       isPositionValid = false
       throw new IllegalStateException()
     }
 
-    /** {@inheritDoc}
-      */
-    def next(): T
-
-    /** {@inheritDoc}
-      */
-    override def remove(): Unit = {
-      if (isPositionValid) {
-        val pos = position()
-        _values(pos) = null
+    /**
+     * {@inheritDoc}
+     */
+    override def remove(): Unit =
+    {
+      if (isPositionValid)
+      {
+        @DoNotSub val position = this.position()
+        valuesArray(position) = null
         _size -= 1
 
-        compactChain(pos)
+        compactChain(position)
 
         isPositionValid = false
-      } else {
+      }
+      else
+      {
         throw new IllegalStateException()
       }
     }
 
-    def reset(): Unit = {
-      _remaining = Long2ObjectHashMap.this.size
-      val _values = Long2ObjectHashMap.this._values
-      val capacity = _values.length
+    private[Long2ObjectHashMap] def reset(): Unit =
+    {
+      _remaining = Long2ObjectHashMap.this._size
+      val values = Long2ObjectHashMap.this.valuesArray
+      @DoNotSub val capacity = values.length
 
-      var i = capacity
-      if (null != _values(capacity - 1))
+      @DoNotSub var i = capacity
+      if (null != values(capacity - 1))
       {
-        i = -1
-        while ({ i += 1; i < capacity && null != _values(i) }) ()
+        i = 0
+        while (i < capacity && null != values(i))
+        {
+          i += 1
+        }
       }
 
       stopCounter = i
@@ -866,154 +1489,158 @@ class Long2ObjectHashMap[V <: Object | Null](
     }
   }
 
-  /** Iterator over values.
-    */
-  @SerialVersionUID(-410109102792377049L)
-  class ValueIterator extends AbstractIterator[V], Serializable {
-
-    /** {@inheritDoc}
-      */
-    def next(): V = {
+  /**
+   * Iterator over values.
+   */
+  final class ValueIterator extends AbstractIterator[V]
+  {
+    /**
+     * {@inheritDoc}
+     */
+    override def next(): V =
+    {
       findNext()
-
-      return unmapNullValue(_values(position()).asInstanceOf[V | Null]).asInstanceOf[V]
+      unmapNullValue(valuesArray(position()))
     }
   }
 
-  /** Iterator over keys which supports access to unboxed keys via {@link #nextLong()}.
-    */
-  @SerialVersionUID(-4905479491707153377L)
-  class KeyIterator extends AbstractIterator[java.lang.Long], Serializable {
+  /**
+   * Iterator over keys which supports access to unboxed keys via `nextLong()`.
+   */
+  final class KeyIterator extends AbstractIterator[java.lang.Long]
+  {
+    /**
+     * {@inheritDoc}
+     */
+    override def next(): java.lang.Long = nextLong()
 
-    /** {@inheritDoc}
-      */
-    def next(): java.lang.Long = {
-      return nextLong()
-    }
-
-    /** Return next key without boxing.
-      *
-      * @return
-      *   next key.
-      */
-    def nextLong(): Long = {
+    /**
+     * Return next key without boxing.
+     *
+     * @return next key.
+     */
+    def nextLong(): Long =
+    {
       findNext()
-
-      return keys(position())
+      keys(position())
     }
   }
 
-  /** Iterator over entries which supports access to unboxed keys via {@link #getLongKey()}.
-    */
-  @SerialVersionUID(2227334666048171527L)
-  class EntryIterator
-      extends AbstractIterator[java.util.Map.Entry[java.lang.Long, V]],
-        java.util.Map.Entry[java.lang.Long, V],
-        Serializable {
-
-    /** {@inheritDoc}
-      */
-    def next(): java.util.Map.Entry[java.lang.Long, V] = {
+  /**
+   * Iterator over entries which supports access to unboxed keys via `getLongKey()`.
+   */
+  final class EntryIterator
+    extends AbstractIterator[JEntry[java.lang.Long, V]]
+    with JEntry[java.lang.Long, V]
+  {
+    /**
+     * {@inheritDoc}
+     */
+    override def next(): JEntry[java.lang.Long, V] =
+    {
       findNext()
       if (shouldAvoidAllocation)
       {
-        return this
+        this
       }
-
-      return allocateDuplicateEntry()
+      else
+      {
+        allocateDuplicateEntry()
+      }
     }
 
-    private[Long2ObjectHashMap] def allocateDuplicateEntry(): java.util.Map.Entry[java.lang.Long, V] = {
-      return new MapEntry(getLongKey(), getValue())
-    }
+    private[collections] def allocateDuplicateEntry(): JEntry[java.lang.Long, V] =
+      new MapEntry(getLongKey(), getValue())
 
-    /** {@inheritDoc}
-      */
-    def getKey(): java.lang.Long = {
-      return getLongKey()
-    }
+    /**
+     * {@inheritDoc}
+     */
+    override def getKey(): java.lang.Long = getLongKey()
 
-    /** Get key without boxing.
-      *
-      * @return
-      *   key.
-      */
-    def getLongKey(): Long = {
-      return keys(position())
-    }
+    /**
+     * Get key without boxing.
+     *
+     * @return key.
+     */
+    def getLongKey(): Long = keys(position())
 
-    /** {@inheritDoc}
-      */
-    def getValue(): V = {
-      return unmapNullValue(_values(position()).asInstanceOf[V | Null]).asInstanceOf[V]
-    }
+    /**
+     * {@inheritDoc}
+     */
+    override def getValue(): V = unmapNullValue(valuesArray(position()))
 
-    /** {@inheritDoc}
-      */
-    def setValue(value: V | Null): V | Null = {
-      val newVal = mapNullValue(value).asInstanceOf[V]
-      requireNonNull(newVal, "value cannot be null")
+    /**
+     * {@inheritDoc}
+     */
+    override def setValue(value: V): V =
+    {
+      val v = mapNullValue(value.asInstanceOf[AnyRef])
+      Objects.requireNonNull(v, "value cannot be null")
 
       if (!this.isPositionValid)
       {
         throw new IllegalStateException()
       }
 
-      val pos = position()
-      val oldValue = _values(pos)
-      _values(pos) = newVal
+      @DoNotSub val pos = position()
+      val values = Long2ObjectHashMap.this.valuesArray
+      val oldValue = values(pos)
+      values(pos) = v
 
-      return oldValue.asInstanceOf[V | Null]
+      unmapNullValue(oldValue)
     }
 
-    /** An {@link java.util.Map.Entry} implementation.
-      */
-    @SerialVersionUID(-6648311124347304211L)
-    final class MapEntry(private val k: Long, private val v: V) extends java.util.Map.Entry[java.lang.Long, V], Serializable {
+    /**
+     * An `java.util.Map.Entry` implementation.
+     */
+    final class MapEntry(k: Long, v: V) extends JEntry[java.lang.Long, V]
+    {
+      /**
+       * {@inheritDoc}
+       */
+      override def getKey(): java.lang.Long = java.lang.Long.valueOf(k)
 
-      /** {@inheritDoc}
-        */
-      def getKey(): java.lang.Long = {
-        return k
-      }
+      /**
+       * {@inheritDoc}
+       */
+      override def getValue(): V = v
 
-      /** {@inheritDoc}
-        */
-      def getValue(): V = {
-        return v
-      }
+      /**
+       * {@inheritDoc}
+       */
+      override def setValue(value: V): V = Long2ObjectHashMap.this.put(k, value)
 
-      /** {@inheritDoc}
-        */
-      def setValue(value: V | Null): V | Null = {
-        return Long2ObjectHashMap.this.put(k, value)
-      }
+      /**
+       * {@inheritDoc}
+       */
+      @DoNotSub override def hashCode(): Int = java.lang.Long.hashCode(k) ^ (if (null != v) v.hashCode() else 0)
 
-      /** {@inheritDoc}
-        */
-      override def hashCode(): Int = {
-        return java.lang.Long.hashCode(getLongKey()) ^ (v.hashCode())
-      }
-
-      /** {@inheritDoc}
-        */
-      override def equals(o: Any): Boolean = {
-        if (!(o.isInstanceOf[java.util.Map.Entry[?, ?]]))
+      /**
+       * {@inheritDoc}
+       */
+      override def equals(o: Any): Boolean =
+      {
+        o match
         {
-          return false
+          case e: JEntry[_, _] =>
+            (e.getKey() != null && e.getKey().equals(k)) &&
+              ((e.getValue() == null && v == null) || e.getValue().equals(v))
+          case _ => false
         }
-
-        val e = o.asInstanceOf[java.util.Map.Entry[?, ?]]
-
-        return (e.getKey() != null && e.getKey().equals(k)) &&
-          ((e.getValue() == null && v == null) || e.getValue().equals(v))
       }
 
-      /** {@inheritDoc}
-        */
-      override def toString(): String = {
-        return k + "=" + v
-      }
+      /**
+       * {@inheritDoc}
+       */
+      override def toString(): String = k + "=" + v
     }
   }
+}
+
+/**
+ * Companion holding the static-in-Java constant.
+ */
+object Long2ObjectHashMap
+{
+  @DoNotSub private[collections] val MIN_CAPACITY: Int = 8
 }

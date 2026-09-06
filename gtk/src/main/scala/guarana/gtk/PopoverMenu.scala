@@ -5,7 +5,7 @@ import guarana.*
 import guarana.gtk.*
 import guarana.util.*
 
-opaque type PopoverMenu <: guarana.gtk.Widget  = org.gnome.gtk.PopoverMenu & guarana.gtk.Widget
+opaque type PopoverMenu <: guarana.gtk.Popover  = org.gnome.gtk.PopoverMenu & guarana.gtk.Popover
 object PopoverMenu extends VarsMap {
   val Flags: ExternalVar.Aux[PopoverMenu, java.util.Set[org.gnome.gtk.PopoverMenuFlags]] = ExternalVar[PopoverMenu, java.util.Set[org.gnome.gtk.PopoverMenuFlags]]("flags", _.getFlags(), _.setFlags(_), true)
   val MenuModel: ExternalVar.Aux[PopoverMenu, org.gnome.gio.MenuModel | Null] = ExternalVar[PopoverMenu, org.gnome.gio.MenuModel | Null]("menu-model", _.getMenuModel(), _.setMenuModel(_), true)
@@ -46,7 +46,7 @@ object PopoverMenu extends VarsMap {
     res
 
   def init(v: PopoverMenu): Unit = {
-    guarana.gtk.Widget.init(v)
+    guarana.gtk.Popover.init(v)
     connectVarsListener(v)
     
   }
@@ -68,8 +68,11 @@ object PopoverMenu extends VarsMap {
   
   def apply(
     visibleSubmenu: Opt[java.lang.String] = UnsetParam, defaultWidget: Opt[guarana.gtk.Widget] = UnsetParam, pointingTo: Opt[org.gnome.gdk.Rectangle] = UnsetParam, cssName: Opt[java.lang.String] = UnsetParam, heightRequest: Opt[Int] = UnsetParam, widthRequest: Opt[Int] = UnsetParam, accessibleRole: Opt[org.gnome.gtk.AccessibleRole] = UnsetParam,
+    autohide: Opt[Binding[Boolean]] = UnsetParam,
     canFocus: Opt[Binding[Boolean]] = UnsetParam,
     canTarget: Opt[Binding[Boolean]] = UnsetParam,
+    cascadePopdown: Opt[Binding[Boolean]] = UnsetParam,
+    child: Opt[Binding[guarana.gtk.Widget | Null]] = UnsetParam,
     childVisible: Opt[Binding[Boolean]] = UnsetParam,
     cssClasses: Opt[Binding[Array[String]]] = UnsetParam,
     cursor: Opt[Binding[org.gnome.gdk.Cursor | Null]] = UnsetParam,
@@ -81,6 +84,7 @@ object PopoverMenu extends VarsMap {
     fontMap: Opt[Binding[org.gnome.pango.FontMap | Null]] = UnsetParam,
     fontOptions: Opt[Binding[org.freedesktop.cairo.FontOptions | Null]] = UnsetParam,
     halign: Opt[Binding[org.gnome.gtk.Align]] = UnsetParam,
+    hasArrow: Opt[Binding[Boolean]] = UnsetParam,
     hasTooltip: Opt[Binding[Boolean]] = UnsetParam,
     hexpand: Opt[Binding[Boolean]] = UnsetParam,
     hexpandSet: Opt[Binding[Boolean]] = UnsetParam,
@@ -91,9 +95,12 @@ object PopoverMenu extends VarsMap {
     marginStart: Opt[Binding[Int]] = UnsetParam,
     marginTop: Opt[Binding[Int]] = UnsetParam,
     menuModel: Opt[Binding[org.gnome.gio.MenuModel | Null]] = UnsetParam,
+    mnemonicsVisible: Opt[Binding[Boolean]] = UnsetParam,
     name: Opt[Binding[java.lang.String]] = UnsetParam,
     opacity: Opt[Binding[Double]] = UnsetParam,
     overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    parent: Opt[Binding[Widget | Null]] = UnsetParam,
+    position: Opt[Binding[org.gnome.gtk.PositionType]] = UnsetParam,
     receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
     sensitive: Opt[Binding[Boolean]] = UnsetParam,
     tooltipMarkup: Opt[Binding[java.lang.String | Null]] = UnsetParam,
@@ -105,8 +112,11 @@ object PopoverMenu extends VarsMap {
   ): VarContextAction[PopoverMenu] = {
     val res = uninitialized(visibleSubmenu, defaultWidget, pointingTo, cssName, heightRequest, widthRequest, accessibleRole)
     guarana.gtk.PopoverMenu.init(res)
+    ifSet(autohide, res.autohide := _)
     ifSet(canFocus, res.canFocus := _)
     ifSet(canTarget, res.canTarget := _)
+    ifSet(cascadePopdown, res.cascadePopdown := _)
+    ifSet(child, res.child := _)
     ifSet(childVisible, res.childVisible := _)
     ifSet(cssClasses, res.cssClasses := _)
     ifSet(cursor, res.cursor := _)
@@ -118,6 +128,7 @@ object PopoverMenu extends VarsMap {
     ifSet(fontMap, res.fontMap := _)
     ifSet(fontOptions, res.fontOptions := _)
     ifSet(halign, res.halign := _)
+    ifSet(hasArrow, res.hasArrow := _)
     ifSet(hasTooltip, res.hasTooltip := _)
     ifSet(hexpand, res.hexpand := _)
     ifSet(hexpandSet, res.hexpandSet := _)
@@ -128,9 +139,12 @@ object PopoverMenu extends VarsMap {
     ifSet(marginStart, res.marginStart := _)
     ifSet(marginTop, res.marginTop := _)
     ifSet(menuModel, res.menuModel := _)
+    ifSet(mnemonicsVisible, res.mnemonicsVisible := _)
     ifSet(name, res.name := _)
     ifSet(opacity, res.opacity := _)
     ifSet(overflow, res.overflow := _)
+    ifSet(parent, res.parent := _)
+    ifSet(position, res.position := _)
     ifSet(receivesDefault, res.receivesDefault := _)
     ifSet(sensitive, res.sensitive := _)
     ifSet(tooltipMarkup, res.tooltipMarkup := _)

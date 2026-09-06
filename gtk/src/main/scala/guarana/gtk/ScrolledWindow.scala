@@ -122,6 +122,7 @@ object ScrolledWindow extends VarsMap {
     opacity: Opt[Binding[Double]] = UnsetParam,
     overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
     overlayScrolling: Opt[Binding[Boolean]] = UnsetParam,
+    parent: Opt[Binding[Widget | Null]] = UnsetParam,
     placement: Opt[Binding[org.gnome.gtk.CornerType]] = UnsetParam,
     propagateNaturalHeight: Opt[Binding[Boolean]] = UnsetParam,
     propagateNaturalWidth: Opt[Binding[Boolean]] = UnsetParam,
@@ -168,6 +169,7 @@ object ScrolledWindow extends VarsMap {
     ifSet(opacity, res.opacity := _)
     ifSet(overflow, res.overflow := _)
     ifSet(overlayScrolling, res.overlayScrolling := _)
+    ifSet(parent, res.parent := _)
     ifSet(placement, res.placement := _)
     ifSet(propagateNaturalHeight, res.propagateNaturalHeight := _)
     ifSet(propagateNaturalWidth, res.propagateNaturalWidth := _)

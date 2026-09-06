@@ -117,6 +117,7 @@ object PageSetupUnixDialog extends VarsMap {
     opacity: Opt[Binding[Double]] = UnsetParam,
     overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
     pageSetup: Opt[Binding[org.gnome.gtk.PageSetup]] = UnsetParam,
+    parent: Opt[Binding[Widget | Null]] = UnsetParam,
     printSettings: Opt[Binding[org.gnome.gtk.PrintSettings | Null]] = UnsetParam,
     receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
     resizable: Opt[Binding[Boolean]] = UnsetParam,
@@ -173,6 +174,7 @@ object PageSetupUnixDialog extends VarsMap {
     ifSet(opacity, res.opacity := _)
     ifSet(overflow, res.overflow := _)
     ifSet(pageSetup, res.pageSetup := _)
+    ifSet(parent, res.parent := _)
     ifSet(printSettings, res.printSettings := _)
     ifSet(receivesDefault, res.receivesDefault := _)
     ifSet(resizable, res.resizable := _)

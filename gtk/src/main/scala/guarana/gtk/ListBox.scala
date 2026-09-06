@@ -114,6 +114,7 @@ object ListBox extends VarsMap {
     nodes: Opt[Binding[Seq[Widget]]] = UnsetParam,
     opacity: Opt[Binding[Double]] = UnsetParam,
     overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    parent: Opt[Binding[Widget | Null]] = UnsetParam,
     receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
     selectionMode: Opt[Binding[org.gnome.gtk.SelectionMode]] = UnsetParam,
     sensitive: Opt[Binding[Boolean]] = UnsetParam,
@@ -155,6 +156,7 @@ object ListBox extends VarsMap {
     ifSet(nodes, res.nodes := _)
     ifSet(opacity, res.opacity := _)
     ifSet(overflow, res.overflow := _)
+    ifSet(parent, res.parent := _)
     ifSet(receivesDefault, res.receivesDefault := _)
     ifSet(selectionMode, res.selectionMode := _)
     ifSet(sensitive, res.sensitive := _)

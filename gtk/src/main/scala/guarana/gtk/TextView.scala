@@ -159,6 +159,7 @@ object TextView extends VarsMap, internal.TextViewSupport {
     opacity: Opt[Binding[Double]] = UnsetParam,
     overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
     overwrite: Opt[Binding[Boolean]] = UnsetParam,
+    parent: Opt[Binding[Widget | Null]] = UnsetParam,
     pixelsAboveLines: Opt[Binding[Int]] = UnsetParam,
     pixelsBelowLines: Opt[Binding[Int]] = UnsetParam,
     pixelsInsideWrap: Opt[Binding[Int]] = UnsetParam,
@@ -216,6 +217,7 @@ object TextView extends VarsMap, internal.TextViewSupport {
     ifSet(opacity, res.opacity := _)
     ifSet(overflow, res.overflow := _)
     ifSet(overwrite, res.overwrite := _)
+    ifSet(parent, res.parent := _)
     ifSet(pixelsAboveLines, res.pixelsAboveLines := _)
     ifSet(pixelsBelowLines, res.pixelsBelowLines := _)
     ifSet(pixelsInsideWrap, res.pixelsInsideWrap := _)

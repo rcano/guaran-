@@ -112,6 +112,7 @@ object TabOverview extends VarsMap {
     opacity: Opt[Binding[Double]] = UnsetParam,
     open: Opt[Binding[Boolean]] = UnsetParam,
     overflow: Opt[Binding[org.gnome.gtk.Overflow]] = UnsetParam,
+    parent: Opt[Binding[Widget | Null]] = UnsetParam,
     receivesDefault: Opt[Binding[Boolean]] = UnsetParam,
     secondaryMenu: Opt[Binding[org.gnome.gio.MenuModel | Null]] = UnsetParam,
     sensitive: Opt[Binding[Boolean]] = UnsetParam,
@@ -157,6 +158,7 @@ object TabOverview extends VarsMap {
     ifSet(opacity, res.opacity := _)
     ifSet(open, res.open := _)
     ifSet(overflow, res.overflow := _)
+    ifSet(parent, res.parent := _)
     ifSet(receivesDefault, res.receivesDefault := _)
     ifSet(secondaryMenu, res.secondaryMenu := _)
     ifSet(sensitive, res.sensitive := _)

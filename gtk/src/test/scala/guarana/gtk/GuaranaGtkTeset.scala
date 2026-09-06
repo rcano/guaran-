@@ -5,6 +5,7 @@ import org.gnome.gtk.{Application, Orientation}
 import scala.util.chaining.*
 
 import Binding.dyn
+import org.gnome.gtk.StringList
 
 object GuaranaGtkTeset {
   def main(args: Array[String]): Unit = {
@@ -26,7 +27,8 @@ object GuaranaGtkTeset {
         }
       )
 
-      val b = Button()
+      val largeDropDown = DropDown()
+      largeDropDown.model := StringList.builder().setStrings(Array.tabulate(2000)(i => s"Item $i")).build()
 
       val window = ApplicationWindow(
         application = app,
@@ -38,7 +40,8 @@ object GuaranaGtkTeset {
             Button(child = Label("a button")).tap(_.unwrap.setLabel("and a label?")),
             greeterLabel,
             nameTextInput,
-            Label(text = "You wrote something!", visible = dyn { nameTextInput.text().nonEmpty})
+            Label(text = "You wrote something!", visible = dyn { nameTextInput.text().nonEmpty}),
+            largeDropDown
           )
         ),
         visible = true,
