@@ -24,7 +24,7 @@ inThisBuild(
   ) ++ addCommandAlias("enableDebug", """set javaOptions += "-agentlib:jdwp=transport=dt_socket,server=y,address=5555,suspend=y"""")
 )
 
-lazy val guaraná = Project(id = "guarana", base = file(".")).aggregate(coreJvm, swing, qt, apricot, apricotVk)
+lazy val guaraná = Project(id = "guarana", base = file(".")).aggregate(coreJvm, swing, qt, gtk, apricot, apricotVk)
 
 lazy val scribeVersion = "3.18.0"
 
